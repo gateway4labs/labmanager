@@ -1,0 +1,11 @@
+= INSTALLATION =
+
+Download easy_install: http://pypi.python.org/pypi/setuptools#downloads
+
+Then execute:
+
+easy_install pip
+pip install virtualenv
+virtualenv env
+. env/bin/activate
+pip install flask
