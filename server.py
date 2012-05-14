@@ -29,5 +29,9 @@ def requires_auth(f):
 def hello():
     return "Hello World!"
 
+@app.route("/users/<user>")
+def users(user = None):
+    return "Hi, %s" % user
+
 if __name__ == "__main__":
     app.run(debug=DEBUG)
