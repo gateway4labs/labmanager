@@ -27,11 +27,8 @@ def requires_auth(f):
 @app.route("/")
 @requires_auth
 def hello():
-    return "Hi pablo!"
+    return "Hi there!"
 
-@app.route("/users/<user>")
-def users(user = None):
-    return "Hi, %s" % user
 
 if __name__ == "__main__":
     app.run(debug=DEBUG)
