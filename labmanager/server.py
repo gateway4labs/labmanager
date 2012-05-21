@@ -12,13 +12,13 @@ from functools import wraps
 # 
 # Flask imports
 # 
-from flask import Flask, Response, render_template, request, g
+from flask import Flask, Response, render_template, request, g, session, redirect, url_for
 
 # 
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models import LMS
+from labmanager.models import LMS, LabManagerUser
 
 app = Flask(__name__)
 
@@ -81,9 +81,38 @@ def requests():
 # 
 # 
 
+def requires_session(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        logged_in = session.get('logged_in', False)
+        if not logged_in:
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/lms4labs/admin/login/", methods = ['GET', 'POST'])
+def admin_login():
+    
+    login_error = False
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        hash_password = hashlib.new("sha", password).hexdigest()
+        user = db_session.query(LabManagerUser).filter_by(login = username, password = hash_password).first()
+
+        if user is not None:
+            return "epa"
+
+        login_error = True
+
+    return render_template("labmanager_admin/login.html", login_error = login_error )
+
 @app.route("/lms4labs/admin/")
+@requires_session
 def admin_index():
-    return render_template("labmanager_admin/index.html")
+    return "hey there"
 
 
 @app.route("/")

@@ -33,13 +33,21 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS
+    from labmanager.models import LMS, LabManagerUser
 
     init_db(drop = True)
     password = hashlib.new("sha", "password").hexdigest()
+
     lms1 = LMS("uned",   "Universidad Nacional de Educación a Distancia", password)
     lms2 = LMS("deusto", "Universidad de Deusto", password)
+
+    user1 = LabManagerUser("porduna", "Pablo Orduña", password)
+    user2 = LabManagerUser("elio", "Elio Sancristobal", password)
+
     db_session.add(lms1)
     db_session.add(lms2)
+    db_session.add(user1)
+    db_session.add(user2)
+
     db_session.commit()
 

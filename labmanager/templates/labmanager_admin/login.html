@@ -11,18 +11,24 @@
         </div>
         
         <div class="row span4 offset3 well">
-            <form class="form-horizontal">
+            {% if login_error %}
+            <div class="alert alert-error" align="center">
+                <b>Invalid username or password!</b>
+            </div>
+            {% endif %}
+
+            <form class="form-horizontal" action="." method="POST">
                 <fieldset>
                     <div class="control-group">
                         <label class="control-label">Username</label>
                         <div class="controls">
-                            <input type="text" placeholder="Username"/>
+                            <input type="text" placeholder="Username" name="username" />
                         </div>
                     </div>
                     <div class="control-group">
                         <label class="control-label">Password</label>
                         <div class="controls">
-                            <input type="password" placeholder="Password"/>
+                            <input type="password" placeholder="Password" name="password"/>
                         </div>
                     </div>
                     <div class="form-actions">
