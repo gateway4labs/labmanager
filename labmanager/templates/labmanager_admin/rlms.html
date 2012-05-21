@@ -5,11 +5,12 @@
         <li class="active"> RLMS </li>
     </ul> 
 
+    <form action="." method="POST">
     {% if types|length > 0 %}
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>#</th>
+                <th>Selected</th>
                 <th>RLMS Type</th>
                 <th>Versions</th>
             </tr>
@@ -17,8 +18,7 @@
         <tbody>
         {% for type in types %}
             <tr>
-
-                <td>{{ type.id }}</td>
+                <td><label class="checkbox"><input type="checkbox" name="{{ type.id }}"></label></td>
                 <td>{{ type.name }}</td>
                 <td><a href="{{ url_for('admin_rlms_versions', rlmstype = type.name) }}" class="btn">List</a></td>
             </tr>
@@ -31,6 +31,11 @@
     </div>
     {% endif %}
 
+    <div class="form-actions" align="center">
+        {% if types|length > 0 %}<button class="btn btn-danger">Delete</button>{% endif %}
+        <button class="btn btn-primary">Add</button>
+    </div>
+    </form>
 </div>
 
 

@@ -18,7 +18,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models import LMS, LabManagerUser, RLMSType
+from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
 
 app = Flask(__name__)
 
@@ -90,6 +90,21 @@ def requires_session(f):
         return f(*args, **kwargs)
     return decorated
 
+def deletes_elements(table):
+    def real_wrapper(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if request.method == 'POST':
+                for current_id in request.form:
+                    element = db_session.query(table).filter_by(id = current_id).first()
+                    if element is not None:
+                        db_session.delete(element)
+                db_session.commit()
+
+            return f(*args, **kwargs)
+        return decorated
+    return real_wrapper
+
 @app.route("/lms4labs/admin/login", methods = ['GET', 'POST'])
 def admin_login():
     login_error = False
@@ -132,14 +147,16 @@ def admin_index():
 def admin_lms():
     return render_template("labmanager_admin/lms.html")
 
-@app.route("/lms4labs/admin/rlms/")
+@app.route("/lms4labs/admin/rlms/", methods = ('GET','POST'))
 @requires_session
+@deletes_elements(RLMSType)
 def admin_rlms():
     types = db_session.query(RLMSType).all()
     return render_template("labmanager_admin/rlms.html", types = types)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/")
+@app.route("/lms4labs/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
 @requires_session
+@deletes_elements(RLMSTypeVersion)
 def admin_rlms_versions(rlmstype):
     rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
     if rlms_type is not None:
@@ -147,8 +164,9 @@ def admin_rlms_versions(rlmstype):
 
     return render_template("labmanager_admin/rlms_errors.html")
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/")
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
 @requires_session
+@deletes_elements(RLMS)
 def admin_rlms_rlms(rlmstype, rlmsversion):
     rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
     if rlms_type is not None:

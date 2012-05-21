@@ -9,11 +9,12 @@
         <li class="active"> {{ name }} </li>
     </ul> 
 
+    <form action="." method="POST">
     {% if versions|length > 0 %}
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>#</th>
+                <th>Selected</th>
                 <th>RLMS Type</th>
                 <th>Version</th>
                 <th>RLMSs</th>
@@ -22,7 +23,7 @@
         <tbody>
         {% for version in versions %}
             <tr>
-                <td>{{ version.id }}</td>
+                <td><label class="checkbox"><input type="checkbox" name="{{ version.id }}"></label></td>
                 <td>{{ version.rlms_type.name }}</td>
                 <td>{{ version.version }}</td>
                 <td><a href="{{ url_for('admin_rlms_rlms', rlmstype = version.rlms_type.name, rlmsversion = version.version) }}" class="btn">List</a></td>
@@ -35,6 +36,12 @@
         No version found
     </div>
     {% endif %}
+    <div class="form-actions" align="center">
+        {% if versions|length > 0 %}<button class="btn btn-danger">Delete</button>{% endif %}
+        <button class="btn btn-primary">Add</button>
+        <a href="{{ url_for('admin_rlms') }}" class="btn">Cancel</a>
+    </div>
+    </form>
 </div>
 
 
