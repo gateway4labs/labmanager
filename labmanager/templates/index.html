@@ -17,8 +17,10 @@ function perform() {
     xmlhttp.open("POST", "{{ url_for('requests')  }}", true);
     xmlhttp.setRequestHeader("Content-Type", "application/json");
     var request = {
-        "foo" : "bar",
-        "courses" : [1,2,3],
+        "courses"      : [1,2,3],
+        "request"      : "foo bar",
+        "author"       : "porduna",
+        "general-role" : "admin",
     };
     var strRequest = JSON.stringify(request);
     xmlhttp.send(strRequest);

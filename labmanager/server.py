@@ -26,6 +26,15 @@ app = Flask(__name__)
 def shutdown_session(exception = None):
     db_session.remove()
 
+###############################################################################
+# 
+# 
+#
+# I N T E R A C T I O N     W I T H     L M S 
+#
+# 
+# 
+
 # 
 # LMS authentication
 # 
@@ -47,12 +56,13 @@ def requires_lms_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-# 
-# Requests method
-# 
+
 @app.route("/lms4labs/requests/", methods = ('GET', 'POST'))
 @requires_lms_auth
 def requests():
+    """SCORM packages will perform requests to this method, which will 
+    interact with the permitted laboratories"""
+
     courses         = request.json['courses']
     request_payload = request.json['request']
     general_role    = request.json['general-role']
@@ -60,6 +70,20 @@ def requests():
 
     return "Hi lms %s" % g.lms
 
+
+
+###############################################################################
+# 
+# 
+# 
+# I N T E R A C T I O N     W I T H     L A B M A N A G E R   A D M I N  
+# 
+# 
+# 
+
+@app.route("/lms4labs/admin/")
+def admin_index():
+    return render_template("labmanager_admin/index.html")
 
 
 @app.route("/")
