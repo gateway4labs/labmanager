@@ -1,3 +1,4 @@
+#-*-*- encoding: utf-8 -*-*-
 import hashlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -36,8 +37,8 @@ def add_sample_users():
 
     init_db(drop = True)
     password = hashlib.new("sha", "password").hexdigest()
-    lms1 = LMS("uned",   password)
-    lms2 = LMS("deusto", password)
+    lms1 = LMS("uned",   "Universidad Nacional de Educación a Distancia", password)
+    lms2 = LMS("deusto", "Universidad de Deusto", password)
     db_session.add(lms1)
     db_session.add(lms2)
     db_session.commit()

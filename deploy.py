@@ -83,6 +83,7 @@ if __name__ == '__main__':
         create_db()
 
     init_db()
+    init_db(drop=True)
 
     if options.add_sample_users:
         add_sample_users()

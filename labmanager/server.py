@@ -53,11 +53,17 @@ def requires_lms_auth(f):
 @app.route("/lms4labs/requests/", methods = ('GET', 'POST'))
 @requires_lms_auth
 def requests():
-    courses = request.json['courses']
+    courses      = request.json['courses']
+    request      = request.json['request']
+    general_role = request.json['general-role']
+    author       = request.json['author']
+
     return "Hi lms %s" % g.lms
 
+
+
 @app.route("/")
-def hello():
+def index():
     return render_template("index.html")
 
 
