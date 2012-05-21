@@ -96,15 +96,18 @@ def admin_login():
     login_error = False
 
     if request.method == 'POST':
-        username = request.form['username']
+        login    = request.form['username']
         password = request.form['password']
 
         hash_password = hashlib.new("sha", password).hexdigest()
-        user = db_session.query(LabManagerUser).filter_by(login = username, password = hash_password).first()
+        user = db_session.query(LabManagerUser).filter_by(login = login, password = hash_password).first()
 
         if user is not None:
             session['logged_in'] = True
-            return "epa"
+            session['user_id']   = user.id
+            session['user_name'] = user.name
+            session['login']     = login
+            return redirect(url_for('admin_index'))
 
         login_error = True
 
@@ -119,7 +122,7 @@ def admin_logout():
 @app.route("/lms4labs/admin/")
 @requires_session
 def admin_index():
-    return "hey there"
+    return render_template("labmanager_admin/index.html")
 
 
 @app.route("/")
