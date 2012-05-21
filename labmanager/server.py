@@ -124,6 +124,16 @@ def admin_logout():
 def admin_index():
     return render_template("labmanager_admin/index.html")
 
+@app.route("/lms4labs/admin/lms")
+@requires_session
+def admin_lms():
+    return render_template("labmanager_admin/lms.html")
+
+@app.route("/lms4labs/admin/rlms")
+@requires_session
+def admin_rlms():
+    return render_template("labmanager_admin/rlms.html")
+
 ###############################################################################
 # 
 # 

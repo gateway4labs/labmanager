@@ -11,9 +11,9 @@
         <a class="brand" href="#">Lab manager</a>
         <div class="nav-collapse">
           <ul class="nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">Link1</a></li>
-            <li><a href="#">Link2</a></li>
+            <li {% if request.url.startswith(url_for('admin_index')) %} class="active" {% endif %}><a href="#">Home</a></li>
+            <li><a href="{{ url_for('admin_lms')  }}">LMSs</a></li>
+            <li><a href="{{ url_for('admin_rlms') }}">RLMSs</a></li>
           </ul>
           <ul class="nav pull-right">
             <li class="divider-vertical"></li>
