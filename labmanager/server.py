@@ -143,16 +143,20 @@ def admin_rlms(rlmstype = None, rlmsversion = None):
     rlmss    = []
     name     = None
     version  = None
+    error_code = None
 
     if rlmstype is None:
         types = db_session.query(RLMSType).all()
+        listing = 'type'
 
     elif rlmsversion is None:
+        listing = 'version'
         rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
         if rlms_type is not None:
             name = rlms_type.name
             versions = rlms_type.versions
-
+        else:
+            error_code = 'not-found'
     else:
         rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
         if rlms_type is not None:
@@ -161,8 +165,14 @@ def admin_rlms(rlmstype = None, rlmsversion = None):
             if rlms_version is not None:
                 version = rlms_version.version
                 rlmss = rlms_version.rlms
+            else:
+                error_code = 'not-found'
+        else:
+            error_code = 'not-found'
 
-    return render_template("labmanager_admin/rlms.html", types = types, versions = versions, rlmss = rlmss, name = name, version = version)
+        listing = 'rlms'
+
+    return render_template("labmanager_admin/rlms.html", types = types, versions = versions, rlmss = rlmss, name = name, version = version, listing = listing, error_code = error_code)
 
 
 
