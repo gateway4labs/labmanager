@@ -86,13 +86,12 @@ def requires_session(f):
     def decorated(*args, **kwargs):
         logged_in = session.get('logged_in', False)
         if not logged_in:
-            return redirect(url_for('admin_login'))
+            return redirect(url_for('admin_login', next = request.url))
         return f(*args, **kwargs)
     return decorated
 
 @app.route("/lms4labs/admin/login", methods = ['GET', 'POST'])
 def admin_login():
-    
     login_error = False
 
     if request.method == 'POST':
@@ -107,11 +106,15 @@ def admin_login():
             session['user_id']   = user.id
             session['user_name'] = user.name
             session['login']     = login
+
+            next = request.args.get('next')
+            if next is not None and not next.startswith(request.base_url) and next != '':
+                return redirect(next)
             return redirect(url_for('admin_index'))
 
         login_error = True
 
-    return render_template("labmanager_admin/login.html", login_error = login_error )
+    return render_template("labmanager_admin/login.html", login_error = login_error, next = request.args.get('next','') )
 
 @app.route("/lms4labs/admin/logout", methods = ['GET', 'POST'])
 def admin_logout():

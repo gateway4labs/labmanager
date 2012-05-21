@@ -1,4 +1,6 @@
 {% include "labmanager_admin/header.html" %}
+</head>
+<body onload="javascript:document.getElementById('username-input').focus();">
     <div class="container">
         <div class="row">
             <div class="hero-unit" align="center">
@@ -16,12 +18,12 @@
             </div>
             {% endif %}
 
-            <form class="form-horizontal" action="{{ url_for('admin_login') }}" method="POST">
+            <form class="form-horizontal" action="{{ url_for('admin_login', next = next) }}" method="POST">
                 <fieldset>
                     <div class="control-group">
                         <label class="control-label">Username</label>
                         <div class="controls">
-                            <input type="text" placeholder="Username" name="username" />
+                            <input type="text" placeholder="Username" name="username" id="username-input" />
                         </div>
                     </div>
                     <div class="control-group">

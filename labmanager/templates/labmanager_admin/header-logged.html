@@ -1,5 +1,7 @@
 {% include "labmanager_admin/header.html" %}
+</head>
 
+<body>
   <div class="navbar">
     <div class="navbar-inner">
       <div class="container">
@@ -11,9 +13,9 @@
         <a class="brand" href="#">Lab manager</a>
         <div class="nav-collapse">
           <ul class="nav">
-            <li {% if request.url.startswith(url_for('admin_index')) %} class="active" {% endif %}><a href="#">Home</a></li>
-            <li><a href="{{ url_for('admin_lms')  }}">LMSs</a></li>
-            <li><a href="{{ url_for('admin_rlms') }}">RLMSs</a></li>
+            <li {% if request.path == url_for('admin_index') %} class="active" {% endif %}><a href="{{ url_for('admin_index') }}">Home</a></li>
+            <li {% if request.path.startswith(url_for('admin_lms')) %}   class="active" {% endif %}><a href="{{ url_for('admin_lms')   }}"  >LMSs</a></li>
+            <li {% if request.path.startswith(url_for('admin_rlms')) %}  class="active" {% endif %}><a href="{{ url_for('admin_rlms')  }}" >RLMSs</a></li>
           </ul>
           <ul class="nav pull-right">
             <li class="divider-vertical"></li>
