@@ -18,7 +18,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models import LMS, LabManagerUser
+from labmanager.models import LMS, LabManagerUser, RLMSType
 
 app = Flask(__name__)
 
@@ -133,9 +133,38 @@ def admin_lms():
     return render_template("labmanager_admin/lms.html")
 
 @app.route("/lms4labs/admin/rlms")
+@app.route("/lms4labs/admin/rlms/<rlmstype>")
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>")
 @requires_session
-def admin_rlms():
-    return render_template("labmanager_admin/rlms.html")
+def admin_rlms(rlmstype = None, rlmsversion = None):
+    
+    types    = []
+    versions = []
+    rlmss    = []
+    name     = None
+    version  = None
+
+    if rlmstype is None:
+        types = db_session.query(RLMSType).all()
+
+    elif rlmsversion is None:
+        rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
+        if rlms_type is not None:
+            name = rlms_type.name
+            versions = rlms_type.versions
+
+    else:
+        rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
+        if rlms_type is not None:
+            name = rlms_type.name
+            rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
+            if rlms_version is not None:
+                version = rlms_version.version
+                rlmss = rlms_version.rlms
+
+    return render_template("labmanager_admin/rlms.html", types = types, versions = versions, rlmss = rlmss, name = name, version = version)
+
+
 
 ###############################################################################
 # 

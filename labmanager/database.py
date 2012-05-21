@@ -33,21 +33,41 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser
+    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
 
     init_db(drop = True)
-    password = hashlib.new("sha", "password").hexdigest()
+    password = hashlib.new('sha', 'password').hexdigest()
 
-    lms1 = LMS("uned",   "Universidad Nacional de Educación a Distancia", password)
-    lms2 = LMS("deusto", "Universidad de Deusto", password)
+    lms1 = LMS('uned',   'Universidad Nacional de Educación a Distancia', password)
+    lms2 = LMS('deusto', 'Universidad de Deusto', password)
 
-    user1 = LabManagerUser("porduna", "Pablo Orduña", password)
-    user2 = LabManagerUser("elio", "Elio Sancristobal", password)
+    user1 = LabManagerUser('porduna', 'Pablo Orduña', password)
+    user2 = LabManagerUser('elio', 'Elio Sancristobal', password)
 
     db_session.add(lms1)
     db_session.add(lms2)
     db_session.add(user1)
     db_session.add(user2)
+
+    weblab_deusto = RLMSType('WebLab-Deusto')
+    ilab          = RLMSType('iLab')
+
+    weblab_deusto_4_0 = RLMSTypeVersion(weblab_deusto, '4.0')
+    weblab_deusto_4_5 = RLMSTypeVersion(weblab_deusto, '4.5')
+
+    ilab_4_0 = RLMSTypeVersion(ilab, '4.5')
+
+    weblab_deusto_instance = RLMS(name = "WebLab-Deusto at Deusto", location = "Deusto", rlms_version = weblab_deusto_4_0, configuration = "")
+
+    ilab_instance          = RLMS(name = "iLab MIT",                location = "MIT",    rlms_version = ilab_4_0, configuration = "")
+
+    db_session.add(weblab_deusto)
+    db_session.add(ilab)
+    db_session.add(weblab_deusto_4_0)
+    db_session.add(weblab_deusto_4_5)
+    db_session.add(ilab_4_0)
+    db_session.add(weblab_deusto_instance)
+    db_session.add(ilab_instance)
 
     db_session.commit()
 

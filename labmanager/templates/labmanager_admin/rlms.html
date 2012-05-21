@@ -1,5 +1,101 @@
 {% include "labmanager_admin/header-logged.html" %}
 
-RLMS...
+<div class="span10 offset1">
+
+    {% if name and not version %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li class="active"> {{ name }} </li>
+    </ul> 
+    {% endif %}
+    
+    {% if name and version %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms', rlmstype = name) }}">{{ name }}</a> <span class="divider">/</span>
+        </li>
+        <li class="active"> {{ version }} </li>
+    </ul> 
+    {% endif %}
+
+
+    {% if types|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>RLMS Type</th>
+                <th>Versions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for type in types %}
+            <a href="http://www.google.com/">
+            <tr>
+
+                <td>{{ type.id }}</td>
+                <td>{{ type.name }}</td>
+                <td><a href="{{ url_for('admin_rlms', rlmstype = type.name) }}" class="btn">List</a></td>
+            </tr>
+            </a>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if versions|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>RLMS Type</th>
+                <th>Version</th>
+                <th>RLMSs</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for version in versions %}
+            <tr>
+                <td>{{ version.id }}</td>
+                <td>{{ version.rlms_type.name }}</td>
+                <td>{{ version.version }}</td>
+                <td><a href="{{ url_for('admin_rlms', rlmstype = version.rlms_type.name, rlmsversion = version.version) }}" class="btn">List</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if rlmss|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>RLMS Type</th>
+                <th>Version</th>
+                <th>Name</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for rlms in rlmss %}
+            <tr>
+                <td>{{ rlms.id }} </td>
+                <td>{{ rlms.rlms_version.rlms_type.name }}</td>
+                <td>{{ rlms.rlms_version.version }}</td>
+                <td>{{ rlms.name }}</td>
+                <td>{{ rlms.location }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
 
 {% include "labmanager_admin/footer.html" %}
