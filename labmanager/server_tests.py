@@ -38,9 +38,13 @@ class FlaskrTestCase(unittest.TestCase):
         """Start with a blank database."""
 
         rv = self.app.post('/lms4labs/requests/', data = json.dumps({
-            "courses" : [1,2,3]
+            'courses'      : [1,2,3],
+            'request'      : "the payload",
+            'general-role' : "admin",
+            'author'       : "pablo"
         }), headers = self.headers, content_type = "application/json")
 
+        assert 'Hi lms' in rv.data
 
 if __name__ == '__main__':
     unittest.main()

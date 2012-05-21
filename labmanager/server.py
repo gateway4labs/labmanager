@@ -31,7 +31,7 @@ def shutdown_session(exception = None):
 # 
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
-    lms = db_session.query(LMS).filter_by(name = lmsname, password = hash_password).first()
+    lms = db_session.query(LMS).filter_by(login = lmsname, password = hash_password).first()
     g.lms = lmsname
     return lms is not None
 
@@ -53,10 +53,10 @@ def requires_lms_auth(f):
 @app.route("/lms4labs/requests/", methods = ('GET', 'POST'))
 @requires_lms_auth
 def requests():
-    courses      = request.json['courses']
-    request      = request.json['request']
-    general_role = request.json['general-role']
-    author       = request.json['author']
+    courses         = request.json['courses']
+    request_payload = request.json['request']
+    general_role    = request.json['general-role']
+    author          = request.json['author']
 
     return "Hi lms %s" % g.lms
 
