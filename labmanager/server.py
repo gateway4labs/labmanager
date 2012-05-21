@@ -108,7 +108,7 @@ def admin_login():
             session['login']     = login
 
             next = request.args.get('next')
-            if next is not None and not next.startswith(request.base_url) and next != '':
+            if next is not None and next.startswith(request.url_root) and next != '':
                 return redirect(next)
             return redirect(url_for('admin_index'))
 
