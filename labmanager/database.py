@@ -1,3 +1,4 @@
+import hashlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -21,10 +22,23 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
-def init_db():
+def init_db(drop = False):
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
     import labmanager.models
+    if drop:
+        Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+
+def add_sample_users():
+    from labmanager.models import LMS
+
+    init_db(drop = True)
+    password = hashlib.new("sha", "password").hexdigest()
+    lms1 = LMS("uned",   password)
+    lms2 = LMS("deusto", password)
+    db_session.add(lms1)
+    db_session.add(lms2)
+    db_session.commit()
 

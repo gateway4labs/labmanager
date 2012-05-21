@@ -22,12 +22,13 @@ from labmanager.models import LMS
 
 app = Flask(__name__)
 
-DEBUG = True
-
 @app.teardown_request
 def shutdown_session(exception = None):
     db_session.remove()
 
+# 
+# LMS authentication
+# 
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
     lms = db_session.query(LMS).filter_by(name = lmsname, password = hash_password).first()
@@ -46,22 +47,13 @@ def requires_lms_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-def requires_json(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        try:
-            g.json_data = json.loads(request.data)
-        except:
-            return Response('Could not parse required JSON request', 400)
-        return f(*args, **kwargs)
-    return decorated
-
-
+# 
+# Requests method
+# 
 @app.route("/lms4labs/requests/", methods = ('GET', 'POST'))
 @requires_lms_auth
-@requires_json
 def requests():
-    courses = g.json_data['courses']
+    courses = request.json['courses']
     return "Hi lms %s" % g.lms
 
 @app.route("/")
@@ -70,4 +62,5 @@ def hello():
 
 
 if __name__ == "__main__":
+    DEBUG = True
     app.run(debug=DEBUG)

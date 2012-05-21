@@ -1,4 +1,3 @@
-import hashlib
 import getpass
 from optparse import OptionParser
 
@@ -14,8 +13,7 @@ except:
     USE_PYMYSQL = False
     import MySQLdb as dbi
 
-from labmanager.database import init_db, db_session
-from labmanager.models import LMS
+from labmanager.database import init_db, db_session, add_sample_users
 
 ROOT_USERNAME = None
 ROOT_PASSWORD = None
@@ -63,17 +61,6 @@ def create_db():
     cursor.execute("CREATE DATABASE %s" % DBNAME)
     connection.commit()
     connection.close()
-
-def add_sample_users():
-    password = hashlib.new("sha", "password").hexdigest()
-    lms1 = LMS("uned",   password)
-    lms2 = LMS("deusto", password)
-    db_session.add(lms1)
-    db_session.add(lms2)
-    try:
-        db_session.commit()
-    except Exception as e:
-        print "Could not add users: %s" % e
 
 if __name__ == '__main__':
     parser = OptionParser()
