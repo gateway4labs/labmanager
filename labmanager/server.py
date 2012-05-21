@@ -127,52 +127,37 @@ def admin_logout():
 def admin_index():
     return render_template("labmanager_admin/index.html")
 
-@app.route("/lms4labs/admin/lms")
+@app.route("/lms4labs/admin/lms/")
 @requires_session
 def admin_lms():
     return render_template("labmanager_admin/lms.html")
 
-@app.route("/lms4labs/admin/rlms")
-@app.route("/lms4labs/admin/rlms/<rlmstype>")
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>")
+@app.route("/lms4labs/admin/rlms/")
 @requires_session
-def admin_rlms(rlmstype = None, rlmsversion = None):
-    
-    types    = []
-    versions = []
-    rlmss    = []
-    name     = None
-    version  = None
-    error_code = None
+def admin_rlms():
+    types = db_session.query(RLMSType).all()
+    return render_template("labmanager_admin/rlms.html", types = types)
 
-    if rlmstype is None:
-        types = db_session.query(RLMSType).all()
-        listing = 'type'
+@app.route("/lms4labs/admin/rlms/<rlmstype>/")
+@requires_session
+def admin_rlms_versions(rlmstype):
+    rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
+    if rlms_type is not None:
+        return render_template("labmanager_admin/rlms_versions.html", versions = rlms_type.versions, name = rlms_type.name)
 
-    elif rlmsversion is None:
-        listing = 'version'
-        rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
-        if rlms_type is not None:
-            name = rlms_type.name
-            versions = rlms_type.versions
-        else:
-            error_code = 'not-found'
-    else:
-        rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
-        if rlms_type is not None:
-            name = rlms_type.name
-            rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
-            if rlms_version is not None:
-                version = rlms_version.version
-                rlmss = rlms_version.rlms
-            else:
-                error_code = 'not-found'
-        else:
-            error_code = 'not-found'
+    return render_template("labmanager_admin/rlms_errors.html")
 
-        listing = 'rlms'
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/")
+@requires_session
+def admin_rlms_rlms(rlmstype, rlmsversion):
+    rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
+    if rlms_type is not None:
+        rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
+        if rlms_version is not None:
+            return render_template("labmanager_admin/rlms_rlms.html", rlmss = rlms_version.rlms, name = rlms_type.name, version = rlms_version.version)
 
-    return render_template("labmanager_admin/rlms.html", types = types, versions = versions, rlmss = rlmss, name = name, version = version, listing = listing, error_code = error_code)
+    return render_template("labmanager_admin/rlms_errors.html")
+
 
 
 

@@ -1,0 +1,41 @@
+{% include "labmanager_admin/header-logged.html" %}
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li class="active"> {{ name }} </li>
+    </ul> 
+
+    {% if versions|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>RLMS Type</th>
+                <th>Version</th>
+                <th>RLMSs</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for version in versions %}
+            <tr>
+                <td>{{ version.id }}</td>
+                <td>{{ version.rlms_type.name }}</td>
+                <td>{{ version.version }}</td>
+                <td><a href="{{ url_for('admin_rlms_rlms', rlmstype = version.rlms_type.name, rlmsversion = version.version) }}" class="btn">List</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert">
+        No version found
+    </div>
+    {% endif %}
+</div>
+
+
+{% include "labmanager_admin/footer.html" %}
