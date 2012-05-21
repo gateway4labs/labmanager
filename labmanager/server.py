@@ -30,7 +30,7 @@ def shutdown_session(exception = None):
 # 
 # 
 #
-# I N T E R A C T I O N     W I T H     L M S 
+#               I N T E R A C T I O N     W I T H     L M S 
 #
 # 
 # 
@@ -76,7 +76,7 @@ def requests():
 # 
 # 
 # 
-# I N T E R A C T I O N     W I T H     L A B M A N A G E R   A D M I N  
+#    I N T E R A C T I O N     W I T H     L A B M A N A G E R   A D M I N  
 # 
 # 
 # 
@@ -124,6 +124,14 @@ def admin_logout():
 def admin_index():
     return render_template("labmanager_admin/index.html")
 
+###############################################################################
+# 
+# 
+# 
+#                G E N E R A L     V I E W
+# 
+# 
+# 
 
 @app.route("/")
 def index():
