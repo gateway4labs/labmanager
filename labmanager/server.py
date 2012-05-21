@@ -90,7 +90,7 @@ def requires_session(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/lms4labs/admin/login/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/admin/login", methods = ['GET', 'POST'])
 def admin_login():
     
     login_error = False
@@ -103,11 +103,18 @@ def admin_login():
         user = db_session.query(LabManagerUser).filter_by(login = username, password = hash_password).first()
 
         if user is not None:
+            session['logged_in'] = True
             return "epa"
 
         login_error = True
 
     return render_template("labmanager_admin/login.html", login_error = login_error )
+
+@app.route("/lms4labs/admin/logout", methods = ['GET', 'POST'])
+def admin_logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('admin_login'))
+
 
 @app.route("/lms4labs/admin/")
 @requires_session
@@ -121,5 +128,8 @@ def index():
 
 
 if __name__ == "__main__":
-    DEBUG = True
+    DEBUG      = True
+    SECRET_KEY = "secret"
+
+    app.config.from_object(__name__)
     app.run(debug=DEBUG)

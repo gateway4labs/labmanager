@@ -17,7 +17,7 @@
             </div>
             {% endif %}
 
-            <form class="form-horizontal" action="." method="POST">
+            <form class="form-horizontal" action="{{ url_for('admin_login') }}" method="POST">
                 <fieldset>
                     <div class="control-group">
                         <label class="control-label">Username</label>
