@@ -245,6 +245,63 @@ def admin_rlms_versions(rlmstype):
 
     return render_template("labmanager_admin/rlms_errors.html")
 
+def _get_rlms_version(rlmstype, rlmsversion):
+    rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
+    if rlms_type is not None:
+        rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
+        if rlms_version is not None:
+            return rlms_version
+    return None
+
+def _add_or_edit_rlms(rlmstype, rlmsversion, id):
+    if not is_supported(rlmstype, rlmsversion):
+        return "Not supported"
+
+    rlms_version = _get_rlms_version(rlmstype, rlmsversion)
+    if rlms_version is None:
+        return render_template("labmanager_admin/rlms_errors.html")
+
+    AddForm = get_form_class(rlmstype, rlmsversion)
+    form = AddForm(id is None)
+
+    if form.validate_on_submit():
+        configuration_dict = {}
+        for field in form.get_field_names():
+            if field not in ('location', 'name'):
+                configuration_dict[field] = getattr(form, field).data
+
+        configuration = json.dumps(configuration_dict)
+        
+        if id is None:
+            new_rlms = RLMS(name = form.name.data, location = form.location.data, rlms_version = rlms_version, configuration = configuration)
+            db_session.add(new_rlms)
+        else:
+            rlms = db_session.query(RLMS).filter_by(id = id).first()
+            if rlms is None:
+                return render_template("labmanager_admin/rlms_errors.html")
+            rlms.name          = form.name.data
+            rlms.location      = form.location.data
+            rlms.configuration = AddForm.process_configuration(rlms.configuration, configuration)
+            db_session.commit()
+
+        db_session.commit()
+        return redirect(url_for('admin_rlms_rlms', rlmstype = rlmstype, rlmsversion = rlmsversion))
+
+    if id is not None:
+        rlms = db_session.query(RLMS).filter_by(id = id).first()
+        if rlms is None:
+            return render_template("labmanager_admin/rlms_errors.html")
+
+        form.name.data     = rlms.name
+        form.location.data = rlms.location
+        if rlms.configuration is not None and rlms.configuration != '':
+            configuration = json.loads(rlms.configuration)
+            for key in configuration:
+                getattr(form, key).data = configuration[key]
+
+    return render_template("labmanager_admin/rlms_rlms_add.html", rlmss = rlms_version.rlms, name = rlms_version.rlms_type.name, version = rlms_version.version, form = form)
+
+
 @app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
 @requires_session
 @deletes_elements(RLMS)
@@ -252,43 +309,22 @@ def admin_rlms_rlms(rlmstype, rlmsversion):
     if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
         return redirect(url_for('admin_rlms_rlms_add', rlmstype = rlmstype, rlmsversion=rlmsversion))
 
-    rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
-    if rlms_type is not None:
-        rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
-        if rlms_version is not None:
-            return render_template("labmanager_admin/rlms_rlms.html", rlmss = rlms_version.rlms, name = rlms_type.name, version = rlms_version.version)
+    rlms_version = _get_rlms_version(rlmstype, rlmsversion)
+    if rlms_version is None:
+        return render_template("labmanager_admin/rlms_errors.html")
 
-    return render_template("labmanager_admin/rlms_errors.html")
+    return render_template("labmanager_admin/rlms_rlms.html", rlmss = rlms_version.rlms, name = rlms_version.rlms_type.name, version = rlms_version.version)
 
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
 @requires_session
-@deletes_elements(RLMS)
 def admin_rlms_rlms_add(rlmstype, rlmsversion):
-    if not is_supported(rlmstype, rlmsversion):
-        return "Not supported"
+    return _add_or_edit_rlms(rlmstype, rlmsversion, None)
 
-    rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
-    if rlms_type is not None:
-        rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
-        if rlms_version is not None:
-
-            AddForm = get_form_class(rlmstype, rlmsversion)
-            form = AddForm()
-
-            if form.validate_on_submit():
-                configuration = {}
-                for field in form.get_field_names():
-                    configuration[field] = getattr(form, field).data
-                
-                new_rlms = RLMS(name = form.name.data, location = form.location.data, rlms_version = rlms_version, configuration = json.dumps(configuration))
-                db_session.add(new_rlms)
-                db_session.commit()
-                return redirect(url_for('admin_rlms_rlms', rlmstype = rlmstype, rlmsversion = rlmsversion))
-
-            return render_template("labmanager_admin/rlms_rlms_add.html", rlmss = rlms_version.rlms, name = rlms_type.name, version = rlms_version.version, form = form)
-
-    return render_template("labmanager_admin/rlms_errors.html")
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/edit/<int:id>", methods = ('GET','POST'))
+@requires_session
+def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
+    return _add_or_edit_rlms(rlmstype, rlmsversion, id)
 
 
 ###############################################################################
