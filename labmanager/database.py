@@ -33,7 +33,7 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
+    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course
 
     init_db(drop = True)
     password = hashlib.new('sha', 'password').hexdigest()
@@ -41,11 +41,18 @@ def add_sample_users():
     lms1 = LMS('Universidad Nacional de Educación a Distancia', "http://localhost/", 'uned', password, "labmanager", "password")
     lms2 = LMS('Universidad de Deusto', "http://localhost/", 'deusto', password, "labmanager", "password")
 
+    course1 = Course(lms1, "5", "my course 1")
+    course2 = Course(lms2, "6", "my course 2")
+
     user1 = LabManagerUser('porduna', 'Pablo Orduña', password)
     user2 = LabManagerUser('elio', 'Elio Sancristobal', password)
 
     db_session.add(lms1)
     db_session.add(lms2)
+
+    db_session.add(course1)
+    db_session.add(course2)
+
     db_session.add(user1)
     db_session.add(user2)
 

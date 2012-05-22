@@ -1,0 +1,48 @@
+{% set current_link = "home" %}
+{% extends "lms_admin/layout-logged.html" %}
+{% block title %} Courses {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li class="active">Courses</a></li>
+    </ul> 
+
+    <form action="." method="POST">
+    {% if courses|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Selected</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for course in courses %}
+            <tr>
+                <td><label class="checkbox"><input type="checkbox" name="{{ course.id }}"></label></td>
+                <td>{{ course.name }}</td>
+                <td><a href="{{ course.name }}" class="btn">Edit</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else  %}
+    <div class="alert">
+        No course found
+    </div>
+    {% endif %}
+    <div class="form-actions" align="center">
+        <input class="btn btn-primary" name="action" type="submit" value="Add"/>
+        {% if courses|length > 0 %}<input class="btn btn-danger" name="action" type="submit" value="Delete" text="Delete"/>{% endif %}
+        <a href="{{ url_for('lms_admin_courses', rlmstype = name) }}" class="btn">Cancel</a>
+    </div>
+    </form>
+
+</div>
+
+{% endblock %}

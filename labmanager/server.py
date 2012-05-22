@@ -29,6 +29,21 @@ app = Flask(__name__)
 def shutdown_session(exception = None):
     db_session.remove()
 
+def get_json():
+    if request.json is not None:
+        return request.json
+    else:
+        try:
+            if request.data:
+                data = request.data
+            else:
+                keys = request.form.keys() or ['']
+                data = keys[0]
+            return json.loads(data)
+        except:
+            return None
+
+
 ###############################################################################
 # 
 # 
@@ -150,10 +165,8 @@ def lms_admin_authenticate():
     if request.method == 'GET':
         return render_template("test_admin_authentication.html")
 
-    try:
-        json_data = request.json or json.loads(request.data)
-    except:
-        return "Could not process JSON data"
+    json_data = get_json()
+    if json_data is None: return "Could not process JSON data"
     
     code = uuid.uuid4().hex
     TOKENS[code] = {
@@ -181,6 +194,13 @@ def lms_admin_redeem_authentication(token):
 @requires_lms_admin_session
 def lms_admin_index():
     return render_template("lms_admin/index.html")
+
+@app.route("/lms4labs/lms/courses/")
+@requires_lms_admin_session
+def lms_admin_courses():
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    return render_template("lms_admin/courses.html", courses = db_lms.courses)
+    
 
 ###############################################################################
 # 
@@ -475,6 +495,14 @@ def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
 # 
 # 
 # 
+
+@app.route("/fake_list_courses")
+def fake_list_courses():
+    auth = request.authorization
+    if auth is not None and auth.username == 'test' and auth.password == 'test':
+        return json.dumps({ "1" : "Course name 1", "2" : "Course name 2", })
+    return Response('You have to login with proper credentials', 401,
+                    {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 @app.route("/")
 def index():
