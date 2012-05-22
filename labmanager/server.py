@@ -58,17 +58,54 @@ def requires_lms_auth(f):
     return decorated
 
 
-@app.route("/lms4labs/requests/", methods = ('GET', 'POST'))
+@app.route("/lms4labs/requests/", methods = ['GET', 'POST'])
 @requires_lms_auth
 def requests():
     """SCORM packages will perform requests to this method, which will 
     interact with the permitted laboratories"""
 
-    courses         = request.json['courses']
-    request_payload = request.json['request-payload']
-    general_role    = request.json.get('general-role', 'no particular role') or 'null role'
-    author          = request.json['author']
-    complete_name   = request.json['complete-name']
+    if request.method == 'GET':
+        return """   
+    <html><head>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="http://www.json.org/json2.js"></script>
+        <script type="text/javascript">
+    function perform_post(){
+     $(function() {
+       var dat = JSON.stringify({
+            "courses" : {"2" : ["student"], "3" : ["student","teacher"]},
+            "request-payload" : "hello there, this is the payload",
+            "general-role" : "admin",
+            "author" : "porduna",
+            "complete-name" : "Pablo Orduna",
+        });
+       $.ajax( {
+            "url"  : "http://localhost:5000/lms4labs/requests/",
+            "data" : dat,
+            "type" : "POST",
+            "contentType" : "application/json",
+        } ).done(function (data) {
+            document.getElementsByTagName('body')[0].innerHTML = data;
+        });
+     });
+    }
+    </script>
+    </head>
+    <body>
+        <span onclick="javascript:perform_post();">Click me</span>
+    </body>
+    </html>
+"""
+    try:
+        json_data = request.json or json.loads(request.data)
+    except:
+        return "Could not process JSON data"
+
+    courses         = json_data['courses']
+    request_payload = json_data['request-payload']
+    general_role    = json_data.get('general-role', 'no particular role') or 'null role'
+    author          = json_data['author']
+    complete_name   = json_data['complete-name']
 
     courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
     for course_id in courses:
@@ -77,9 +114,7 @@ def requests():
             courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
     courses_code += "</tbody></table>"
 
-    return """<html>
-    <body>
-        Hi %(name)s (username %(author)s),
+    return """Hi %(name)s (username %(author)s),
 
         I know that your role is %(role)s in the LMS %(lms)s, and that you are.
 
@@ -89,8 +124,6 @@ def requests():
         </pre>
         
         And I'll process it!
-    </body>
-</html>
 """ % {
     'name'        : cgi.escape(complete_name),
     'author'      : cgi.escape(author),
