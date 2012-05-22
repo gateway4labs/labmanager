@@ -1,5 +1,9 @@
-{% include "labmanager_admin/header-logged.html" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} LMS {% endblock %}
+
+{% block body %}
+{{ super() }}
 
 LMS...
 
-{% include "labmanager_admin/footer.html" %}
+{% endblock %}

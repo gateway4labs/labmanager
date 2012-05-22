@@ -1,5 +1,7 @@
-{% include "labmanager_admin/header.html" %}
-</head>
+{% extends "labmanager_admin/layout.html" %}
+
+{% block body %}
+{{ super() }}
 
 <body>
   <div class="navbar">
@@ -35,3 +37,4 @@
     </div><!-- /navbar-inner -->
   </div><!-- /navbar -->
 
+{% endblock %}

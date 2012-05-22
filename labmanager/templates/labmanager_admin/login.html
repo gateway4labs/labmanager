@@ -1,4 +1,9 @@
-{% include "labmanager_admin/header.html" %}
+{% extends "labmanager_admin/layout.html" %}
+{% block title %} Login {% endblock %}
+
+{% block body %}
+{{ super() }}
+
 </head>
 <body onload="javascript:document.getElementById('username-input').focus();">
     <div class="container">
@@ -40,4 +45,4 @@
         </div>
     </div>
 
-{% include "labmanager_admin/footer.html" %}
+{% endblock %}

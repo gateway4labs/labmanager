@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% block header %}
+    <title>{% block title %}{% endblock %}</title>
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
@@ -21,4 +23,9 @@
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-carousel.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-typeahead.js") }}"></script>
     -->
-
+    {% endblock %}
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
+</html>

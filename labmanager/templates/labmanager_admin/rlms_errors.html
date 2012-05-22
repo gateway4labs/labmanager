@@ -1,4 +1,7 @@
-{% include "labmanager_admin/header-logged.html" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} RLMS error {% endblock %}
+{% block body %}
+{{ super() }}
 
 <div class="span10 offset1">
     <div class="alert alert-error">
@@ -6,5 +9,4 @@
     </div>
 </div>
 
-
-{% include "labmanager_admin/footer.html" %}
+{% endblock %}

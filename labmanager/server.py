@@ -94,7 +94,8 @@ def deletes_elements(table):
     def real_wrapper(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            if request.method == 'POST':
+            # XXX translate 'delete'
+            if request.method == 'POST' and request.form.get('action','').lower() == 'delete':
                 for current_id in request.form:
                     element = db_session.query(table).filter_by(id = current_id).first()
                     if element is not None:

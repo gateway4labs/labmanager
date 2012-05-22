@@ -8,4 +8,4 @@ easy_install pip
 pip install virtualenv
 virtualenv env
 . env/bin/activate
-pip install Flask Flask-SQLAlchemy SQLAlchemy pymySQL pymysql_sa
+pip install Flask Flask-SQLAlchemy Flask-WTF SQLAlchemy pymySQL pymysql_sa
