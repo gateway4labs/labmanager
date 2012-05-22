@@ -51,9 +51,11 @@ def add_sample_users():
 
     weblab_deusto = RLMSType('WebLab-Deusto')
     ilab          = RLMSType('iLab')
+    unsupported   = RLMSType('Unsupported')
 
     weblab_deusto_4_0 = RLMSTypeVersion(weblab_deusto, '4.0')
     weblab_deusto_4_5 = RLMSTypeVersion(weblab_deusto, '4.5')
+    unsupported_4_5 = RLMSTypeVersion(unsupported,   '4.5')
 
     ilab_4_0 = RLMSTypeVersion(ilab, '4.5')
 
@@ -65,6 +67,7 @@ def add_sample_users():
     db_session.add(ilab)
     db_session.add(weblab_deusto_4_0)
     db_session.add(weblab_deusto_4_5)
+    db_session.add(unsupported_4_5)
     db_session.add(ilab_4_0)
     db_session.add(weblab_deusto_instance)
     db_session.add(ilab_instance)

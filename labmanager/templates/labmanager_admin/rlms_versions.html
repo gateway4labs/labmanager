@@ -22,6 +22,7 @@
                 <th>Selected</th>
                 <th>RLMS Type</th>
                 <th>Version</th>
+                <th>Supported</th>
                 <th>RLMSs</th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@
                 <td><label class="checkbox"><input type="checkbox" name="{{ version.id }}"></label></td>
                 <td>{{ version.rlms_type.name }}</td>
                 <td>{{ version.version }}</td>
+                <td><i class="icon-{% if version.version in supported %}ok{% else %}remove{% endif %}"></i></td>
                 <td><a href="{{ url_for('admin_rlms_rlms', rlmstype = version.rlms_type.name, rlmsversion = version.version) }}" class="btn">List</a></td>
             </tr>
         {% endfor %}
@@ -43,7 +45,7 @@
     {% endif %}
     <div class="form-actions" align="center">
         {% if versions|length > 0 %}<input class="btn btn-danger" name="action" type="submit" value="Delete" text="Delete"/>{% endif %}
-        <button class="btn btn-primary">Add</button>
+        <input class="btn btn-primary" name="action" type="submit" value="Add supported"/>
         <a href="{{ url_for('admin_rlms') }}" class="btn">Cancel</a>
     </div>
     </form>

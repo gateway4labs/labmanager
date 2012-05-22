@@ -19,6 +19,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # 
 from labmanager.database import db_session
 from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
+from labmanager.rlms import get_supported_types, get_supported_versions
 
 app = Flask(__name__)
 
@@ -174,7 +175,19 @@ def admin_lms():
 @deletes_elements(RLMSType)
 def admin_rlms():
     types = db_session.query(RLMSType).all()
-    return render_template("labmanager_admin/rlms.html", types = types)
+
+    if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
+
+        retrieved_types = set( (retrieved_type.name for retrieved_type in types) )
+
+        for supported_type in get_supported_types():
+            if supported_type not in retrieved_types:
+                new_type = RLMSType(supported_type)
+                db_session.add(new_type)
+        db_session.commit()    
+        types = db_session.query(RLMSType).all()
+
+    return render_template("labmanager_admin/rlms.html", types = types, supported = get_supported_types() )
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
 @requires_session
@@ -182,7 +195,18 @@ def admin_rlms():
 def admin_rlms_versions(rlmstype):
     rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
     if rlms_type is not None:
-        return render_template("labmanager_admin/rlms_versions.html", versions = rlms_type.versions, name = rlms_type.name)
+
+        if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
+
+            retrieved_versions = set( (retrieved_version.version for retrieved_version in rlms_type.versions) )
+
+            for supported_version in get_supported_versions(rlmstype):
+                if supported_version not in retrieved_versions:
+                    new_version = RLMSTypeVersion(rlms_type, supported_version)
+                    db_session.add(new_version)
+            db_session.commit()    
+
+        return render_template("labmanager_admin/rlms_versions.html", versions = rlms_type.versions, name = rlms_type.name, supported = get_supported_versions(rlmstype) )
 
     return render_template("labmanager_admin/rlms_errors.html")
 
