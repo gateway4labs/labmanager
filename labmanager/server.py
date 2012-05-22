@@ -133,7 +133,13 @@ def lms_admin_logout():
 
 # TODO: this does not scale: should be in database or signed or something
 # TODO: this does not expire: memory leak
-TOKENS = {}
+TOKENS = {
+    # token : {
+    #      'user_name' : 'complete_name'
+    #      'lms'       : 'uned'
+    #      'referrer'  : 'http://...'
+    # }
+}
 
 @app.route("/lms4labs/authenticate/", methods = ['GET', 'POST'])
 @requires_lms_auth
@@ -150,18 +156,23 @@ def lms_admin_authenticate():
         return "Could not process JSON data"
     
     code = uuid.uuid4().hex
-    TOKENS[code] = json_data['complete-name']
+    TOKENS[code] = {
+        'user_name' : json_data['complete-name'],
+        'lms'       : g.lms,
+        'referrer'  : ''
+    }
     return request.url_root + url_for('lms_admin_redeem_authentication', token = code)
 
 @app.route("/lms4labs/authenticate/<token>")
 def lms_admin_redeem_authentication(token):
-    complete_name = TOKENS.pop(token, None)
-    if complete_name is None:
+    token_info = TOKENS.pop(token, None)
+    if token_info is None:
         return "Token not found"
 
-    session['user_name']     = complete_name
     session['logged_in']     = True
     session['session_type']  = 'lms_admin'
+    session['user_name']     = token_info['user_name']
+    session['lms']           = token_info['lms']
 
     return redirect(url_for('lms_admin_index'))
 

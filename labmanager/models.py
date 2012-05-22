@@ -12,8 +12,8 @@ class LMS(Base):
     name                = Column(String(50), nullable = False)
     url                 = Column(String(50), nullable = False) # remote url
 
-    lms_login               = Column(String(50), nullable = False, unique=True)
-    lms_password            = Column(String(50), nullable = False) # hash
+    lms_login           = Column(String(50), nullable = False, unique=True)
+    lms_password        = Column(String(50), nullable = False) # hash
     
     labmanager_login    = Column(String(50), nullable = False)
     labmanager_password = Column(String(50), nullable = False) # plaintext: my password there
