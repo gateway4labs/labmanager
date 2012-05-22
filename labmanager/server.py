@@ -8,6 +8,7 @@ import json
 import uuid
 import cgi
 import traceback
+import urllib2
 from functools import wraps
 
 # 
@@ -200,7 +201,31 @@ def lms_admin_index():
 def lms_admin_courses():
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
+
+@app.route("/lms4labs/lms/courses/external/")
+@requires_lms_admin_session
+def lms_admin_external_courses():
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    user     = db_lms.labmanager_login
+    password = db_lms.labmanager_password
+    url      = db_lms.url
+
+    req = urllib2.Request(url, '')
+    req.add_header('Content-type','application/json')
+
+    password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    password_mgr.add_password(None, url, user, password)
+    password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+    opener = urllib2.build_opener(password_handler)
+
+    print url
+    json_courses = opener.open(req).read()
+    print json_courses
+    courses = json.loads(json_courses)
+
+    return render_template("lms_admin/courses_external.html", courses = courses)
     
+   
 
 ###############################################################################
 # 
@@ -496,11 +521,11 @@ def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
 # 
 # 
 
-@app.route("/fake_list_courses")
+@app.route("/fake_list_courses", methods = ['GET','POST'])
 def fake_list_courses():
     auth = request.authorization
-    if auth is not None and auth.username == 'test' and auth.password == 'test':
-        return json.dumps({ "1" : "Course name 1", "2" : "Course name 2", })
+    if auth is not None and auth.username in ('test','labmanager') and auth.password in ('test','password'):
+        return json.dumps({ "1" : "Fake course name 1", "2" : "Fake course name 2", })
     return Response('You have to login with proper credentials', 401,
                     {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
@@ -511,4 +536,4 @@ def index():
 
 if __name__ == "__main__":
     app.config.from_object('config')
-    app.run()
+    app.run(threaded = True)
