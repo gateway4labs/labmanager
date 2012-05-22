@@ -1,0 +1,44 @@
+{% set current_link = "rlms" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} RLMS {{ name }} / {{ version }} {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_versions', rlmstype = name) }}">{{ name }}</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms', rlmstype = name, rlmsversion = version) }}">{{ version }}</a>
+        </li>
+    </ul> 
+</div>
+
+<div class="span6 offset3">
+    {% from "_form_helpers.html" import render_field %}
+    <form method="POST" action="." class="form-horizontal">
+        {{ form.hidden_tag() }}
+
+        <fieldset>
+            {% for field_name in form.get_field_names() %}
+                {{ render_field(form|attr(field_name)) }}
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a href="{{ url_for('admin_rlms_rlms', rlmstype = name, rlmsversion = version) }}" class="btn">Cancel</a>
+            </div>
+        </fieldset>
+    </form>
+
+</div>
+
+
+{% endblock %}

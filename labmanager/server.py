@@ -18,8 +18,8 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
-from labmanager.rlms import get_supported_types, get_supported_versions
+from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
+from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class
 
 app = Flask(__name__)
 
@@ -217,7 +217,7 @@ def admin_rlms():
 
     any_supported_missing = any([ supported_type not in retrieved_types for supported_type in get_supported_types()])
 
-    return render_template("labmanager_admin/rlms.html", types = types, supported = get_supported_types(), any_supported_missing = any_supported_missing)
+    return render_template("labmanager_admin/rlms_types.html", types = types, supported = get_supported_types(), any_supported_missing = any_supported_missing)
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
 @requires_session
@@ -249,6 +249,9 @@ def admin_rlms_versions(rlmstype):
 @requires_session
 @deletes_elements(RLMS)
 def admin_rlms_rlms(rlmstype, rlmsversion):
+    if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
+        return redirect(url_for('admin_rlms_rlms_add', rlmstype = rlmstype, rlmsversion=rlmsversion))
+
     rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
     if rlms_type is not None:
         rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
@@ -258,6 +261,34 @@ def admin_rlms_rlms(rlmstype, rlmsversion):
     return render_template("labmanager_admin/rlms_errors.html")
 
 
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
+@requires_session
+@deletes_elements(RLMS)
+def admin_rlms_rlms_add(rlmstype, rlmsversion):
+    if not is_supported(rlmstype, rlmsversion):
+        return "Not supported"
+
+    rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
+    if rlms_type is not None:
+        rlms_version = ([ version for version in rlms_type.versions if version.version == rlmsversion ] or [None])[0]
+        if rlms_version is not None:
+
+            AddForm = get_form_class(rlmstype, rlmsversion)
+            form = AddForm()
+
+            if form.validate_on_submit():
+                configuration = {}
+                for field in form.get_field_names():
+                    configuration[field] = getattr(form, field).data
+                
+                new_rlms = RLMS(name = form.name.data, location = form.location.data, rlms_version = rlms_version, configuration = json.dumps(configuration))
+                db_session.add(new_rlms)
+                db_session.commit()
+                return redirect(url_for('admin_rlms_rlms', rlmstype = rlmstype, rlmsversion = rlmsversion))
+
+            return render_template("labmanager_admin/rlms_rlms_add.html", rlmss = rlms_version.rlms, name = rlms_type.name, version = rlms_version.version, form = form)
+
+    return render_template("labmanager_admin/rlms_errors.html")
 
 
 ###############################################################################
