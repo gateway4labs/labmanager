@@ -1,0 +1,29 @@
+<html><head>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="http://www.json.org/json2.js"></script>
+    <script type="text/javascript">
+function perform_post(){
+ $(function() {
+   var dat = JSON.stringify({
+        "courses" : {"2" : ["student"], "3" : ["student","teacher"]},
+        "request-payload" : "hello there, this is the payload",
+        "general-role" : "admin",
+        "author" : "porduna",
+        "complete-name" : "John Doe",
+    });
+   $.ajax( {
+        "url"  : "{{ request.url }}",
+        "data" : dat,
+        "type" : "POST",
+        "contentType" : "application/json",
+    } ).done(function (data) {
+        document.getElementsByTagName('body')[0].innerHTML = data;
+    });
+ });
+}
+</script>
+</head>
+<body>
+    <span onclick="javascript:perform_post();">Click me</span>
+</body>
+</html>

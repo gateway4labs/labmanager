@@ -5,6 +5,7 @@
 # Python imports
 import hashlib
 import json
+import uuid
 import cgi
 import traceback
 from functools import wraps
@@ -66,37 +67,8 @@ def requests():
     interact with the permitted laboratories"""
 
     if request.method == 'GET':
-        return """   
-    <html><head>
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-        <script type="text/javascript" src="http://www.json.org/json2.js"></script>
-        <script type="text/javascript">
-    function perform_post(){
-     $(function() {
-       var dat = JSON.stringify({
-            "courses" : {"2" : ["student"], "3" : ["student","teacher"]},
-            "request-payload" : "hello there, this is the payload",
-            "general-role" : "admin",
-            "author" : "porduna",
-            "complete-name" : "Pablo Orduna",
-        });
-       $.ajax( {
-            "url"  : "http://localhost:5000/lms4labs/requests/",
-            "data" : dat,
-            "type" : "POST",
-            "contentType" : "application/json",
-        } ).done(function (data) {
-            document.getElementsByTagName('body')[0].innerHTML = data;
-        });
-     });
-    }
-    </script>
-    </head>
-    <body>
-        <span onclick="javascript:perform_post();">Click me</span>
-    </body>
-    </html>
-"""
+        return render_template("test_requests.html")
+
     try:
         json_data = request.json or json.loads(request.data)
     except:
@@ -135,6 +107,64 @@ def requests():
 }
 
 
+###############################################################################
+# 
+# 
+#
+#   I N T E R A C T I O N     W I T H     L M S     A D M I N
+#
+# 
+# 
+
+def requires_lms_admin_session(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        logged_in    = session.get('logged_in', False)
+        session_type = session.get('session_type', '')
+        if not logged_in or session_type != 'lms_admin':
+            return "Not authorized"
+        return f(*args, **kwargs)
+    return decorated
+
+# TODO: this does not scale: should be in database or signed or something
+# TODO: this does not expire: memory leak
+TOKENS = {}
+
+@app.route("/lms4labs/authenticate/", methods = ['GET', 'POST'])
+@requires_lms_auth
+def lms_admin_authenticate():
+    """SCORM packages will perform requests to this method, which will 
+    interact with the permitted laboratories"""
+
+    if request.method == 'GET':
+        return render_template("test_admin_authentication.html")
+
+    try:
+        json_data = request.json or json.loads(request.data)
+    except:
+        return "Could not process JSON data"
+    
+    code = uuid.uuid4().hex
+    TOKENS[code] = json_data['complete-name']
+    return request.url_root + url_for('lms_admin_redeem_authentication', token = code)
+
+@app.route("/lms4labs/authenticate/<token>")
+def lms_admin_redeem_authentication(token):
+    complete_name = TOKENS.pop(token, None)
+    if complete_name is None:
+        return "Token not found"
+
+    session['complete_name'] = complete_name
+    session['logged_in']     = True
+    session['session_type']  = 'lms_admin'
+
+    return redirect(url_for('lms_admin_index'))
+
+
+@app.route("/lms4labs/lms/")
+@requires_lms_admin_session
+def lms_admin_index():
+    return "hi there"
 
 ###############################################################################
 # 
@@ -145,11 +175,12 @@ def requests():
 # 
 # 
 
-def requires_session(f):
+def requires_labmanager_admin_session(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        logged_in = session.get('logged_in', False)
-        if not logged_in:
+        logged_in    = session.get('logged_in', False)
+        session_type = session.get('session_type', '')
+        if not logged_in or session_type != 'labmanager_admin':
             return redirect(url_for('admin_login', next = request.url))
         return f(*args, **kwargs)
     return decorated
@@ -187,10 +218,11 @@ def admin_login():
         user = db_session.query(LabManagerUser).filter_by(login = login, password = hash_password).first()
 
         if user is not None:
-            session['logged_in'] = True
-            session['user_id']   = user.id
-            session['user_name'] = user.name
-            session['login']     = login
+            session['logged_in']    = True
+            session['session_type'] = 'labmanager_admin'
+            session['user_id']      = user.id
+            session['user_name']    = user.name
+            session['login']        = login
 
             next = request.args.get('next')
             if next is not None and next.startswith(request.url_root) and next != '':
@@ -213,7 +245,7 @@ def admin_logout():
 
 
 @app.route("/lms4labs/admin/")
-@requires_session
+@requires_labmanager_admin_session
 def admin_index():
     return render_template("labmanager_admin/index.html")
 
@@ -223,7 +255,7 @@ def admin_index():
 # 
 
 @app.route("/lms4labs/admin/lms/", methods = ['GET', 'POST'])
-@requires_session
+@requires_labmanager_admin_session
 @deletes_elements(LMS)
 def admin_lms():
     if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
@@ -278,12 +310,12 @@ def _add_or_edit_lms(id):
     return render_template("labmanager_admin/lms_add.html", form = form, name = name)
 
 @app.route("/lms4labs/admin/lms/edit/<int:id>", methods = ['GET', 'POST'])
-@requires_session
+@requires_labmanager_admin_session
 def admin_lms_edit(id):
     return _add_or_edit_lms(id)
 
 @app.route("/lms4labs/admin/lms/add/", methods = ['GET', 'POST'])
-@requires_session
+@requires_labmanager_admin_session
 def admin_lms_add():
     return _add_or_edit_lms(id = None)
 
@@ -293,7 +325,7 @@ def admin_lms_add():
 # 
 
 @app.route("/lms4labs/admin/rlms/", methods = ('GET','POST'))
-@requires_session
+@requires_labmanager_admin_session
 @deletes_elements(RLMSType)
 def admin_rlms():
     types = db_session.query(RLMSType).all()
@@ -313,7 +345,7 @@ def admin_rlms():
     return render_template("labmanager_admin/rlms_types.html", types = types, supported = get_supported_types(), any_supported_missing = any_supported_missing)
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
-@requires_session
+@requires_labmanager_admin_session
 @deletes_elements(RLMSTypeVersion)
 def admin_rlms_versions(rlmstype):
     rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
@@ -395,7 +427,7 @@ def _add_or_edit_rlms(rlmstype, rlmsversion, id):
 
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
-@requires_session
+@requires_labmanager_admin_session
 @deletes_elements(RLMS)
 def admin_rlms_rlms(rlmstype, rlmsversion):
     if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
@@ -409,12 +441,12 @@ def admin_rlms_rlms(rlmstype, rlmsversion):
 
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
-@requires_session
+@requires_labmanager_admin_session
 def admin_rlms_rlms_add(rlmstype, rlmsversion):
     return _add_or_edit_rlms(rlmstype, rlmsversion, None)
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/edit/<int:id>", methods = ('GET','POST'))
-@requires_session
+@requires_labmanager_admin_session
 def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
     return _add_or_edit_rlms(rlmstype, rlmsversion, id)
 
