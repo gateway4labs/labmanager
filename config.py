@@ -1,5 +1,13 @@
+#
+# Flask configuration
+# 
 
+DEBUG      = True
+SECRET_KEY = 'secret'
 
+# 
+# DB Configuration
+# 
 USERNAME = 'labmanager'
 PASSWORD = 'labmanager'
 HOST     = 'localhost'

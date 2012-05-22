@@ -106,6 +106,11 @@ def deletes_elements(table):
         return decorated
     return real_wrapper
 
+##############
+# 
+# L O G I N 
+# 
+
 @app.route("/lms4labs/admin/login", methods = ['GET', 'POST'])
 def admin_login():
     login_error = False
@@ -137,16 +142,32 @@ def admin_logout():
     session.pop('logged_in', None)
     return redirect(url_for('admin_login'))
 
+############
+# 
+# H O M E
+# 
+
 
 @app.route("/lms4labs/admin/")
 @requires_session
 def admin_index():
     return render_template("labmanager_admin/index.html")
 
+############
+# 
+# L M S 
+# 
+
 @app.route("/lms4labs/admin/lms/")
 @requires_session
 def admin_lms():
     return render_template("labmanager_admin/lms.html")
+
+
+############
+# 
+# R L M S 
+# 
 
 @app.route("/lms4labs/admin/rlms/", methods = ('GET','POST'))
 @requires_session
@@ -195,8 +216,5 @@ def index():
 
 
 if __name__ == "__main__":
-    DEBUG      = True
-    SECRET_KEY = "secret"
-
-    app.config.from_object(__name__)
-    app.run(debug=DEBUG)
+    app.config.from_object('config')
+    app.run()
