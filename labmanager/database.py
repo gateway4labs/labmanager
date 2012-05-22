@@ -38,8 +38,8 @@ def add_sample_users():
     init_db(drop = True)
     password = hashlib.new('sha', 'password').hexdigest()
 
-    lms1 = LMS('uned',   'Universidad Nacional de Educación a Distancia', password)
-    lms2 = LMS('deusto', 'Universidad de Deusto', password)
+    lms1 = LMS('Universidad Nacional de Educación a Distancia', "http://localhost/", 'uned', password, "labmanager", "password")
+    lms2 = LMS('Universidad de Deusto', "http://localhost/", 'deusto', password, "labmanager", "password")
 
     user1 = LabManagerUser('porduna', 'Pablo Orduña', password)
     user2 = LabManagerUser('elio', 'Elio Sancristobal', password)

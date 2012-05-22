@@ -5,6 +5,29 @@
 {% block body %}
 {{ super() }}
 
-INDEX
+    <div class="container">
+        <div class="row">
+            <div class="hero-unit" align="center">
+                <h1>lms4labs</h1>
+                <br />
+                <p>Welcome to the lab manager!</p>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="span6">
+                <h2>Learning Management Systems</h2>
+                <p>A Lab Manager supports multiple Learning Management Systems (LMSs). From this Lab Manager you, as an administrator, can add, remove and modify the existing LMSs.</p>
+                <p><a href="{{ url_for('admin_lms') }}">Manage LMSs</a></p>
+            </div>
+
+            <div class="span6">
+                <h2>Remote Laboratory Management Systems</h2>
+                <p>A Lab Manager supports multiple Remote Laboratory Management Systems (RLMSs). From this Lab Manager you can add, remove them, and assign them to LMSs.</p>
+                <p><a href="{{ url_for('admin_rlms') }}">Manage RLMSs</a></p>
+            </div>
+        </div>
+
+    </div>
 
 {% endblock %}

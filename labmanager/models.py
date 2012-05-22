@@ -8,17 +8,24 @@ class LMS(Base):
 
     id = Column(Integer, primary_key=True)
 
-    login    = Column(String(50),  unique=True)
-    name     = Column(String(50))
-    password = Column(String(50)) # hash
 
-    def __init__(self, login = None, name = None, password = None):
-        self.login    = login
-        self.name     = name
-        self.password = password
+    name                = Column(String(50), nullable = False)
+    url                 = Column(String(50), nullable = False) # remote url
 
-    def __repr__(self):
-        return 'LMS(%r, %r, %r)' % (self.login, self.name, self.password)
+    lms_login               = Column(String(50), nullable = False, unique=True)
+    lms_password            = Column(String(50), nullable = False) # hash
+    
+    labmanager_login    = Column(String(50), nullable = False)
+    labmanager_password = Column(String(50), nullable = False) # plaintext: my password there
+
+    def __init__(self, name = None, url = None, lms_login = None, lms_password = None, labmanager_login = None, labmanager_password = None):
+        self.name                = name
+        self.url                 = url
+        self.lms_login           = lms_login
+        self.lms_password        = lms_password
+        self.labmanager_login    = labmanager_login
+        self.labmanager_password = labmanager_password
+
 
 class LabManagerUser(Base):
     __tablename__ = 'LabManagerUsers'
@@ -33,9 +40,6 @@ class LabManagerUser(Base):
         self.login    = login
         self.name     = name
         self.password = password
-
-    def __repr__(self):
-        return 'LabManagerUser(%r, %r, %r)' % (self.login, self.name, self.password)
 
 
 class RLMSType(Base):

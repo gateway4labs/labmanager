@@ -5,6 +5,44 @@
 {% block body %}
 {{ super() }}
 
-LMS...
+<div class="span10 offset1">
+    <ul class="breadcrumb">
+        <li class="active"> LMS </li>
+    </ul> 
+
+    <form action="." method="POST">
+    {% if lmss|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Selected</th>
+                <th>Name</th>
+                <th>URL</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lms in lmss %}
+            <tr>
+                <td><label class="checkbox"><input type="checkbox" name="{{ lms.id }}"></label></td>
+                <td>{{ lms.name }}</td>
+                <td>{{ lms.url }}</td>
+                <td><a href="{{ url_for('admin_lms_edit', id = lms.id) }}" class="btn">Edit</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert">
+        No LMS found
+    </div>
+    {% endif %}
+
+    <div class="form-actions" align="center">
+        <input class="btn btn-primary" name="action" type="submit" value="Add"/>
+        {% if lmss|length > 0 %}<input class="btn btn-danger" name="action" type="submit" value="Delete"/>{% endif %}
+    </div>
+    </form>
+</div>
 
 {% endblock %}

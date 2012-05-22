@@ -20,6 +20,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 from labmanager.database import db_session
 from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class
+from labmanager.forms    import AddLmsForm
 
 app = Flask(__name__)
 
@@ -41,7 +42,7 @@ def shutdown_session(exception = None):
 # 
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
-    lms = db_session.query(LMS).filter_by(login = lmsname, password = hash_password).first()
+    lms = db_session.query(LMS).filter_by(lms_login = lmsname, lms_password = hash_password).first()
     g.lms = lmsname
     return lms is not None
 
@@ -221,11 +222,70 @@ def admin_index():
 # L M S 
 # 
 
-@app.route("/lms4labs/admin/lms/")
+@app.route("/lms4labs/admin/lms/", methods = ['GET', 'POST'])
 @requires_session
+@deletes_elements(LMS)
 def admin_lms():
-    return render_template("labmanager_admin/lms.html")
+    if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
+        return redirect(url_for('admin_lms_add'))
 
+    lmss = db_session.query(LMS).all()
+    return render_template("labmanager_admin/lms.html", lmss = lmss)
+
+def _add_or_edit_lms(id):
+    form = AddLmsForm(id is None)
+
+    if form.validate_on_submit():
+        if id is None:
+            new_lms = LMS(name = form.name.data, url = form.url.data, 
+                            lms_login           = form.lms_login.data, 
+                            lms_password        = form.lms_password.data, 
+                            labmanager_login    = form.labmanager_login.data, 
+                            labmanager_password = form.labmanager_password.data)
+            db_session.add(new_lms)
+        else:
+            lms = db_session.query(LMS).filter_by(id = id).first()
+            if lms is None:
+                return render_template("labmanager_admin/lms_errors.html")
+
+
+            lms.url               = form.url.data
+            lms.name              = form.name.data
+            lms.lms_login         = form.lms_login.data
+            lms.labmanager_login  = form.labmanager_login.data
+            if form.lms_password.data:
+                lms.lms_password        = form.lms_password.data
+            if form.labmanager_password.data:
+                lms.labmanager_password = form.labmanager_password.data
+
+        db_session.commit()
+        return redirect(url_for('admin_lms'))
+    
+    if id is not None:
+        lms = db_session.query(LMS).filter_by(id = id).first()
+        if lms is None:
+            return render_template("labmanager_admin/lms_errors.html")
+
+        name = lms.name
+
+        form.url.data              = lms.url
+        form.name.data             = lms.name
+        form.lms_login.data        = lms.lms_login
+        form.labmanager_login.data = lms.labmanager_login
+    else:
+        name = None
+
+    return render_template("labmanager_admin/lms_add.html", form = form, name = name)
+
+@app.route("/lms4labs/admin/lms/edit/<int:id>", methods = ['GET', 'POST'])
+@requires_session
+def admin_lms_edit(id):
+    return _add_or_edit_lms(id)
+
+@app.route("/lms4labs/admin/lms/add/", methods = ['GET', 'POST'])
+@requires_session
+def admin_lms_add():
+    return _add_or_edit_lms(id = None)
 
 ############
 # 
@@ -315,7 +375,6 @@ def _add_or_edit_rlms(rlmstype, rlmsversion, id):
             rlms.name          = form.name.data
             rlms.location      = form.location.data
             rlms.configuration = AddForm.process_configuration(rlms.configuration, configuration)
-            db_session.commit()
 
         db_session.commit()
         return redirect(url_for('admin_rlms_rlms', rlmstype = rlmstype, rlmsversion = rlmsversion))

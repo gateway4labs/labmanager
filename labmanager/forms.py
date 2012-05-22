@@ -1,4 +1,4 @@
-from flaskext.wtf import Form, TextField, Required
+from flaskext.wtf import Form, TextField, Required, URL, PasswordField
 
 class RetrospectiveForm(Form):
 
@@ -14,4 +14,25 @@ class AddForm(RetrospectiveForm):
     name     = TextField("Name", validators=[Required()])
     location = TextField("Location", validators=[Required()])
 
+class AddLmsForm(RetrospectiveForm):
+    name      = TextField("Name", validators = [ Required() ])
+    url       = TextField("URL",  validators = [ Required(), URL() ])
+
+    lms_login    = TextField("LMS login", validators = [ Required() ])
+    lms_password = PasswordField("LMS login")
+
+    labmanager_login    = TextField("Labmanager login", validators = [ Required() ])
+    labmanager_password = PasswordField("Labmanager password")
+
+    def __init__(self, add_or_edit, *args, **kwargs):
+        super(AddLmsForm, self).__init__(*args, **kwargs)
+        self.add_or_edit = add_or_edit
+
+    def validate_lms_password(form, field):
+        if form.add_or_edit and field.data == '':
+            raise ValidationError("This field is required.")
+
+    def validate_labmanager_password(form, field):
+        if form.add_or_edit and field.data == '':
+            raise ValidationError("This field is required.")
 
