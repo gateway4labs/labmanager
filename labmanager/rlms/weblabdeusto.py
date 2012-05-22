@@ -54,3 +54,9 @@ class AddForm(AddForm):
             if '@' not in value:
                 raise ValidationError("Value format: experiment_name@experiment_category ")
 
+
+def connection_tester(configuration):
+    config = json.loads(configuration)
+    pass
+    return None
+
