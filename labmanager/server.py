@@ -126,6 +126,11 @@ def requires_lms_admin_session(f):
         return f(*args, **kwargs)
     return decorated
 
+@app.route("/lms4labs/lms/logout", methods = ['GET', 'POST'])
+def lms_admin_logout():
+    session.pop('logged_in', None)
+    return "fine"
+
 # TODO: this does not scale: should be in database or signed or something
 # TODO: this does not expire: memory leak
 TOKENS = {}
@@ -154,7 +159,7 @@ def lms_admin_redeem_authentication(token):
     if complete_name is None:
         return "Token not found"
 
-    session['complete_name'] = complete_name
+    session['user_name']     = complete_name
     session['logged_in']     = True
     session['session_type']  = 'lms_admin'
 
@@ -164,7 +169,7 @@ def lms_admin_redeem_authentication(token):
 @app.route("/lms4labs/lms/")
 @requires_lms_admin_session
 def lms_admin_index():
-    return "hi there"
+    return render_template("lms_admin/index.html")
 
 ###############################################################################
 # 

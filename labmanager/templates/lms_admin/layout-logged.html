@@ -1,4 +1,4 @@
-{% extends "labmanager_admin/layout.html" %}
+{% extends "lms_admin/layout.html" %}
 
 {% block body %}
 {{ super() }}
@@ -12,12 +12,10 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </a>
-        <a class="brand" href="#">Lab manager admin</a>
+        <a class="brand" href="#">LMS admin</a>
         <div class="nav-collapse">
           <ul class="nav">
-            <li {% if current_link == 'home' %} class="active" {% endif %}><a href="{{ url_for('admin_index') }}">Home</a></li>
-            <li {% if current_link == 'lms'  %} class="active" {% endif %}><a href="{{ url_for('admin_lms')   }}"  >LMSs</a></li>
-            <li {% if current_link == 'rlms' %} class="active" {% endif %}><a href="{{ url_for('admin_rlms')  }}" >RLMSs</a></li>
+            <li {% if current_link == 'home' %} class="active" {% endif %}><a href="{{ url_for('lms_admin_index') }}">Home</a></li>
           </ul>
           <ul class="nav pull-right">
             <li class="divider-vertical"></li>
@@ -28,7 +26,7 @@
                 <li><a href="#">Action</a></li>
                 <li class="divider"></li>
                 -->
-                <li><a href="{{ url_for('admin_logout') }}">Log out</a></li>
+                <li><a href="{{ url_for('lms_admin_logout') }}">Log out</a></li>
               </ul>
             </li>
           </ul>
