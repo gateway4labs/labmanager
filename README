@@ -6,6 +6,22 @@ Then execute:
 
 easy_install pip
 pip install virtualenv
+
+Then, in the corresponding directory:
+
 virtualenv env
-. env/bin/activate
+
+Linux:
+  . env/bin/activate
+Windows:
+  env\Scripts\activate.bat
+
 pip install Flask Flask-SQLAlchemy Flask-WTF SQLAlchemy pymySQL pymysql_sa
+
+python deploy.py -cdu
+
+Now you can run it:
+
+python labmanager/server.py
+
+And see it in http://localhost:5000/
