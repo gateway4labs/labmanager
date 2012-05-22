@@ -65,11 +65,40 @@ def requests():
     interact with the permitted laboratories"""
 
     courses         = request.json['courses']
-    request_payload = request.json['request']
-    general_role    = request.json['general-role']
+    request_payload = request.json['request-payload']
+    general_role    = request.json.get('general-role', 'no particular role') or 'null role'
     author          = request.json['author']
+    complete_name   = request.json['complete-name']
 
-    return "Hi lms %s" % g.lms
+    courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
+    for course_id in courses:
+        roles_in_course = courses[course_id]
+        for role_in_course in roles_in_course:
+            courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
+    courses_code += "</tbody></table>"
+
+    return """<html>
+    <body>
+        Hi %(name)s (username %(author)s),
+
+        I know that your role is %(role)s in the LMS %(lms)s, and that you are.
+
+        Furthermore, you sent me this request:
+        <pre>
+        %(request)s
+        </pre>
+        
+        And I'll process it!
+    </body>
+</html>
+""" % {
+    'name'        : cgi.escape(complete_name),
+    'author'      : cgi.escape(author),
+    'lms'         : cgi.escape(g.lms),
+    'course_code' : courses_code,
+    'request'     : cgi.escape(request_payload),
+    'role'        : cgi.escape(general_role),
+}
 
 
 
@@ -175,19 +204,20 @@ def admin_lms():
 @deletes_elements(RLMSType)
 def admin_rlms():
     types = db_session.query(RLMSType).all()
+    retrieved_types = set( (retrieved_type.name for retrieved_type in types) )
 
     if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
-
-        retrieved_types = set( (retrieved_type.name for retrieved_type in types) )
-
         for supported_type in get_supported_types():
             if supported_type not in retrieved_types:
                 new_type = RLMSType(supported_type)
                 db_session.add(new_type)
         db_session.commit()    
         types = db_session.query(RLMSType).all()
+        retrieved_types = set( (retrieved_type.name for retrieved_type in types) )
 
-    return render_template("labmanager_admin/rlms.html", types = types, supported = get_supported_types() )
+    any_supported_missing = any([ supported_type not in retrieved_types for supported_type in get_supported_types()])
+
+    return render_template("labmanager_admin/rlms.html", types = types, supported = get_supported_types(), any_supported_missing = any_supported_missing)
 
 @app.route("/lms4labs/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
 @requires_session
@@ -195,18 +225,23 @@ def admin_rlms():
 def admin_rlms_versions(rlmstype):
     rlms_type = db_session.query(RLMSType).filter_by(name = rlmstype).first()
     if rlms_type is not None:
+        versions = rlms_type.versions
+
+        retrieved_versions = set( (retrieved_version.version for retrieved_version in versions) )
 
         if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
-
-            retrieved_versions = set( (retrieved_version.version for retrieved_version in rlms_type.versions) )
-
             for supported_version in get_supported_versions(rlmstype):
                 if supported_version not in retrieved_versions:
                     new_version = RLMSTypeVersion(rlms_type, supported_version)
                     db_session.add(new_version)
-            db_session.commit()    
+            db_session.commit()
 
-        return render_template("labmanager_admin/rlms_versions.html", versions = rlms_type.versions, name = rlms_type.name, supported = get_supported_versions(rlmstype) )
+            versions = rlms_type.versions
+            retrieved_versions = set( (retrieved_version.version for retrieved_version in versions) )
+
+        any_supported_missing = any([ supported_version not in retrieved_versions for supported_version in get_supported_versions(rlmstype)])
+
+        return render_template("labmanager_admin/rlms_versions.html", versions = versions, name = rlms_type.name, supported = get_supported_versions(rlmstype), any_supported_missing = any_supported_missing )
 
     return render_template("labmanager_admin/rlms_errors.html")
 

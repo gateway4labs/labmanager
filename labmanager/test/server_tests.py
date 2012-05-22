@@ -1,3 +1,4 @@
+# -*-*- encoding: utf-8 -*-*-
 import os
 import json
 import unittest
@@ -34,17 +35,18 @@ class FlaskrTestCase(unittest.TestCase):
 
     # testing functions
 
-    def test_empty_db(self):
+    def test_lms_request(self):
         """Start with a blank database."""
 
         rv = self.app.post('/lms4labs/requests/', data = json.dumps({
-            'courses'      : [1,2,3],
-            'request'      : "the payload",
-            'general-role' : "admin",
-            'author'       : "pablo"
+            'courses'        : { "1" : ["student"], "2" : ["teacher"] },
+            'request-payload': "the payload",
+            'general-role'   : "admin",
+            'author'         : "pablo",
+            'complete-name'  : "Pablo Orduña",
         }), headers = self.headers, content_type = "application/json")
 
-        assert 'Hi lms' in rv.data
+        assert 'Hi Pablo' in rv.data
 
 if __name__ == '__main__':
     unittest.main()
