@@ -16,7 +16,7 @@ class AddForm(RetrospectiveForm):
 
 class AddLmsForm(RetrospectiveForm):
     name      = TextField("Name", validators = [ Required() ])
-    url       = TextField("URL",  validators = [ Required(), URL() ])
+    url       = TextField("URL",  validators = [ Required() ])
 
     lms_login    = TextField("LMS login", validators = [ Required() ])
     lms_password = PasswordField("LMS login")
