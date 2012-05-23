@@ -101,10 +101,8 @@ def requests():
     if request.method == 'GET':
         return render_template("test_requests.html")
 
-    try:
-        json_data = request.json or json.loads(request.data)
-    except:
-        return "Could not process JSON data"
+    json_data = get_json()
+    if json_data is None: return "Could not process JSON data"
 
     courses         = json_data['courses']
     request_payload = json_data['request-payload']
