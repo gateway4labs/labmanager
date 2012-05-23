@@ -14,7 +14,7 @@
     </ul> 
 
     <form class="well form-search" method="GET" action="{{ url_for('lms_admin_external_courses') }}">
-        <input type="text" id='search-input' class="input-medium search-query" name ="q">
+        <input type="text" id='search-input' class="input-medium search-query" name ="q" value="{{ q }}">
         <button type="submit" class="btn">Search</button>
     </form>
 
@@ -25,7 +25,7 @@
             <tr>
                 <th>Selected</th>
                 <th>Name</th>
-                <th></th>
+                <th>Already present</th>
             </tr>
         </thead>
         <tbody>
@@ -33,7 +33,7 @@
             <tr>
                 <td><label class="checkbox"><input type="checkbox" name="{{ course_id }}"></label></td>
                 <td>{{ courses[course_id] }}</td>
-                <td><a href="{{ courses[course_id] }}" class="btn">Edit</a></td>
+                <td><i class="icon-{% if course_id in existing_course_ids %}ok{% else %}remove{% endif %}"></i></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -44,9 +44,8 @@
     </div>
     {% endif %}
     <div class="form-actions" align="center">
-        <input class="btn btn-primary" name="action" type="submit" value="Add"/>
-        {% if courses|length > 0 %}<input class="btn btn-danger" name="action" type="submit" value="Delete" text="Delete"/>{% endif %}
-        <a href="{{ url_for('lms_admin_courses', rlmstype = name) }}" class="btn">Cancel</a>
+        <button class="btn btn-primary" name="action" type="submit" value="add">Add</button>
+        <a href="{{ url_for('lms_admin_courses') }}" class="btn">Cancel</a>
     </div>
     </form>
 

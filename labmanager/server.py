@@ -20,7 +20,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS
+from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class
 from labmanager.forms    import AddLmsForm
 
@@ -43,6 +43,22 @@ def get_json():
             return json.loads(data)
         except:
             return None
+
+def deletes_elements(table):
+    def real_wrapper(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            # XXX translate 'delete'
+            if request.method == 'POST' and request.form.get('action','').lower() == 'delete':
+                for current_id in request.form:
+                    element = db_session.query(table).filter_by(id = current_id).first()
+                    if element is not None:
+                        db_session.delete(element)
+                db_session.commit()
+
+            return f(*args, **kwargs)
+        return decorated
+    return real_wrapper
 
 
 ###############################################################################
@@ -202,13 +218,17 @@ def lms_admin_redeem_authentication(token):
 def lms_admin_index():
     return render_template("lms_admin/index.html")
 
-@app.route("/lms4labs/lms/admin/courses/")
+@app.route("/lms4labs/lms/admin/courses/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
+@deletes_elements(Course)
 def lms_admin_courses():
+    if request.method == 'POST':
+        if request.form['action'] == 'add':
+            return redirect(url_for('lms_admin_external_courses'))
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
 
-@app.route("/lms4labs/lms/admin/courses/external/")
+@app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_external_courses():
     q = request.args.get('q','')
@@ -228,12 +248,21 @@ def lms_admin_external_courses():
     password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
     opener = urllib2.build_opener(password_handler)
 
-    print url
     json_courses = opener.open(req).read()
-    print json_courses
     courses = json.loads(json_courses)
 
-    return render_template("lms_admin/courses_external.html", courses = courses)
+    existing_courses = db_session.query(Course).filter(Course.course_id.in_(courses.keys()), Course.lms == db_lms).all()
+    existing_course_ids = [ existing_course.course_id for existing_course in existing_courses ]
+
+    if request.method == 'POST':
+        for course_id in request.form:
+            if course_id != 'action' and course_id in courses and course_id not in existing_course_ids:
+                db_course = Course(db_lms, course_id, courses[course_id])
+                db_session.add(db_course)
+        db_session.commit()
+        return redirect(url_for('lms_admin_courses'))
+
+    return render_template("lms_admin/courses_external.html", courses = courses, existing_course_ids = existing_course_ids, q = q)
     
    
 
@@ -255,22 +284,6 @@ def requires_labmanager_admin_session(f):
             return redirect(url_for('admin_login', next = request.url))
         return f(*args, **kwargs)
     return decorated
-
-def deletes_elements(table):
-    def real_wrapper(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            # XXX translate 'delete'
-            if request.method == 'POST' and request.form.get('action','').lower() == 'delete':
-                for current_id in request.form:
-                    element = db_session.query(table).filter_by(id = current_id).first()
-                    if element is not None:
-                        db_session.delete(element)
-                db_session.commit()
-
-            return f(*args, **kwargs)
-        return decorated
-    return real_wrapper
 
 ##############
 # 

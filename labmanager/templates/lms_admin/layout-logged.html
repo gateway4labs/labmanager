@@ -15,7 +15,8 @@
         <a class="brand" href="#">LMS admin</a>
         <div class="nav-collapse">
           <ul class="nav">
-            <li {% if current_link == 'home' %} class="active" {% endif %}><a href="{{ url_for('lms_admin_index') }}">Home</a></li>
+            <li {% if current_link == 'home' %}    class="active" {% endif %}><a href="{{ url_for('lms_admin_index') }}">Home</a></li>
+            <li {% if current_link == 'courses' %} class="active" {% endif %}><a href="{{ url_for('lms_admin_courses') }}">Courses</a></li>
           </ul>
           <ul class="nav pull-right">
             <li class="divider-vertical"></li>
