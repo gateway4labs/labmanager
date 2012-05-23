@@ -110,6 +110,7 @@ class Laboratory(Base):
 
 class PermissionOnLaboratory(Base):
     __tablename__ = 'PermissionOnLaboratories'
+    __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), )
 
     id = Column(Integer, primary_key = True)
 

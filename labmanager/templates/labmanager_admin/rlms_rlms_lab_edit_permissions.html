@@ -1,0 +1,69 @@
+{% set current_link = "rlms" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} RLMS {{ type_name }} / {{ version }} / {{ rlms_name }} / {{ lab_name }} {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_versions', rlmstype = type_name) }}">{{ type_name }}</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms', rlmstype = type_name, rlmsversion = version) }}">{{ version }}</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms_list', rlmstype = type_name, rlmsversion = version, id = rlms_id) }}">{{ rlms_name }}</a> <span class="divider">/</span>
+        </li>
+
+        <li class="active"> {{ lab_name }} </li>
+    </ul> 
+
+    <form action="." method="POST">
+    {% if lmss|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>URL</th>
+                <th>Granted</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lms in lmss %}
+            <tr>
+                <td>{{ lms.name }}</td>
+                <td>{{ lms.url }}</td>
+                <td><i class="icon-{% if lms.id in granted_lms_ids %}ok{% else %}remove{% endif %}"></i></td>
+                {% if lms.id in granted_lms_ids %}
+                <td><button class="btn" name="action" value="revoke-{{ lms.id }}">Revoke</button></td>
+                <td><button class="btn" name="action" value="revoke-{{ lms.id }}">Edit</button></td>
+                {% else %}
+                <td><button class="btn" name="action" value="grant-{{ lms.id }}">Grant</button></td>
+                <td></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else  %}
+    <div class="alert">
+        No LMS found
+    </div>
+    {% endif %}
+    </form>
+    <div class="form-actions" align="center">
+        <a href="{{ url_for('admin_rlms_rlms_list', rlmstype = type_name, rlmsversion = version, id = rlms_id) }}" class="btn">Cancel</a>
+    </div>
+
+</div>
+
+
+{% endblock %}

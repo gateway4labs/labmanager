@@ -394,7 +394,7 @@ def _add_or_edit_lms(id):
 
     return render_template("labmanager_admin/lms_add.html", form = form, name = name)
 
-@app.route("/lms4labs/admin/lms/edit/<int:id>/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/admin/lms/<int:id>/edit/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_edit(id):
     return _add_or_edit_lms(id)
@@ -471,6 +471,12 @@ def _add_or_edit_rlms(rlmstype, rlmsversion, id):
     if rlms_version is None:
         return render_template("labmanager_admin/rlms_errors.html")
 
+    if id is not None:
+        rlms = db_session.query(RLMS).filter_by(id = id).first()
+        if rlms is None or rlms.rlms_version != rlms_version:
+            return render_template("labmanager_admin/rlms_errors.html")
+
+
     AddForm = get_form_class(rlmstype, rlmsversion)
     form = AddForm(id is None)
 
@@ -530,12 +536,12 @@ def admin_rlms_rlms(rlmstype, rlmsversion):
 def admin_rlms_rlms_add(rlmstype, rlmsversion):
     return _add_or_edit_rlms(rlmstype, rlmsversion, None)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/edit/<int:id>/", methods = ('GET','POST'))
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
     return _add_or_edit_rlms(rlmstype, rlmsversion, id)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/list/<int:id>/", methods = ('GET','POST'))
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_list(rlmstype, rlmsversion, id):
@@ -560,9 +566,9 @@ def admin_rlms_rlms_list(rlmstype, rlmsversion, id):
 
     confirmed_laboratory_ids = [ confirmed_laboratory.laboratory_id for confirmed_laboratory in confirmed_laboratories ]
 
-    return render_template("labmanager_admin/rlms_rlms_list.html", laboratories = laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, confirmed_laboratory_ids = confirmed_laboratory_ids)
+    return render_template("labmanager_admin/rlms_rlms_list.html", laboratories = laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, confirmed_laboratory_ids = confirmed_laboratory_ids, rlms_id = rlms.id)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/list/<int:id>/external/", methods = ('GET','POST'))
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/externals/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_list_external(rlmstype, rlmsversion, id):
     rlms = db_session.query(RLMS).filter_by(id = id).first()
@@ -592,6 +598,41 @@ def admin_rlms_rlms_list_external(rlmstype, rlmsversion, id):
             return redirect(url_for('admin_rlms_rlms_list', rlmstype = rlmstype, rlmsversion = rlmsversion, id = id))
 
     return render_template("labmanager_admin/rlms_rlms_list_external.html", available_laboratories = available_laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, existing_laboratory_ids = existing_laboratory_ids)
+
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/", methods = ('GET','POST'))
+@requires_labmanager_admin_session
+@deletes_elements(Laboratory)
+def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
+    template_variables = {}
+
+    lab  = db_session.query(Laboratory).filter_by(id = lab_id).first()
+    if lab is None:
+        return render_template("labmanager_admin/rlms_errors.html")
+
+    rlms = lab.rlms
+    if rlms is None or rlms.rlms_version.version != rlmsversion or rlms.rlms_version.rlms_type.name != rlmstype:
+        return render_template("labmanager_admin/rlms_errors.html")
+
+    if request.method == 'POST':
+        if request.form.get('action','').startswith('grant-'):
+            pass
+        elif request.form.get('action','').startswith('revoke-'):
+            pass
+
+    granted_lms_ids = [ perm.lms_id for perm in lab.permissions ]
+
+    lmss = db_session.query(LMS).all()
+
+    template_variables['granted_lms_ids'] = granted_lms_ids
+    template_variables['type_name']       = rlmstype
+    template_variables['version']         = rlmsversion
+    template_variables['rlms_name']       = rlms.name
+    template_variables['rlms_id']         = rlms.id
+    template_variables['lab_name']        = lab.name
+    template_variables['lmss']            = lmss
+
+    return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
+
 
 
 ###############################################################################

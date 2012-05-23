@@ -1,6 +1,6 @@
 {% set current_link = "rlms" %}
 {% extends "labmanager_admin/layout-logged.html" %}
-{% block title %} RLMS {{ name }} / {{ version }} {% endblock %}
+{% block title %} RLMS {{ type_name }} / {{ version }} / {{ rlms_name }} {% endblock %}
 
 {% block body %}
 {{ super() }}
@@ -30,6 +30,7 @@
                 <th>Name</th>
                 <th>Remote ID</th>
                 <th>Confirmed</th>
+                <th>Permissions</th>
             </tr>
         </thead>
         <tbody>
@@ -39,6 +40,7 @@
                 <td>{{ laboratory.name }}</td>
                 <td>{{ laboratory.laboratory_id }}</td>
                 <td><i class="icon-{% if laboratory.laboratory_id in confirmed_laboratory_ids %}ok{% else %}remove{% endif %}"></i></td>
+                <td><a href="{{ url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = laboratory.id) }}">Edit</a></td>
             </tr>
         {% endfor %}
         </tbody>
