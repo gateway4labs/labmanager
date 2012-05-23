@@ -10,8 +10,7 @@ class AddForm(AddForm):
     remote_login = TextField("Login",        validators = [Required()])
     password     = PasswordField("Password")
 
-    login_url    = TextField("Login URL",    validators = [Required(), URL() ])
-    core_url     = TextField("Core URL",     validators = [Required(), URL() ])
+    base_url     = TextField("Base URL",    validators = [Required(), URL() ])
 
     mappings     = TextField("Mappings",     validators = [Required()], default = "{}")
 

@@ -1,4 +1,5 @@
 #-*-*- encoding: utf-8 -*-*-
+import json
 import hashlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -66,9 +67,15 @@ def add_sample_users():
 
     ilab_4_0 = RLMSTypeVersion(ilab, '4.5')
 
-    weblab_deusto_instance = RLMS(name = "WebLab-Deusto at Deusto", location = "Deusto", rlms_version = weblab_deusto_4_0, configuration = "")
+    configuration = {
+        'remote_login' : 'demo',
+        'password'     : 'demo',
+        'base_url'     : 'http://www.weblab.deusto.es/weblab/',
+    }
 
-    ilab_instance          = RLMS(name = "iLab MIT",                location = "MIT",    rlms_version = ilab_4_0, configuration = "")
+    weblab_deusto_instance = RLMS(name = "WebLab-Deusto at Deusto", location = "Deusto", rlms_version = weblab_deusto_4_0, configuration = json.dumps(configuration))
+
+    ilab_instance          = RLMS(name = "iLab MIT",                location = "MIT",    rlms_version = ilab_4_0, configuration = "{}")
 
     db_session.add(weblab_deusto)
     db_session.add(ilab)

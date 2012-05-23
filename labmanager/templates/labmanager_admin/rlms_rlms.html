@@ -51,7 +51,7 @@
     {% endif %}
     <div class="form-actions" align="center">
         <input class="btn btn-primary" name="action" type="submit" value="Add"/>
-        {% if rlmss|length > 0 %}<input class="btn btn-danger" name="action" type="submit" value="Delete" text="Delete"/>{% endif %}
+        {% if rlmss|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
         <a href="{{ url_for('admin_rlms_versions', rlmstype = name) }}" class="btn">Cancel</a>
     </div>
     </form>

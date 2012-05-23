@@ -48,8 +48,7 @@ def deletes_elements(table):
     def real_wrapper(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            # XXX translate 'delete'
-            if request.method == 'POST' and request.form.get('action','').lower() == 'delete':
+            if request.method == 'POST' and request.form.get('action','') == 'delete':
                 for current_id in request.form:
                     element = db_session.query(table).filter_by(id = current_id).first()
                     if element is not None:
@@ -210,6 +209,10 @@ def lms_admin_redeem_authentication(token):
 
     return redirect(url_for('lms_admin_index'))
 
+
+@app.route("/lms4labs/lms/")
+def lms_index():
+    return redirect(url_for('lms_admin_index'))
 
 @app.route("/lms4labs/lms/admin/")
 @requires_lms_admin_session

@@ -45,7 +45,7 @@
     {% endif %}
     <div class="form-actions" align="center">
         <input class="btn btn-primary {% if not any_supported_missing %}disabled{% endif %}" name="action" type="submit" value="Add supported"/>
-        {% if versions|length > 0 %}<input class="btn btn-danger" name="action" type="submit" value="Delete" text="Delete"/>{% endif %}
+        {% if versions|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
         <a href="{{ url_for('admin_rlms') }}" class="btn">Cancel</a>
     </div>
     </form>
