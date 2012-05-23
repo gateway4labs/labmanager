@@ -2,6 +2,8 @@
 {% extends "lms_admin/layout-logged.html" %}
 {% block title %} Courses {% endblock %}
 
+{% block body_tag %}<body  onload="javascript:document.getElementById('search-input').focus();">{% endblock %}
+
 {% block body %}
 {{ super() }}
 
@@ -10,6 +12,11 @@
     <ul class="breadcrumb">
         <li class="active">Courses</a></li>
     </ul> 
+
+    <form class="well form-search" method="GET" action="{{ url_for('lms_admin_external_courses') }}">
+        <input type="text" id='search-input' class="input-medium search-query" name ="q">
+        <button type="submit" class="btn">Search</button>
+    </form>
 
     <form action="." method="POST">
     {% if courses|length > 0 %}

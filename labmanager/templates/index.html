@@ -1,34 +1,41 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script>
-function perform() {
-    if (window.XMLHttpRequest)
-    {   // code for IE7+, Firefox, Chrome, Opera, Safari
-      xmlhttp=new XMLHttpRequest();
-    } else {// code for IE6, IE5
-      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    xmlhttp.onreadystatechange=function() {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-            document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
-        }
-    }
-    xmlhttp.open("POST", "{{ url_for('requests')  }}", true);
-    xmlhttp.setRequestHeader("Content-Type", "application/json");
-    var request = {
-        "courses"      : [1,2,3],
-        "request"      : "foo bar",
-        "author"       : "porduna",
-        "general-role" : "admin",
-    };
-    var strRequest = JSON.stringify(request);
-    xmlhttp.send(strRequest);
-}
-</script>
+    <title>Lab Manager</title>
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
 </head>
 <body>
-<span onclick="javascript:perform();">Click here</span>
-<div id="myDiv"></div>
+    <div class="container">
+        <div class="row">
+            <div class="hero-unit" align="center">
+                <h1>lms4labs</h1>
+                <br />
+        <!--        <p><img src="img/lms4labs.png" alt="LMS4labs Logo" /></p> -->
+                <p>Welcome to the Lab Manager!</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span4">
+                <h2>LMSs</h2>
+                <p>LMSs will forward SCORM requests to the Lab Manager, which will process them</p>
+                <p><a href="{{ url_for('requests') }}">URL for LMSs</a></p>
+            </div>
+
+            <div class="span4">
+                <h2>LMS administrators</h2>
+                <p>LMS administrators can choose which courses will work with which laboratories</p>
+                <p><a href="{{ url_for('lms_admin_index') }}">Manage LMSs</a></p>
+            </div>
+
+            <div class="span4">
+                <h2>Lab Manager administrators</h2>
+                <p>Lab Manager administrators will select which LMSs are registered in this Lab Manager, as well as which RLMSs will work.</p>
+                <p><a href="{{ url_for('admin_index') }}">Manage Lab Managers</a></p>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

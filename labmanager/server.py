@@ -113,6 +113,11 @@ def requests():
         </pre>
         
         And I'll process it!
+
+        Original request:
+        <pre> 
+        %(json)s
+        </pre>
 """ % {
     'name'        : cgi.escape(complete_name),
     'author'      : cgi.escape(author),
@@ -120,6 +125,7 @@ def requests():
     'course_code' : courses_code,
     'request'     : cgi.escape(request_payload),
     'role'        : cgi.escape(general_role),
+    'json'        : cgi.escape(json.dumps(json_data))
 }
 
 
@@ -138,11 +144,11 @@ def requires_lms_admin_session(f):
         logged_in    = session.get('logged_in', False)
         session_type = session.get('session_type', '')
         if not logged_in or session_type != 'lms_admin':
-            return "Not authorized"
+            return 'Not authorized. Ask your LMS to authenticate you through <a href="%s">%s</a>.' % (url_for('lms_admin_authenticate'), url_for('lms_admin_authenticate'))
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/lms4labs/lms/logout", methods = ['GET', 'POST'])
+@app.route("/lms4labs/lms/admin/logout", methods = ['GET', 'POST'])
 def lms_admin_logout():
     session.pop('logged_in', None)
     return "fine"
@@ -157,7 +163,7 @@ TOKENS = {
     # }
 }
 
-@app.route("/lms4labs/authenticate/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/lms/admin/authenticate/", methods = ['GET', 'POST'])
 @requires_lms_auth
 def lms_admin_authenticate():
     """SCORM packages will perform requests to this method, which will 
@@ -177,7 +183,7 @@ def lms_admin_authenticate():
     }
     return request.url_root + url_for('lms_admin_redeem_authentication', token = code)
 
-@app.route("/lms4labs/authenticate/<token>")
+@app.route("/lms4labs/lms/admin/authenticate/<token>")
 def lms_admin_redeem_authentication(token):
     token_info = TOKENS.pop(token, None)
     if token_info is None:
@@ -191,24 +197,28 @@ def lms_admin_redeem_authentication(token):
     return redirect(url_for('lms_admin_index'))
 
 
-@app.route("/lms4labs/lms/")
+@app.route("/lms4labs/lms/admin/")
 @requires_lms_admin_session
 def lms_admin_index():
     return render_template("lms_admin/index.html")
 
-@app.route("/lms4labs/lms/courses/")
+@app.route("/lms4labs/lms/admin/courses/")
 @requires_lms_admin_session
 def lms_admin_courses():
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
 
-@app.route("/lms4labs/lms/courses/external/")
+@app.route("/lms4labs/lms/admin/courses/external/")
 @requires_lms_admin_session
 def lms_admin_external_courses():
+    q = request.args.get('q','')
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     user     = db_lms.labmanager_login
     password = db_lms.labmanager_password
-    url      = db_lms.url
+    if q is not None:
+        url = "%s?q=%s" % (db_lms.url, q)
+    else:
+        url = db_lms.url
 
     req = urllib2.Request(url, '')
     req.add_header('Content-type','application/json')
@@ -523,15 +533,30 @@ def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
 
 @app.route("/fake_list_courses", methods = ['GET','POST'])
 def fake_list_courses():
+    q = request.args.get('q','')
     auth = request.authorization
+
+    fake_data = { "1" : "Fake electronics course", "2" : "Fake physics course"}
+    view = {}
+    for key, value in fake_data.items():
+        if q in value:
+            view[key] = value
+
     if auth is not None and auth.username in ('test','labmanager') and auth.password in ('test','password'):
-        return json.dumps({ "1" : "Fake course name 1", "2" : "Fake course name 2", })
+        return json.dumps(view)
     return Response('You have to login with proper credentials', 401,
                     {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
+@app.route("/lms4labs/")
+def lms4labs_index():
+    return render_template("index.html")
+
+
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return redirect(url_for('lms4labs_index'))
+
 
 
 if __name__ == "__main__":
