@@ -1,20 +1,31 @@
+import sys
 import getpass
 from optparse import OptionParser
 
+try:
+    import config
+except ImportError:
+    print >> sys.stderr, "Missing config.py. Copy config.py.dist into config.py"
+    sys.exit(-1)
+
 from config import USERNAME, PASSWORD, HOST, DBNAME
 
-try:
-    from config import USE_PYMYSQL
-    if USE_PYMYSQL:
-        import pymysql as dbi
-    else:
-        try:
+from config import ENGINE
+if ENGINE == 'mysql':
+    try:
+        from config import USE_PYMYSQL
+        if USE_PYMYSQL:
+            import pymysql as dbi
+        else:
             import MySQLdb as dbi
-        except ImportError:
-            import sqlite3 as dbi
-except:
-    USE_PYMYSQL = False
-    import MySQLdb as dbi
+    except:
+        USE_PYMYSQL = False
+        import MySQLdb as dbi
+elif ENGINE == 'sqlite':
+    import sqlite3 as dbi
+else:
+    print >> sys.stderr, "Unsupported engine %s. Probably supported if you install the Python driver and modify deploy.py" % ENGINE 
+    sys.exit(-1)
 
 from labmanager.database import init_db, db_session, add_sample_users
 
@@ -22,48 +33,50 @@ ROOT_USERNAME = None
 ROOT_PASSWORD = None
 
 def create_user():
-    sentences = (
-        "DROP USER '%s'@'localhost'" % USERNAME,
-        "CREATE USER '%s'@'localhost' IDENTIFIED BY '%s'" % (USERNAME, PASSWORD),
-        "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (DBNAME, USERNAME, PASSWORD),
-    )
+    if ENGINE == 'mysql':
+        sentences = (
+            "DROP USER '%s'@'localhost'" % USERNAME,
+            "CREATE USER '%s'@'localhost' IDENTIFIED BY '%s'" % (USERNAME, PASSWORD),
+            "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (DBNAME, USERNAME, PASSWORD),
+        )
 
-    global ROOT_USERNAME, ROOT_PASSWORD
-    ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
-    ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
-
-    for num, sentence in enumerate(sentences):
-        try:
-            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD)
-            cursor = connection.cursor()
-            cursor.execute(sentence)
-            connection.commit()
-            connection.close()
-        except:
-            if num != 0: # If user does not exist
-                raise
-
-def create_db():
-    global ROOT_USERNAME, ROOT_PASSWORD
-    if ROOT_USERNAME is None or ROOT_PASSWORD is None:
+        global ROOT_USERNAME, ROOT_PASSWORD
         ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
         ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
 
-    try:
-        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = DBNAME, host = HOST) 
-    except:
-        pass # DB does not exist
-    else:
+        for num, sentence in enumerate(sentences):
+            try:
+                connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD)
+                cursor = connection.cursor()
+                cursor.execute(sentence)
+                connection.commit()
+                connection.close()
+            except:
+                if num != 0: # If user does not exist
+                    raise
+
+def create_db():
+    if ENGINE == 'mysql':
+        global ROOT_USERNAME, ROOT_PASSWORD
+        if ROOT_USERNAME is None or ROOT_PASSWORD is None:
+            ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
+            ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
+
+        try:
+            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = DBNAME, host = HOST) 
+        except:
+            pass # DB does not exist
+        else:
+            cursor = connection.cursor()
+            cursor.execute("DROP DATABASE IF EXISTS %s" % DBNAME)
+            connection.commit()
+            connection.close()
+
+        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = HOST) 
         cursor = connection.cursor()
-        cursor.execute("DROP DATABASE IF EXISTS %s" % DBNAME)
+        cursor.execute("CREATE DATABASE %s" % DBNAME)
         connection.commit()
         connection.close()
-
-    connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = HOST) 
-    cursor = connection.cursor()
-    cursor.execute("CREATE DATABASE %s" % DBNAME)
-    connection.commit()
-    connection.close()
 
 if __name__ == '__main__':
     parser = OptionParser()

@@ -633,6 +633,12 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
 
     return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
 
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<int:lms_id>", methods = ('GET','POST'))
+@requires_labmanager_admin_session
+@deletes_elements(Laboratory)
+def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, lms_id):
+    
+    return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
 
 
 ###############################################################################
@@ -670,8 +676,9 @@ def lms4labs_index():
 def index():
     return redirect(url_for('lms4labs_index'))
 
-
-
-if __name__ == "__main__":
+def run():
     app.config.from_object('config')
     app.run(threaded = True, host = '0.0.0.0')
+
+if __name__ == "__main__":
+    run()
