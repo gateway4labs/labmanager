@@ -66,9 +66,9 @@ def add_sample_users():
 
     ilab_4_0 = RLMSTypeVersion(ilab, '4.5')
 
-    weblab_deusto_instance = RLMS(name = "WebLab-Deusto at Deusto", location = "Deusto", rlms_version = weblab_deusto_4_0, configuration = "")
+    weblab_deusto_instance = RLMS(name = "WebLab-Deusto at Deusto", location = "Deusto", rlms_version = weblab_deusto_4_0, configuration = "{}")
 
-    ilab_instance          = RLMS(name = "iLab MIT",                location = "MIT",    rlms_version = ilab_4_0, configuration = "")
+    ilab_instance          = RLMS(name = "iLab MIT",                location = "MIT",    rlms_version = ilab_4_0, configuration = "{}")
 
     db_session.add(weblab_deusto)
     db_session.add(ilab)

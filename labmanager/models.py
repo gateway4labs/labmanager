@@ -90,22 +90,39 @@ class RLMS(Base):
         self.rlms_version  = rlms_version
         self.configuration = configuration
 
-class PermissionOnLMS(Base):
-    __tablename__ = 'PermissionOnLMSs'
+class Laboratory(Base):
+    __tablename__ = 'Laboratories'
 
     id = Column(Integer, primary_key = True)
 
-    rlms_id = Column(Integer, ForeignKey('RLMSs.id'), nullable = False)
-    lms_id  = Column(Integer, ForeignKey('LMSs.id'),  nullable = False)
+    name          = Column(String(50), nullable = False)
+    laboratory_id = Column(String(50), nullable = False)
+    rlms_id       = Column(Integer, ForeignKey('RLMSs.id'), nullable = False)
+
+    rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
+
+    def __init__(self, name = None, laboratory_id = None, rlms = None):
+        self.name          = name
+        self.laboratory_id = laboratory_id
+        self.rlms          = rlms
+
+
+class PermissionOnLaboratory(Base):
+    __tablename__ = 'PermissionOnLaboratories'
+
+    id = Column(Integer, primary_key = True)
+
+    laboratory_id = Column(Integer, ForeignKey('Laboratories.id'), nullable = False)
+    lms_id        = Column(Integer, ForeignKey('LMSs.id'),  nullable = False)
 
     configuration = Column(String(10 * 1024)) # JSON document
 
-    rlms = relation(RLMS.__name__,  backref = backref('permissions', order_by=id, cascade = 'all,delete'))
-    lms  = relation(LMS.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
+    laboratory = relation(Laboratory.__name__,  backref = backref('permissions', order_by=id, cascade = 'all,delete'))
+    lms        = relation(LMS.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, lms = None, rlms = None, configuration = None):
+    def __init__(self, lms = None, laboratory = None, configuration = None):
         self.lms           = lms
-        self.rlms          = rlms
+        self.laboratory    = laboratory
         self.configuration = configuration
 
 
@@ -136,9 +153,9 @@ class PermissionOnCourse(Base):
 
     configuration        = Column(String(10 * 1024)) # JSON document
 
-    permission_on_lms_id = Column(Integer, ForeignKey('PermissionOnLMSs.id'), nullable = False)
+    permission_on_lms_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
 
-    permission_on_lms    = relation(PermissionOnLMS.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
+    permission_on_lms    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
 
     def __init__(self, permission_on_lms = None, configuration = None):
         self.permission_on_lms = permission_on_lms
