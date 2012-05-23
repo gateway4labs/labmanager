@@ -8,7 +8,10 @@ try:
     if USE_PYMYSQL:
         import pymysql as dbi
     else:
-        import MySQLdb as dbi
+        try:
+            import MySQLdb as dbi
+        except ImportError:
+            import sqlite3 as dbi
 except:
     USE_PYMYSQL = False
     import MySQLdb as dbi
