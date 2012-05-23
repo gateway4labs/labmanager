@@ -1,0 +1,61 @@
+{% set current_link = "rlms" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} RLMS {{ name }} / {{ version }} {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_versions', rlmstype = type_name) }}">{{ type_name }}</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms', rlmstype = type_name, rlmsversion = version) }}">{{ version }}</a> <span class="divider">/</span>
+        </li>
+        <li class="active"> {{ rlms_name }} </li>
+    </ul> 
+
+    <form action="." method="POST">
+    {% if laboratories|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Selected</th>
+                <th>Name</th>
+                <th>Remote ID</th>
+                <th>Confirmed</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for laboratory in laboratories %}
+            <tr>
+                <td><label class="checkbox"><input type="checkbox" name="{{ laboratory.id }}"></label></td>
+                <td>{{ laboratory.name }}</td>
+                <td>{{ laboratory.laboratory_id }}</td>
+                <td><i class="icon-{% if laboratory.laboratory_id in confirmed_laboratory_ids %}ok{% else %}remove{% endif %}"></i></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else  %}
+    <div class="alert">
+        No laboratory found
+    </div>
+    {% endif %}
+    <div class="form-actions" align="center">
+        <button class="btn btn-primary" name="action" type="submit" value="add">Add provided</button>
+        {% if laboratories|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
+        <a href="{{ url_for('admin_rlms_rlms', rlmstype = type_name, rlmsversion = version) }}" class="btn">Cancel</a>
+    </div>
+    </form>
+
+</div>
+
+
+{% endblock %}

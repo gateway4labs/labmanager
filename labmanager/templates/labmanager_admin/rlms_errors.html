@@ -6,7 +6,17 @@
 
 <div class="span10 offset1">
     <div class="alert alert-error">
-        Requested RLMS does not exist. Recheck the address
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            Requested RLMS does not exist. Recheck the address
+            {% endif %}
+        {% endwith %}
     </div>
 </div>
 

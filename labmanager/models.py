@@ -92,6 +92,7 @@ class RLMS(Base):
 
 class Laboratory(Base):
     __tablename__ = 'Laboratories'
+    __table_args__ = (UniqueConstraint('laboratory_id', 'rlms_id'), )
 
     id = Column(Integer, primary_key = True)
 

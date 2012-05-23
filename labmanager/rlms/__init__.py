@@ -38,4 +38,9 @@ def get_form_class(rlms_type, rlms_version):
     return module.AddForm
 
 def get_connetion_tester(rlms_type, rlms_version):
+    module = get_module(rlms_type, rlms_version)
     return module.connection_tester
+
+def get_manager_class(rlms_type, rlms_version):
+    module = get_module(rlms_type, rlms_version)
+    return module.ManagerClass

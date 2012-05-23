@@ -3,7 +3,9 @@ import json
 from flaskext.wtf import Form, TextField, PasswordField, Required, URL, ValidationError
 
 from labmanager.forms import AddForm
+from labmanager.data import Laboratory
 
+from .weblabdeusto_client import WebLabDeustoClient
 
 class AddForm(AddForm):
 
@@ -56,6 +58,25 @@ class AddForm(AddForm):
 
 def connection_tester(configuration):
     config = json.loads(configuration)
-    pass
     return None
+
+class ManagerClass(object):
+    def __init__(self, configuration):
+        config = json.loads(configuration or '{}')
+        self.login    = config.get('remote_login')
+        self.password = config.get('password')
+        self.base_url = config.get('base_url')
+        
+        if self.login is None or self.password is None or self.base_url is None:
+            raise Exception("Laboratory misconfigured: fields missing" )
+
+    def get_laboratories(self):
+        client = WebLabDeustoClient(self.base_url)
+        session_id = client.login(self.login, self.password)
+        experiments = client.list_experiments(session_id)
+        laboratories = []
+        for experiment in experiments:
+            id = '%s@%s' % (experiment['experiment']['name'], experiment['experiment']['category']['name'])
+            laboratories.append(Laboratory(id, id))
+        return laboratories
 

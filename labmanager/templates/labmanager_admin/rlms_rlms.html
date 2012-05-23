@@ -28,7 +28,8 @@
                 <th>Version</th>
                 <th>Name</th>
                 <th>Location</th>
-                <th></th>
+                <th>Edit</th>
+                <th>List</th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +41,7 @@
                 <td>{{ rlms.name }}</td>
                 <td>{{ rlms.location }}</td>
                 <td><a href="{{ url_for('admin_rlms_rlms_edit', rlmstype = name, rlmsversion = rlms.rlms_version.version, id = rlms.id) }}" class="btn">Edit</a></td>
+                <td><a href="{{ url_for('admin_rlms_rlms_list', rlmstype = name, rlmsversion = rlms.rlms_version.version, id = rlms.id) }}" class="btn">List</a></td>
             </tr>
         {% endfor %}
         </tbody>
