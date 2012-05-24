@@ -81,12 +81,25 @@ def check_lms_auth(lmsname, password):
 def requires_lms_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_lms_auth(auth.username, auth.password):
-            return Response(
+        login_required = Response(
                     'Could not verify your access level for that URL.\n'
                     'You have to login with proper credentials', 401,
                     {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+        auth = request.authorization
+        if not auth:
+            json_data = get_json()
+            if json_data is None:
+                return login_required
+            username = json_data.get('lms_username','')
+            password = json_data.get('lms_password','')
+        else:
+            username = auth.username
+            password = auth.password
+
+        if not check_lms_auth(username, password):
+            return login_required
+
         return f(*args, **kwargs)
     return decorated
 
