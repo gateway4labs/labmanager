@@ -419,10 +419,14 @@ def _add_or_edit_lms(id):
 
     return render_template("labmanager_admin/lms_add.html", form = form, name = name)
 
-@app.route("/lms4labs/admin/lms/<int:id>/edit/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/admin/lms/<lms_login>/edit/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
-def admin_lms_edit(id):
-    return _add_or_edit_lms(id)
+def admin_lms_edit(lms_login):
+    lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
+    if lms is None:
+        return render_template("labmanager_admin/lms_errors.html")
+
+    return _add_or_edit_lms(lms.id)
 
 @app.route("/lms4labs/admin/lms/add/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
@@ -652,17 +656,12 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
 
     if request.method == 'POST':
         if request.form.get('action','').startswith('revoke-'):
-            lms_id_str = request.form['action'][len('revoke-'):]
-            try:
-                lms_id = int(lms_id_str)
-            except:
-                return render_template("labmanager_admin/rlms_errors.html")
-
-            lms = db_session.query(LMS).filter_by(id = lms_id).first()
+            lms_login = request.form['action'][len('revoke-'):]
+            lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
             if lms is None:
                 return render_template("labmanager_admin/rlms_errors.html")
            
-            permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms_id).first()
+            permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms.id).first()
             if permission is not None:
                 db_session.delete(permission)
                 db_session.commit()
@@ -682,21 +681,21 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
 
     return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<int:lms_id>", methods = ('GET','POST'))
+@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<lms_login>", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
-def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, lms_id):
+def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, lms_login):
     template_variables = {}
 
     lab, rlms = get_lab_and_lms(rlmstype, rlmsversion, id, lab_id)
     if lab is None or rlms is None:
         return render_template("labmanager_admin/rlms_errors.html")
 
-    lms = db_session.query(LMS).filter_by(id = lms_id).first()
+    lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
     if lms is None:
         return render_template("labmanager_admin/rlms_errors.html")
 
-    permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms_id).first()
+    permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms.id).first()
 
     PermissionsForm = get_permissions_form_class(rlmstype, rlmsversion)
     form = PermissionsForm()
