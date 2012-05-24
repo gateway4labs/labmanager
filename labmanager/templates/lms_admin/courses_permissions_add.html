@@ -11,7 +11,11 @@
         <li>
             <a href="{{ url_for('lms_admin_courses') }}">Courses</a> <span class="divider">/</span>
         </li>
-        <li class="active">{{ course.name }}</a></li>
+        <li>
+            <a href="{{ url_for('lms_admin_courses_permissions', course_id = course.id) }}">{{ course.name }}</a> <span class="divider">/</span>
+        </li>
+
+        <li class="active">{{ lab.name }}</a></li>
     </ul> 
 </div>
 

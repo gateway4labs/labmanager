@@ -291,7 +291,8 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
     if course is None or permission_on_lab is None:
         return render_template("lms_admin/course_errors.html")
 
-    db_rlms = permission_on_lab.laboratory.rlms
+    lab             = permission_on_lab.laboratory
+    db_rlms         = lab.rlms
     db_rlms_version = db_rlms.rlms_version
     db_rlms_type    = db_rlms_version.rlms_type
     rlmstype        = db_rlms_type.name
@@ -335,7 +336,7 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
 
     granted_permission_ids = [ permission.permission_on_lab_id for permission in course.permissions ]
 
-    return render_template("lms_admin/courses_permissions_add.html", course = course, form = form)
+    return render_template("lms_admin/courses_permissions_add.html", course = course, form = form, lab = lab)
 
 @app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
