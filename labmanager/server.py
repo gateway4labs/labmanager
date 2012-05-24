@@ -20,8 +20,8 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, Laboratory
-from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class
+from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, Laboratory, PermissionOnLaboratory
+from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_permissions_form_class
 from labmanager.forms    import AddLmsForm
 
 app = Flask(__name__)
@@ -336,6 +336,10 @@ def admin_logout():
     session.pop('logged_in', None)
     return redirect(url_for('admin_login'))
 
+@app.route("/lms4labs/admin/logout/show", methods = ['GET', 'POST'])
+def admin_before_logout():
+    return render_template("labmanager_admin/logout.html")
+
 ############
 # 
 # H O M E
@@ -612,25 +616,43 @@ def admin_rlms_rlms_list_external(rlmstype, rlmsversion, id):
 
     return render_template("labmanager_admin/rlms_rlms_list_external.html", available_laboratories = available_laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, existing_laboratory_ids = existing_laboratory_ids)
 
+def get_lab_and_lms(rlmstype, rlmsversion, id, lab_id):
+    lab  = db_session.query(Laboratory).filter_by(id = lab_id).first()
+    if lab is None:
+        return None, None
+
+    rlms = lab.rlms
+    if rlms is None or rlms.id != id or rlms.rlms_version.version != rlmsversion or rlms.rlms_version.rlms_type.name != rlmstype:
+        return None, None
+    return lab, rlms
+
+
 @app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
     template_variables = {}
 
-    lab  = db_session.query(Laboratory).filter_by(id = lab_id).first()
-    if lab is None:
-        return render_template("labmanager_admin/rlms_errors.html")
-
-    rlms = lab.rlms
-    if rlms is None or rlms.rlms_version.version != rlmsversion or rlms.rlms_version.rlms_type.name != rlmstype:
+    lab, rlms = get_lab_and_lms(rlmstype, rlmsversion, id, lab_id)
+    if lab is None or rlms is None:
         return render_template("labmanager_admin/rlms_errors.html")
 
     if request.method == 'POST':
-        if request.form.get('action','').startswith('grant-'):
-            pass
-        elif request.form.get('action','').startswith('revoke-'):
-            pass
+        if request.form.get('action','').startswith('revoke-'):
+            lms_id_str = request.form['action'][len('revoke-'):]
+            try:
+                lms_id = int(lms_id_str)
+            except:
+                return render_template("labmanager_admin/rlms_errors.html")
+
+            lms = db_session.query(LMS).filter_by(id = lms_id).first()
+            if lms is None:
+                return render_template("labmanager_admin/rlms_errors.html")
+           
+            permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms_id).first()
+            if permission is not None:
+                db_session.delete(permission)
+                db_session.commit()
 
     granted_lms_ids = [ perm.lms_id for perm in lab.permissions ]
 
@@ -640,8 +662,9 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
     template_variables['type_name']       = rlmstype
     template_variables['version']         = rlmsversion
     template_variables['rlms_name']       = rlms.name
-    template_variables['rlms_id']         = rlms.id
+    template_variables['rlms_id']         = id
     template_variables['lab_name']        = lab.name
+    template_variables['lab_id']          = lab_id
     template_variables['lmss']            = lmss
 
     return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
@@ -650,8 +673,54 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, lms_id):
-    
-    return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
+    template_variables = {}
+
+    lab, rlms = get_lab_and_lms(rlmstype, rlmsversion, id, lab_id)
+    if lab is None or rlms is None:
+        return render_template("labmanager_admin/rlms_errors.html")
+
+    lms = db_session.query(LMS).filter_by(id = lms_id).first()
+    if lms is None:
+        return render_template("labmanager_admin/rlms_errors.html")
+
+    permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms_id).first()
+
+    PermissionsForm = get_permissions_form_class(rlmstype, rlmsversion)
+    form = PermissionsForm()
+    if form.validate_on_submit():
+        configuration_dict = {}
+        for field in form.get_field_names():
+            data = getattr(form, field).data
+            if data != '':
+                configuration_dict[field] = data
+
+        configuration = json.dumps(configuration_dict)
+
+        if permission is None: # Not yet granted: add it
+            permission = PermissionOnLaboratory(lms = lms, laboratory = lab, configuration = configuration)
+            db_session.add(permission)
+        else: # Already granted: edit it
+            permission.configuration = configuration
+
+        db_session.commit()
+        return redirect(url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = rlmstype, rlmsversion = rlmsversion, id = id, lab_id = lab_id))
+
+    if permission is not None:
+        configuration_dict = json.loads(permission.configuration or '{}')
+        for field in configuration_dict:
+            getattr(form, field).data = configuration_dict.get(field,'')
+
+    template_variables['type_name']       = rlmstype
+    template_variables['version']         = rlmsversion
+    template_variables['rlms_name']       = rlms.name
+    template_variables['rlms_id']         = id
+    template_variables['lab_name']        = lab.name
+    template_variables['lab_id']          = lab_id
+    template_variables['lms_name']        = lms.name
+    template_variables['add_or_edit']     = permission is None
+    template_variables['form']            = form
+
+    return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions_add.html", **template_variables)
 
 
 ###############################################################################

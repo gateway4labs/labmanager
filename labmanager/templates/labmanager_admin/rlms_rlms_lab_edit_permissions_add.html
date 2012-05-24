@@ -1,0 +1,53 @@
+{% set current_link = "rlms" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} RLMS {{ type_name }} / {{ version }} / {{ rlms_name }} / {{ lab_name }} / {{ lms_name }} {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin_rlms') }}">RLMS</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_versions', rlmstype = type_name) }}">{{ type_name }}</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms', rlmstype = type_name, rlmsversion = version) }}">{{ version }}</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms_list', rlmstype = type_name, rlmsversion = version, id = rlms_id) }}">{{ rlms_name }}</a> <span class="divider">/</span>
+        </li>
+
+        <li>
+            <a href="{{ url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = lab_id) }}">{{ lab_name }}</a> <span class="divider">/</span>
+        </li>
+
+        <li class="active"> {{ lms_name }} </li>
+    </ul> 
+</div>
+
+<div class="span6 offset3">
+    {% from "_form_helpers.html" import render_field %}
+    <form method="POST" action="{{ request.url }}" class="form-horizontal">
+        {{ form.hidden_tag() }}
+
+        <fieldset>
+            {% for field_name in form.get_field_names() %}
+                {{ render_field(form|attr(field_name)) }}
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if add_or_edit %}Grant{% else %}Save changes{% endif %}</button>
+                <a href="{{ url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = lab_id) }}" class="btn">Cancel</a>
+            </div>
+        </fieldset>
+    </form>
+
+</div>
+
+
+{% endblock %}

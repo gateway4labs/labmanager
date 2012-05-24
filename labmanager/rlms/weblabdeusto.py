@@ -1,8 +1,8 @@
 import json
 
-from flaskext.wtf import Form, TextField, PasswordField, Required, URL, ValidationError
+from flaskext.wtf import Form, TextField, PasswordField, Required, IntegerField, URL, ValidationError
 
-from labmanager.forms import AddForm
+from labmanager.forms import AddForm, RetrospectiveForm
 from labmanager.data import Laboratory
 
 from .weblabdeusto_client import WebLabDeustoClient
@@ -55,6 +55,20 @@ class AddForm(AddForm):
             if '@' not in value:
                 raise ValidationError("Value format: experiment_name@experiment_category ")
 
+class PermissionForm(RetrospectiveForm):
+    priority = TextField("Priority")
+    time     = TextField("Time (in seconds)")
+
+    def validate_number(form, field):
+        if field.data != '' and field.data is not None:
+            try:
+                int(field.data)
+            except:
+                raise ValidationError("Invalid value. Must be an integer.")
+
+
+    validate_priority = validate_number
+    validate_time     = validate_number
 
 def connection_tester(configuration):
     config = json.loads(configuration)

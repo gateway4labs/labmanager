@@ -44,9 +44,9 @@
                 <td><i class="icon-{% if lms.id in granted_lms_ids %}ok{% else %}remove{% endif %}"></i></td>
                 {% if lms.id in granted_lms_ids %}
                 <td><button class="btn" name="action" value="revoke-{{ lms.id }}">Revoke</button></td>
-                <td><button class="btn" name="action" value="revoke-{{ lms.id }}">Edit</button></td>
+                <td><a class="btn" href="{{ url_for('admin_rlms_rlms_lab_edit_permissions_lms', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = lab_id, lms_id = lms.id) }}">Edit</a></td>
                 {% else %}
-                <td><button class="btn" name="action" value="grant-{{ lms.id }}">Grant</button></td>
+                <td><a class="btn" href="{{ url_for('admin_rlms_rlms_lab_edit_permissions_lms', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = lab_id, lms_id = lms.id) }}">Grant</a></td>
                 <td></td>
                 {% endif %}
             </tr>

@@ -1,0 +1,19 @@
+{% set current_link = "home" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} User preferences {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+    <div class="container">
+        <div class="row">
+            <div class="span4 offset3" align="center">
+                <h2>Preferences</h2>
+                <a href="{{ url_for('admin_index') }}">Back</a>
+                <a href="{{ url_for('admin_logout') }}">Log out</a>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
