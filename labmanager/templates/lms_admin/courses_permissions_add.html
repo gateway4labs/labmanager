@@ -1,0 +1,55 @@
+{% set current_link = "courses" %}
+{% extends "lms_admin/layout-logged.html" %}
+{% block title %} Courses {% endblock %}
+
+{% block body %}
+{{ super() }}
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ url_for('lms_admin_courses') }}">Courses</a> <span class="divider">/</span>
+        </li>
+        <li class="active">{{ course.name }}</a></li>
+    </ul> 
+
+    <form action="." method="POST">
+    {% if permissions|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Selected</th>
+                <th>Name</th>
+                <th>RLMS type</th>
+                <th>RLMS name</th>
+                <th>Location</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for permission in permissions %}
+            <tr>
+                <td>{{ permission.laboratory.name }}</td>
+                <td>{{ permission.laboratory.rlms.rlms_version.rlms_type.name }}</td>
+                <td>{{ permission.laboratory.rlms.name }}</td>
+                <td>{{ permission.laboratory.rlms.location }}</td>
+                <td><a href="{{ course.name }}" class="btn">Edit permission</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else  %}
+    <div class="alert">
+        No permission found
+    </div>
+    {% endif %}
+    <div class="form-actions" align="center">
+        <button class="btn btn-primary" name="action" type="submit" value="add">Add</button>
+        <a href="{{ url_for('lms_admin_courses') }}" class="btn">Cancel</a>
+    </div>
+    </form>
+
+</div>
+
+{% endblock %}

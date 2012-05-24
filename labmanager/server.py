@@ -250,7 +250,7 @@ def lms_admin_courses():
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
 
-@app.route("/lms4labs/lms/admin/courses/<int:course_id>", methods = ['GET', 'POST'])
+@app.route("/lms4labs/lms/admin/courses/<int:course_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 @deletes_elements(PermissionOnCourse)
 def lms_admin_courses_permissions(course_id):
@@ -260,7 +260,28 @@ def lms_admin_courses_permissions(course_id):
     if course is None:
         return render_template("lms_admin/course_errors.html")
 
+    if request.method == 'POST':
+        if request.form['action'] == 'add':
+            return redirect(url_for('lms_admin_courses_permissions_add', course_id = course_id))
+
     return render_template("lms_admin/courses_permissions.html", permissions = course.permissions, course = course)
+
+@app.route("/lms4labs/lms/admin/courses/<int:course_id>/permissions/add/", methods = ['GET', 'POST'])
+@requires_lms_admin_session
+@deletes_elements(PermissionOnCourse)
+def lms_admin_courses_permissions_add(course_id):
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    course = db_session.query(Course).filter_by(id = course_id, lms = db_lms).first()
+
+    if course is None:
+        return render_template("lms_admin/course_errors.html")
+
+    if request.method == 'POST':
+        if request.form['action'] == 'add':
+            # TODO: add them...
+            return redirect(url_for('lms_admin_courses_permissions'))
+
+    return render_template("lms_admin/courses_permissions_add.html", permissions = db_lms.permissions, course = course)
 
 @app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
