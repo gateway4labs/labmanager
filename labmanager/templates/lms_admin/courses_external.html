@@ -16,6 +16,7 @@
     <form class="well form-search" method="GET" action="{{ url_for('lms_admin_external_courses') }}">
         <input type="text" id='search-input' class="input-medium search-query" name ="q" value="{{ q }}">
         <button type="submit" class="btn">Search</button>
+        <span class="pull-right"><input type="text" class="input-small" name ="start" value="{{ start }}"> out of {{ number }}</span>
     </form>
 
     <form action="." method="POST">
@@ -29,15 +30,24 @@
             </tr>
         </thead>
         <tbody>
-        {% for course_id in courses %}
+        {% for course_id, course_name in courses %}
             <tr>
                 <td><label class="checkbox"><input type="checkbox" name="{{ course_id }}"></label></td>
-                <td>{{ courses[course_id] }}</td>
+                <td>{{ course_name }}</td>
                 <td><i class="icon-{% if course_id in existing_course_ids %}ok{% else %}remove{% endif %}"></i></td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+        <div align="center">
+        {% for page in current_pages %}
+            {% if page != current_page %}
+            <a href="{{ url_for('lms_admin_external_courses', q = q, start = page * per_page) }}">{{ page + 1 }}</a>
+            {% else %}
+            <b>{{ page + 1 }}</b>
+            {% endif %}
+        {% endfor %}
+        </div>
     {% else  %}
     <div class="alert">
         No course found

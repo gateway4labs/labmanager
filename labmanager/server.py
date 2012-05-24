@@ -341,14 +341,15 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
 @app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_external_courses():
-    q = request.args.get('q','')
+    q     = request.args.get('q','')
+    try:
+        start = int(request.args.get('start','0'))
+    except:
+        start = 0
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     user     = db_lms.labmanager_login
     password = db_lms.labmanager_password
-    if q is not None:
-        url = "%s?q=%s" % (db_lms.url, q)
-    else:
-        url = db_lms.url
+    url = "%s?q=%s&start=%s" % (db_lms.url, q, start)
 
     req = urllib2.Request(url, '')
     req.add_header('Content-type','application/json')
@@ -358,10 +359,37 @@ def lms_admin_external_courses():
     password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
     opener = urllib2.build_opener(password_handler)
 
-    json_courses = opener.open(req).read()
-    courses = json.loads(json_courses)
+    json_results= opener.open(req).read()
+    VISIBLE_PAGES = 10
+    try:
+        results = json.loads(json_results)
 
-    existing_courses = db_session.query(Course).filter(Course.course_id.in_(courses.keys()), Course.lms == db_lms).all()
+        courses_data = results['courses']
+        courses = [ (course['id'], course['name']) for course in courses_data ]
+        course_keys = [ course['id'] for course in courses_data ]
+        number   = results['number']
+        per_page = results['per_page']
+        number_of_pages = ((number - 1) / per_page ) + 1
+        current_page    = ((start - 1)  / per_page ) + 1
+
+        THEORICAL_BEFORE_PAGES = VISIBLE_PAGES / 2
+        if current_page < THEORICAL_BEFORE_PAGES:
+            BEFORE_PAGES = current_page
+            AFTER_PAGES  = VISIBLE_PAGES - current_page
+        else:
+            BEFORE_PAGES = THEORICAL_BEFORE_PAGES
+            AFTER_PAGES  = BEFORE_PAGES
+
+        min_page = (start/VISIBLE_PAGES - BEFORE_PAGES)
+        max_page = (start/VISIBLE_PAGES + AFTER_PAGES)
+        if max_page >= number_of_pages:
+            max_page = number_of_pages
+        current_pages   = range(min_page, max_page)
+    except:
+        traceback.print_exc()
+        return "Malformed data retrieved. Look at the logs for more information"
+
+    existing_courses = db_session.query(Course).filter(Course.course_id.in_(course_keys), Course.lms == db_lms).all()
     existing_course_ids = [ existing_course.course_id for existing_course in existing_courses ]
 
     if request.method == 'POST':
@@ -372,7 +400,7 @@ def lms_admin_external_courses():
         db_session.commit()
         return redirect(url_for('lms_admin_courses'))
 
-    return render_template("lms_admin/courses_external.html", courses = courses, existing_course_ids = existing_course_ids, q = q)
+    return render_template("lms_admin/courses_external.html", courses = courses, existing_course_ids = existing_course_ids, q = q, current_page = current_page, number = number, current_pages = current_pages, per_page = per_page, start = start)
     
    
 
@@ -835,19 +863,46 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
 
 @app.route("/fake_list_courses", methods = ['GET','POST'])
 def fake_list_courses():
-    q = request.args.get('q','')
     auth = request.authorization
+    if auth is None or auth.username not in ('test','labmanager') or auth.password not in ('test','password'):
+        return Response('You have to login with proper credentials', 401,
+                        {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
-    fake_data = { "1" : "Fake electronics course", "2" : "Fake physics course"}
-    view = {}
-    for key, value in fake_data.items():
+    q         = request.args.get('q','')
+    start_str = request.args.get('start','0')
+
+    try:
+        start = int(start_str)
+    except:
+        return "Invalid start"
+
+    fake_data = []
+    for pos in xrange(10000):
+        if pos % 3 == 0:
+            fake_data.append((str(pos), "Fake electronics course %s" % pos))
+        elif pos % 3 == 1:
+            fake_data.append((str(pos), "Fake physics course %s" % pos))
+        else:
+            fake_data.append((str(pos), "Fake robotics course %s" % pos))
+
+    fake_return_data = []
+    for key, value in fake_data:
         if q in value:
-            view[key] = value
+            fake_return_data.append({
+                'id'   : key,
+                'name' : value,
+            })
 
-    if auth is not None and auth.username in ('test','labmanager') and auth.password in ('test','password'):
-        return json.dumps(view)
-    return Response('You have to login with proper credentials', 401,
-                    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+    N = 10
+
+    view = {
+        'start'    : start,
+        'number'   : len(fake_return_data),
+        'per_page' : N,
+        'courses'  : fake_return_data[start:start+N],
+    }
+
+    return json.dumps(view, indent = 4)
 
 @app.route("/lms4labs/")
 def lms4labs_index():
