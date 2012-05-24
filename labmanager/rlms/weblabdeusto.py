@@ -2,7 +2,7 @@ import json
 
 from flaskext.wtf import Form, TextField, PasswordField, Required, IntegerField, URL, ValidationError
 
-from labmanager.forms import AddForm, RetrospectiveForm
+from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.data import Laboratory
 
 from .weblabdeusto_client import WebLabDeustoClient
@@ -69,6 +69,9 @@ class PermissionForm(RetrospectiveForm):
 
     validate_priority = validate_number
     validate_time     = validate_number
+
+class CoursePermissionForm(PermissionForm, GenericPermissionForm):
+    pass
 
 def connection_tester(configuration):
     config = json.loads(configuration)

@@ -36,3 +36,6 @@ class AddLmsForm(RetrospectiveForm):
         if form.add_or_edit and field.data == '':
             raise ValidationError("This field is required.")
 
+class GenericPermissionForm(RetrospectiveForm):
+    identifier    = TextField("Identifier", validators = [ Required() ])
+
