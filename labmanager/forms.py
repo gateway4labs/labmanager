@@ -19,7 +19,7 @@ class AddLmsForm(RetrospectiveForm):
     url       = TextField("URL",  validators = [ Required() ])
 
     lms_login    = TextField("LMS login", validators = [ Required() ])
-    lms_password = PasswordField("LMS login")
+    lms_password = PasswordField("LMS password")
 
     labmanager_login    = TextField("Labmanager login", validators = [ Required() ])
     labmanager_password = PasswordField("Labmanager password")
