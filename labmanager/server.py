@@ -20,7 +20,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, Laboratory, PermissionOnLaboratory
+from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, Laboratory, PermissionOnLaboratory, PermissionOnCourse
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_permissions_form_class
 from labmanager.forms    import AddLmsForm
 
@@ -249,6 +249,18 @@ def lms_admin_courses():
             return redirect(url_for('lms_admin_external_courses'))
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
+
+@app.route("/lms4labs/lms/admin/courses/<int:course_id>", methods = ['GET', 'POST'])
+@requires_lms_admin_session
+@deletes_elements(PermissionOnCourse)
+def lms_admin_courses_permissions(course_id):
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    course = db_session.query(Course).filter_by(id = course_id, lms = db_lms).first()
+
+    if course is None:
+        return render_template("lms_admin/course_errors.html")
+
+    return render_template("lms_admin/courses_permissions.html", permissions = course.permissions, course = course)
 
 @app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session

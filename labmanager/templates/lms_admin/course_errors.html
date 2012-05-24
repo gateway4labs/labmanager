@@ -1,0 +1,13 @@
+{% set current_link = "courses" %}
+{% extends "lms_admin/layout-logged.html" %}
+{% block title %} LMS error {% endblock %}
+{% block body %}
+{{ super() }}
+
+<div class="span10 offset1">
+    <div class="alert alert-error">
+        Requested LMS does not exist. Recheck the address
+    </div>
+</div>
+
+{% endblock %}

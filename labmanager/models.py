@@ -155,11 +155,13 @@ class PermissionOnCourse(Base):
 
     configuration        = Column(String(10 * 1024)) # JSON document
 
-    permission_on_lms_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
+    permission_on_lab_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
+    course_id            = Column(Integer, ForeignKey('Courses.id'), nullable = False)
 
-    permission_on_lms    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
+    permission_on_lab    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
+    course               = relation(Course.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, permission_on_lms = None, configuration = None):
-        self.permission_on_lms = permission_on_lms
+    def __init__(self, permission_on_lab = None, configuration = None):
+        self.permission_on_lab = permission_on_lab
         self.configuration     = configuration
 

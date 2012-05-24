@@ -26,7 +26,7 @@
             <tr>
                 <td><label class="checkbox"><input type="checkbox" name="{{ course.id }}"></label></td>
                 <td>{{ course.name }}</td>
-                <td><a href="{{ course.name }}" class="btn">Edit permissions</a></td>
+                <td><a href="{{ url_for('lms_admin_courses_permissions', course_id = course.id) }}" class="btn">Edit permissions</a></td>
             </tr>
         {% endfor %}
         </tbody>
