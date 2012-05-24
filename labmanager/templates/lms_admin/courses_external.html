@@ -19,7 +19,7 @@
         <span class="pull-right"><input type="text" class="input-small" name ="start" value="{{ start }}"> out of {{ number }}</span>
     </form>
 
-    <form action="." method="POST">
+    <form action="{{ url }}" method="POST">
     {% if courses|length > 0 %}
     <table class="table table-striped">
         <thead>

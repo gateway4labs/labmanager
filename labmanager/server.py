@@ -366,7 +366,7 @@ def lms_admin_external_courses():
 
         courses_data = results['courses']
         courses = [ (course['id'], course['name']) for course in courses_data ]
-        course_keys = [ course['id'] for course in courses_data ]
+        course_dict = dict(courses)
         number   = results['number']
         per_page = results['per_page']
         number_of_pages = ((number - 1) / per_page ) + 1
@@ -389,13 +389,13 @@ def lms_admin_external_courses():
         traceback.print_exc()
         return "Malformed data retrieved. Look at the logs for more information"
 
-    existing_courses = db_session.query(Course).filter(Course.course_id.in_(course_keys), Course.lms == db_lms).all()
+    existing_courses = db_session.query(Course).filter(Course.course_id.in_(course_dict.keys()), Course.lms == db_lms).all()
     existing_course_ids = [ existing_course.course_id for existing_course in existing_courses ]
 
     if request.method == 'POST':
         for course_id in request.form:
-            if course_id != 'action' and course_id in courses and course_id not in existing_course_ids:
-                db_course = Course(db_lms, course_id, courses[course_id])
+            if course_id != 'action' and course_id in course_dict and course_id not in existing_course_ids:
+                db_course = Course(db_lms, course_id, course_dict[course_id])
                 db_session.add(db_course)
         db_session.commit()
         return redirect(url_for('lms_admin_courses'))
