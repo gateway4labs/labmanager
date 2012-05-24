@@ -110,9 +110,11 @@ class Laboratory(Base):
 
 class PermissionOnLaboratory(Base):
     __tablename__ = 'PermissionOnLaboratories'
-    __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), )
+    __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), UniqueConstraint('local_identifier', 'lms_id'))
 
     id = Column(Integer, primary_key = True)
+
+    local_identifier     = Column(String(50), nullable = False, index = True)
 
     laboratory_id = Column(Integer, ForeignKey('Laboratories.id'), nullable = False)
     lms_id        = Column(Integer, ForeignKey('LMSs.id'),  nullable = False)
@@ -122,10 +124,11 @@ class PermissionOnLaboratory(Base):
     laboratory = relation(Laboratory.__name__,  backref = backref('permissions', order_by=id, cascade = 'all,delete'))
     lms        = relation(LMS.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, lms = None, laboratory = None, configuration = None):
-        self.lms           = lms
-        self.laboratory    = laboratory
-        self.configuration = configuration
+    def __init__(self, lms = None, laboratory = None, configuration = None, local_identifier = None):
+        self.lms              = lms
+        self.laboratory       = laboratory
+        self.configuration    = configuration
+        self.local_identifier = local_identifier
 
 
 class Course(Base):
@@ -150,11 +153,9 @@ class Course(Base):
 
 class PermissionOnCourse(Base):
     __tablename__  = 'PermissionOnCourses'
-    __table_args__ = (UniqueConstraint('course_id', 'local_identifier'), UniqueConstraint('course_id', 'permission_on_lab_id'))
+    __table_args__ = (UniqueConstraint('course_id', 'permission_on_lab_id'),)
     
     id = Column(Integer, primary_key = True)
-
-    local_identifier     = Column(String(50), nullable = False, index = True)
 
     configuration        = Column(String(10 * 1024)) # JSON document
 
@@ -164,9 +165,8 @@ class PermissionOnCourse(Base):
     permission_on_lab    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
     course               = relation(Course.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, permission_on_lab = None, course = None, configuration = None, local_identifier = None):
+    def __init__(self, permission_on_lab = None, course = None, configuration = None):
         self.permission_on_lab = permission_on_lab
         self.course            = course
         self.configuration     = configuration
-        self.local_identifier  = local_identifier
 

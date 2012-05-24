@@ -32,11 +32,7 @@
         {% for permission_on_lab in permissions %}
             <tr>
                 <td>{{ permission_on_lab.laboratory.name }}</td>
-                {% if permission_on_lab.id in granted_permission_ids %}
-                <td>{{ granted_permission_ids[permission_on_lab.id] }}</td>
-                {% else %}
-                <td>-</td>
-                {% endif %}
+                <td>{{ permission_on_lab.local_identifier }}</td>
                 <td>{{ permission_on_lab.laboratory.rlms.rlms_version.rlms_type.name }}</td>
                 <td>{{ permission_on_lab.laboratory.rlms.name }}</td>
                 <td>{{ permission_on_lab.laboratory.rlms.location }}</td>

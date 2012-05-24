@@ -21,7 +21,7 @@ from flask import Flask, Response, render_template, request, g, session, redirec
 # 
 from labmanager.database import db_session
 from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, Laboratory, PermissionOnLaboratory, PermissionOnCourse
-from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_permissions_form_class, get_course_permissions_form_class
+from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_permissions_form_class, get_lms_permissions_form_class
 from labmanager.forms    import AddLmsForm
 
 app = Flask(__name__)
@@ -260,9 +260,7 @@ def lms_admin_courses_permissions(course_id):
     if course is None:
         return render_template("lms_admin/course_errors.html")
 
-    granted_permission_ids = {}
-    for permission in course.permissions:
-        granted_permission_ids[permission.permission_on_lab_id] = permission.local_identifier
+    granted_permission_ids = [ permission.permission_on_lab_id for permission in course.permissions ]
 
     if request.method == 'POST':
         if request.form.get('action','').startswith('revoke-'):
@@ -300,30 +298,22 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
 
     permission = db_session.query(PermissionOnCourse).filter_by(permission_on_lab = permission_on_lab, course = course).first()
 
-    CoursePermissionsForm = get_course_permissions_form_class(rlmstype, rlmsversion)
-    form = CoursePermissionsForm()
+    PermissionsForm = get_permissions_form_class(rlmstype, rlmsversion)
+    form = PermissionsForm()
     if form.validate_on_submit():
         configuration_dict = {}
         for field in form.get_field_names():
-            if field != 'identifier':
-                data = getattr(form, field).data
-                if data != '':
-                    configuration_dict[field] = data
+            data = getattr(form, field).data
+            if data != '':
+                configuration_dict[field] = data
 
-        identifier = form.identifier.data
         configuration = json.dumps(configuration_dict)
 
-        permission_with_same_identifier = db_session.query(PermissionOnCourse).filter_by(local_identifier = identifier, course = course).first()
-        if permission_with_same_identifier is not None and permission_with_same_identifier != permission:
-            flash("Could not grant permission. The identifier %s was already used for the laboratory %s. Choose other identifier." % (identifier, permission_with_same_identifier.permission_on_lab.laboratory.name))
-            return render_template("lms_admin/course_errors.html")
-
         if permission is None: # Not yet granted: add it            
-            permission = PermissionOnCourse(permission_on_lab = permission_on_lab, course = course, configuration = configuration, local_identifier = identifier)
+            permission = PermissionOnCourse(permission_on_lab = permission_on_lab, course = course, configuration = configuration)
             db_session.add(permission)
         else: # Already granted: edit it
             permission.configuration    = configuration
-            permission.local_identifier = identifier
         db_session.commit()
         return redirect(url_for('lms_admin_courses_permissions', course_id = course_id))
 
@@ -332,7 +322,6 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
         for field in configuration_dict:
             if hasattr(form, field):
                 getattr(form, field).data = configuration_dict.get(field,'')
-        form.identifier.data = permission.local_identifier
 
     granted_permission_ids = [ permission.permission_on_lab_id for permission in course.permissions ]
 
@@ -813,19 +802,28 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
 
     permission = db_session.query(PermissionOnLaboratory).filter_by(laboratory_id = lab_id, lms_id = lms.id).first()
 
-    PermissionsForm = get_permissions_form_class(rlmstype, rlmsversion)
-    form = PermissionsForm()
+    LmsPermissionsForm = get_lms_permissions_form_class(rlmstype, rlmsversion)
+    form = LmsPermissionsForm()
     if form.validate_on_submit():
         configuration_dict = {}
         for field in form.get_field_names():
-            data = getattr(form, field).data
-            if data != '':
-                configuration_dict[field] = data
+            if field != 'identifier':
+                data = getattr(form, field).data
+                if data != '':
+                    configuration_dict[field] = data
+        identifier = form.identifier.data
 
         configuration = json.dumps(configuration_dict)
 
+        permission_with_same_identifier = db_session.query(PermissionOnLaboratory).filter_by(lms_id = lms.id, local_identifier = identifier).first()
+        if permission_with_same_identifier is not None and permission_with_same_identifier != permission:
+            flash("Could not grant permission. The identifier %s was already used in the LMS %s for the laboratory %s. Choose other identifier." % (identifier, lms.name, permission_with_same_identifier.laboratory.name))
+            return render_template("labmanager_admin/rlms_errors.html")
+
+        
+
         if permission is None: # Not yet granted: add it
-            permission = PermissionOnLaboratory(lms = lms, laboratory = lab, configuration = configuration)
+            permission = PermissionOnLaboratory(lms = lms, laboratory = lab, configuration = configuration, local_identifier = identifier)
             db_session.add(permission)
         else: # Already granted: edit it
             permission.configuration = configuration
@@ -838,6 +836,7 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
         for field in configuration_dict:
             if hasattr(form, field):
                 getattr(form, field).data = configuration_dict.get(field,'')
+        form.identifier.data = permission.local_identifier
 
     template_variables['type_name']       = rlmstype
     template_variables['version']         = rlmsversion
@@ -920,3 +919,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+

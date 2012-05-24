@@ -41,9 +41,9 @@ def get_permissions_form_class(rlms_type, rlms_version):
     module = get_module(rlms_type, rlms_version)
     return module.PermissionForm
 
-def get_course_permissions_form_class(rlms_type, rlms_version):
+def get_lms_permissions_form_class(rlms_type, rlms_version):
     module = get_module(rlms_type, rlms_version)
-    return module.CoursePermissionForm
+    return module.LmsPermissionForm
 
 def get_connetion_tester(rlms_type, rlms_version):
     module = get_module(rlms_type, rlms_version)

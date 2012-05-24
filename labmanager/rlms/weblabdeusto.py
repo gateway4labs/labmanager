@@ -70,7 +70,7 @@ class PermissionForm(RetrospectiveForm):
     validate_priority = validate_number
     validate_time     = validate_number
 
-class CoursePermissionForm(PermissionForm, GenericPermissionForm):
+class LmsPermissionForm(PermissionForm, GenericPermissionForm):
     pass
 
 def connection_tester(configuration):
