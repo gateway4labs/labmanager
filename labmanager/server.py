@@ -104,8 +104,6 @@ def requires_lms_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-DEBUGGING_REQUESTS = True
-
 @app.route("/lms4labs/requests/", methods = ['GET', 'POST'])
 @requires_lms_auth
 def requests():
@@ -144,7 +142,8 @@ def requests():
     # reserving...
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
-    good_msg = "No good news :-("
+    good_msg  = "No good news :-("
+    error_msg = None
     if permission_on_lab is None:
         error_msg = "Your LMS does not have permission to use that laboratory or that identifier does not exist"
     else:
@@ -166,49 +165,52 @@ def requests():
             remote_laboratory = ManagerClass(db_rlms.configuration)
             reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations)
 
-            error_msg = "No error"
             good_msg = "You have been assigned %s of type %s version %s! <br/> Try it at <a href='%s'>%s</a>" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
 
-        
-    courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
-    for course_id in courses:
-        roles_in_course = courses[course_id]
-        for role_in_course in roles_in_course:
-            courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
-    courses_code += "</tbody></table>"
+    if app.config.get('DEBUGGING_REQUESTS', True):
+        courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
+        for course_id in courses:
+            roles_in_course = courses[course_id]
+            for role_in_course in roles_in_course:
+                courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
+        courses_code += "</tbody></table>"
 
-    return """Hi %(name)s (username %(author)s),
+        return """Hi %(name)s (username %(author)s),
 
-        <p>I know that your role is %(role)s in the LMS %(lms)s, and that you are in the following courses:</p>
-        <br/>
-        %(course_code)s
-        <br/>
-        <p>The following error messages were sent: %(error_msg)s</p>
-        <p>The following good messages were sent: %(good_msg)s</p>
+            <p>I know that your role is %(role)s in the LMS %(lms)s, and that you are in the following courses:</p>
+            <br/>
+            %(course_code)s
+            <br/>
+            <p>The following error messages were sent: %(error_msg)s</p>
+            <p>The following good messages were sent: %(good_msg)s</p>
 
-        Furthermore, you sent me this request:
-        <pre>
-        %(request)s
-        </pre>
-        
-        And I'll process it!
+            Furthermore, you sent me this request:
+            <pre>
+            %(request)s
+            </pre>
+            
+            And I'll process it!
 
-        Original request:
-        <pre> 
-        %(json)s
-        </pre>
-""" % {
-    'name'        : cgi.escape(complete_name),
-    'author'      : cgi.escape(author),
-    'lms'         : cgi.escape(g.lms),
-    'course_code' : courses_code,
-    'request'     : cgi.escape(request_payload_str),
-    'role'        : cgi.escape(general_role),
-    'json'        : cgi.escape(json.dumps(json_data)),
-    'error_msg'   : cgi.escape(error_msg),
-    'good_msg'    : good_msg,
-}
-
+            Original request:
+            <pre> 
+            %(json)s
+            </pre>
+        """ % {
+            'name'        : cgi.escape(complete_name),
+            'author'      : cgi.escape(author),
+            'lms'         : cgi.escape(g.lms),
+            'course_code' : courses_code,
+            'request'     : cgi.escape(request_payload_str),
+            'role'        : cgi.escape(general_role),
+            'json'        : cgi.escape(json.dumps(json_data)),
+            'error_msg'   : cgi.escape(error_msg or 'no error message'),
+            'good_msg'    : good_msg or 'no good message',
+        }
+    else:
+        if error_msg is None:
+            return reservation_url
+        else:
+            return 'error:%s' % error_msg
 
 ###############################################################################
 # 
