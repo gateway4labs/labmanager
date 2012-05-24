@@ -34,7 +34,7 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course
+    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
 
     init_db(drop = True)
     password = hashlib.new('sha', 'password').hexdigest()
@@ -42,8 +42,8 @@ def add_sample_users():
     lms1 = LMS('Universidad Nacional de Educacion a Distancia', "http://localhost:5000/fake_list_courses", 'uned', password, "labmanager", "password")
     lms2 = LMS('Universidad de Deusto', "http://localhost:5000/fake_list_courses", 'deusto', password, "labmanager", "password")
 
-    course1 = Course(lms1, "5", "my course 1")
-    course2 = Course(lms2, "6", "my course 2")
+    course1 = Course(lms1, "1", "my course 1")
+    course2 = Course(lms2, "2", "my course 2")
 
     user1 = LabManagerUser('porduna', 'Pablo Orduna', password)
     user2 = LabManagerUser('elio', 'Elio Sancristobal', password)
@@ -68,8 +68,8 @@ def add_sample_users():
     ilab_4_0 = RLMSTypeVersion(ilab, '4.5')
 
     configuration = {
-        'remote_login' : 'demo',
-        'password'     : 'demo',
+        'remote_login' : 'weblabfed',
+        'password'     : 'password',
         'base_url'     : 'http://www.weblab.deusto.es/weblab/',
     }
 
@@ -85,6 +85,20 @@ def add_sample_users():
     db_session.add(ilab_4_0)
     db_session.add(weblab_deusto_instance)
     db_session.add(ilab_instance)
+
+    robot_lab = Laboratory(name = "robot-movement@Robot experiments", laboratory_id = "robot-movement@Robot experiments", rlms = weblab_deusto_instance)
+
+    permission_on_uned   = PermissionOnLaboratory(lms = lms1, laboratory = robot_lab, configuration = "{}", local_identifier = "robot")
+    permission_on_deusto = PermissionOnLaboratory(lms = lms2, laboratory = robot_lab, configuration = "{}", local_identifier = "robot")
+
+    db_session.add(permission_on_uned)
+    db_session.add(permission_on_deusto)
+
+    permission_on_course1 = PermissionOnCourse(permission_on_lab = permission_on_uned,   course = course1, configuration = "{}")
+    permission_on_course2 = PermissionOnCourse(permission_on_lab = permission_on_deusto, course = course2, configuration = "{}")
+
+    db_session.add(permission_on_course1)
+    db_session.add(permission_on_course2)
 
     db_session.commit()
 

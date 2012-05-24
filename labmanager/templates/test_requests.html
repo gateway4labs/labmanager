@@ -4,9 +4,14 @@
     <script type="text/javascript">
 function perform_post(){
  $(function() {
+   var payload = {
+        'action'     : 'reserve',
+        'experiment' : 'robot'
+   };
+
    var dat = JSON.stringify({
-        "courses" : {"2" : ["student"], "3" : ["student","teacher"]},
-        "request-payload" : "hello there, this is the payload",
+        "courses" : {"2" : ["student"], "3" : ["student","teacher"], "1" : ["student"]},
+        "request-payload" : JSON.stringify(payload),
         "general-role" : "admin",
         "author" : "porduna",
         "complete-name" : "John Doe",

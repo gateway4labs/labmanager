@@ -42,6 +42,7 @@ def get_json():
                 data = keys[0]
             return json.loads(data)
         except:
+            traceback.print_exc()
             return None
 
 def deletes_elements(table):
@@ -103,6 +104,7 @@ def requires_lms_auth(f):
         return f(*args, **kwargs)
     return decorated
 
+DEBUGGING_REQUESTS = True
 
 @app.route("/lms4labs/requests/", methods = ['GET', 'POST'])
 @requires_lms_auth
@@ -116,12 +118,53 @@ def requests():
     json_data = get_json()
     if json_data is None: return "Could not process JSON data"
 
-    courses         = json_data['courses']
-    request_payload = json_data['request-payload']
-    general_role    = json_data.get('general-role', 'no particular role') or 'null role'
-    author          = json_data['author']
-    complete_name   = json_data['complete-name']
+    courses             = json_data['courses']
+    request_payload_str = json_data['request-payload']
+    general_role        = json_data.get('general-role', 'no particular role') or 'null role'
+    author              = json_data['author']
+    complete_name       = json_data['complete-name']
 
+    try:
+        request_payload = json.loads(request_payload_str)
+    except:
+        traceback.print_exc()
+        return "error: the request payload is not a valid JSON request"
+
+    try:
+        action = request_payload['action']
+        if action == 'reserve':
+            experiment_identifier = request_payload['experiment']
+        else:
+            # TODO: other operations: for teachers, etc.
+            return "Unsupported operation"
+    except KeyError:
+        traceback.print_exc()
+        return "Invalid response"
+
+    # reserving...
+    db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
+    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
+    if permission_on_lab is None:
+        error_msg = "Your LMS does not have permission to use that laboratory or that identifier does not exist"
+    else:
+        courses_configurations = []
+        for course_permission in permission_on_lab.course_permissions:
+            if course_permission.course.course_id in courses:
+                # Let the server choose among the best possible configuration
+                courses_configurations.append(course_permission.configuration)
+        if len(courses_configurations) == 0:
+            error_msg = "Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it"
+        else:
+            lms_configuration = permission_on_lab.configuration
+            db_rlms = permission_on_lab.laboratory.rlms
+            db_rlms_version = db_rlms.rlms_version
+            db_rlms_type    = db_rlms_version.rlms_type
+
+            
+
+            error_msg = "You have been assigned %s of type %s version %s!" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version)
+
+        
     courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
     for course_id in courses:
         roles_in_course = courses[course_id]
@@ -131,7 +174,11 @@ def requests():
 
     return """Hi %(name)s (username %(author)s),
 
-        I know that your role is %(role)s in the LMS %(lms)s, and that you are.
+        <p>I know that your role is %(role)s in the LMS %(lms)s, and that you are in the following courses:</p>
+        <br/>
+        %(course_code)s
+        <br/>
+        <p>The following error messages were sent: %(error_msg)s</p>
 
         Furthermore, you sent me this request:
         <pre>
@@ -149,9 +196,10 @@ def requests():
     'author'      : cgi.escape(author),
     'lms'         : cgi.escape(g.lms),
     'course_code' : courses_code,
-    'request'     : cgi.escape(request_payload),
+    'request'     : cgi.escape(request_payload_str),
     'role'        : cgi.escape(general_role),
-    'json'        : cgi.escape(json.dumps(json_data))
+    'json'        : cgi.escape(json.dumps(json_data)),
+    'error_msg'   : cgi.escape(error_msg),
 }
 
 
