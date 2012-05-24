@@ -6,6 +6,7 @@ from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.data import Laboratory
 
 from .weblabdeusto_client import WebLabDeustoClient
+from .weblabdeusto_data import ExperimentId
 
 class AddForm(AddForm):
 
@@ -97,3 +98,63 @@ class ManagerClass(object):
             laboratories.append(Laboratory(id, id))
         return laboratories
 
+    def reserve(self, laboratory_id, username, general_configuration_str, particular_configurations):
+        client = WebLabDeustoClient(self.base_url)
+        session_id = client.login(self.login, self.password)
+
+        consumer_data = {
+            #     "user_agent"    : "...",
+            #     "referer"       : "...",
+            "from_ip"       : "0.0.0.0", # TODO
+            "external_user" : username,
+            #     "priority"      : "...", # the lower, the better
+            #     "time_allowed"  : 100,   # seconds
+            #     "initialization_in_accounting" :  False,
+        }
+
+        best_config = self._retrieve_best_configuration(general_configuration_str, particular_configurations)
+
+        consumer_data.update(best_config)
+
+        consumer_data_str = json.dumps(consumer_data)
+
+        reservation_status = client.reserve_experiment(session_id, ExperimentId.parse(laboratory_id), '{}', consumer_data_str)
+        return "%sclient/federated.html#reservation_id=%s" % (self.base_url, reservation_status.reservation_id.id)
+
+    def _retrieve_best_configuration(self, general_configuration_str, particular_configurations):
+        max_time     = None
+        min_priority = None
+
+        for particular_configuration_str in particular_configurations:
+            particular_configuration = json.loads(particular_configuration_str or '{}')
+            if 'time' in particular_configuration:
+                max_time = max(int(particular_configuration['time']), max_time)
+            if 'priority' in particular_configuration:
+                if min_priority is None:
+                    min_priority = int(particular_configuration['priority'])
+                else:
+                    min_priority = min(int(particular_configuration['priority']), min_priority)
+
+        MAX = 2 ** 30
+        general_configuration = json.loads(general_configuration_str or '{}')
+        if 'time' in general_configuration:
+            global_max_time     = int(general_configuration['time'])
+        else:
+            global_max_time     = MAX
+        if 'priority' in general_configuration:    
+            global_min_priority = int(general_configuration['priority'])
+        else:
+            global_min_priority = None
+
+        overall_max_time = min(global_max_time or MAX, max_time or MAX)
+        if overall_max_time is MAX:
+            overall_max_time = None
+
+        overall_min_priority = max(global_min_priority, min_priority)
+
+        consumer_data = {}
+        if overall_min_priority is not None:
+            consumer_data['priority'] = overall_min_priority
+        if overall_max_time is not None:
+            consumer_data['time_allowed'] = overall_max_time
+        return consumer_data

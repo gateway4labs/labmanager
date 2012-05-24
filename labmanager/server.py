@@ -144,6 +144,7 @@ def requests():
     # reserving...
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
+    good_msg = "No good news :-("
     if permission_on_lab is None:
         error_msg = "Your LMS does not have permission to use that laboratory or that identifier does not exist"
     else:
@@ -156,13 +157,17 @@ def requests():
             error_msg = "Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it"
         else:
             lms_configuration = permission_on_lab.configuration
-            db_rlms = permission_on_lab.laboratory.rlms
+            db_laboratory   = permission_on_lab.laboratory
+            db_rlms         = db_laboratory.rlms
             db_rlms_version = db_rlms.rlms_version
             db_rlms_type    = db_rlms_version.rlms_type
 
-            
+            ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
+            remote_laboratory = ManagerClass(db_rlms.configuration)
+            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations)
 
-            error_msg = "You have been assigned %s of type %s version %s!" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version)
+            error_msg = "No error"
+            good_msg = "You have been assigned %s of type %s version %s! <br/> Try it at <a href='%s'>%s</a>" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
 
         
     courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
@@ -179,6 +184,7 @@ def requests():
         %(course_code)s
         <br/>
         <p>The following error messages were sent: %(error_msg)s</p>
+        <p>The following good messages were sent: %(good_msg)s</p>
 
         Furthermore, you sent me this request:
         <pre>
@@ -200,6 +206,7 @@ def requests():
     'role'        : cgi.escape(general_role),
     'json'        : cgi.escape(json.dumps(json_data)),
     'error_msg'   : cgi.escape(error_msg),
+    'good_msg'    : good_msg,
 }
 
 
