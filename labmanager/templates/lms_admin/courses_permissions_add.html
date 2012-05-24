@@ -13,43 +13,24 @@
         </li>
         <li class="active">{{ course.name }}</a></li>
     </ul> 
+</div>
 
-    <form action="." method="POST">
-    {% if permissions|length > 0 %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Selected</th>
-                <th>Name</th>
-                <th>RLMS type</th>
-                <th>RLMS name</th>
-                <th>Location</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for permission in permissions %}
-            <tr>
-                <td>{{ permission.laboratory.name }}</td>
-                <td>{{ permission.laboratory.rlms.rlms_version.rlms_type.name }}</td>
-                <td>{{ permission.laboratory.rlms.name }}</td>
-                <td>{{ permission.laboratory.rlms.location }}</td>
-                <td><a href="{{ course.name }}" class="btn">Edit permission</a></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else  %}
-    <div class="alert">
-        No permission found
-    </div>
-    {% endif %}
-    <div class="form-actions" align="center">
-        <button class="btn btn-primary" name="action" type="submit" value="add">Add</button>
-        <a href="{{ url_for('lms_admin_courses') }}" class="btn">Cancel</a>
-    </div>
+<div class="span6 offset3">
+    {% from "_form_helpers.html" import render_field %}
+    <form method="POST" action="{{ request.url }}" class="form-horizontal">
+        {{ form.hidden_tag() }}
+
+        <fieldset>
+            {% for field_name in form.get_field_names() %}
+                {{ render_field(form|attr(field_name)) }}
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if add_or_edit %}Grant{% else %}Save changes{% endif %}</button>
+                <a href="{{ url_for('lms_admin_courses_permissions', course_id = course.id) }}" class="btn">Cancel</a>
+            </div>
+        </fieldset>
     </form>
-
 </div>
 
 {% endblock %}

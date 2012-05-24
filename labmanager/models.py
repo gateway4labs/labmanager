@@ -161,7 +161,8 @@ class PermissionOnCourse(Base):
     permission_on_lab    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
     course               = relation(Course.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, permission_on_lab = None, configuration = None):
+    def __init__(self, permission_on_lab = None, course = None, configuration = None):
         self.permission_on_lab = permission_on_lab
+        self.course            = course
         self.configuration     = configuration
 

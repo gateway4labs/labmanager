@@ -260,28 +260,71 @@ def lms_admin_courses_permissions(course_id):
     if course is None:
         return render_template("lms_admin/course_errors.html")
 
+    granted_permission_ids = [ permission.permission_on_lab_id for permission in course.permissions ]
+
     if request.method == 'POST':
-        if request.form['action'] == 'add':
-            return redirect(url_for('lms_admin_courses_permissions_add', course_id = course_id))
+        if request.form.get('action','').startswith('revoke-'):
+            try:
+                permission_on_lab_id = int(request.form['action'][len('revoke-'):])
+            except:
+                flash("Error parsing permission on lab identifier")
+                return render_template("lms_admin/course_errors.html")
 
-    return render_template("lms_admin/courses_permissions.html", permissions = course.permissions, course = course)
+            permission_on_course = db_session.query(PermissionOnCourse).filter_by(course = course, permission_on_lab_id = permission_on_lab_id).first()
+            if permission_on_course is not None:
+                db_session.delete(permission_on_course)
+                db_session.commit()
+                
+            return redirect(url_for('lms_admin_courses_permissions', course_id = course_id))
 
-@app.route("/lms4labs/lms/admin/courses/<int:course_id>/permissions/add/", methods = ['GET', 'POST'])
+    return render_template("lms_admin/courses_permissions.html", permissions = db_lms.permissions, course = course, granted_permission_ids = granted_permission_ids)
+
+@app.route("/lms4labs/lms/admin/courses/<int:course_id>/permissions/<int:permission_on_lab_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
-@deletes_elements(PermissionOnCourse)
-def lms_admin_courses_permissions_add(course_id):
+def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     course = db_session.query(Course).filter_by(id = course_id, lms = db_lms).first()
+    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(id = permission_on_lab_id, lms = db_lms).first()
 
-    if course is None:
+    if course is None or permission_on_lab is None:
         return render_template("lms_admin/course_errors.html")
 
-    if request.method == 'POST':
-        if request.form['action'] == 'add':
-            # TODO: add them...
-            return redirect(url_for('lms_admin_courses_permissions'))
+    db_rlms = permission_on_lab.laboratory.rlms
+    db_rlms_version = db_rlms.rlms_version
+    db_rlms_type    = db_rlms_version.rlms_type
+    rlmstype        = db_rlms_type.name
+    rlmsversion     = db_rlms_version.version
 
-    return render_template("lms_admin/courses_permissions_add.html", permissions = db_lms.permissions, course = course)
+    permission = db_session.query(PermissionOnCourse).filter_by(permission_on_lab = permission_on_lab, course = course).first()
+
+    PermissionsForm = get_permissions_form_class(rlmstype, rlmsversion)
+    form = PermissionsForm()
+    if form.validate_on_submit():
+        configuration_dict = {}
+        for field in form.get_field_names():
+            data = getattr(form, field).data
+            if data != '':
+                configuration_dict[field] = data
+
+        configuration = json.dumps(configuration_dict)
+
+        if permission is None: # Not yet granted: add it
+            permission = PermissionOnCourse(permission_on_lab = permission_on_lab, course = course, configuration = configuration)
+            db_session.add(permission)
+        else: # Already granted: edit it
+            permission.configuration = configuration
+        db_session.commit()
+        return redirect(url_for('lms_admin_courses_permissions', course_id = course_id))
+
+    if permission is not None:
+        configuration_dict = json.loads(permission.configuration or '{}')
+        for field in configuration_dict:
+            if hasattr(form, field):
+                getattr(form, field).data = configuration_dict.get(field,'')
+
+    granted_permission_ids = [ permission.permission_on_lab_id for permission in course.permissions ]
+
+    return render_template("lms_admin/courses_permissions_add.html", course = course, form = form)
 
 @app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
@@ -753,7 +796,8 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
     if permission is not None:
         configuration_dict = json.loads(permission.configuration or '{}')
         for field in configuration_dict:
-            getattr(form, field).data = configuration_dict.get(field,'')
+            if hasattr(form, field):
+                getattr(form, field).data = configuration_dict.get(field,'')
 
     template_variables['type_name']       = rlmstype
     template_variables['version']         = rlmsversion

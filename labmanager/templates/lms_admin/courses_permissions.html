@@ -19,23 +19,29 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Selected</th>
                 <th>Name</th>
                 <th>RLMS type</th>
                 <th>RLMS name</th>
                 <th>Location</th>
+                <th>Granted</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-        {% for permission in permissions %}
+        {% for permission_on_lab in permissions %}
             <tr>
-                <td><label class="checkbox"><input type="checkbox" name="{{ permission.id }}"></label></td>
-                <td>{{ permission.permission_on_lab.laboratory.name }}</td>
-                <td>{{ permission.permission_on_lab.laboratory.rlms.rlms_version.rlms_type.name }}</td>
-                <td>{{ permission.permission_on_lab.laboratory.rlms.name }}</td>
-                <td>{{ permission.permission_on_lab.laboratory.rlms.location }}</td>
-                <td><a href="{{ course.name }}" class="btn">Edit permission</a></td>
+                <td>{{ permission_on_lab.laboratory.name }}</td>
+                <td>{{ permission_on_lab.laboratory.rlms.rlms_version.rlms_type.name }}</td>
+                <td>{{ permission_on_lab.laboratory.rlms.name }}</td>
+                <td>{{ permission_on_lab.laboratory.rlms.location }}</td>
+                <td><i class="icon-{% if permission_on_lab.id in granted_permission_ids %}ok{% else %}remove{% endif %}"></i></td>
+                {% if permission_on_lab.id in granted_permission_ids %}
+                <td><button class="btn" name="action" value="revoke-{{ permission_on_lab.id }}">Revoke</button></td>
+                <td><a class="btn" href="{{ url_for('lms_admin_courses_permissions_edit', course_id = course.id, permission_on_lab_id = permission_on_lab.id) }}">Edit</a></td>
+                {% else %}
+                <td><a class="btn" href="{{ url_for('lms_admin_courses_permissions_edit', course_id = course.id, permission_on_lab_id = permission_on_lab.id) }}">Grant</a></td>
+                <td></td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>
@@ -46,8 +52,6 @@
     </div>
     {% endif %}
     <div class="form-actions" align="center">
-        <button class="btn btn-primary" name="action" type="submit" value="add">Add</button>
-        {% if permissions|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
         <a href="{{ url_for('lms_admin_courses') }}" class="btn">Cancel</a>
     </div>
     </form>
