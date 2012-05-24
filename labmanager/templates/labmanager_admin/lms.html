@@ -19,6 +19,7 @@
                 <th>Name</th>
                 <th>URL</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -28,6 +29,7 @@
                 <td>{{ lms.name }}</td>
                 <td>{{ lms.url }}</td>
                 <td><a href="{{ url_for('admin_lms_edit', id = lms.id) }}" class="btn">Edit</a></td>
+                <td><a href="{{ url_for('admin_lms_login', lms_login = lms.lms_login) }}" class="btn">Log in</a></td>
             </tr>
         {% endfor %}
         </tbody>

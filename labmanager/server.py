@@ -177,7 +177,11 @@ def requires_lms_admin_session(f):
 @app.route("/lms4labs/lms/admin/logout", methods = ['GET', 'POST'])
 def lms_admin_logout():
     session.pop('logged_in', None)
-    return "fine"
+    referrer = session['referrer']
+    if not referrer:
+        return redirect(url_for('index'))
+    else:
+        return redirect(session['referrer'])
 
 # TODO: this does not scale: should be in database or signed or something
 # TODO: this does not expire: memory leak
@@ -209,18 +213,22 @@ def lms_admin_authenticate():
     }
     return request.url_root + url_for('lms_admin_redeem_authentication', token = code)
 
+def _login_as_lms(user_name, lms_login):
+    session['logged_in']     = True
+    session['session_type']  = 'lms_admin'
+    session['user_name']     = user_name
+    session['lms']           = lms_login
+    session['referrer']       = request.referrer
+
+    return redirect(url_for('lms_admin_index'))
+
+
 @app.route("/lms4labs/lms/admin/authenticate/<token>")
 def lms_admin_redeem_authentication(token):
     token_info = TOKENS.pop(token, None)
     if token_info is None:
         return "Token not found"
-
-    session['logged_in']     = True
-    session['session_type']  = 'lms_admin'
-    session['user_name']     = token_info['user_name']
-    session['lms']           = token_info['lms']
-
-    return redirect(url_for('lms_admin_index'))
+    return _login_as_lms(token_info['user_name'], token_info['lms'])
 
 
 @app.route("/lms4labs/lms/")
@@ -420,6 +428,11 @@ def admin_lms_edit(id):
 @requires_labmanager_admin_session
 def admin_lms_add():
     return _add_or_edit_lms(id = None)
+
+@app.route("/lms4labs/admin/lms/<lms_login>/login/", methods = ['GET', 'POST'])
+@requires_labmanager_admin_session
+def admin_lms_login(lms_login):
+    return _login_as_lms(session['user_name'], lms_login)
 
 ############
 # 
