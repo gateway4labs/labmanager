@@ -40,7 +40,7 @@
                 <td>{{ laboratory.name }}</td>
                 <td>{{ laboratory.laboratory_id }}</td>
                 <td><i class="icon-{% if laboratory.laboratory_id in confirmed_laboratory_ids %}ok{% else %}remove{% endif %}"></i></td>
-                <td><a href="{{ url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = laboratory.id) }}">Edit</a></td>
+                <td><a class="btn" href="{{ url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = type_name, rlmsversion = version, id = rlms_id, lab_id = laboratory.id) }}">Edit</a></td>
             </tr>
         {% endfor %}
         </tbody>
