@@ -14,11 +14,16 @@ PASSWORD = 'labmanager'
 HOST     = 'localhost'
 DBNAME   = 'labmanager'
 
-ENGINE   = 'mysql' # or 'sqlite'
+ENGINE   = 'mysql' # or 'sqlite', 'postgresql', 'oracle'
 
 if ENGINE == 'mysql':
     SQLALCHEMY_ENGINE_STR = "mysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
     USE_PYMYSQL = True # or False, if MySQLdb is provided
-else:
+elif ENGINE == 'sqlite':
     SQLALCHEMY_ENGINE_STR = "sqlite:///%s.db" % DBNAME
+elif ENGINE == 'postgres':
+    DRIVER = 'pg8000' # or 'psycopg2'
+    SQLALCHEMY_ENGINE_STR = "postgresql+%s://%s:%s@%s/%s" % (DRIVER, USERNAME, PASSWORD, HOST, DBNAME)
+elif ENGINE == 'oracle':
+   SQLALCHEMY_ENGINE_STR = "oracle://%s:%S@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
 
