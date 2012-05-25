@@ -268,7 +268,8 @@ def lms_admin_authenticate():
         'lms'       : g.lms,
         'referrer'  : ''
     }
-    return request.url_root + url_for('lms_admin_redeem_authentication', token = code)
+
+    return app.config.get('URL_ROOT', request.url_root) + url_for('lms_admin_redeem_authentication', token = code)
 
 def _login_as_lms(user_name, lms_login):
     session['logged_in']     = True
@@ -493,7 +494,7 @@ def admin_login():
             session['login']        = login
 
             next = request.args.get('next')
-            if next is not None and next.startswith(request.url_root) and next != '':
+            if next is not None and next.startswith(app.config.get('URL_ROOT', request.url_root)) and next != '':
                 return redirect(next)
             return redirect(url_for('admin_index'))
 

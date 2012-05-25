@@ -27,3 +27,9 @@ elif ENGINE == 'postgres':
 elif ENGINE == 'oracle':
    SQLALCHEMY_ENGINE_STR = "oracle://%s:%S@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
 
+# 
+# Not required: if you need to use a different domain name for external users
+# add this variable:
+# 
+# URL_ROOT = "http://my-domain:5000/"
+# 
