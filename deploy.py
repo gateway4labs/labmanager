@@ -17,18 +17,16 @@ from config import ENGINE
 if ENGINE == 'mysql':
     try:
         from config import USE_PYMYSQL
-        if USE_PYMYSQL:
-            import pymysql as dbi
-        else:
-            import MySQLdb as dbi
     except:
         USE_PYMYSQL = False
+    if USE_PYMYSQL:
+        import pymysql as dbi
+    else:
         import MySQLdb as dbi
 elif ENGINE == 'sqlite':
     import sqlite3 as dbi
 else:
-    print >> sys.stderr, "Unsupported engine %s. Probably supported if you install the Python driver and modify deploy.py" % ENGINE 
-    sys.exit(-1)
+    print >> sys.stderr, "Unsupported engine %s. You will have to create the database and the users by your own." % ENGINE 
 
 from labmanager.database import init_db, db_session, add_sample_users
 
