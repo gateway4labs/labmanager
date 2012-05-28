@@ -962,6 +962,10 @@ def fake_list_courses():
 
     return json.dumps(view, indent = 4)
 
+@app.route("/fake_lms/", methods = ['GET','POST'])
+def fake_lms():
+    return "http://ok"
+
 @app.route("/lms4labs/labmanager/")
 def lms4labs_labmanager_index():
     return render_template("index.html")
