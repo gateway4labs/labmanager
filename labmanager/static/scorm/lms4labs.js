@@ -25,54 +25,114 @@ function getXmlHttpObject() {
 }
 
 var DEFAULT_ROOT_ELEMENT = 'lms4labs_root';
+var lms4labs_paths = {
+    'requests'     : 'lms4labs/lms/forward',
+    'authenticate' : 'lms4labs/lms/authenticate'
+};
 
-function Laboratory(url, elementName) {
-    
-    this.url = url;
+var lms4labs_templates = {
+    'reserve-success' : "<div align=\"center\" class=\"well alert alert-success\"><h2>Experiment reserved</h2> <br/> <a class=\"btn\" href=\"%(URL)s\" target=\"_blank\">Run experiment</a></div>",
+    'authenticate-success' : "<div align=\"center\" class=\"well alert alert-success\"><h2>Authenticated</h2> <br/> <a class=\"btn\" href=\"%(URL)s\" target=\"_blank\">Open LMS Manager</a></div>",
+    'error'   : "<div align=\"center\" class=\"well alert\"><h2>Error</h2><br/><p>%(TEXT)s</p></div>",
+    'unknown-error' : "<div align=\"center\" class=\"well alert alert-error\"><h2>Unknown error</h2> <br/> The following code was returned: %(TEXT)s</div>"
+};
 
-    if (elementName == undefined) {
+function Laboratory(baseurl, elementName) {
+
+    if(baseurl == undefined)
+        this.baseurl = "/";
+    else
+        this.baseurl = baseurl;
+
+    if (elementName == undefined)
         this.elementName = DEFAULT_ROOT_ELEMENT;
-    } else {
+    else
         this.elementName = elementName;
+
+    var root = document.getElementById(this.elementName);
+    if(root == null) {
+        alert("lms4labs.js misconfigured. Either create a " + DEFAULT_ROOT_ELEMENT + " value or pass an argument");
+        return;
+    }
+
+    this.handleError = function(xmlhttp, response, url) {
+        if (xmlhttp.status == 404) {
+            if(onerror == undefined) {
+                return lms4labs_templates['error'].replace('%(TEXT)s', "Page <a href=\"" + url + "\">" + url + "</a> does not exist");
+            } else {
+                onerror(xmlhttp.responseText, root);
+                return null;
+            }
+        } else if (response.indexOf('error:') == 0) {
+            if(onerror == undefined) {
+                var errorMessage = response.substring('error:'.length);
+                return lms4labs_templates['error'].replace('%(TEXT)s', errorMessage);
+            } else {
+                onerror(xmlhttp.responseText, root);
+                return null;
+            }
+        } else {
+            if(onerror == undefined) {
+                var errorMessage = xmlhttp.responseText;
+                return lms4labs_templates['unknown-error'].replace('%(TEXT)s', errorMessage);
+            } else {
+                onerror(xmlhttp.responseText, root);
+                return null;
+            }
+        }
     }
 
     this.load = function(laboratoryId, onerror) {
 
         var xmlhttp     = getXmlHttpObject();
-        var elementName = this.elementName;
+        var lab = this;
 
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4) {
-                var root = document.getElementById(elementName);
-
-                if(root == null) {
-                    alert("lms4labs.js misconfigured. Either create a " + DEFAULT_ROOT_ELEMENT + " value or pass an argument");
-                    return;
-                }
-
                 var response = xmlhttp.responseText;
 
-                var htmlCode;
+                var htmlCode = null;
                 if (response.indexOf('http') == 0) {
-                    htmlCode = "ok";
-                } else if (response.indexOf('error:') == 0) {
-                    htmlCode = "<h1>Error</h1><p>" + response.substring('error:'.length) + "</p>";
+                    htmlCode = lms4labs_templates['reserve-success'].replace('%(URL)s', response);
                 } else {
-                    if(onerror == undefined) {
-                        htmlCode = "Unknown error. The following code was returned: " + response;
-                    } else {
-                        onerror(xmlhttp.responseText);
-                        return;
-                    }
+                    htmlCode = lab.handleError(xmlhttp, response, url);
                 }
-                root.innerHTML = htmlCode;
+                if(htmlCode != null)
+                    root.innerHTML = htmlCode;
             }
         };
 
         var requestPayload = "{ \"action\" : \"reserve\", \"experiment\" : \"" + laboratoryId.replace(/\"/g, '\\"') + "\" }";
 
-        xmlhttp.open("POST", this.url, true);
+        var url = this.baseurl + lms4labs_paths['requests'];
+
+        xmlhttp.open("POST", url, true);
         xmlhttp.setRequestHeader('Content-Type', 'application/json');
         xmlhttp.send(requestPayload);
     };
+
+    this.authenticate = function(onerror) {
+
+        var xmlhttp     = getXmlHttpObject();
+        var lab = this;
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4) {
+                var response = xmlhttp.responseText;
+
+                var htmlCode = null;
+                if (response.indexOf('http') == 0) {
+                    htmlCode = lms4labs_templates['authenticate-success'].replace('%(URL)s', response);
+                } else {
+                    htmlCode = lab.handleError(xmlhttp, response, url);
+                }
+                if(htmlCode != null)
+                    root.innerHTML = htmlCode;
+            }
+        };
+
+        var url = this.baseurl + lms4labs_paths['authenticate'];
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send(null);
+    };
+
 }

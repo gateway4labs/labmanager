@@ -962,9 +962,30 @@ def fake_list_courses():
 
     return json.dumps(view, indent = 4)
 
-@app.route("/fake_lms/", methods = ['GET','POST'])
-def fake_lms():
-    return "http://ok"
+
+@app.route("/fake_lms/lms4labs/lms/forward", methods = ['GET','POST'])
+def fake_lms_forward():
+    json_data = get_json()
+    if json_data is None:
+        return "Could not parse JSON"
+    
+    assert json_data['action'], "reserve"
+
+    experiment = json_data['experiment']
+
+    msg = app.config.get('FAKE_LMS_MSG')
+    if msg is not None:
+        if '%' in msg:
+            return msg % experiment
+        return msg
+    return ":-S"
+
+@app.route("/fake_lms/lms4labs/lms/authenticate")
+def fake_lms_authenticate():
+    msg = app.config.get('FAKE_LMS_MSG')
+    if msg is not None:
+        return msg
+    return ":-S"
 
 @app.route("/lms4labs/labmanager/")
 def lms4labs_labmanager_index():
