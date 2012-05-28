@@ -106,7 +106,7 @@ def requires_lms_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/lms4labs/requests/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/requests/", methods = ['GET', 'POST'])
 @requires_lms_auth
 def requests():
     """SCORM packages will perform requests to this method, which will 
@@ -120,9 +120,9 @@ def requests():
 
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
-    general_role        = json_data.get('general-role', 'no particular role') or 'null role'
-    author              = json_data['author']
-    complete_name       = json_data['complete-name']
+    general_role        = json_data.get('is-admin', False)
+    author              = json_data['user-id']
+    complete_name       = json_data['full-name']
 
     try:
         request_payload = json.loads(request_payload_str)
@@ -172,14 +172,13 @@ def requests():
     if app.config.get('DEBUGGING_REQUESTS', True):
         courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
         for course_id in courses:
-            roles_in_course = courses[course_id]
-            for role_in_course in roles_in_course:
-                courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
+            role_in_course = courses[course_id]
+            courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
         courses_code += "</tbody></table>"
 
         return """Hi %(name)s (username %(author)s),
 
-            <p>I know that your role is %(role)s in the LMS %(lms)s, and that you are in the following courses:</p>
+            <p>I know that you're an admin ( %(admin)s ) in the LMS %(lms)s, and that you are in the following courses:</p>
             <br/>
             %(course_code)s
             <br/>
@@ -203,7 +202,7 @@ def requests():
             'lms'         : cgi.escape(g.lms),
             'course_code' : courses_code,
             'request'     : cgi.escape(request_payload_str),
-            'role'        : cgi.escape(general_role),
+            'admin'        : general_role,
             'json'        : cgi.escape(json.dumps(json_data)),
             'error_msg'   : cgi.escape(error_msg or 'no error message'),
             'good_msg'    : good_msg or 'no good message',
@@ -233,7 +232,7 @@ def requires_lms_admin_session(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/lms4labs/lms/admin/logout", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/logout", methods = ['GET', 'POST'])
 def lms_admin_logout():
     session.pop('logged_in', None)
     referrer = session['referrer']
@@ -252,7 +251,7 @@ TOKENS = {
     # }
 }
 
-@app.route("/lms4labs/lms/admin/authenticate/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/authenticate/", methods = ['GET', 'POST'])
 @requires_lms_auth
 def lms_admin_authenticate():
     """SCORM packages will perform requests to this method, which will 
@@ -266,7 +265,7 @@ def lms_admin_authenticate():
     
     code = uuid.uuid4().hex
     TOKENS[code] = {
-        'user_name' : json_data['complete-name'],
+        'user_name' : json_data['full-name'],
         'lms'       : g.lms,
         'referrer'  : ''
     }
@@ -283,7 +282,7 @@ def _login_as_lms(user_name, lms_login):
     return redirect(url_for('lms_admin_index'))
 
 
-@app.route("/lms4labs/lms/admin/authenticate/<token>")
+@app.route("/lms4labs/labmanager/lms/admin/authenticate/<token>")
 def lms_admin_redeem_authentication(token):
     token_info = TOKENS.pop(token, None)
     if token_info is None:
@@ -291,16 +290,16 @@ def lms_admin_redeem_authentication(token):
     return _login_as_lms(token_info['user_name'], token_info['lms'])
 
 
-@app.route("/lms4labs/lms/")
+@app.route("/lms4labs/labmanager/lms/")
 def lms_index():
     return redirect(url_for('lms_admin_index'))
 
-@app.route("/lms4labs/lms/admin/")
+@app.route("/lms4labs/labmanager/lms/admin/")
 @requires_lms_admin_session
 def lms_admin_index():
     return render_template("lms_admin/index.html")
 
-@app.route("/lms4labs/lms/admin/courses/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/courses/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 @deletes_elements(Course)
 def lms_admin_courses():
@@ -310,7 +309,7 @@ def lms_admin_courses():
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
 
-@app.route("/lms4labs/lms/admin/courses/<int:course_id>/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/courses/<int:course_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 @deletes_elements(PermissionOnCourse)
 def lms_admin_courses_permissions(course_id):
@@ -339,7 +338,7 @@ def lms_admin_courses_permissions(course_id):
 
     return render_template("lms_admin/courses_permissions.html", permissions = db_lms.permissions, course = course, granted_permission_ids = granted_permission_ids)
 
-@app.route("/lms4labs/lms/admin/courses/<int:course_id>/permissions/<int:permission_on_lab_id>/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/courses/<int:course_id>/permissions/<int:permission_on_lab_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
@@ -387,7 +386,7 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
 
     return render_template("lms_admin/courses_permissions_add.html", course = course, form = form, lab = lab)
 
-@app.route("/lms4labs/lms/admin/courses/external/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_external_courses():
     q     = request.args.get('q','')
@@ -417,7 +416,7 @@ def lms_admin_external_courses():
         courses = [ (course['id'], course['name']) for course in courses_data ]
         course_dict = dict(courses)
         number   = results['number']
-        per_page = results['per_page']
+        per_page = results['per-page']
         number_of_pages = ((number - 1) / per_page ) + 1
         current_page    = ((start - 1)  / per_page ) + 1
 
@@ -477,7 +476,7 @@ def requires_labmanager_admin_session(f):
 # L O G I N 
 # 
 
-@app.route("/lms4labs/admin/login", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/login", methods = ['GET', 'POST'])
 def admin_login():
     login_error = False
 
@@ -504,12 +503,12 @@ def admin_login():
 
     return render_template("labmanager_admin/login.html", login_error = login_error, next = request.args.get('next','') )
 
-@app.route("/lms4labs/admin/logout", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/logout", methods = ['GET', 'POST'])
 def admin_logout():
     session.pop('logged_in', None)
     return redirect(url_for('admin_login'))
 
-@app.route("/lms4labs/admin/logout/show", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/logout/show", methods = ['GET', 'POST'])
 def admin_before_logout():
     return render_template("labmanager_admin/logout.html")
 
@@ -519,7 +518,7 @@ def admin_before_logout():
 # 
 
 
-@app.route("/lms4labs/admin/")
+@app.route("/lms4labs/labmanager/admin/")
 @requires_labmanager_admin_session
 def admin_index():
     return render_template("labmanager_admin/index.html")
@@ -529,7 +528,7 @@ def admin_index():
 # L M S 
 # 
 
-@app.route("/lms4labs/admin/lms/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/lms/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 @deletes_elements(LMS)
 def admin_lms():
@@ -584,7 +583,7 @@ def _add_or_edit_lms(id):
 
     return render_template("labmanager_admin/lms_add.html", form = form, name = name)
 
-@app.route("/lms4labs/admin/lms/<lms_login>/edit/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/lms/<lms_login>/edit/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_edit(lms_login):
     lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
@@ -593,12 +592,12 @@ def admin_lms_edit(lms_login):
 
     return _add_or_edit_lms(lms.id)
 
-@app.route("/lms4labs/admin/lms/add/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/lms/add/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_add():
     return _add_or_edit_lms(id = None)
 
-@app.route("/lms4labs/admin/lms/<lms_login>/login/", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/admin/lms/<lms_login>/login/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_login(lms_login):
     return _login_as_lms(session['user_name'], lms_login)
@@ -608,7 +607,7 @@ def admin_lms_login(lms_login):
 # R L M S 
 # 
 
-@app.route("/lms4labs/admin/rlms/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(RLMSType)
 def admin_rlms():
@@ -628,7 +627,7 @@ def admin_rlms():
 
     return render_template("labmanager_admin/rlms_types.html", types = types, supported = get_supported_types(), any_supported_missing = any_supported_missing)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(RLMSTypeVersion)
 def admin_rlms_versions(rlmstype):
@@ -716,7 +715,7 @@ def _add_or_edit_rlms(rlmstype, rlmsversion, id):
     return render_template("labmanager_admin/rlms_rlms_add.html", rlmss = rlms_version.rlms, name = rlms_version.rlms_type.name, version = rlms_version.version, form = form)
 
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(RLMS)
 def admin_rlms_rlms(rlmstype, rlmsversion):
@@ -730,17 +729,17 @@ def admin_rlms_rlms(rlmstype, rlmsversion):
     return render_template("labmanager_admin/rlms_rlms.html", rlmss = rlms_version.rlms, name = rlms_version.rlms_type.name, version = rlms_version.version)
 
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_add(rlmstype, rlmsversion):
     return _add_or_edit_rlms(rlmstype, rlmsversion, None)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
     return _add_or_edit_rlms(rlmstype, rlmsversion, id)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_list(rlmstype, rlmsversion, id):
@@ -767,7 +766,7 @@ def admin_rlms_rlms_list(rlmstype, rlmsversion, id):
 
     return render_template("labmanager_admin/rlms_rlms_list.html", laboratories = laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, confirmed_laboratory_ids = confirmed_laboratory_ids, rlms_id = rlms.id)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/externals/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/externals/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_list_external(rlmstype, rlmsversion, id):
     rlms = db_session.query(RLMS).filter_by(id = id).first()
@@ -809,7 +808,7 @@ def get_lab_and_lms(rlmstype, rlmsversion, id, lab_id):
     return lab, rlms
 
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
@@ -846,7 +845,7 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
 
     return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
 
-@app.route("/lms4labs/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<lms_login>", methods = ('GET','POST'))
+@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<lms_login>", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, lms_login):
@@ -957,21 +956,24 @@ def fake_list_courses():
     view = {
         'start'    : start,
         'number'   : len(fake_return_data),
-        'per_page' : N,
+        'per-page' : N,
         'courses'  : fake_return_data[start:start+N],
     }
 
     return json.dumps(view, indent = 4)
 
-@app.route("/lms4labs/")
-def lms4labs_index():
+@app.route("/lms4labs/labmanager/")
+def lms4labs_labmanager_index():
     return render_template("index.html")
 
+@app.route("/lms4labs/")
+def index():
+    return redirect(url_for('lms4labs_labmanager_index'))
 
 
 @app.route("/")
 def index():
-    return redirect(url_for('lms4labs_index'))
+    return redirect(url_for('lms4labs_labmanager_index'))
 
 def run():
     app.config.from_object('config')

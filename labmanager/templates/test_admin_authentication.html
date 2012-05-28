@@ -5,7 +5,7 @@
 function perform_post(){
  $(function() {
    var dat = JSON.stringify({
-        "complete-name" : "John Doe",
+        "full-name" : "John Doe",
     });
    $.ajax( {
         "url"  : "{{ request.url }}",

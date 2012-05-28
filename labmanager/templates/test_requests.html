@@ -10,11 +10,11 @@ function perform_post(){
    };
 
    var dat = JSON.stringify({
-        "courses" : {"2" : ["student"], "3" : ["student","teacher"], "1" : ["student"]},
+        "courses" : {"2" : "s", "3" : "t", "1" : "s"},
         "request-payload" : JSON.stringify(payload),
-        "general-role" : "admin",
-        "author" : "jdoe",
-        "complete-name" : "John Doe",
+        "is-admin" : true,
+        "user-id" : "jdoe",
+        "full-name" : "John Doe",
     });
    $.ajax( {
         "url"  : "{{ request.url }}",
