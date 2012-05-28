@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Add some cool colours :-) -->
     <link  href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add the Lms4labs library -->
     <script src="lms4labs.js" type="text/javascript"></script>
 
     <script>
         function startLab() {
-           var labo = new Laboratory("/fake_lms/"); 
-           labo.load("robot");
+           // Create an instance of the laboratory. By default, it uses "/". You can
+           // pass other path, such as "/fake_lms/" in the example.
+           var lab = new Laboratory("/fake_lms/"); 
+
+           // Load the experiment "robot".
+           lab.load("robot");
+           // Authenticate as a LMS administrator (if it is a LMS administrator) in the 
+           // Lab manager
 //           labo.authenticate();
         }
     </script>
 </head>
 <body onload="javascript:startLab();">
+    <!-- Load the links etc. of the laboratory here -->
     <div id="lms4labs_root">
     </div>
 </body>
