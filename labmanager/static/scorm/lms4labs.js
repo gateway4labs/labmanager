@@ -26,8 +26,8 @@ function getXmlHttpObject() {
 
 var DEFAULT_ROOT_ELEMENT = 'lms4labs_root';
 var lms4labs_paths = {
-    'requests'     : 'lms4labs/lms/forward',
-    'authenticate' : 'lms4labs/lms/authenticate'
+    'requests'     : 'lms4labs/lms/forward/',
+    'authenticate' : 'lms4labs/lms/authenticate/'
 };
 
 var lms4labs_templates = {
