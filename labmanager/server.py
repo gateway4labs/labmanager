@@ -123,6 +123,9 @@ def requests():
     general_role        = json_data.get('is-admin', False)
     author              = json_data['user-id']
     complete_name       = json_data['full-name']
+    user_agent          = json_data.get('user-agent', 'unknown user agent')
+    origin_ip           = json_data.get('origin-ip', 'unknown IP address')
+    referer             = json_data.get('referer', 'unknown referer')
 
     try:
         request_payload = json.loads(request_payload_str)
@@ -165,7 +168,7 @@ def requests():
 
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
-            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations)
+            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, user_agent, origin_ip, referer)
 
             good_msg = "You have been assigned %s of type %s version %s! <br/> Try it at <a href='%s'>%s</a>" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
 

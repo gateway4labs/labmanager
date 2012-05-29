@@ -15,6 +15,9 @@ function perform_post(){
         "is-admin" : true,
         "user-id" : "jdoe",
         "full-name" : "John Doe",
+        "origin-ip" : "123.123.123.123",
+        "user-agent" : navigator.userAgent,
+        "referer"    : "http://www.google.com/"
     });
    $.ajax( {
         "url"  : "{{ request.url }}",

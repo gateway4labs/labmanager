@@ -98,14 +98,14 @@ class ManagerClass(object):
             laboratories.append(Laboratory(id, id))
         return laboratories
 
-    def reserve(self, laboratory_id, username, general_configuration_str, particular_configurations):
+    def reserve(self, laboratory_id, username, general_configuration_str, particular_configurations, user_agent, origin_ip, referer):
         client = WebLabDeustoClient(self.base_url)
         session_id = client.login(self.login, self.password)
 
         consumer_data = {
-            #     "user_agent"    : "...",
-            #     "referer"       : "...",
-            "from_ip"       : "0.0.0.0", # TODO
+            "user_agent"    : user_agent,
+            "referer"       : referer,
+            "from_ip"       : origin_ip,
             "external_user" : username,
             #     "priority"      : "...", # the lower, the better
             #     "time_allowed"  : 100,   # seconds
