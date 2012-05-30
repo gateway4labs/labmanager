@@ -435,6 +435,8 @@ def lms_admin_external_courses():
         max_page = (start/VISIBLE_PAGES + AFTER_PAGES)
         if max_page >= number_of_pages:
             max_page = number_of_pages
+        if min_page <= -1:
+            min_page = 0
         current_pages   = range(min_page, max_page)
     except:
         traceback.print_exc()
@@ -924,6 +926,7 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
 
 @app.route("/fake_list_courses", methods = ['GET','POST'])
 def fake_list_courses():
+    # return """{"start":"2","number":3,"per-page":2,"courses":[{"id":"4","name":"example3"}]}"""
     auth = request.authorization
     if auth is None or auth.username not in ('test','labmanager') or auth.password not in ('test','password'):
         return Response('You have to login with proper credentials', 401,
