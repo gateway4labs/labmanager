@@ -1006,6 +1006,10 @@ def index():
 def index():
     return redirect(url_for('lms4labs_labmanager_index'))
 
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='favicon.ico'))
+
 def run():
     app.config.from_object('config')
     app.run(threaded = True, host = '0.0.0.0')
