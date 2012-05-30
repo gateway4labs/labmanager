@@ -418,8 +418,8 @@ def lms_admin_external_courses():
         courses_data = results['courses']
         courses = [ (course['id'], course['name']) for course in courses_data ]
         course_dict = dict(courses)
-        number   = results['number']
-        per_page = results['per-page']
+        number   = int(results['number'])
+        per_page = int(results['per-page'])
         number_of_pages = ((number - 1) / per_page ) + 1
         current_page    = ((start - 1)  / per_page ) + 1
 
