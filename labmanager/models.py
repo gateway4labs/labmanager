@@ -10,7 +10,7 @@ class LMS(Base):
 
 
     name                = Column(String(50), nullable = False)
-    url                 = Column(String(50), nullable = False) # remote url
+    url                 = Column(String(300), nullable = False) # remote url
 
     lms_login           = Column(String(50), nullable = False, unique=True)
     lms_password        = Column(String(50), nullable = False) # hash
@@ -76,8 +76,8 @@ class RLMS(Base):
     
     id = Column(Integer, primary_key = True)
 
-    name     = Column(String(50), nullable = False)
-    location = Column(String(50), nullable = False)
+    name     = Column(String(100), nullable = False)
+    location = Column(String(100), nullable = False)
     rlms_version_id = Column(Integer, ForeignKey('RLMS_type_versions.id'), nullable = False)
 
     configuration = Column(String(10 * 1024)) # JSON document
@@ -114,7 +114,7 @@ class PermissionOnLaboratory(Base):
 
     id = Column(Integer, primary_key = True)
 
-    local_identifier     = Column(String(50), nullable = False, index = True)
+    local_identifier     = Column(String(100), nullable = False, index = True)
 
     laboratory_id = Column(Integer, ForeignKey('Laboratories.id'), nullable = False)
     lms_id        = Column(Integer, ForeignKey('LMSs.id'),  nullable = False)
