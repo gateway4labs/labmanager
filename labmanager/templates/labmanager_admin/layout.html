@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     {% block header %}
     <title>{% block title %}{% endblock %}</title>
@@ -10,8 +11,9 @@
 
     <script src="{{ url_for('static', filename="bootstrap/js/jquery.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-dropdown.js") }}"></script>
-    <!--
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-transition.js") }}"></script>
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-collapse.js") }}"></script>
+    <!--
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-alert.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-modal.js") }}"></script>
 
@@ -20,7 +22,6 @@
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-tooltip.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-popover.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-button.js") }}"></script>
-    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-collapse.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-carousel.js") }}"></script>
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap-typeahead.js") }}"></script>
     -->

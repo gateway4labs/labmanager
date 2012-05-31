@@ -9,14 +9,12 @@
     <div class="container">
         <div class="row">
             <div class="hero-unit" align="center">
-                <h1>lms4labs</h1>
-                <br />
-        <!--        <p><img src="img/lms4labs.png" alt="LMS4labs Logo" /></p> -->
+                <p><img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="LMS4labs Logo" /></p>
                 <p>Lab Manager administrator</p>
             </div>
         </div>
         
-        <div class="row span4 offset3 well">
+        <div class="row span3 offset3">
             {% if login_error %}
             <div class="alert alert-error" align="center">
                 <b>Invalid username or password!</b>
