@@ -43,7 +43,7 @@ def get_json():
             return json.loads(data)
         except:
             print "Invalid JSON found"
-            print "Suggested JSON:", data
+            print "Suggested JSON: %r" % data
             traceback.print_exc()
             return None
 
