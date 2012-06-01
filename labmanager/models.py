@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Unicode, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base
 
@@ -9,14 +9,14 @@ class LMS(Base):
     id = Column(Integer, primary_key=True)
 
 
-    name                = Column(String(50), nullable = False)
-    url                 = Column(String(300), nullable = False) # remote url
+    name                = Column(Unicode(50), nullable = False)
+    url                 = Column(Unicode(300), nullable = False) # remote url
 
-    lms_login           = Column(String(50), nullable = False, unique=True)
-    lms_password        = Column(String(50), nullable = False) # hash
+    lms_login           = Column(Unicode(50), nullable = False, unique=True)
+    lms_password        = Column(Unicode(50), nullable = False) # hash
     
-    labmanager_login    = Column(String(50), nullable = False)
-    labmanager_password = Column(String(50), nullable = False) # plaintext: my password there
+    labmanager_login    = Column(Unicode(50), nullable = False)
+    labmanager_password = Column(Unicode(50), nullable = False) # plaintext: my password there
 
     def __init__(self, name = None, url = None, lms_login = None, lms_password = None, labmanager_login = None, labmanager_password = None):
         self.name                = name
@@ -32,9 +32,9 @@ class LabManagerUser(Base):
 
     id = Column(Integer, primary_key=True)
 
-    login    = Column(String(50),  unique = True ) 
-    name     = Column(String(50) )
-    password = Column(String(50)) # hash
+    login    = Column(Unicode(50),  unique = True ) 
+    name     = Column(Unicode(50) )
+    password = Column(Unicode(50)) # hash
 
     def __init__(self, login = None, name = None, password = None):
         self.login    = login
@@ -47,7 +47,7 @@ class RLMSType(Base):
 
     id = Column(Integer, primary_key = True)
 
-    name    = Column(String(50), unique = True)
+    name    = Column(Unicode(50), unique = True)
 
     def __init__(self, name = None):
         self.name = name
@@ -62,7 +62,7 @@ class RLMSTypeVersion(Base):
     id = Column(Integer, primary_key = True)
 
     rlms_type_id = Column(Integer, ForeignKey('RLMS_types.id'), nullable = False)
-    version = Column(String(50))
+    version = Column(Unicode(50))
 
     rlms_type = relation(RLMSType.__name__, backref = backref('versions', order_by=id, cascade = 'all,delete'))
 
@@ -76,11 +76,11 @@ class RLMS(Base):
     
     id = Column(Integer, primary_key = True)
 
-    name     = Column(String(100), nullable = False)
-    location = Column(String(100), nullable = False)
+    name     = Column(Unicode(100), nullable = False)
+    location = Column(Unicode(100), nullable = False)
     rlms_version_id = Column(Integer, ForeignKey('RLMS_type_versions.id'), nullable = False)
 
-    configuration = Column(String(10 * 1024)) # JSON document
+    configuration = Column(Unicode(10 * 1024)) # JSON document
     
     rlms_version = relation(RLMSTypeVersion.__name__, backref = backref('rlms', order_by=id, cascade = 'all,delete'))
 
@@ -96,8 +96,8 @@ class Laboratory(Base):
 
     id = Column(Integer, primary_key = True)
 
-    name          = Column(String(50), nullable = False)
-    laboratory_id = Column(String(50), nullable = False)
+    name          = Column(Unicode(50), nullable = False)
+    laboratory_id = Column(Unicode(50), nullable = False)
     rlms_id       = Column(Integer, ForeignKey('RLMSs.id'), nullable = False)
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
@@ -114,12 +114,12 @@ class PermissionOnLaboratory(Base):
 
     id = Column(Integer, primary_key = True)
 
-    local_identifier     = Column(String(100), nullable = False, index = True)
+    local_identifier     = Column(Unicode(100), nullable = False, index = True)
 
     laboratory_id = Column(Integer, ForeignKey('Laboratories.id'), nullable = False)
     lms_id        = Column(Integer, ForeignKey('LMSs.id'),  nullable = False)
 
-    configuration = Column(String(10 * 1024)) # JSON document
+    configuration = Column(Unicode(10 * 1024)) # JSON document
 
     laboratory = relation(Laboratory.__name__,  backref = backref('permissions', order_by=id, cascade = 'all,delete'))
     lms        = relation(LMS.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
@@ -138,9 +138,9 @@ class Course(Base):
     id = Column(Integer, primary_key = True)
 
     # The ID in the remote LMS
-    course_id = Column(String(50), nullable = False)
+    course_id = Column(Unicode(50), nullable = False)
 
-    name   = Column(String(50), nullable = False)
+    name   = Column(Unicode(50), nullable = False)
 
     lms_id = Column(Integer, ForeignKey('LMSs.id'), nullable = False)
 
@@ -157,7 +157,7 @@ class PermissionOnCourse(Base):
     
     id = Column(Integer, primary_key = True)
 
-    configuration        = Column(String(10 * 1024)) # JSON document
+    configuration        = Column(Unicode(10 * 1024)) # JSON document
 
     permission_on_lab_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
     course_id            = Column(Integer, ForeignKey('Courses.id'), nullable = False)
