@@ -424,7 +424,11 @@ def lms_admin_external_courses():
     VISIBLE_PAGES = 10
     try:
         results = json.loads(json_results)
-
+    except:
+        print "Invalid JSON: ", json_results
+        return "Invalid JSON provided. Look at the logs for more information"
+    
+    try:
         courses_data = results['courses']
         courses = [ (course['id'], course['name']) for course in courses_data ]
         course_dict = dict(courses)
