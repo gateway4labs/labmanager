@@ -579,7 +579,7 @@ def _add_or_edit_lms(id):
             lms.lms_login         = form.lms_login.data
             lms.labmanager_login  = form.labmanager_login.data
             if form.lms_password.data:
-                lms.lms_password        = form.lms_password.data
+                lms.lms_password        = hashlib.new("sha", form.lms_password.data).hexdigest()
             if form.labmanager_password.data:
                 lms.labmanager_password = form.labmanager_password.data
 
