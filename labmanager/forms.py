@@ -11,7 +11,7 @@
   :license: BSD, see LICENSE for more details
 """
 
-from flaskext.wtf import Form, TextField, Required, URL, PasswordField
+from flask.ext.wtf import Form, TextField, Required, URL, PasswordField
 
 class RetrospectiveForm(Form):
 
