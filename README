@@ -35,7 +35,7 @@ After installing the tools detailed above, you can install the missing
 libraries. They will be installed in the "env" directory. Feel free to remove it
 at any point.
 
- 1. pip install Flask Flask-SQLAlchemy Flask-WTF SQLAlchemy pymySQL pymysql_sa pyflakes
+ 1. pip install Flask Flask-SQLAlchemy Flask-WTF SQLAlchemy pymySQL pymysql_sa pyflakes cherrypy
 
  2. Copy config.py.dist into config.py
 
