@@ -26,8 +26,8 @@ from labmanager.database import db_session
 def shutdown_session(exception = None):
     db_session.remove()
 
-import labmanager.views
-assert labmanager.views != None # Avoid pyflakes warnings
+from labmanager.views import load
+load()
 
 def run():
     app.run(threaded = True, host = '0.0.0.0')
