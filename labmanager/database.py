@@ -60,6 +60,9 @@ def add_sample_users():
     user1 = LabManagerUser(u'porduna', u'Pablo Orduna', password)
     user2 = LabManagerUser(u'elio', u'Elio Sancristobal', password)
     user3 = LabManagerUser(u'apm', u'Alberto Pesquera Martin', password)
+    user4 = LabManagerUser(u'pbailey', u'Phil Bailey', password)
+    user5 = LabManagerUser(u'kirky', u'Kirky DeLong', password)
+    user6 = LabManagerUser(u'admin', u'Administrator', password)
 
     db_session.add(lms1)
     db_session.add(lms2)
@@ -70,6 +73,9 @@ def add_sample_users():
     db_session.add(user1)
     db_session.add(user2)
     db_session.add(user3)
+    db_session.add(user4)
+    db_session.add(user5)
+    db_session.add(user6)
 
     weblab_deusto = RLMSType(u'WebLab-Deusto')
     ilab          = RLMSType(u'iLab')
