@@ -13,7 +13,7 @@
 
 import json
 
-from flaskext.wtf import Form, TextField, PasswordField, Required, IntegerField, URL, ValidationError
+from flaskext.wtf import TextField, PasswordField, Required, URL, ValidationError
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.data import Laboratory
@@ -88,7 +88,8 @@ class LmsPermissionForm(PermissionForm, GenericPermissionForm):
     pass
 
 def connection_tester(configuration):
-    config = json.loads(configuration)
+    json.loads(configuration)
+    # TODO
     return None
 
 class ManagerClass(object):

@@ -200,6 +200,11 @@ class SessionId(object):
     def __str__(self):
         return "Session ID: '%s'" % self.id
 
+NULL_POSITION = 100000
+
+class InvalidReservationStatusError(Exception):
+    pass
+
 class Reservation(object):
 
     WAITING              = "Reservation::waiting"
@@ -236,7 +241,7 @@ class Reservation(object):
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(reservation_id, finished, initial_data, end_data)
         else:
-            raise coreExc.InvalidReservationStatusError("Invalid reservation status_text: '%s'." % ( status_text ) )
+            raise InvalidReservationStatusError("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
     # XXX TODO: a new state would be required, but I don't have to deal with that

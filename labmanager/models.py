@@ -11,7 +11,7 @@
   :license: BSD, see LICENSE for more details
 """
 
-from sqlalchemy import Column, Integer, String, Unicode, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base
 

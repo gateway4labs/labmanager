@@ -1,3 +1,6 @@
+import sys
 from pyflakes.scripts.pyflakes import main as main_pyflakes
 
-main_pyflakes(["labmanager"])
+
+sys.argv = [sys.argv[0], 'labmanager']
+main_pyflakes()

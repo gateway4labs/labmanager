@@ -17,12 +17,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-from config import SQLALCHEMY_ENGINE_STR
+from labmanager.server import app
 
-try:
-    from config import USE_PYMYSQL
-except ImportError:
-    USE_PYMYSQL = False
+SQLALCHEMY_ENGINE_STR = app.config['SQLALCHEMY_ENGINE_STR']
+USE_PYMYSQL           = app.config.get('USE_PYMYSQL', False)
 
 if USE_PYMYSQL:
     import pymysql_sa
@@ -41,6 +39,8 @@ def init_db(drop = False):
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
     import labmanager.models
+    assert labmanager.models != None # pyflakes ignore
+    
     if drop:
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
