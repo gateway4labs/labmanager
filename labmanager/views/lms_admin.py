@@ -31,7 +31,7 @@ from labmanager.database import db_session
 from labmanager.models   import LMS, Course, PermissionOnLaboratory, PermissionOnCourse
 from labmanager.rlms     import get_permissions_form_class
 
-from labmanager.server import app
+from labmanager import app
 from labmanager.views import get_json, deletes_elements
 from labmanager.views.lms import requires_lms_auth
 

@@ -26,7 +26,7 @@ from flask import Response, render_template, request, redirect, url_for
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.server import app
+from labmanager import app
 
 def get_json():
     if request.json is not None:

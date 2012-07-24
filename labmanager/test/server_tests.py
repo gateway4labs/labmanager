@@ -6,7 +6,7 @@ import tempfile
 
 from werkzeug import Headers
 
-import labmanager.server as server
+import labmanager as server
 from labmanager.database import add_sample_users
 
 class FlaskrTestCase(unittest.TestCase):

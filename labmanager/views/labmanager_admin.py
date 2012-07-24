@@ -31,7 +31,7 @@ from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, 
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_lms_permissions_form_class
 from labmanager.forms    import AddLmsForm
 
-from labmanager.server import app
+from labmanager import app
 from labmanager.views import deletes_elements
 from labmanager.views.lms_admin import _login_as_lms
 

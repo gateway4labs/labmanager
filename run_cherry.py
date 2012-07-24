@@ -1,5 +1,5 @@
 from cherrypy import wsgiserver
-from labmanager.server import app
+from labmanager import app
 
 # TODO: http://docs.cherrypy.org/dev/refman/process/plugins/signalhandler.html
 

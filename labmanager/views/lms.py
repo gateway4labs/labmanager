@@ -31,7 +31,7 @@ from labmanager.database import db_session
 from labmanager.models   import LMS, PermissionOnLaboratory
 from labmanager.rlms     import get_manager_class
 
-from labmanager.server import app
+from labmanager import app
 from labmanager.views import get_json
 
 
