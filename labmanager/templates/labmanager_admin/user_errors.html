@@ -1,0 +1,13 @@
+{% set current_link = "users" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} LabManager user error {% endblock %}
+{% block body_row %}
+{{ super() }}
+
+<div class="span10 offset1">
+    <div class="alert alert-error">
+        Requested LabManager user does not exist. Recheck the address
+    </div>
+</div>
+
+{% endblock %}

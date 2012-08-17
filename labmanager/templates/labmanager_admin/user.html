@@ -1,0 +1,48 @@
+{% set current_link = "users" %}
+{% extends "labmanager_admin/layout-logged.html" %}
+{% block title %} LabManager users {% endblock %}
+
+{% block body_row %}
+{{ super() }}
+
+<div class="span10 offset1">
+    <ul class="breadcrumb">
+        <li class="active"> LabManager users </li>
+    </ul> 
+
+    <form action="." method="POST">
+    {% if users|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Selected</th>
+                <th>Name</th>
+                <th>Login</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td><label class="checkbox"><input type="checkbox" name="{{ user.id }}"></label></td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.login }}</td>
+                <td><a href="{{ url_for('admin_user_edit',  user_login = user.login) }}" class="btn">Edit</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert">
+        No LabManager user found
+    </div>
+    {% endif %}
+
+    <div class="form-actions" align="center">
+        <input class="btn btn-primary" name="action" type="submit" value="Add"/>
+        {% if users|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
+    </div>
+    </form>
+</div>
+
+{% endblock %}
