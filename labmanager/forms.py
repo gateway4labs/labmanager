@@ -49,6 +49,20 @@ class AddLmsForm(RetrospectiveForm):
         if form.add_or_edit and field.data == '':
             raise ValidationError("This field is required.")
 
+class AddUserForm(RetrospectiveForm):
+    name      = TextField("Name", validators = [ Required() ])
+
+    login     = TextField("Login", validators = [ Required() ])
+    password  = PasswordField("Password")
+
+    def __init__(self, add_or_edit, *args, **kwargs):
+        super(AddUserForm, self).__init__(*args, **kwargs)
+        self.add_or_edit = add_or_edit
+
+    def validate_password(form, field):
+        if form.add_or_edit and field.data == '':
+            raise ValidationError("This field is required.")
+
 class GenericPermissionForm(RetrospectiveForm):
     identifier    = TextField("Identifier", validators = [ Required() ])
 

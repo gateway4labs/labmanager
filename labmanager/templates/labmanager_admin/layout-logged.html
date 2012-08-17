@@ -18,6 +18,7 @@
             <li {% if current_link == 'home' %} class="active" {% endif %}><a href="{{ url_for('admin_index') }}">Home</a></li>
             <li {% if current_link == 'lms'  %} class="active" {% endif %}><a href="{{ url_for('admin_lms')   }}"  >LMSs</a></li>
             <li {% if current_link == 'rlms' %} class="active" {% endif %}><a href="{{ url_for('admin_rlms')  }}" >RLMSs</a></li>
+            <li {% if current_link == 'users' %} class="active" {% endif %}><a href="{{ url_for('admin_users')  }}" >Administrators</a></li>
           </ul>
           <ul class="nav pull-right">
             <li class="divider-vertical"></li>

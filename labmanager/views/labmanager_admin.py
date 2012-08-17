@@ -29,7 +29,7 @@ from flask import render_template, request, session, redirect, url_for, flash
 from labmanager.database import db_session
 from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Laboratory, PermissionOnLaboratory
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_lms_permissions_form_class
-from labmanager.forms    import AddLmsForm
+from labmanager.forms    import AddLmsForm, AddUserForm
 
 from labmanager import app
 from labmanager.views import deletes_elements
@@ -44,6 +44,9 @@ from labmanager.views.lms_admin import _login_as_lms
 # 
 # 
 # 
+
+def hash_password(password):
+    return hashlib.new("sha", password).hexdigest()
 
 def requires_labmanager_admin_session(f):
     @wraps(f)
@@ -68,8 +71,7 @@ def admin_login():
         login    = request.form['username']
         password = request.form['password']
 
-        hash_password = hashlib.new("sha", password).hexdigest()
-        user = db_session.query(LabManagerUser).filter_by(login = login, password = hash_password).first()
+        user = db_session.query(LabManagerUser).filter_by(login = login, password = hash_password(password) ).first()
 
         if user is not None:
             session['logged_in']    = True
@@ -129,7 +131,7 @@ def _add_or_edit_lms(id):
         if id is None:
             new_lms = LMS(name = form.name.data, url = form.url.data, 
                             lms_login           = form.lms_login.data, 
-                            lms_password        = form.lms_password.data, 
+                            lms_password        = hash_password(form.lms_password.data), 
                             labmanager_login    = form.labmanager_login.data, 
                             labmanager_password = form.labmanager_password.data)
             db_session.add(new_lms)
@@ -144,7 +146,7 @@ def _add_or_edit_lms(id):
             lms.lms_login         = form.lms_login.data
             lms.labmanager_login  = form.labmanager_login.data
             if form.lms_password.data:
-                lms.lms_password        = hashlib.new("sha", form.lms_password.data).hexdigest()
+                lms.lms_password        = hash_password(form.lms_password.data)
             if form.labmanager_password.data:
                 lms.labmanager_password = form.labmanager_password.data
 
@@ -493,5 +495,71 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
 
     return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions_add.html", **template_variables)
 
+######################## 
+# 
+# U S E R S
+# 
+# 
 
+
+@app.route("/lms4labs/labmanager/admin/user/", methods = ['GET', 'POST'])
+@requires_labmanager_admin_session
+@deletes_elements(LabManagerUser)
+def admin_users():
+    if request.method == 'POST' and request.form.get('action','').lower().startswith('add'):
+        return redirect(url_for('admin_user_add'))
+
+    users = db_session.query(LabManagerUser).all()
+    return render_template("labmanager_admin/user.html", users = users)
+
+def _add_or_edit_user(id):
+    form = AddUserForm(id is None)
+
+    if form.validate_on_submit():
+        if id is None:
+            new_user = LabManagerUser(login = form.login.data, name = form.name.data, 
+                                    password = hash_password(form.password.data))
+            db_session.add(new_user)
+        else:
+            user = db_session.query(LabManagerUser).filter_by(id = id).first()
+            if user is None:
+                return render_template("labmanager_admin/user_errors.html")
+
+
+            user.name  = form.name.data
+            user.login = form.login.data
+            if form.password.data:
+                user.password = hash_password(form.password.data)
+
+        db_session.commit()
+        return redirect(url_for('admin_users'))
+    
+    if id is not None:
+        user = db_session.query(LabManagerUser).filter_by(id = id).first()
+        if user is None:
+            return render_template("labmanager_admin/user_errors.html")
+
+        name = user.name
+
+        form.name.data  = user.name
+        form.login.data = user.login
+    else:
+        name = None
+
+    return render_template("labmanager_admin/user_add.html", form = form, name = name)
+
+
+@app.route("/lms4labs/labmanager/admin/user/add/", methods = ['GET', 'POST'])
+@requires_labmanager_admin_session
+def admin_user_add():
+    return _add_or_edit_user(id = None)
+
+@app.route("/lms4labs/labmanager/admin/user/<user_login>/edit/", methods = ['GET', 'POST'])
+@requires_labmanager_admin_session
+def admin_user_edit(user_login):
+    user = db_session.query(LabManagerUser).filter_by(login = user_login).first()
+    if user is None:
+        return render_template("labmanager_admin/user_errors.html")
+
+    return _add_or_edit_user(user.id)
 
