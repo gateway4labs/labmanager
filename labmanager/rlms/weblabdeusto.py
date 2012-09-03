@@ -13,7 +13,7 @@
 
 import json
 
-from flaskext.wtf import TextField, PasswordField, Required, URL, ValidationError
+from flask.ext.wtf import TextField, PasswordField, Required, URL, ValidationError
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.data import Laboratory
