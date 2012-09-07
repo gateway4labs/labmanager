@@ -12,17 +12,15 @@
            var lab = new Laboratory("%(LMS_URL)s"); 
 
            // Load the experiment "%(EXPERIMENT_IDENTIFIER)s".
-           %(EXPERIMENT_COMMENT)s lab.load("%(EXPERIMENT_IDENTIFIER)s");
+           %(EXPERIMENT_COMMENT)slab.load("%(EXPERIMENT_IDENTIFIER)s");
            // Authenticate as a LMS administrator (if it is a LMS administrator) in the 
            // Lab manager
-           %(AUTHENTICATE_COMMENT)s lab.authenticate();
+           %(AUTHENTICATE_COMMENT)slab.authenticate();
         }
     </script>
 </head>
 <body onload="javascript:startLab();">
     <!-- Load the links etc. of the laboratory here -->
     %(HTML_CONTENT)s
-    <!-- <div id="lms4labs_root">
-    </div> -->
 </body>
 </html>

@@ -13,6 +13,8 @@
 
 #
 # Python imports
+import os
+import codecs
 import json
 import uuid
 import traceback
@@ -24,7 +26,7 @@ from functools import wraps
 # 
 # Flask imports
 # 
-from flask import render_template, request, g, session, redirect, url_for, flash
+from flask import render_template, request, g, session, redirect, url_for, flash, Response
 
 # 
 # LabManager imports
@@ -298,13 +300,43 @@ def lms_admin_scorm(laboratory_identifier):
     if permission_on_lab is None:
         return "error" # TODO
 
+    lms_path = ''
+
+    content = _get_scorm_object(False, laboratory_identifier, lms_path)
+    return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % laboratory_identifier})
+
+@app.route("/lms4labs/labmanager/lms/admin/authenticate_scorm.zip", methods = ['GET', 'POST'])
+@requires_lms_admin_session
+def lms_admin_authenticate_scorm():
+    content = _get_scorm_object(True)
+    return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=authenticate_scorm.zip'})
+
+
+def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path = '/', html_body = '''<div id="lms4labs_root" />\n'''):
     import labmanager
     # TODO: better way
     base_dir = os.path.dirname(labmanager.__file__)
     base_scorm_dir = os.path.join(base_dir, 'data', 'scorm')
-    sio = StringIO.StringIO()
+    if not os.path.exists(base_scorm_dir):
+        return "error: %s does not exist" % base_scorm_dir # TODO
+
+    sio = StringIO.StringIO('')
     zf = zipfile.ZipFile(sio, 'w')
-    zf.write('/etc/hosts', 'hosts')
+    for root, dir, files in os.walk(base_scorm_dir):
+        for f in files:
+            file_name = os.path.join(root, f)
+            arc_name  = os.path.join(root[len(base_scorm_dir)+1:], f)
+            content = codecs.open(file_name, 'rb', encoding='utf-8').read()
+            if f == 'lab.html' and root == base_scorm_dir:
+                content = content % { 
+                            u'EXPERIMENT_COMMENT'    : '//' if authenticate else '',
+                            u'AUTHENTICATE_COMMENT'  : '//' if not authenticate else '',
+                            u'EXPERIMENT_IDENTIFIER' : unicode(laboratory_identifier),
+                            u'LMS_URL'               : unicode(lms_path),
+                            u'HTML_CONTENT'          : unicode(html_body),
+                        }
+            zf.writestr(arc_name, content.encode('utf-8'))
+
     zf.close()
     return sio.getvalue()
 
