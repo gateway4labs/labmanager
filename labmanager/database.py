@@ -26,7 +26,7 @@ if USE_PYMYSQL:
     import pymysql_sa
     pymysql_sa.make_default_mysql_dialect()
 
-engine = create_engine(SQLALCHEMY_ENGINE_STR, convert_unicode=True)
+engine = create_engine(SQLALCHEMY_ENGINE_STR, convert_unicode=True, pool_recycle=3600)
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
