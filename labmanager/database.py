@@ -51,8 +51,8 @@ def add_sample_users():
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
 
-    lms1 = LMS(u'Universidad Nacional de Educacion a Distancia', u"http://localhost:5000/fake_list_courses", u'uned', password, u"labmanager", u"password")
-    lms2 = LMS(u'Universidad de Deusto', u"http://localhost:5000/fake_list_courses", u'deusto', password, u"labmanager", u"password")
+    lms1 = LMS(u'Universidad Nacional de Educacion a Distancia', u"http://localhost:5000/fake_list_courses/lms4labs/list", u'uned', password, u"labmanager", u"password")
+    lms2 = LMS(u'Universidad de Deusto', u"http://localhost:5000/fake_list_courses/lms4labs/list", u'deusto', password, u"labmanager", u"password")
 
     course1 = Course(lms1, u"1", u"my course 1")
     course2 = Course(lms2, u"2", u"my course 2")

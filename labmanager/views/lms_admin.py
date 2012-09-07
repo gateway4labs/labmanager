@@ -19,6 +19,7 @@ import json
 import uuid
 import traceback
 import urllib2
+import urlparse
 import zipfile
 import StringIO
 from functools import wraps
@@ -281,16 +282,7 @@ def lms_admin_external_courses():
 
     return render_template("lms_admin/courses_external.html", courses = courses, existing_course_ids = existing_course_ids, q = q, current_page = current_page, number = number, current_pages = current_pages, per_page = per_page, start = start)
     
-@app.route("/lms4labs/labmanager/lms/admin/laboratories")
-@requires_lms_admin_session
-def lms_admin_laboratories():
-    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
-    a = ""
-    for permission in db_lms.permissions:
-        a += "%s<br/>" % permission
-    return a
-
-@app.route("/lms4labs/labmanager/lms/admin/laboratories/scorm/<laboratory_identifier>", methods = ['GET', 'POST'])
+@app.route("/lms4labs/labmanager/lms/admin/scorms/files/scorm_<laboratory_identifier>.zip", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_scorm(laboratory_identifier):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
@@ -303,7 +295,9 @@ def lms_admin_scorm(laboratory_identifier):
         flash("Error: LMS does not have permission on that laboratory. ")
         return render_template("lms_admin/scorm_errors.html")
 
-    lms_path = ''
+    lms_path = urlparse.urlparse(db_lms.url).path or '/'
+    if 'lms4labs/' in lms_path:
+        lms_path = lms_path[:lms_path.rfind('lms4labs/')]
 
     content = _get_scorm_object(False, laboratory_identifier, lms_path)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % laboratory_identifier})
