@@ -525,6 +525,9 @@ def _add_or_edit_user(id):
             if user is None:
                 return render_template("labmanager_admin/user_errors.html")
 
+            if user.login == session.get('login'):
+                session['login']     = form.login.data
+                session['user_name'] = form.name.data
 
             user.name  = form.name.data
             user.login = form.login.data

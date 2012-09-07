@@ -29,6 +29,7 @@
                 <li><a href="#">Action</a></li>
                 <li class="divider"></li>
                 -->
+                <li><a href="{{  url_for('admin_user_edit',  user_login = session.get('login')) }}">Edit profile</a></li>
                 <li><a href="{{ url_for('admin_logout') }}">Log out</a></li>
               </ul>
             </li>

@@ -17,6 +17,8 @@ import json
 import uuid
 import traceback
 import urllib2
+import zipfile
+import StringIO
 from functools import wraps
 
 # 
@@ -277,4 +279,32 @@ def lms_admin_external_courses():
 
     return render_template("lms_admin/courses_external.html", courses = courses, existing_course_ids = existing_course_ids, q = q, current_page = current_page, number = number, current_pages = current_pages, per_page = per_page, start = start)
     
+@app.route("/lms4labs/labmanager/lms/admin/laboratories")
+@requires_lms_admin_session
+def lms_admin_laboratories():
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    a = ""
+    for permission in db_lms.permissions:
+        a += "%s<br/>" % permission
+    return a
+
+@app.route("/lms4labs/labmanager/lms/admin/laboratories/scorm/<laboratory_identifier>", methods = ['GET', 'POST'])
+@requires_lms_admin_session
+def lms_admin_scorm(laboratory_identifier):
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    if db_lms is None:
+        return "error" # TODO
+    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms = db_lms, local_identifier = laboratory_identifier).first()
+    if permission_on_lab is None:
+        return "error" # TODO
+
+    import labmanager
+    # TODO: better way
+    base_dir = os.path.dirname(labmanager.__file__)
+    base_scorm_dir = os.path.join(base_dir, 'data', 'scorm')
+    sio = StringIO.StringIO()
+    zf = zipfile.ZipFile(sio, 'w')
+    zf.write('/etc/hosts', 'hosts')
+    zf.close()
+    return sio.getvalue()
 

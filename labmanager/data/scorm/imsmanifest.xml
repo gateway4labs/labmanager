@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This is a Reload version 2.5.5 SCORM 1.2 Content Package document-->
+<!--Spawned from the Reload Content Package Generator - http://www.reload.ac.uk-->
+<manifest xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2" xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_rootv1p2p1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2" identifier="MANIFEST-963B5C21135916809FCFB2A911B3F2FA" xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd http://www.imsglobal.org/xsd/imsmd_rootv1p2p1 imsmd_rootv1p2p1.xsd http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <organizations default="ORG-E2402089469F9E197DBA5D2933785883">
+    <organization identifier="ORG-E2402089469F9E197DBA5D2933785883" structure="hierarchical">
+      <title>Organization</title>
+      <item identifier="ITEM-8E019FDD3D9331C6E9841F4F6E6A7C0A" isvisible="true" identifierref="RES-847CB313688FC0A7864A91CC39A09B18">
+        <title>lab</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="RES-847CB313688FC0A7864A91CC39A09B18" type="webcontent" href="lab.html">
+      <file href="lab.html" />
+      <file href="css/bootstrap.min.css" />
+    </resource>
+  </resources>
+</manifest>
+
