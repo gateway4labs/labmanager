@@ -109,8 +109,8 @@ def get_authentication_scorm(lms_url):
     lms_path = urlparse.urlparse(lms_url).path or '/'
     extension = '/'
     if 'lms4labs/' in lms_path:
+        extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
         lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
-        extension = lms_path[lms_path.rfind('lms4labs/lms/list'):]
 
     content = get_scorm_object(True, lms_path=lms_path, lms_extension=extension)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=authenticate_scorm.zip'})

@@ -294,8 +294,8 @@ def lms_admin_scorm(laboratory_identifier):
     lms_path = urlparse.urlparse(db_lms.url).path or '/'
     extension = '/'
     if 'lms4labs/' in lms_path:
+        extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
         lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
-        extension = lms_path[lms_path.rfind('lms4labs/lms/list'):]
 
     content = get_scorm_object(False, laboratory_identifier, lms_path, extension)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % laboratory_identifier})
