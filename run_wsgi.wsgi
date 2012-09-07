@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import config
 
 LABMANAGER_DIR = '/home/weblab/lms4labs/labmanager'
 
@@ -19,7 +20,7 @@ sys.stdout = sys.stderr
 import sys
 sys.path.insert(0, LABMANAGER_DIR)
 
-execfile(activate_this, dict(__file__=VIRTUALENV_SCRIPT))
+execfile(VIRTUALENV_SCRIPT, dict(__file__=VIRTUALENV_SCRIPT))
 
-from labmanager.server import app as application
+from labmanager import app as application
 application.config.from_object('config')
