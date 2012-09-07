@@ -481,7 +481,8 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
             permission = PermissionOnLaboratory(lms = lms, laboratory = lab, configuration = configuration, local_identifier = identifier)
             db_session.add(permission)
         else: # Already granted: edit it
-            permission.configuration = configuration
+            permission.local_identifier = identifier
+            permission.configuration    = configuration
 
         db_session.commit()
         return redirect(url_for('admin_rlms_rlms_lab_edit_permissions', rlmstype = rlmstype, rlmsversion = rlmsversion, id = id, lab_id = lab_id))
