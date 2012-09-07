@@ -295,10 +295,13 @@ def lms_admin_laboratories():
 def lms_admin_scorm(laboratory_identifier):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     if db_lms is None:
-        return "error" # TODO
+        flash("Error: LMS does not exist.")
+        return render_template("lms_admin/scorm_errors.html")
+
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms = db_lms, local_identifier = laboratory_identifier).first()
     if permission_on_lab is None:
-        return "error" # TODO
+        flash("Error: LMS does not have permission on that laboratory. ")
+        return render_template("lms_admin/scorm_errors.html")
 
     lms_path = ''
 
@@ -318,7 +321,8 @@ def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path 
     base_dir = os.path.dirname(labmanager.__file__)
     base_scorm_dir = os.path.join(base_dir, 'data', 'scorm')
     if not os.path.exists(base_scorm_dir):
-        return "error: %s does not exist" % base_scorm_dir # TODO
+        flash("Error: %s does not exist" % base_scorm_dir)
+        return render_template("lms_admin/scorm_errors.html")
 
     sio = StringIO.StringIO('')
     zf = zipfile.ZipFile(sio, 'w')
@@ -339,4 +343,14 @@ def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path 
 
     zf.close()
     return sio.getvalue()
+
+@app.route("/lms4labs/labmanager/lms/admin/scorms/", methods = ['GET', 'POST'])
+@requires_lms_admin_session
+def lms_admin_scorms():
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    if db_lms is None:
+        flash("Error: LMS does not exist")
+        return render_template("lms_admin/scorm_errors.html")
+    permission_on_labs = db_session.query(PermissionOnLaboratory).filter_by(lms = db_lms).all()
+    return render_template("lms_admin/scorms.html", permissions = permission_on_labs)
 

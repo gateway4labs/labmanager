@@ -1,0 +1,42 @@
+{% set current_link = "scorms" %}
+{% extends "lms_admin/layout-logged.html" %}
+{% block title %} SCORMs {% endblock %}
+
+{% block body_row %}
+{{ super() }}
+
+<div class="span10 offset1">
+    
+    <ul class="breadcrumb">
+        <li class="active">SCORMs</a></li>
+    </ul> 
+
+    {% if permissions|length > 0 %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Name</th>
+                <th>RLMS name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for permission in permissions %}
+            <tr>
+                <td>{{ permission.local_identifier }}</td>
+                <td>{{ permission.laboratory.name }}</td>
+                <td>{{ permission.laboratory.rlms.name }}</td>
+                <td><a href="{{ url_for('lms_admin_scorm', laboratory_identifier = permission.local_identifier) }}" class="btn">Download</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else  %}
+    <div class="alert">
+        No permission on any laboratory found for this LMS. Ask for permissions to the LabManager administrator.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
