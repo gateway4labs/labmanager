@@ -296,10 +296,12 @@ def lms_admin_scorm(laboratory_identifier):
         return render_template("lms_admin/scorm_errors.html")
 
     lms_path = urlparse.urlparse(db_lms.url).path or '/'
+    extension = '/'
     if 'lms4labs/' in lms_path:
-        lms_path = lms_path[:lms_path.rfind('lms4labs/')]
+        lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
+        extension = lms_path[lms_path.rfind('lms4labs/lms/list'):]
 
-    content = _get_scorm_object(False, laboratory_identifier, lms_path)
+    content = _get_scorm_object(False, laboratory_identifier, lms_path, extension)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % laboratory_identifier})
 
 @app.route("/lms4labs/labmanager/lms/admin/authenticate_scorm.zip", methods = ['GET', 'POST'])
@@ -309,7 +311,7 @@ def lms_admin_authenticate_scorm():
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=authenticate_scorm.zip'})
 
 
-def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path = '/', html_body = '''<div id="lms4labs_root" />\n'''):
+def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path = '/', lms_extension = '/', html_body = '''<div id="lms4labs_root" />\n'''):
     import labmanager
     # TODO: better way
     base_dir = os.path.dirname(labmanager.__file__)
@@ -331,6 +333,7 @@ def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path 
                             u'AUTHENTICATE_COMMENT'  : '//' if not authenticate else '',
                             u'EXPERIMENT_IDENTIFIER' : unicode(laboratory_identifier),
                             u'LMS_URL'               : unicode(lms_path),
+                            u'LMS_EXTENSION'         : unicode(lms_extension),
                             u'HTML_CONTENT'          : unicode(html_body),
                         }
             zf.writestr(arc_name, content.encode('utf-8'))

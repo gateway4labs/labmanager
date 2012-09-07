@@ -26,8 +26,8 @@ function getXmlHttpObject() {
 
 var DEFAULT_ROOT_ELEMENT = 'lms4labs_root';
 var lms4labs_paths = {
-    'requests'     : 'lms4labs/lms/forward/',
-    'authenticate' : 'lms4labs/lms/authenticate/'
+    'requests'     : 'lms4labs/lms/forward',
+    'authenticate' : 'lms4labs/lms/authenticate'
 };
 
 var lms4labs_templates = {
@@ -37,12 +37,17 @@ var lms4labs_templates = {
     'unknown-error' : "<div align=\"center\" class=\"well alert alert-error\"><h2>Unknown error</h2> <br/> The following code was returned: %(TEXT)s</div>"
 };
 
-function Laboratory(baseurl, elementName) {
+function Laboratory(baseurl, extension, elementName) {
 
     if(baseurl == undefined)
         this.baseurl = "/";
     else
         this.baseurl = baseurl;
+
+    if(extension == undefined)
+        this.extension = "/";
+    else
+        this.extension = extension;
 
     if (elementName == undefined)
         this.elementName = DEFAULT_ROOT_ELEMENT;
@@ -104,7 +109,7 @@ function Laboratory(baseurl, elementName) {
 
         var requestPayload = "{ \"action\" : \"reserve\", \"experiment\" : \"" + laboratoryId.replace(/\"/g, '\\"') + "\" }";
 
-        var url = this.baseurl + lms4labs_paths['requests'];
+        var url = this.baseurl + lms4labs_paths['requests'] + this.extension;
 
         xmlhttp.open("POST", url, true);
         xmlhttp.setRequestHeader('Content-Type', 'application/json');
@@ -130,7 +135,7 @@ function Laboratory(baseurl, elementName) {
             }
         };
 
-        var url = this.baseurl + lms4labs_paths['authenticate'];
+        var url = this.baseurl + lms4labs_paths['authenticate'] + this.extension;
         xmlhttp.open("GET", url, true);
         xmlhttp.send(null);
     };

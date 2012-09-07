@@ -9,7 +9,7 @@
     <script>
         function startLab() {
            // Create an instance of the laboratory. By default, it uses "/". 
-           var lab = new Laboratory("%(LMS_URL)s"); 
+           var lab = new Laboratory("%(LMS_URL)s", "%(LMS_EXTENSION)s"); 
 
            // Load the experiment "%(EXPERIMENT_IDENTIFIER)s".
            %(EXPERIMENT_COMMENT)slab.load("%(EXPERIMENT_IDENTIFIER)s");
