@@ -13,15 +13,11 @@
 
 #
 # Python imports
-import os
-import codecs
 import json
 import uuid
 import traceback
 import urllib2
 import urlparse
-import zipfile
-import StringIO
 from functools import wraps
 
 # 
@@ -37,7 +33,7 @@ from labmanager.models   import LMS, Course, PermissionOnLaboratory, PermissionO
 from labmanager.rlms     import get_permissions_form_class
 
 from labmanager import app
-from labmanager.views import get_json, deletes_elements
+from labmanager.views import get_json, deletes_elements, get_scorm_object, get_authentication_scorm
 from labmanager.views.lms import requires_lms_auth
 
 
@@ -56,7 +52,7 @@ def requires_lms_admin_session(f):
         logged_in    = session.get('logged_in', False)
         session_type = session.get('session_type', '')
         if not logged_in or session_type != 'lms_admin':
-            return 'Not authorized. Ask your LMS to authenticate you through <a href="%s">%s</a>.' % (url_for('lms_admin_authenticate'), url_for('lms_admin_authenticate'))
+            return 'Not authorized. If you are a LabManager administrator, download <a href="%s">this SCORM</a>, install it, and you will be able to administrate the system. Otherwise, you should ask your LMS to authenticate you through <a href="%s">%s</a>.' % (url_for('lms_admin_authenticate_scorm'), url_for('lms_admin_authenticate'), url_for('lms_admin_authenticate'))
         return f(*args, **kwargs)
     return decorated
 
@@ -301,45 +297,18 @@ def lms_admin_scorm(laboratory_identifier):
         lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
         extension = lms_path[lms_path.rfind('lms4labs/lms/list'):]
 
-    content = _get_scorm_object(False, laboratory_identifier, lms_path, extension)
+    content = get_scorm_object(False, laboratory_identifier, lms_path, extension)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % laboratory_identifier})
 
 @app.route("/lms4labs/labmanager/lms/admin/authenticate_scorm.zip", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_authenticate_scorm():
-    content = _get_scorm_object(True)
-    return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=authenticate_scorm.zip'})
-
-
-def _get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path = '/', lms_extension = '/', html_body = '''<div id="lms4labs_root" />\n'''):
-    import labmanager
-    # TODO: better way
-    base_dir = os.path.dirname(labmanager.__file__)
-    base_scorm_dir = os.path.join(base_dir, 'data', 'scorm')
-    if not os.path.exists(base_scorm_dir):
-        flash("Error: %s does not exist" % base_scorm_dir)
+    db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
+    if db_lms is None:
+        flash("Error: LMS does not exist.")
         return render_template("lms_admin/scorm_errors.html")
 
-    sio = StringIO.StringIO('')
-    zf = zipfile.ZipFile(sio, 'w')
-    for root, dir, files in os.walk(base_scorm_dir):
-        for f in files:
-            file_name = os.path.join(root, f)
-            arc_name  = os.path.join(root[len(base_scorm_dir)+1:], f)
-            content = codecs.open(file_name, 'rb', encoding='utf-8').read()
-            if f == 'lab.html' and root == base_scorm_dir:
-                content = content % { 
-                            u'EXPERIMENT_COMMENT'    : '//' if authenticate else '',
-                            u'AUTHENTICATE_COMMENT'  : '//' if not authenticate else '',
-                            u'EXPERIMENT_IDENTIFIER' : unicode(laboratory_identifier),
-                            u'LMS_URL'               : unicode(lms_path),
-                            u'LMS_EXTENSION'         : unicode(lms_extension),
-                            u'HTML_CONTENT'          : unicode(html_body),
-                        }
-            zf.writestr(arc_name, content.encode('utf-8'))
-
-    zf.close()
-    return sio.getvalue()
+    return get_authentication_scorm(db_lms.url)
 
 @app.route("/lms4labs/labmanager/lms/admin/scorms/", methods = ['GET', 'POST'])
 @requires_lms_admin_session

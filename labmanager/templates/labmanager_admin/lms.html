@@ -19,7 +19,8 @@
                 <th>Name</th>
                 <th>URL</th>
                 <th></th>
-                <th></th>
+                <th>Log in</th>
+                <th>Authentication SCORM</th>
             </tr>
         </thead>
         <tbody>
@@ -29,7 +30,8 @@
                 <td>{{ lms.name }}</td>
                 <td>{{ lms.url }}</td>
                 <td><a href="{{ url_for('admin_lms_edit',  lms_login = lms.lms_login) }}" class="btn">Edit</a></td>
-                <td><a href="{{ url_for('admin_lms_login', lms_login = lms.lms_login) }}" class="btn">Log in</a></td>
+                <td><a href="{{ url_for('admin_lms_login', lms_login = lms.lms_login) }}" class="btn">Enter</a></td>
+                <td><a href="{{ url_for('admin_lms_authenticate_scorm', lms_login = lms.lms_login) }}" class="btn">Download</a></td>
             </tr>
         {% endfor %}
         </tbody>

@@ -32,7 +32,7 @@ from labmanager.rlms     import get_supported_types, get_supported_versions, is_
 from labmanager.forms    import AddLmsForm, AddUserForm
 
 from labmanager import app
-from labmanager.views import deletes_elements
+from labmanager.views import deletes_elements, get_authentication_scorm
 from labmanager.views.lms_admin import _login_as_lms
 
 
@@ -113,6 +113,16 @@ def admin_index():
 # 
 # L M S 
 # 
+
+@app.route("/lms4labs/labmanager/admin/lms_authenticate_<lms_login>.zip")
+@requires_labmanager_admin_session
+@deletes_elements(LMS)
+def admin_lms_authenticate_scorm(lms_login):
+    db_lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
+    if db_lms is None:
+        return render_template("labmanager_admin/lms_errors.html")
+
+    return get_authentication_scorm(db_lms.url)
 
 @app.route("/lms4labs/labmanager/admin/lms/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
