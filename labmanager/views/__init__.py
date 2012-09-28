@@ -21,6 +21,7 @@ import traceback
 import StringIO
 import zipfile
 from functools import wraps
+import urllib2
 
 # 
 # Flask imports
@@ -65,6 +66,30 @@ def deletes_elements(table):
         return decorated
     return real_wrapper
 
+###############################################################################
+# 
+# 
+# 
+#                L M S    I N T E R A C T I O N 
+# 
+# 
+#
+
+def retrieve_courses(url, user, password):
+    req = urllib2.Request(url, '')
+    req.add_header('Content-type','application/json')
+
+    password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    password_mgr.add_password(None, url, user, password)
+    password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+    opener = urllib2.build_opener(password_handler)
+
+    json_results= opener.open(req).read()
+    try:
+        return json.loads(json_results)
+    except:
+        print "Invalid JSON", json_results
+        return None
 
 ###############################################################################
 # 

@@ -16,7 +16,6 @@
 import json
 import uuid
 import traceback
-import urllib2
 import urlparse
 from functools import wraps
 
@@ -33,9 +32,8 @@ from labmanager.models   import LMS, Course, PermissionOnLaboratory, PermissionO
 from labmanager.rlms     import get_permissions_form_class
 
 from labmanager import app
-from labmanager.views import get_json, deletes_elements, get_scorm_object, get_authentication_scorm
+from labmanager.views import get_json, deletes_elements, get_scorm_object, get_authentication_scorm, retrieve_courses
 from labmanager.views.lms import requires_lms_auth
-
 
 ###############################################################################
 # 
@@ -221,22 +219,11 @@ def lms_admin_external_courses():
     password = db_lms.labmanager_password
     url = "%s?q=%s&start=%s" % (db_lms.url, q, start)
 
-    req = urllib2.Request(url, '')
-    req.add_header('Content-type','application/json')
-
-    password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-    password_mgr.add_password(None, url, user, password)
-    password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-    opener = urllib2.build_opener(password_handler)
-
-    json_results= opener.open(req).read()
     VISIBLE_PAGES = 10
-    try:
-        results = json.loads(json_results)
-    except:
-        print "Invalid JSON: ", json_results
+    results = retrieve_courses(url, user, password)
+    if results is None:
         return "Invalid JSON provided. Look at the logs for more information"
-    
+
     try:
         courses_data = results['courses']
         courses = [ (course['id'], course['name']) for course in courses_data ]
