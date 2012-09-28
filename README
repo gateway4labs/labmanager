@@ -19,15 +19,16 @@ Python 2.7).
 
  3. easy_install pip
  4. pip install virtualenv
- 5. virtualenv env
+ 5. virtualenv --no-site-packages env
  6. env\Scripts\activate.bat
 
 === LINUX (Ubuntu) ===
 
  1. sudo apt-get install python-pip python-setuptools python-virtualenv
 
- 2. virtualenv env
- 3. . env/bin/activate
+ 2. virtualenv --no-site-packages env
+
+3. . env/bin/activate
 
 === INSTALL ===
 
@@ -35,7 +36,7 @@ After installing the tools detailed above, you can install the missing
 libraries. They will be installed in the "env" directory. Feel free to remove it
 at any point.
 
- 1. pip install Flask Flask-SQLAlchemy Flask-WTF SQLAlchemy pymySQL pymysql_sa pyflakes cherrypy
+ 1. pip install -r requirements.txt
 
  2. Copy config.py.dist into config.py
 
