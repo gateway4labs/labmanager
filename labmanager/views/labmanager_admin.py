@@ -32,7 +32,7 @@ from labmanager.rlms     import get_supported_types, get_supported_versions, is_
 from labmanager.forms    import AddLmsForm, AddUserForm
 
 from labmanager import app
-from labmanager.views import deletes_elements, get_authentication_scorm
+from labmanager.views import deletes_elements, get_authentication_scorm, retrieve_courses
 from labmanager.views.lms_admin import _login_as_lms
 
 
@@ -161,7 +161,7 @@ def _add_or_edit_lms(id):
                 lms.labmanager_password = form.labmanager_password.data
 
         db_session.commit()
-        return redirect(url_for('admin_lms'))
+        return redirect(url_for('admin_lms_edit', lms_login = form.lms_login.data))
     
     if id is not None:
         lms = db_session.query(LMS).filter_by(id = id).first()
@@ -174,6 +174,11 @@ def _add_or_edit_lms(id):
         form.name.data             = lms.name
         form.lms_login.data        = lms.lms_login
         form.labmanager_login.data = lms.labmanager_login
+
+        courses = retrieve_courses(lms.url, lms.labmanager_login, lms.labmanager_password)
+        if isinstance(courses, basestring):
+            # There was an error, show it
+            flash(courses)
     else:
         name = None
 

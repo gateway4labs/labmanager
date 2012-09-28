@@ -221,8 +221,8 @@ def lms_admin_external_courses():
 
     VISIBLE_PAGES = 10
     results = retrieve_courses(url, user, password)
-    if results is None:
-        return "Invalid JSON provided. Look at the logs for more information"
+    if isinstance(results, basestring):
+        return "Invalid JSON provided or could not connect to the LMS. Look at the logs for more information"
 
     try:
         courses_data = results['courses']

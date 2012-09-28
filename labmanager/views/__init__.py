@@ -84,12 +84,17 @@ def retrieve_courses(url, user, password):
     password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
     opener = urllib2.build_opener(password_handler)
 
-    json_results= opener.open(req).read()
+    try:
+        json_results= opener.open(req).read()
+    except:
+        traceback.print_exc()
+        return "Error openin provided URL"
+
     try:
         return json.loads(json_results)
     except:
         print "Invalid JSON", json_results
-        return None
+        return "Invalid JSON"
 
 ###############################################################################
 # 

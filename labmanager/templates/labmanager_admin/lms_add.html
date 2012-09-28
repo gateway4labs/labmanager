@@ -19,6 +19,23 @@
 </div>
 
 <div class="span6 offset3">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-error">
+            Configuration error. This may be normal if the plug-in in the LMS has not been installed. Details:
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            Connection with LMS successful!
+        </div>
+        {% endif %}
+    {% endwith %}
+
     {% from "_form_helpers.html" import render_field %}
     <form method="POST" action="{{ request.url }}" class="form-horizontal">
         {{ form.hidden_tag() }}
