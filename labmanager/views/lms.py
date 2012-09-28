@@ -129,7 +129,7 @@ def requests():
             if course_permission.course.course_id in courses:
                 # Let the server choose among the best possible configuration
                 courses_configurations.append(course_permission.configuration)
-        if len(courses_configurations) == 0:
+        if len(courses_configurations) == 0 and not general_role:
             error_msg = "Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it"
         else:
             lms_configuration = permission_on_lab.configuration
