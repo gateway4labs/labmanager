@@ -88,7 +88,7 @@ def retrieve_courses(url, user, password):
         json_results= opener.open(req).read()
     except:
         traceback.print_exc()
-        return "Error openin provided URL"
+        return "Error opening provided URL"
 
     try:
         return json.loads(json_results)
