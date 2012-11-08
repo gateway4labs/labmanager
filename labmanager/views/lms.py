@@ -34,6 +34,7 @@ from labmanager.rlms     import get_manager_class
 from labmanager import app
 from labmanager.views import get_json
 
+from ims_lti_py import ToolProvider
 
 ###############################################################################
 # 
@@ -187,5 +188,44 @@ def requests():
             return reservation_url
         else:
             return 'error:%s' % error_msg
+        
 
+def create_params_tp():
+    return {
+          "lti_message_type": "basic-lti-launch-request",
+          "lti_version": "LTI-1p0",
+          "resource_link_id": "c28ddcf1b2b13c52757aed1fe9b2eb0a4e2710a3",
+          "lis_result_sourcedid": "261-154-728-17-784",
+          "lis_outcome_service_url": "http://localhost/lis_grade_passback",
+          "launch_presentation_return_url": "http://example.com/lti_return",
+          "custom_param1": "custom1",
+          "custom_param2": "custom2",
+          "ext_lti_message_type": "extension-lti-launch",
+          "roles": "Learner,Instructor,Observer"
+    }
 
+def create_test_tp():
+    return ToolProvider('hi', 'oi', create_params_tp())
+
+@app.route("/lms4labs/labmanager/ims", methods = ['POST'])
+def start():
+    print "\n\n\n\n"
+    print request.form.to_dict()
+    print "\n\n\n\n"
+    key = request.form['oauth_consumer_key']
+    if key:
+        secret = 'secret' #Retrieve secret
+        if secret:
+            tool_provider = ToolProvider(key, secret, request.form.to_dict())
+            ans = "Tool Provider created"
+        else:
+            tool_provider = ToolProvider(null, null,  request.form.to_dict());
+            ans = "The key was not recognized"
+    else:
+        ans = "No Consumer Key provided"
+
+    valid_req = tool_provider.valid_request(request)
+    if (valid_req == False):
+        return "Is not a valid OAuth request"
+
+    return ans
