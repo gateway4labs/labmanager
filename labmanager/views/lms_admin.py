@@ -254,10 +254,10 @@ def lms_admin_external_courses():
 
     existing_courses = db_session.query(Course).filter(Course.course_id.in_(course_dict.keys()), Course.lms == db_lms).all()
     existing_course_ids = [ existing_course.course_id for existing_course in existing_courses ]
-    print course_dict
+    #    print course_dict
     if request.method == 'POST':
         for course_id in request.form:
-            print "----> %s" % course_id
+            #print "----> %s" % course_id
             if course_id != 'action' and course_id in course_dict.keys() and course_id not in existing_course_ids:
                 db_course = Course(db_lms, course_id, course_dict[course_id])
                 db_session.add(db_course)

@@ -90,7 +90,9 @@ def requests():
 
     json_data = get_json()
     if json_data is None: return "Could not process JSON data"
-
+    print "\n\n\n"
+    print "\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()])
+    print "\n\n\n"
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
     general_role        = json_data.get('is-admin', False)
@@ -188,33 +190,13 @@ def requests():
             return reservation_url
         else:
             return 'error:%s' % error_msg
-        
 
-def create_params_tp():
-    return {
-          "lti_message_type": "basic-lti-launch-request",
-          "lti_version": "LTI-1p0",
-          "resource_link_id": "c28ddcf1b2b13c52757aed1fe9b2eb0a4e2710a3",
-          "lis_result_sourcedid": "261-154-728-17-784",
-          "lis_outcome_service_url": "http://localhost/lis_grade_passback",
-          "launch_presentation_return_url": "http://example.com/lti_return",
-          "custom_param1": "custom1",
-          "custom_param2": "custom2",
-          "ext_lti_message_type": "extension-lti-launch",
-          "roles": "Learner,Instructor,Observer"
-    }
-
-def create_test_tp():
-    return ToolProvider('hi', 'oi', create_params_tp())
-
-@app.route("/lms4labs/labmanager/ims", methods = ['POST'])
-def start():
-    print "\n\n\n\n"
-    print request.form.to_dict()
-    print "\n\n\n\n"
+@app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
+@app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
+def start(experiment=None):
     key = request.form['oauth_consumer_key']
     if key:
-        secret = 'secret' #Retrieve secret
+        secret = 'password' #Retrieve secret
         if secret:
             tool_provider = ToolProvider(key, secret, request.form.to_dict())
             ans = "Tool Provider created"
@@ -226,6 +208,35 @@ def start():
 
     valid_req = tool_provider.valid_request(request)
     if (valid_req == False):
-        return "Is not a valid OAuth request"
+        abort(401)
 
+    # check for nonce
+    # check for old requests
+    g.lms = request.form['oauth_consumer_key']
+
+    db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
+    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment).first()
+
+    if permission_on_lab is None:
+        print "does not exist"
+    else:
+        print "exist"
+    ans = '<br/>'.join(["%s = <strong>%s</strong>" % (x,y) for x,y in request.form.to_dict().iteritems()])
+
+    courses_configurations = []
+    for course_permission in permission_on_lab.course_permissions:
+        if course_permission.course.course_id in courses:
+            courses_configurations.append(course_permission.configuration)
+
+    lms_configuration = permission_on_lab.configuration
+    db_laboratory   = permission_on_lab.laboratory
+    db_rlms         = db_laboratory.rlms
+    db_rlms_version = db_rlms.rlms_version
+    db_rlms_type    = db_rlms_version.rlms_type
+    user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+
+    ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
+    remote_laboratory = ManagerClass(db_rlms.configuration)
+    reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, request.form['lis_person_name_full'], lms_configuration, courses_configurations, user_agent, "127.0.0.1", "http://google.com")
+    ans = '<a href="%s">Go to experiment</a>' % reservation_url
     return ans
