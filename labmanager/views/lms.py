@@ -197,6 +197,7 @@ def start(experiment=None):
     key = request.form['oauth_consumer_key']
     if key:
         secret = 'password' #Retrieve secret
+    
         if secret:
             tool_provider = ToolProvider(key, secret, request.form.to_dict())
             ans = "Tool Provider created"
@@ -206,14 +207,14 @@ def start(experiment=None):
     else:
         ans = "No Consumer Key provided"
 
+    print "*****result so far******", ans
     valid_req = tool_provider.valid_request(request)
     if (valid_req == False):
         abort(401)
 
     # check for nonce
     # check for old requests
-    g.lms = request.form['oauth_consumer_key']
-
+    
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment).first()
 
@@ -221,6 +222,7 @@ def start(experiment=None):
         print "does not exist"
     else:
         print "exist"
+
     ans = '<br/>'.join(["%s = <strong>%s</strong>" % (x,y) for x,y in request.form.to_dict().iteritems()])
 
     courses_configurations = []
@@ -238,5 +240,5 @@ def start(experiment=None):
     ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
     reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, request.form['lis_person_name_full'], lms_configuration, courses_configurations, user_agent, "127.0.0.1", "http://google.com")
-    ans = '<a href="%s">Go to experiment</a>' % reservation_url
+    ans += '<a href="%s">Go to experiment</a>' % reservation_url
     return ans
