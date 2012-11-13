@@ -140,7 +140,7 @@ def requests():
 
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
-            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, user_agent, origin_ip, referer)
+            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, request_payload, user_agent, origin_ip, referer)
 
             good_msg = "You have been assigned %s of type %s version %s! <br/> Try it at <a href='%s'>%s</a>" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
 

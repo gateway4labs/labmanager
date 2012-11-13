@@ -112,7 +112,7 @@ class ManagerClass(object):
             laboratories.append(Laboratory(id, id))
         return laboratories
 
-    def reserve(self, laboratory_id, username, general_configuration_str, particular_configurations, user_agent, origin_ip, referer):
+    def reserve(self, laboratory_id, username, general_configuration_str, particular_configurations, request_payload, user_agent, origin_ip, referer):
         client = WebLabDeustoClient(self.base_url)
         session_id = client.login(self.login, self.password)
 
@@ -132,7 +132,9 @@ class ManagerClass(object):
 
         consumer_data_str = json.dumps(consumer_data)
 
-        reservation_status = client.reserve_experiment(session_id, ExperimentId.parse(laboratory_id), '{}', consumer_data_str)
+        initial_data = request_payload.get('initial', '{}') or '{}'
+
+        reservation_status = client.reserve_experiment(session_id, ExperimentId.parse(laboratory_id), initial_data, consumer_data_str)
         return "%sclient/federated.html#reservation_id=%s" % (self.base_url, reservation_status.reservation_id.id)
 
     def _retrieve_best_configuration(self, general_configuration_str, particular_configurations):
