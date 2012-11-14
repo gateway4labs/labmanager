@@ -88,7 +88,7 @@ def requests():
         return render_template("test_requests.html")
 
     json_data = get_json()
-    if json_data is None: return "Could not process JSON data"
+    if json_data is None: return messages_codes['ERROR_json']
 
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
@@ -121,6 +121,7 @@ def requests():
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
+
     if permission_on_lab is None:
         error_msg = messages_codes['ERROR_permission']
     else:
@@ -141,11 +142,9 @@ def requests():
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, request_payload, user_agent, origin_ip, referer)
-
             good_msg = messages_codes['MSG_asigned'] % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
-            
-            if app.config.get('DEBUGGING_REQUESTS', True):
 
+            if app.config.get('DEBUGGING_REQUESTS', True):
                 rendering_data = {
                     'name'        : cgi.escape(complete_name),
                     'author'      : cgi.escape(author),
