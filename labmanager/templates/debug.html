@@ -1,0 +1,37 @@
+Hi {{ data.name }} (username: {{ data.author }}),
+
+<p>I know that you're an admin ({{ data.admin }}) in the LMS {{ data.lms }}, and that you are in the following courses:</p>
+<br/>
+<table>
+  <thead>
+    <tr>
+      <th>Course ID</th>
+      <th>Role</th>
+  </tr>
+  </thead>
+  <tbody>   
+    {% for course_id in data.courses %}
+    <tr>
+      <td> {{ course_id }} </td>
+      <td> {{ course_id.role_in_course }} </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<br/>
+<p>The following error messages were sent:</p>
+<pre>{{ data.error_msg }}</pre>
+<p>The following good messages were sent:</p>
+<pre>{{ data.good_msg }}</pre>
+
+Furthermore, you sent me this request:
+<pre>
+  {{ data.request }}
+</pre>
+
+And I'll process it!
+
+Original request:
+<pre> 
+  {{ data.json }}
+</pre>

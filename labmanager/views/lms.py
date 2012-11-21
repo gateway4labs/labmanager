@@ -33,8 +33,7 @@ from labmanager.rlms     import get_manager_class
 
 from labmanager import app
 from labmanager.views import get_json
-
-from ims_lti_py import ToolProvider
+from error_codes import messages_codes
 
 ###############################################################################
 # 
@@ -93,6 +92,8 @@ def requests():
     print "\n\n\n"
     print "\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()])
     print "\n\n\n"
+    if json_data is None: return messages_codes['ERROR_json']
+
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
     general_role        = json_data.get('is-admin', False)
@@ -106,7 +107,7 @@ def requests():
         request_payload = json.loads(request_payload_str)
     except:
         traceback.print_exc()
-        return "error: the request payload is not a valid JSON request"
+        return messages_codes['ERROR_invalid_json']
 
     try:
         action = request_payload['action']
@@ -114,18 +115,19 @@ def requests():
             experiment_identifier = request_payload['experiment']
         else:
             # TODO: other operations: for teachers, etc.
-            return "Unsupported operation"
+            return messages_codes['ERROR_unsupported']
     except KeyError:
         traceback.print_exc()
-        return "Invalid response"
+        return messages_codes['ERROR_invalid']
 
     # reserving...
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
-    good_msg  = "No good news :-("
+    good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
+
     if permission_on_lab is None:
-        error_msg = "Your LMS does not have permission to use that laboratory or that identifier does not exist"
+        error_msg = messages_codes['ERROR_permission']
     else:
         courses_configurations = []
         for course_permission in permission_on_lab.course_permissions:
@@ -133,7 +135,7 @@ def requests():
                 # Let the server choose among the best possible configuration
                 courses_configurations.append(course_permission.configuration)
         if len(courses_configurations) == 0 and not general_role:
-            error_msg = "Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it"
+            error_msg = messages_codes['ERROR_enrolled']
         else:
             lms_configuration = permission_on_lab.configuration
             db_laboratory   = permission_on_lab.laboratory
@@ -144,9 +146,27 @@ def requests():
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, request_payload, user_agent, origin_ip, referer)
+            good_msg = messages_codes['MSG_asigned'] % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
 
-            good_msg = "You have been assigned %s of type %s version %s! <br/> Try it at <a href='%s'>%s</a>" % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
+            if app.config.get('DEBUGGING_REQUESTS', True):
+                rendering_data = {
+                    'name'        : cgi.escape(complete_name),
+                    'author'      : cgi.escape(author),
+                    'lms'         : cgi.escape(g.lms),
+                    'courses'     : courses,
+                    'request'     : cgi.escape(request_payload_str),
+                    'admin'       : general_role,
+                    'json'        : cgi.escape(json.dumps(json_data)),
+                    'error_msg'   : cgi.escape(error_msg or 'no error message'),
+                    'good_msg'    : good_msg or 'no good message',
+                    }
 
+                return render_template('debug.html', data=rendering_data)
+            else:
+                if error_msg is None:
+                    return reservation_url
+                else:
+                    return messages_codes['ERROR_'] % error_msg
     if app.config.get('DEBUGGING_REQUESTS', True):
         courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
         for course_id in courses:
