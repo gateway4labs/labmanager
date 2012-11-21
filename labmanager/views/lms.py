@@ -35,6 +35,8 @@ from labmanager import app
 from labmanager.views import get_json
 from error_codes import messages_codes
 
+from ims_lti_py import ToolProvider
+
 ###############################################################################
 # 
 # 
@@ -83,17 +85,18 @@ def requires_lms_auth(f):
 def requests():
     """SCORM packages will perform requests to this method, which will 
     interact with the permitted laboratories"""
-
+    
     if request.method == 'GET':
         return render_template("test_requests.html")
-
+    
     json_data = get_json()
-    if json_data is None: return "Could not process JSON data"
+
     print "\n\n\n"
     print "\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()])
     print "\n\n\n"
-    if json_data is None: return messages_codes['ERROR_json']
 
+    if json_data is None: return messages_codes['ERROR_json']
+    
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
     general_role        = json_data.get('is-admin', False)
@@ -108,7 +111,7 @@ def requests():
     except:
         traceback.print_exc()
         return messages_codes['ERROR_invalid_json']
-
+    
     try:
         action = request_payload['action']
         if action == 'reserve':
@@ -119,13 +122,20 @@ def requests():
     except KeyError:
         traceback.print_exc()
         return messages_codes['ERROR_invalid']
+    
+
+
+
+
+
+
 
     # reserving...
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
-
+    
     if permission_on_lab is None:
         error_msg = messages_codes['ERROR_permission']
     else:
@@ -142,12 +152,12 @@ def requests():
             db_rlms         = db_laboratory.rlms
             db_rlms_version = db_rlms.rlms_version
             db_rlms_type    = db_rlms_version.rlms_type
-
+            
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, request_payload, user_agent, origin_ip, referer)
             good_msg = messages_codes['MSG_asigned'] % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
-
+            
             if app.config.get('DEBUGGING_REQUESTS', True):
                 rendering_data = {
                     'name'        : cgi.escape(complete_name),
@@ -160,84 +170,49 @@ def requests():
                     'error_msg'   : cgi.escape(error_msg or 'no error message'),
                     'good_msg'    : good_msg or 'no good message',
                     }
-
+                
                 return render_template('debug.html', data=rendering_data)
             else:
                 if error_msg is None:
                     return reservation_url
                 else:
                     return messages_codes['ERROR_'] % error_msg
-    if app.config.get('DEBUGGING_REQUESTS', True):
-        courses_code = "<table><thead><tr><th>Course ID</th><th>Role</th></tr></thead><tbody>\n"
-        for course_id in courses:
-            role_in_course = courses[course_id]
-            courses_code += "<tr><td>%s</td><td>%s</td></tr>\n" % (course_id, role_in_course)
-        courses_code += "</tbody></table>"
-
-        return """Hi %(name)s (username %(author)s),
-
-            <p>I know that you're an admin ( %(admin)s ) in the LMS %(lms)s, and that you are in the following courses:</p>
-            <br/>
-            %(course_code)s
-            <br/>
-            <p>The following error messages were sent: %(error_msg)s</p>
-            <p>The following good messages were sent: %(good_msg)s</p>
-
-            Furthermore, you sent me this request:
-            <pre>
-            %(request)s
-            </pre>
-            
-            And I'll process it!
-
-            Original request:
-            <pre> 
-            %(json)s
-            </pre>
-        """ % {
-            'name'        : cgi.escape(complete_name),
-            'author'      : cgi.escape(author),
-            'lms'         : cgi.escape(g.lms),
-            'course_code' : courses_code,
-            'request'     : cgi.escape(request_payload_str),
-            'admin'        : general_role,
-            'json'        : cgi.escape(json.dumps(json_data)),
-            'error_msg'   : cgi.escape(error_msg or 'no error message'),
-            'good_msg'    : good_msg or 'no good message',
-        }
-    else:
-        if error_msg is None:
-            return reservation_url
-        else:
-            return 'error:%s' % error_msg
 
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
 def start(experiment=None):
+
     key = request.form['oauth_consumer_key']
     if key:
         secret = 'password' #Retrieve secret
-    
+        
         if secret:
             tool_provider = ToolProvider(key, secret, request.form.to_dict())
-            ans = "Tool Provider created"
+            ans = messages_codes['MSG_tool_created']
         else:
             tool_provider = ToolProvider(null, null,  request.form.to_dict());
-            ans = "The key was not recognized"
+            ans = messages_codes['ERROR_oauth_key']
     else:
-        ans = "No Consumer Key provided"
-
-    print "*****result so far******", ans
+        ans = messages_codes['ERROR_no_consumer_key']
+        
     valid_req = tool_provider.valid_request(request)
     if (valid_req == False):
         abort(401)
 
     # check for nonce
     # check for old requests
-    
+
+
+
+
+
+
+    g.lms = 'admin'
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment).first()
-
+    good_msg  = messages_codes['ERROR_no_good']
+    error_msg = None
+    
     if permission_on_lab is None:
         print "does not exist"
     else:
@@ -255,10 +230,22 @@ def start(experiment=None):
     db_rlms         = db_laboratory.rlms
     db_rlms_version = db_rlms.rlms_version
     db_rlms_type    = db_rlms_version.rlms_type
-    user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+    user_agent = request.user_agent
+    origin_ip = request.remote_addr
+    referer = "google.com"
+
+    if 'custom_require_student_privacy' in request.form:
+        username = request.form['user_id']
+    else:
+        username = request.form['lis_person_name_full']
 
     ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
-    reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, request.form['lis_person_name_full'], lms_configuration, courses_configurations, user_agent, "127.0.0.1", "http://google.com")
+    reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, username, lms_configuration, courses_configurations, {}, str(user_agent), origin_ip, referer)
+
     ans += '<a href="%s">Go to experiment</a>' % reservation_url
+
     return ans
+
+def create_lab_with_data(lab_info):
+    return True
