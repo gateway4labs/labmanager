@@ -18,6 +18,7 @@ import json
 import cgi
 import traceback
 from functools import wraps
+from sets import Set
 
 # 
 # Flask imports
@@ -179,7 +180,6 @@ def requests():
                     'error_msg'   : cgi.escape(error_msg or 'no error message'),
                     'good_msg'    : good_msg or 'no good message',
                     }
-                
                 return render_template('debug.html', data=rendering_data)
 
             if error_msg is None:
@@ -190,20 +190,20 @@ def requests():
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
 def start(experiment=None):
+    message = ""
     response = ""
-    print "HELLLOOOO"
+
     key = request.form['oauth_consumer_key']
     if key:
-        secret = 'password' #Retrieve secret
-        
+        secret = 'password' #Retrieve secret        
         if secret:
             tool_provider = ToolProvider(key, secret, request.form.to_dict())
-            response = messages_codes['MSG_tool_created']
+            message = messages_codes['MSG_tool_created']
         else:
             tool_provider = ToolProvider(null, null,  request.form.to_dict());
-            response = messages_codes['ERROR_oauth_key']
+            message = messages_codes['ERROR_oauth_key']
     else:
-        response = messages_codes['ERROR_no_consumer_key']
+        message = messages_codes['ERROR_no_consumer_key']
 
     valid_req = tool_provider.valid_request(request)
     if (valid_req == False):
@@ -211,31 +211,51 @@ def start(experiment=None):
 
     # check for nonce
     # check for old requests
-    response += "<br/>"
-    response += '<br/>'.join(["%s = <strong>%s</strong>" % (x,y) for x,y in request.form.to_dict().iteritems()])
-    g.lms = 'admin'
-    data = {'user_agent' : request.user_agent,
-            'origin_ip' : request.remote_addr,
-            'request.form' : request.form,
-            'request' : request.form.to_dict().iteritems(),
-            'experiment': experiment
-            }
-    
-#     response = create_lab_with_data(data)
-#     for i in data:
-#         response += i + '-> <strong>'+str(data[i]) + '</strong><br/><br/>'
-    
-    current_role = request.form['roles'].split(',')[0]
-
-    data['role'] = current_role
-    if (current_role == 'Instructor'):
-        data['rlms'] = ["robot","visir","curiosity","atomic bomb", "cloudbased"]
-        response = render_template('instructor_setup_tool.html', data=data)
+    dict = request.form.keys()
+    dict.sort()
+    message += "<br/>"
+    message += '<br/>'.join(["%s = <strong>%s</strong>" % (x,request.form[x]) for x in dict])
         
-    elif(current_role == 'Learner'):
-        data['experiment'] = 'robot'
-        response = render_template('student_launch_tool.html', data=data)
+    g.lms = 'admin'
+
+    # Cross reference information
+    req_lms = request.form['ext_lms']
+    req_course = request.form['context_label']
+    current_role = Set(request.form['roles'].split(','))
+    req_course_id = request.form['context_id']
+    req_course_data = request.form['lis_result_sourcedid']
+
+    print db_session.query(LMS)
+
+    data = { 'user_agent' : request.user_agent,
+             'experiment' : experiment,
+             'origin_ip' : request.remote_addr,
+             'message' : message,
+             'lms' : req_lms,
+             'course' : req_course,
+             'course_id' : req_course_id,
+             }
     
+    if ('Instructor' in current_role):
+
+        data['role'] = 'Instructor'
+        # Load RLMSs allowed
+        ilabs = ["curiosity","nuclear-reactor"]
+        deusto = ["robot","visir","cloudbased"]
+        data['rlms'] = {'deusto': deusto, 'ilabs': ilabs}
+        response = render_template('instructor_setup_tool.html', info=data)
+        
+    elif ('Learner' in current_role):
+
+        data['role'] = 'Learner'
+        # retrieve experiment for course
+        data['experiment'] = 'robot'
+        response = render_template('learner_launch_tool.html', info=data)
+
+    else:
+        response = render_template('unknown_role.html', info=data)
+
+
     return response
 
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['GET'])
@@ -244,9 +264,8 @@ def launch_experiment(experiment=None):
     if (experiment):
         response = experiment
     else:
-        response = "No experiment for you!"
+        response = "No soup for you!"
     return response
-
 
 
 def create_lab_with_data(lab_info):

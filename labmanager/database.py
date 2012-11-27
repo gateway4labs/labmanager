@@ -51,41 +51,54 @@ def add_sample_users():
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
 
-    lms1 = LMS(u'Universidad Nacional de Educacion a Distancia', u"http://localhost:5000/fake_list_courses/lms4labs/list", u'uned', password, u"labmanager", u"password")
-    lms2 = LMS(u'Universidad de Deusto', u"http://localhost:5000/fake_list_courses/lms4labs/list", u'deusto', password, u"labmanager", u"password")
-
-    course1 = Course(lms1, u"1", u"my course 1")
-    course2 = Course(lms2, u"2", u"my course 2")
-
-    user1 = LabManagerUser(u'porduna', u'Pablo Orduna', password)
-    user2 = LabManagerUser(u'elio', u'Elio Sancristobal', password)
-    user3 = LabManagerUser(u'apm', u'Alberto Pesquera Martin', password)
-    user4 = LabManagerUser(u'pbailey', u'Phil Bailey', password)
-    user5 = LabManagerUser(u'kirky', u'Kirky DeLong', password)
-    user6 = LabManagerUser(u'admin', u'Administrator', password)
-
+    lms1 = LMS(u'Universidad Nacional de Educacion a Distancia',
+               u"http://localhost:5000/fake_list_courses/lms4labs/list",
+               u'uned',
+               password,
+               u"labmanager",
+               u"password" )
     db_session.add(lms1)
+
+    lms2 = LMS(u'Universidad de Deusto',
+               u"http://localhost:5000/fake_list_courses/lms4labs/list",
+               u'deusto',
+               password,
+               u"labmanager",
+               u"password" )
     db_session.add(lms2)
 
-    db_session.add(course1)
-    db_session.add(course2)
 
-    db_session.add(user1)
-    db_session.add(user2)
-    db_session.add(user3)
-    db_session.add(user4)
-    db_session.add(user5)
+    user6 = LabManagerUser(u'admin', u'Administrator', password)
     db_session.add(user6)
 
+
+
+    course1 = Course(lms1, u"1", u"my course 1")
+    db_session.add(course1)
+
+    course2 = Course(lms2, u"2", u"my course 2")
+    db_session.add(course2)
+
+
     weblab_deusto = RLMSType(u'WebLab-Deusto')
-    ilab          = RLMSType(u'iLab')
+    db_session.add(weblab_deusto)
+
+    ilab = RLMSType(u'iLab')
+    db_session.add(ilab)
+
     unsupported   = RLMSType(u'Unsupported')
 
     weblab_deusto_4_0 = RLMSTypeVersion(weblab_deusto, u'4.0')
+    db_session.add(weblab_deusto_4_0)
+
     weblab_deusto_4_5 = RLMSTypeVersion(weblab_deusto, u'4.5')
+    db_session.add(weblab_deusto_4_5)
+
     unsupported_4_5 = RLMSTypeVersion(unsupported,   u'4.5')
+    db_session.add(unsupported_4_5)
 
     ilab_4_0 = RLMSTypeVersion(ilab, u'4.5')
+    db_session.add(ilab_4_0)
    
     configuration = {
         'remote_login' : 'weblabfed',
@@ -93,29 +106,41 @@ def add_sample_users():
         'base_url'     : 'http://www.weblab.deusto.es/weblab/',
     }
 
-    weblab_deusto_instance = RLMS(name = u"WebLab-Deusto at Deusto", location = u"Deusto", rlms_version = weblab_deusto_4_0, configuration = unicode(json.dumps(configuration)))
-
-    ilab_instance          = RLMS(name = u"iLab MIT",                location = u"MIT",    rlms_version = ilab_4_0, configuration = u"{}")
-
-    db_session.add(weblab_deusto)
-    db_session.add(ilab)
-    db_session.add(weblab_deusto_4_0)
-    db_session.add(weblab_deusto_4_5)
-    db_session.add(unsupported_4_5)
-    db_session.add(ilab_4_0)
+    weblab_deusto_instance = RLMS(name = u"WebLab-Deusto at Deusto",
+                                  location = u"Deusto",
+                                  rlms_version = weblab_deusto_4_0,
+                                  configuration = unicode(json.dumps(configuration)))
     db_session.add(weblab_deusto_instance)
+
+    ilab_instance = RLMS(name = u"iLab MIT",
+                         location = u"MIT",
+                         rlms_version = ilab_4_0,
+                         configuration = u"{}")
+
     db_session.add(ilab_instance)
 
-    robot_lab = Laboratory(name = u"robot-movement@Robot experiments", laboratory_id = u"robot-movement@Robot experiments", rlms = weblab_deusto_instance)
+    robot_lab = Laboratory(name = u"robot-movement@Robot experiments",
+                           laboratory_id = u"robot-movement@Robot experiments",
+                           rlms = weblab_deusto_instance)
 
-    permission_on_uned   = PermissionOnLaboratory(lms = lms1, laboratory = robot_lab, configuration = u"{}", local_identifier = u"robot")
-    permission_on_deusto = PermissionOnLaboratory(lms = lms2, laboratory = robot_lab, configuration = u"{}", local_identifier = u"robot")
+    permission_on_uned = PermissionOnLaboratory(lms = lms1,
+                                                laboratory = robot_lab,
+                                                configuration = u"{}",
+                                                local_identifier = u"robot")
+    permission_on_deusto = PermissionOnLaboratory(lms = lms2,
+                                                  laboratory = robot_lab,
+                                                  configuration = u"{}",
+                                                  local_identifier = u"robot")
 
     db_session.add(permission_on_uned)
     db_session.add(permission_on_deusto)
 
-    permission_on_course1 = PermissionOnCourse(permission_on_lab = permission_on_uned,   course = course1, configuration = u"{}")
-    permission_on_course2 = PermissionOnCourse(permission_on_lab = permission_on_deusto, course = course2, configuration = u"{}")
+    permission_on_course1 = PermissionOnCourse(permission_on_lab = permission_on_uned,
+                                               course = course1,
+                                               configuration = u"{}")
+    permission_on_course2 = PermissionOnCourse(permission_on_lab = permission_on_deusto,
+                                               course = course2,
+                                               configuration = u"{}")
 
     db_session.add(permission_on_course1)
     db_session.add(permission_on_course2)

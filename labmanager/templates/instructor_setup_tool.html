@@ -1,23 +1,35 @@
+<div>
+  <p style='color:#F00; text-align:right'>
+    {{ info.message|safe }}
+  </p>
+  <p>
+    Hello{{ " "+info.role }}!
+    This tool is not assigned to any lab yet.
+    
+    <br/>1. Choose the experiment you would like to request access to.
+  </p>
 
-<p>
-  This tool is not assigned to any lab yet. Choose the experiment you would like to request access to and a Labmanager Administrator will grant permissions.
-</p>
+  {% for remotes in info.rlms %}
+  <table>
+    <thead>
+      {{ remotes }}
+    </thead>
+    <tbody>
+      {% for exp in info.rlms[remotes] %}
+      <tr>
+        <td>{{ exp }}</td>
+        <td>radiobutton</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
 
-<table>
-  <thead>
-  </thead>  
-  <tbody>   
-    {% for i in data.rlms %}
-    <tr>
-      <td>
-        <a href='{{i}}'>{{i}}</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-
-<p>
-  {{ data.role }}
-</p>
+  <p>
+    2. Message the Labmanager administrator (Optional)
+    textarea
+  </p>
+  <p>
+    <a href=''>3. Request Access</a>
+  </p>
+</div>
