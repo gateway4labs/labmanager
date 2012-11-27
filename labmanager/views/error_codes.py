@@ -14,7 +14,7 @@ messages_codes = {
     "ERROR_invalid_json" : "Error: the request payload is not a valid JSON request",
     "ERROR_unsupported" : "Unsupported operation",
     "ERROR_invalid" : "Invalid response",
-    "ERROR_" : "error:%s",
+    "ERROR_" : "ERROR: %s",
     "ERROR_json" : "Could not process JSON data",
     "ERROR_oauth_key" : "The key was not recognized",
     "ERROR_no_consumer_key":"No consumer key provided",

@@ -1,0 +1,23 @@
+
+<p>
+  This tool is not assigned to any lab yet. Choose the experiment you would like to request access to and a Labmanager Administrator will grant permissions.
+</p>
+
+<table>
+  <thead>
+  </thead>  
+  <tbody>   
+    {% for i in data.rlms %}
+    <tr>
+      <td>
+        <a href='{{i}}'>{{i}}</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<p>
+  {{ data.role }}
+</p>

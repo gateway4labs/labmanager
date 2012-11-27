@@ -152,6 +152,15 @@ def requests():
             db_rlms         = db_laboratory.rlms
             db_rlms_version = db_rlms.rlms_version
             db_rlms_type    = db_rlms_version.rlms_type
+
+
+
+
+
+
+
+
+
             
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
@@ -172,80 +181,130 @@ def requests():
                     }
                 
                 return render_template('debug.html', data=rendering_data)
+
+            if error_msg is None:
+                return reservation_url
             else:
-                if error_msg is None:
-                    return reservation_url
-                else:
-                    return messages_codes['ERROR_'] % error_msg
+                return messages_codes['ERROR_'] % error_msg
 
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
 def start(experiment=None):
-
+    response = ""
+    print "HELLLOOOO"
     key = request.form['oauth_consumer_key']
     if key:
         secret = 'password' #Retrieve secret
         
         if secret:
             tool_provider = ToolProvider(key, secret, request.form.to_dict())
-            ans = messages_codes['MSG_tool_created']
+            response = messages_codes['MSG_tool_created']
         else:
             tool_provider = ToolProvider(null, null,  request.form.to_dict());
-            ans = messages_codes['ERROR_oauth_key']
+            response = messages_codes['ERROR_oauth_key']
     else:
-        ans = messages_codes['ERROR_no_consumer_key']
-        
+        response = messages_codes['ERROR_no_consumer_key']
+
     valid_req = tool_provider.valid_request(request)
     if (valid_req == False):
         abort(401)
 
     # check for nonce
     # check for old requests
-
-
-
-
-
-
+    response += "<br/>"
+    response += '<br/>'.join(["%s = <strong>%s</strong>" % (x,y) for x,y in request.form.to_dict().iteritems()])
     g.lms = 'admin'
+    data = {'user_agent' : request.user_agent,
+            'origin_ip' : request.remote_addr,
+            'request.form' : request.form,
+            'request' : request.form.to_dict().iteritems(),
+            'experiment': experiment
+            }
+    
+#     response = create_lab_with_data(data)
+#     for i in data:
+#         response += i + '-> <strong>'+str(data[i]) + '</strong><br/><br/>'
+    
+    current_role = request.form['roles'].split(',')[0]
+
+    data['role'] = current_role
+    if (current_role == 'Instructor'):
+        data['rlms'] = ["robot","visir","curiosity","atomic bomb", "cloudbased"]
+        response = render_template('instructor_setup_tool.html', data=data)
+        
+    elif(current_role == 'Learner'):
+        data['experiment'] = 'robot'
+        response = render_template('student_launch_tool.html', data=data)
+    
+    return response
+
+@app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['GET'])
+def launch_experiment(experiment=None):
+    response = ""
+    if (experiment):
+        response = experiment
+    else:
+        response = "No experiment for you!"
+    return response
+
+
+
+def create_lab_with_data(lab_info):
+    requestform = lab_info['request.form']
+    experiment = lab_info['experiment']
+    general_role = True
+
     db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
-    
+
     if permission_on_lab is None:
-        print "does not exist"
+        error_msg = messages_codes['ERROR_permission']
     else:
-        print "exist"
+        courses_configurations = []
+        for course_permission in permission_on_lab.course_permissions:
+            if course_permission.course.course_id in courses:
+                # Let the server choose among the best possible configuration
+                courses_configurations.append(course_permission.configuration)
+        if len(courses_configurations) == 0 and not general_role:
+            error_msg = messages_codes['ERROR_enrolled']
+        else:
+            lms_configuration = permission_on_lab.configuration
+            db_laboratory   = permission_on_lab.laboratory
+            db_rlms         = db_laboratory.rlms
+            db_rlms_version = db_rlms.rlms_version
+            db_rlms_type    = db_rlms_version.rlms_type
+            origin_ip = lab_info['origin_ip']
+            user_agent = lab_info['user_agent']
+            referer = "google.com"
+            print "*******", requestform['custom_require_student_privacy']
+            if 'custom_require_student_privacy' in requestform:
+                username = requestform['user_id']
+            else:
+                username = requestform['lis_person_name_full']
 
-    ans = '<br/>'.join(["%s = <strong>%s</strong>" % (x,y) for x,y in request.form.to_dict().iteritems()])
+            ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
+            remote_laboratory = ManagerClass(db_rlms.configuration)
+            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, username, lms_configuration, courses_configurations, {}, str(user_agent), origin_ip, referer)
+            good_msg = messages_codes['MSG_asigned'] % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
 
-    courses_configurations = []
-    for course_permission in permission_on_lab.course_permissions:
-        if course_permission.course.course_id in courses:
-            courses_configurations.append(course_permission.configuration)
+            if app.config.get('DEBUGGING_REQUESTS', True):
+                rendering_data = {
+                    'name'        : cgi.escape(complete_name),
+                    'author'      : cgi.escape(author),
+                    'lms'         : cgi.escape(g.lms),
+                    'courses'     : courses,
+                    'request'     : cgi.escape(request_payload_str),
+                    'admin'       : general_role,
+                    'json'        : cgi.escape(json.dumps(json_data)),
+                    'error_msg'   : cgi.escape(error_msg or 'no error message'),
+                    'good_msg'    : good_msg or 'no good message',
+                    }
+                
+                return render_template('debug.html', data=rendering_data)
 
-    lms_configuration = permission_on_lab.configuration
-    db_laboratory   = permission_on_lab.laboratory
-    db_rlms         = db_laboratory.rlms
-    db_rlms_version = db_rlms.rlms_version
-    db_rlms_type    = db_rlms_version.rlms_type
-    user_agent = request.user_agent
-    origin_ip = request.remote_addr
-    referer = "google.com"
-
-    if 'custom_require_student_privacy' in request.form:
-        username = request.form['user_id']
-    else:
-        username = request.form['lis_person_name_full']
-
-    ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
-    remote_laboratory = ManagerClass(db_rlms.configuration)
-    reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, username, lms_configuration, courses_configurations, {}, str(user_agent), origin_ip, referer)
-
-    ans += '<a href="%s">Go to experiment</a>' % reservation_url
-
-    return ans
-
-def create_lab_with_data(lab_info):
-    return True
+        if error_msg is None:
+            return reservation_url
+        else:
+            return messages_codes['ERROR_'] % error_msg
