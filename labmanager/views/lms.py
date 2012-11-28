@@ -29,7 +29,7 @@ from flask import Response, render_template, request, g
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, PermissionOnLaboratory
+from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory
 from labmanager.rlms     import get_manager_class
 
 from labmanager import app
@@ -91,11 +91,8 @@ def requests():
         return render_template("test_requests.html")
     
     json_data = get_json()
-
-    print "\n\n\n"
-    print "\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()])
-    print "\n\n\n"
-
+#    print "\n\n\n","\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()]),"\n\n\n"
+ 
     if json_data is None: return messages_codes['ERROR_json']
     
     courses             = json_data['courses']
@@ -187,6 +184,24 @@ def requests():
             else:
                 return messages_codes['ERROR_'] % error_msg
 
+
+@app.route("/tests", methods=['GET'])
+def testing_app():
+    data = {}
+    data['rlms']={}
+    rlmss = db_session.query(RLMS)
+    for remote in rlmss:
+        labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
+        data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
+    
+    ans = ""
+    for i in data['rlms']:
+        ans += "%s -%s-" % (i, data['rlms'][i])
+        ans += "<br/>"
+    return ans
+
+    
+
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
 def start(experiment=None):
@@ -216,7 +231,7 @@ def start(experiment=None):
     message += "<br/>"
     message += '<br/>'.join(["%s = <strong>%s</strong>" % (x,request.form[x]) for x in dict])
         
-    g.lms = 'admin'
+    check_lms_auth(request.form['oauth_consumer_key'], secret)
 
     # Cross reference information
     req_lms = request.form['ext_lms']
@@ -224,8 +239,8 @@ def start(experiment=None):
     current_role = Set(request.form['roles'].split(','))
     req_course_id = request.form['context_id']
     req_course_data = request.form['lis_result_sourcedid']
-
-    print db_session.query(LMS)
+    req_course_resource_id = request.form['resource_link_id']
+    req_course_resource = request.form['resource_link_title']
 
     data = { 'user_agent' : request.user_agent,
              'experiment' : experiment,
@@ -234,17 +249,22 @@ def start(experiment=None):
              'lms' : req_lms,
              'course' : req_course,
              'course_id' : req_course_id,
+             'resource_name' : req_course_resource,
+             'resource_id' : req_course_resource_id
              }
-    
+
     if ('Instructor' in current_role):
 
         data['role'] = 'Instructor'
-        # Load RLMSs allowed
-        ilabs = ["curiosity","nuclear-reactor"]
-        deusto = ["robot","visir","cloudbased"]
-        data['rlms'] = {'deusto': deusto, 'ilabs': ilabs}
+        data['rlms'] = {}
+
+        rlmss = db_session.query(RLMS) # filter by allowed RLMSs
+        for remote in rlmss:
+            labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
+            data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
+
         response = render_template('instructor_setup_tool.html', info=data)
-        
+
     elif ('Learner' in current_role):
 
         data['role'] = 'Learner'
@@ -253,7 +273,8 @@ def start(experiment=None):
         response = render_template('learner_launch_tool.html', info=data)
 
     else:
-        response = render_template('unknown_role.html', info=data)
+ 
+       response = render_template('unknown_role.html', info=data)
 
 
     return response
@@ -297,7 +318,7 @@ def create_lab_with_data(lab_info):
             origin_ip = lab_info['origin_ip']
             user_agent = lab_info['user_agent']
             referer = "google.com"
-            print "*******", requestform['custom_require_student_privacy']
+
             if 'custom_require_student_privacy' in requestform:
                 username = requestform['user_id']
             else:

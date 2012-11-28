@@ -1,14 +1,13 @@
 <div>
-  <p style='color:#F00; text-align:right'>
-    {{ info.message|safe }}
-  </p>
+  <fieldset><legend>DEBUG MESSAGES</legend><p style='color:#F00; text-align:center'>{{ info.message|safe }}</p></fieldset>
   <p>
-    Hello !
-    You are a {{ info.role }} from {{ info.lms }} the tool ready to be launched.
+    Hello{{ " "+}}!
+    You are enrolled as {{ info.role }} in {{ info.course }} from {{ info.lms }}.
   </p>
-
+  
   <a href='{{ info.experiment }}'>{{ info.experiment }}</a>
   <p>
-
+    
   </p>
+  
 </div>
