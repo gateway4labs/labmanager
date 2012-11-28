@@ -86,10 +86,10 @@ def requires_lms_auth(f):
 def requests():
     """SCORM packages will perform requests to this method, which will 
     interact with the permitted laboratories"""
-    
+
     if request.method == 'GET':
         return render_template("test_requests.html")
-    
+
     json_data = get_json()
 #    print "\n\n\n","\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()]),"\n\n\n"
  
@@ -133,7 +133,6 @@ def requests():
     permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
-    
     if permission_on_lab is None:
         error_msg = messages_codes['ERROR_permission']
     else:
