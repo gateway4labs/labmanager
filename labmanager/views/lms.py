@@ -23,7 +23,7 @@ from sets import Set
 #
 # Flask imports
 #
-from flask import Response, render_template, request, g
+from flask import Response, render_template, request, g, abort
 
 #
 # LabManager imports
@@ -218,18 +218,17 @@ def start_ims(experiment=None):
     response = ""
 
     consumer_key = request.form['oauth_consumer_key']
-    lms = db_session.query(LMS).filter( LMS.lms_login == consumer_key ).one()
+    lms = db_session.query(LMS).filter( LMS.lms_login == consumer_key ).first()
 
-    if not lms:
-        abort(401)
-
+    if lms is None:
+        abort(412)
 
     secret = lms.lms_password
     tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
     message = messages_codes['MSG_tool_created']
 
     if (tool_provider.valid_request(request) == False):
-        abort(401)
+        abort(403)
 
     # check for nonce
     # check for old requests
