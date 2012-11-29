@@ -6,3 +6,4 @@ pymySQL
 pymysql_sa
 pyflakes
 cherrypy
+ims-lti-py
