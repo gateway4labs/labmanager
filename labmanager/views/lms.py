@@ -184,34 +184,44 @@ def requests():
                 return messages_codes['ERROR_'] % error_msg
 
 
-@app.route("/tests", methods=['GET'])
-def testing_app():
-    data = {}
-    data['rlms']={}
-    rlmss = db_session.query(RLMS)
-    for remote in rlmss:
-        labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
-        data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
-    
+@app.route("/t", methods=['GET'])
+def just_for_the_fun_of_testing_app():
     ans = ""
-    for i in data['rlms']:
-        ans += "%s -%s-" % (i, data['rlms'][i])
-        ans += "<br/>"
+    lab_access = db_session.query(PermissionOnLaboratory).filter_by(lms_id = 4,                                           local_identifier = "cloudbased").first()
+    print lab_access.configuration
+#     req_lms_name = "moodle-2"
+#     for lms, in db_session.query(LMS.id).filter_by( name = req_lms_name):
+#         print lms
+
+#     ans += str(db_session.query(LMS.id).filter_by( name = req_lms_name ).one().id)
+#    ans = req_lms.name
+
+#     data = {}
+#     data['rlms']={}
+#     rlmss = db_session.query(LMS)
+#     for remote in rlmss:
+#         labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
+#         data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
+    
+#     for i in data['rlms']:
+#         ans += "%s -%s-" % (i, data['rlms'][i])
+#         ans += "<br/>"
+
     return ans
 
     
 
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
-def start(experiment=None):
+def start_ims(experiment=None):
     message = ""
     response = ""
 
-    key = request.form['oauth_consumer_key']
-    if key:
-        secret = 'password' #Retrieve secret        
+    consumer_key = request.form['oauth_consumer_key']
+    if consumer_key:
+        secret = db_session.query(LMS).filter( LMS.lms_login == consumer_key ).one().lms_password
         if secret:
-            tool_provider = ToolProvider(key, secret, request.form.to_dict())
+            tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
             message = messages_codes['MSG_tool_created']
         else:
             tool_provider = ToolProvider(null, null,  request.form.to_dict());
@@ -233,7 +243,8 @@ def start(experiment=None):
     check_lms_auth(request.form['oauth_consumer_key'], secret)
 
     # Cross reference information
-    req_lms = request.form['ext_lms']
+    req_lms_name = request.form['ext_lms']
+    req_lms = db_session.query(LMS.id).filter( LMS.lms_login == consumer_key).one().id
     req_course = request.form['context_label']
     current_role = Set(request.form['roles'].split(','))
     req_course_id = request.form['context_id']
@@ -245,11 +256,13 @@ def start(experiment=None):
              'experiment' : experiment,
              'origin_ip' : request.remote_addr,
              'message' : message,
-             'lms' : req_lms,
+             'lms' : req_lms_name,
+             'lms_id' : req_lms,
              'course' : req_course,
              'course_id' : req_course_id,
              'resource_name' : req_course_resource,
-             'resource_id' : req_course_resource_id
+             'resource_id' : req_course_resource_id,
+             'access' : False
              }
 
     if ('Instructor' in current_role):
@@ -257,8 +270,7 @@ def start(experiment=None):
         data['role'] = 'Instructor'
         data['rlms'] = {}
 
-        rlmss = db_session.query(RLMS) # filter by allowed RLMSs
-        for remote in rlmss:
+        for remote in db_session.query(RLMS): # filter by allowed RLMSs
             labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
             data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
 
@@ -268,11 +280,17 @@ def start(experiment=None):
 
         data['role'] = 'Learner'
         # retrieve experiment for course
-        data['experiment'] = 'robot'
+        lab_access = db_session.query(PermissionOnLaboratory).filter_by(lms_id = req_lms,
+                                                                        local_identifier = experiment).first()
+
+        if lab_access is not None:
+            data['access'] = True
+
+        data['experiment'] = experiment
         response = render_template('learner_launch_tool.html', info=data)
 
     else:
- 
+
        response = render_template('unknown_role.html', info=data)
 
 
@@ -281,10 +299,12 @@ def start(experiment=None):
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['GET'])
 def launch_experiment(experiment=None):
     response = ""
+
     if (experiment):
         response = experiment
     else:
         response = "No soup for you!"
+
     return response
 
 
