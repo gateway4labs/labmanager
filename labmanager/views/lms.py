@@ -1,5 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
-# 
+#
 # lms4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
 # lms4labs is distributed in the hope that it will be useful,
@@ -20,14 +20,14 @@ import traceback
 from functools import wraps
 from sets import Set
 
-# 
+#
 # Flask imports
-# 
+#
 from flask import Response, render_template, request, g
 
-# 
+#
 # LabManager imports
-# 
+#
 from labmanager.database import db_session
 from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory
 from labmanager.rlms     import get_manager_class
@@ -39,17 +39,17 @@ from error_codes import messages_codes
 from ims_lti_py import ToolProvider
 
 ###############################################################################
-# 
-# 
 #
-#               I N T E R A C T I O N     W I T H     L M S 
 #
-# 
-# 
+#
+#               I N T E R A C T I O N     W I T H     L M S
+#
+#
+#
 
-# 
+#
 # LMS authentication
-# 
+#
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
     lms = db_session.query(LMS).filter_by(lms_login = lmsname, lms_password = hash_password).first()
@@ -84,7 +84,7 @@ def requires_lms_auth(f):
 @app.route("/lms4labs/labmanager/requests/", methods = ['GET', 'POST'])
 @requires_lms_auth
 def requests():
-    """SCORM packages will perform requests to this method, which will 
+    """SCORM packages will perform requests to this method, which will
     interact with the permitted laboratories"""
 
     if request.method == 'GET':
@@ -92,9 +92,9 @@ def requests():
 
     json_data = get_json()
 #    print "\n\n\n","\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()]),"\n\n\n"
- 
+
     if json_data is None: return messages_codes['ERROR_json']
-    
+
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
     general_role        = json_data.get('is-admin', False)
@@ -109,7 +109,7 @@ def requests():
     except:
         traceback.print_exc()
         return messages_codes['ERROR_invalid_json']
-    
+
     try:
         action = request_payload['action']
         if action == 'reserve':
@@ -120,7 +120,7 @@ def requests():
     except KeyError:
         traceback.print_exc()
         return messages_codes['ERROR_invalid']
-    
+
 
 
 
@@ -158,12 +158,12 @@ def requests():
 
 
 
-            
+
             ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, request_payload, user_agent, origin_ip, referer)
             good_msg = messages_codes['MSG_asigned'] % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
-            
+
             if app.config.get('DEBUGGING_REQUESTS', True):
                 rendering_data = {
                     'name'        : cgi.escape(complete_name),
@@ -200,16 +200,16 @@ def just_for_the_fun_of_testing_app():
 #     data['rlms']={}
 #     rlmss = db_session.query(LMS)
 #     for remote in rlmss:
-#         labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
+#         labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )
 #         data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
-    
+
 #     for i in data['rlms']:
 #         ans += "%s -%s-" % (i, data['rlms'][i])
 #         ans += "<br/>"
 
     return ans
 
-    
+
 
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
 @app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
@@ -218,19 +218,17 @@ def start_ims(experiment=None):
     response = ""
 
     consumer_key = request.form['oauth_consumer_key']
-    if consumer_key:
-        secret = db_session.query(LMS).filter( LMS.lms_login == consumer_key ).one().lms_password
-        if secret:
-            tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
-            message = messages_codes['MSG_tool_created']
-        else:
-            tool_provider = ToolProvider(null, null,  request.form.to_dict());
-            message = messages_codes['ERROR_oauth_key']
-    else:
-        message = messages_codes['ERROR_no_consumer_key']
+    lms = db_session.query(LMS).filter( LMS.lms_login == consumer_key ).one()
 
-    valid_req = tool_provider.valid_request(request)
-    if (valid_req == False):
+    if not lms:
+        abort(401)
+
+
+    secret = lms.lms_password
+    tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
+    message = messages_codes['MSG_tool_created']
+
+    if (tool_provider.valid_request(request) == False):
         abort(401)
 
     # check for nonce
@@ -239,11 +237,11 @@ def start_ims(experiment=None):
     dict.sort()
     message += "<br/>"
     message += '<br/>'.join(["%s = <strong>%s</strong>" % (x,request.form[x]) for x in dict])
-        
+
     check_lms_auth(request.form['oauth_consumer_key'], secret)
 
     # Cross reference information
-    req_lms_name = request.form['ext_lms']
+    req_lms_name = lms.name
     req_lms = db_session.query(LMS.id).filter( LMS.lms_login == consumer_key).one().id
     req_course = request.form['context_label']
     current_role = Set(request.form['roles'].split(','))
@@ -271,7 +269,7 @@ def start_ims(experiment=None):
         data['rlms'] = {}
 
         for remote in db_session.query(RLMS): # filter by allowed RLMSs
-            labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )    
+            labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )
             data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
 
         response = render_template('instructor_setup_tool.html', info=data)
@@ -360,7 +358,7 @@ def create_lab_with_data(lab_info):
                     'error_msg'   : cgi.escape(error_msg or 'no error message'),
                     'good_msg'    : good_msg or 'no good message',
                     }
-                
+
                 return render_template('debug.html', data=rendering_data)
 
         if error_msg is None:
