@@ -1,5 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
-# 
+#
 # lms4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
 # lms4labs is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ def init_db(drop = False):
     # you will have to import them first before calling init_db()
     import labmanager.models
     assert labmanager.models != None # pyflakes ignore
-    
+
     if drop:
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -99,7 +99,7 @@ def add_sample_users():
 
     ilab_4_0 = RLMSTypeVersion(ilab, u'4.5')
     db_session.add(ilab_4_0)
-   
+
     configuration = {
         'remote_login' : 'weblabfed',
         'password'     : 'password',

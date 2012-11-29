@@ -1,5 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
-# 
+#
 # lms4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
 # lms4labs is distributed in the hope that it will be useful,
@@ -11,9 +11,10 @@
   :license: BSD, see LICENSE for more details
 """
 
-# 
+#
 # Flask imports
-# 
+#
+import os
 from flask import Flask
 
 app = Flask(__name__)
@@ -30,8 +31,9 @@ from labmanager.views import load
 load()
 
 def run():
-    app.run(threaded = True, host = '0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+    # app.run(threaded = True, host = '0.0.0.0')
 
 if __name__ == "__main__":
     run()
-
