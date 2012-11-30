@@ -12,7 +12,7 @@
 """
 
 from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import relation, backref, relationship
 from labmanager.database import Base
 
 class LMS(Base):
@@ -185,40 +185,47 @@ class PermissionOnCourse(Base):
 
 
 class NewLMS(Base):
-    __tablename__  = 'NewLMSs'
+    __tablename__  = 'newlms'
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False)
     url = Column(Unicode(300), nullable = False)
+
+    permissions_on_experiments = relationship('Permission', backref=backref('LMS', order_by=id))
+    authentication = relationship('Credential', backref=backref('LMS', order_by=id))
+    courses = relationship('NewCourse', backref=backref('LMS', order_by=id))
+
 
     def __init__(self, name = None, url = None):
         self.name = name
         self.url = url
 
+    def __unicode__(self):
+        return self.name
+
     def __repr__(self):
         return self.name
         
 
-class Auth(Base):
-    __tablename__  = 'Authorizations'
+class Credential(Base):
+    __tablename__  = 'credential'
     id = Column(Integer, primary_key = True)
-    lms = Column(Integer, ForeignKey('newLMS.id'), nullable = False)
+    lms_id = Column(Integer, ForeignKey('newlms.id'), nullable = False)
     key = Column(Unicode(50), nullable = False, unique=True)
     secret = Column(Unicode(50), nullable = False)
     type = Column(Unicode(50), nullable = False)
 
-    def __init__(self, lms = None, key = None, secret = None, type = None):
-        self.lms = lms
+    def __init__(self, key = None, secret = None, type = None):
         self.key = key
         self.secret = secret
         self.type = type
 
 class Permission(Base):
-    __tablename__  = 'Permissions'
+    __tablename__  = 'permission'
     id = Column(Integer, primary_key = True)
-    lms_id = Column(Integer, ForeignKey('newLMS.id'), nullable = False)
+    lms_id = Column(Integer, ForeignKey('newlms.id'), nullable = False)
     context_id = Column(Unicode(50), nullable = False)
     resource_link_id = Column(Integer, nullable = False)
-    experiment_id = Column(Integer, ForeignKey('Experiment.id'), nullable = False)
+    experiment_id = Column(Integer, ForeignKey('experiment.id'), nullable = False)
     access = Column(Integer, nullable = False)
 
     def __init__(self, lms_id = None, context_id = None, resource_link_id = None,
@@ -231,12 +238,13 @@ class Permission(Base):
 
 
 class Experiment(Base):
-    __tablename__  = 'Experiments'
+    __tablename__  = 'experiment'
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False)
     rlms_version = Column(Integer, nullable = False) # Foreign key to RLMS
     url = Column(Unicode(300), nullable = False)
-    
+    permissions = relationship('Permission', backref=backref('Experiment',order_by=id))
+
     def __init__(self, name = None, rlms_version = None, url = None):
         self.name = name
         self.rlms_version = rlms_version
@@ -246,14 +254,13 @@ class Experiment(Base):
         return "%s version %s" % (self.name, self.rlms_version)
 
 class NewCourse(Base):
-    __tablename__ = 'NewCourses'
+    __tablename__ = 'newcourse'
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False)
-    lms_id = Column(Integer, ForeignKey('newLMS.id'), nullable = False)
+    lms_id = Column(Integer, ForeignKey('newlms.id'), nullable = False)
 
-    def __init__(self, name = None, lms_id = None):
+    def __init__(self, name = None):
         self.name = name
-        self.lms_id = lms_id
 
     def __repr__(self):
         return "%s from %s" % (self.name, self.lms_id)
