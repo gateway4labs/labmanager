@@ -183,3 +183,77 @@ class PermissionOnCourse(Base):
         self.course            = course
         self.configuration     = configuration
 
+
+class NewLMS(Base):
+    __tablename__  = 'NewLMSs'
+    id = Column(Integer, primary_key = True)
+    name = Column(Unicode(50), nullable = False)
+    url = Column(Unicode(300), nullable = False)
+
+    def __init__(self, name = None, url = None):
+        self.name = name
+        self.url = url
+
+    def __repr__(self):
+        return self.name
+        
+
+class Auth(Base):
+    __tablename__  = 'Authorizations'
+    id = Column(Integer, primary_key = True)
+    lms = Column(Integer, ForeignKey('newLMS.id'), nullable = False)
+    key = Column(Unicode(50), nullable = False, unique=True)
+    secret = Column(Unicode(50), nullable = False)
+    type = Column(Unicode(50), nullable = False)
+
+    def __init__(self, lms = None, key = None, secret = None, type = None):
+        self.lms = lms
+        self.key = key
+        self.secret = secret
+        self.type = type
+
+class Permission(Base):
+    __tablename__  = 'Permissions'
+    id = Column(Integer, primary_key = True)
+    lms_id = Column(Integer, ForeignKey('newLMS.id'), nullable = False)
+    context_id = Column(Unicode(50), nullable = False)
+    resource_link_id = Column(Integer, nullable = False)
+    experiment_id = Column(Integer, ForeignKey('Experiment.id'), nullable = False)
+    access = Column(Integer, nullable = False)
+
+    def __init__(self, lms_id = None, context_id = None, resource_link_id = None,
+                 experiment_id = None, access = None):
+        self.lms_id = lms_id
+        self.context_id = context_id
+        self.resource_link_id = resource_link_id
+        self.experiment_id = experiment_id
+        self.access = access
+
+
+class Experiment(Base):
+    __tablename__  = 'Experiments'
+    id = Column(Integer, primary_key = True)
+    name = Column(Unicode(50), nullable = False)
+    rlms_version = Column(Integer, nullable = False) # Foreign key to RLMS
+    url = Column(Unicode(300), nullable = False)
+    
+    def __init__(self, name = None, rlms_version = None, url = None):
+        self.name = name
+        self.rlms_version = rlms_version
+        self.url = url
+
+    def __repr__(self):
+        return "%s version %s" % (self.name, self.rlms_version)
+
+class NewCourse(Base):
+    __tablename__ = 'NewCourses'
+    id = Column(Integer, primary_key = True)
+    name = Column(Unicode(50), nullable = False)
+    lms_id = Column(Integer, ForeignKey('newLMS.id'), nullable = False)
+
+    def __init__(self, name = None, lms_id = None):
+        self.name = name
+        self.lms_id = lms_id
+
+    def __repr__(self):
+        return "%s from %s" % (self.name, self.lms_id)

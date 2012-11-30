@@ -16,8 +16,11 @@
 #
 import os
 from flask import Flask
+from flask.ext.superadmin import Admin
+from flask.ext.superadmin.contrib import sqlamodel
 
 app = Flask(__name__)
+admin = Admin(app)
 
 app.config.from_object('config')
 

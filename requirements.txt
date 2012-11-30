@@ -7,3 +7,5 @@ pymysql_sa
 pyflakes
 cherrypy
 ims-lti-py
+Flask-SuperAdmin
+simplejson
