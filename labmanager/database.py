@@ -46,7 +46,7 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
+    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory, NewLMS
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -67,11 +67,17 @@ def add_sample_users():
                u"password" )
     db_session.add(lms2)
 
+    lms3 = LMS(u'Moodle Test',
+               u'http://localhost:8888/moodle',
+               u'admin',
+               u'80072568beb3b2102325eb203f6d0ff92f5cef8e',
+               u'admin',
+               u'password' )
+    db_session.add(lms3)
+
 
     user6 = LabManagerUser(u'admin', u'Administrator', password)
     db_session.add(user6)
-
-
 
     course1 = Course(lms1, u"1", u"my course 1")
     db_session.add(course1)
@@ -144,6 +150,11 @@ def add_sample_users():
 
     db_session.add(permission_on_course1)
     db_session.add(permission_on_course2)
+
+    newlms1 = NewLMS(name = u"My Moodle",
+                     url = u"http://moodle.com.co.co")
+
+    db_session.add(newlms1)
 
     db_session.commit()
 

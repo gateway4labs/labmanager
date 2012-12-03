@@ -29,7 +29,7 @@ from flask import Response, render_template, request, g, abort
 # LabManager imports
 #
 from labmanager.database import db_session
-from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory
+from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory, NewLMS
 from labmanager.rlms     import get_manager_class
 
 from labmanager import app
@@ -184,31 +184,20 @@ def requests():
                 return messages_codes['ERROR_'] % error_msg
 
 
+@app.route("/t/<id>", methods=['GET'])
 @app.route("/t", methods=['GET'])
-def just_for_the_fun_of_testing_app():
+def just_for_the_fun_of_testing_app(id = None):
     ans = ""
-    lab_access = db_session.query(PermissionOnLaboratory).filter_by(lms_id = 4,                                           local_identifier = "cloudbased").first()
-    print lab_access.configuration
-#     req_lms_name = "moodle-2"
-#     for lms, in db_session.query(LMS.id).filter_by( name = req_lms_name):
-#         print lms
+#    lab_access = db_session.query(PermissionOnLaboratory).filter_by(lms_id = 4,                                           local_identifier = "cloudbased").first()
+#    print lab_access.configuration
+    req = []
+    if id is None:
+        req = NewLMS.all()
+    else:
+        req.append(NewLMS.find(int(id)))
 
-#     ans += str(db_session.query(LMS.id).filter_by( name = req_lms_name ).one().id)
-#    ans = req_lms.name
-
-#     data = {}
-#     data['rlms']={}
-#     rlmss = db_session.query(LMS)
-#     for remote in rlmss:
-#         labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )
-#         data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
-
-#     for i in data['rlms']:
-#         ans += "%s -%s-" % (i, data['rlms'][i])
-#         ans += "<br/>"
-
+    print req
     return ans
-
 
 
 @app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
@@ -232,10 +221,7 @@ def start_ims(experiment=None):
 
     # check for nonce
     # check for old requests
-    dict = request.form.keys()
-    dict.sort()
-    message += "<br/>"
-    message += '<br/>'.join(["%s = <strong>%s</strong>" % (x,request.form[x]) for x in dict])
+    prinddebug(request)
 
     check_lms_auth(request.form['oauth_consumer_key'], secret)
 
@@ -364,3 +350,9 @@ def create_lab_with_data(lab_info):
             return reservation_url
         else:
             return messages_codes['ERROR_'] % error_msg
+
+def printdebug(request):
+    dict = request.form.keys()
+    dict.sort()
+    message += "<br/>"
+    message += '<br/>'.join(["%s = <strong>%s</strong>" % (x,request.form[x]) for x in dict])

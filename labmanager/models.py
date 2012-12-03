@@ -12,15 +12,14 @@
 """
 
 from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relation, backref, relationship
-from labmanager.database import Base
+from sqlalchemy.orm import relation, backref
+from labmanager.database import Base, db_session as DBS
 
 class LMS(Base):
 
     __tablename__ = 'LMSs'
 
     id = Column(Integer, primary_key=True)
-
 
     name                = Column(Unicode(50), nullable = False)
     url                 = Column(Unicode(300), nullable = False) # remote url
@@ -184,49 +183,68 @@ class PermissionOnCourse(Base):
         self.configuration     = configuration
 
 
-class NewLMS(Base):
-    __tablename__  = 'newlms'
+class SBBase(object):
+
+    @classmethod
+    def find(self, query_id = None):
+        return find_by_id(self, query_id)
+
+    @classmethod
+    def all(args):
+        return find_all(args)
+
+def find_by_id(self, query_id):
+    return DBS.query(self).filter(self.id == query_id).first()
+
+def find_all(self):
+    return DBS.query(self).all()
+
+
+class NewLMS(Base, SBBase):
+    __tablename__  = 'newlmss'
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False)
     url = Column(Unicode(300), nullable = False)
 
-    permissions_on_experiments = relationship('Permission', backref=backref('LMS', order_by=id))
-    authentication = relationship('Credential', backref=backref('LMS', order_by=id))
-    courses = relationship('NewCourse', backref=backref('LMS', order_by=id))
-
+    permissions_on_experiments = relation('Permission', backref=backref('LMS', order_by=id))
+    authentications = relation('Credential', backref=backref('LMS', order_by=id))
+    courses = relation('NewCourse', backref=backref('LMS', order_by=id))
 
     def __init__(self, name = None, url = None):
         self.name = name
         self.url = url
 
+    def __repr__(self):
+        return "<NewLMS:%s %s>" % (self.id, self.name)
+
     def __unicode__(self):
         return self.name
 
-    def __repr__(self):
-        return self.name
-        
-
 class Credential(Base):
-    __tablename__  = 'credential'
+    __tablename__  = 'credentials'
     id = Column(Integer, primary_key = True)
-    lms_id = Column(Integer, ForeignKey('newlms.id'), nullable = False)
     key = Column(Unicode(50), nullable = False, unique=True)
+    kind = Column(Unicode(50), nullable = False)
+    lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     secret = Column(Unicode(50), nullable = False)
-    type = Column(Unicode(50), nullable = False)
 
     def __init__(self, key = None, secret = None, type = None):
         self.key = key
         self.secret = secret
         self.type = type
 
+    def __repr__(self):
+        return "<Credential: %s LMS:%s>" % (self.lms_id, self.kind)
+
 class Permission(Base):
-    __tablename__  = 'permission'
+    __tablename__  = 'permissions'
     id = Column(Integer, primary_key = True)
-    lms_id = Column(Integer, ForeignKey('newlms.id'), nullable = False)
-    context_id = Column(Unicode(50), nullable = False)
-    resource_link_id = Column(Integer, nullable = False)
-    experiment_id = Column(Integer, ForeignKey('experiment.id'), nullable = False)
     access = Column(Integer, nullable = False)
+    context_id = Column(Unicode(50), nullable = False)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
+    lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
+    resource_link_id = Column(Integer, nullable = False)
+    configuration = Column(Unicode(10 * 1024))
 
     def __init__(self, lms_id = None, context_id = None, resource_link_id = None,
                  experiment_id = None, access = None):
@@ -236,14 +254,20 @@ class Permission(Base):
         self.experiment_id = experiment_id
         self.access = access
 
+    def __repr__(self):
+        return "<Permission: %s LMS:%s %s>" % (self.experiment_id, self.lms_id ,self.access)
+
+    def __unicode__(self):
+        return "Access:%s from %s on %s" % (self.access, self.lms_id, self.experiment_id)
 
 class Experiment(Base):
-    __tablename__  = 'experiment'
+    __tablename__  = 'experiments'
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False)
-    rlms_version = Column(Integer, nullable = False) # Foreign key to RLMS
+    rlms = Column(Integer, ForeignKey('newrlmss.id'), nullable = False)
     url = Column(Unicode(300), nullable = False)
-    permissions = relationship('Permission', backref=backref('Experiment',order_by=id))
+
+    permissions = relation('Permission', backref=backref('Experiment',order_by=id))
 
     def __init__(self, name = None, rlms_version = None, url = None):
         self.name = name
@@ -251,16 +275,47 @@ class Experiment(Base):
         self.url = url
 
     def __repr__(self):
-        return "%s version %s" % (self.name, self.rlms_version)
+        return "<Experiment: %s version:%s>" % (self.name, self.rlms_version)
+
+    def __unicode__(self):
+        return "%s @ %s" % (self.name, self.rlms)
+
 
 class NewCourse(Base):
-    __tablename__ = 'newcourse'
+    __tablename__ = 'newcourses'
     id = Column(Integer, primary_key = True)
+    lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     name = Column(Unicode(50), nullable = False)
-    lms_id = Column(Integer, ForeignKey('newlms.id'), nullable = False)
 
     def __init__(self, name = None):
         self.name = name
 
     def __repr__(self):
-        return "%s from %s" % (self.name, self.lms_id)
+        return "<NewCourse: %s LMS:%s>" % (self.name, self.lms_id)
+
+    def __unicode__(self):
+        return "%s on %s" % (self.name, self.lms_id)
+
+
+class NewRLMS(Base):
+    __tablename__ = 'newrlmss'
+    id = Column(Integer, primary_key = True)
+    kind = Column(Unicode(50), nullable = False)
+    location = Column(Unicode(50), nullable = False)
+    url = Column(Unicode(300), nullable = False)
+    version = Column(Unicode(50), nullable = False)
+
+    experiments = relation('Experiment', backref=backref('RLMS', order_by=id))
+
+    def __init__(self, kind = None, url = None, location = None, version = None):
+        self.kind = kind
+        self.location = location
+        self.url = url
+        self.version = version
+
+    def __repr__(self):
+        return "<NewRLMS: %s %s %s>" % (self.kind, self.version, self.location)
+
+    def __unicode__(self):
+        return "%s on %s" % (self.kind, self.location)
+
