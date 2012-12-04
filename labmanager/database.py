@@ -46,7 +46,7 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory, NewLMS
+    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory, NewLMS, NewRLMS, Permission, Experiment
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -151,10 +151,34 @@ def add_sample_users():
     db_session.add(permission_on_course1)
     db_session.add(permission_on_course2)
 
+
     newlms1 = NewLMS(name = u"My Moodle",
                      url = u"http://moodle.com.co.co")
-
     db_session.add(newlms1)
 
-    db_session.commit()
+    newrlms1 = NewRLMS(kind = u"Deusto",
+                       location = u"Deusto Spain",
+                       url = u"labs.deusto.com",
+                       version = u"4.0.1")
+    db_session.add(newrlms1)
 
+    exp_robot = Experiment(name = u"robot",
+                            rlms = newrlms1,
+                            url = u"robot.com")
+    db_session.add(exp_robot)
+
+    permission1 = Permission(lms = newlms1,
+                             context_id = u"course2",
+                             resource_link_id = 1,
+                             experiment = exp_robot,
+                             access = u"pending")
+    db_session.add(permission1)
+
+    permission2 = Permission(lms = newlms1,
+                             context_id = u"course2",
+                             resource_link_id = 4,
+                             experiment = exp_robot,
+                             access = u"pending")
+    db_session.add(permission2)
+
+    db_session.commit()
