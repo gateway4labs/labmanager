@@ -182,7 +182,6 @@ class PermissionOnCourse(Base):
         self.course            = course
         self.configuration     = configuration
 
-
 class SBBase(object):
 
     @classmethod
@@ -206,9 +205,9 @@ class NewLMS(Base, SBBase):
     name = Column(Unicode(50), nullable = False)
     url = Column(Unicode(300), nullable = False)
 
-    permissions_on_experiments = relation('Permission', backref=backref('LMS', order_by=id))
-    authentications = relation('Credential', backref=backref('LMS', order_by=id))
-    courses = relation('NewCourse', backref=backref('LMS', order_by=id))
+    permissions_on_experiments = relation('Permission', backref=backref('newlms', order_by=id))
+    authentications = relation('Credential', backref=backref('newlms', order_by=id))
+    courses = relation('NewCourse', backref=backref('newlms', order_by=id))
 
     def __init__(self, name = None, url = None):
         self.name = name
@@ -236,49 +235,57 @@ class Credential(Base):
     def __repr__(self):
         return "<Credential: %s LMS:%s>" % (self.lms_id, self.kind)
 
-class Permission(Base):
+class Permission(Base, SBBase):
     __tablename__  = 'permissions'
     id = Column(Integer, primary_key = True)
-    access = Column(Integer, nullable = False)
+    access = Column(Unicode(50), nullable = False)
     context_id = Column(Unicode(50), nullable = False)
     experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     resource_link_id = Column(Integer, nullable = False)
-    configuration = Column(Unicode(10 * 1024))
+    configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    def __init__(self, lms_id = None, context_id = None, resource_link_id = None,
-                 experiment_id = None, access = None):
-        self.lms_id = lms_id
+    def __init__(self, lms = None, context_id = None, resource_link_id = None,
+                 experiment = None, access = None):
+        self.newlms = lms
         self.context_id = context_id
         self.resource_link_id = resource_link_id
-        self.experiment_id = experiment_id
+        self.experiment = experiment
         self.access = access
 
     def __repr__(self):
-        return "<Permission: %s LMS:%s %s>" % (self.experiment_id, self.lms_id ,self.access)
+        return "<Permission %d: %s LMS:%s %s>" % (self.id, self.experiment_id, self.lms_id, self.access)
 
     def __unicode__(self):
-        return "Access:%s from %s on %s" % (self.access, self.lms_id, self.experiment_id)
+        return "Permission %d: %s from %s on %s" % (self.id, self.access, self.lms_id, self.experiment_id)
+
+    def change_status(self, new_status):
+        self.access = new_status
+        DBS.commit()
+
+    @classmethod
+    def find_by_status(self, status):
+        return DBS.query(self).filter(self.access == status).all()
 
 class Experiment(Base):
     __tablename__  = 'experiments'
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False)
-    rlms = Column(Integer, ForeignKey('newrlmss.id'), nullable = False)
+    rlms_id = Column(Integer, ForeignKey('newrlmss.id'), nullable = False)
     url = Column(Unicode(300), nullable = False)
 
-    permissions = relation('Permission', backref=backref('Experiment',order_by=id))
+    permissions = relation('Permission', backref=backref('experiment',order_by=id))
 
-    def __init__(self, name = None, rlms_version = None, url = None):
+    def __init__(self, name = None, rlms = None, url = None):
         self.name = name
-        self.rlms_version = rlms_version
+        self.newrlms = rlms
         self.url = url
 
     def __repr__(self):
-        return "<Experiment: %s version:%s>" % (self.name, self.rlms_version)
+        return "<Experiment: %s version:%s>" % (self.name, self.newrlms)
 
     def __unicode__(self):
-        return "%s @ %s" % (self.name, self.rlms)
+        return "%s @ %s" % (self.name, self.newrlms)
 
 
 class NewCourse(Base):
@@ -305,7 +312,7 @@ class NewRLMS(Base):
     url = Column(Unicode(300), nullable = False)
     version = Column(Unicode(50), nullable = False)
 
-    experiments = relation('Experiment', backref=backref('RLMS', order_by=id))
+    experiments = relation('Experiment', backref=backref('newrlms', order_by=id))
 
     def __init__(self, kind = None, url = None, location = None, version = None):
         self.kind = kind
