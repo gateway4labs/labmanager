@@ -257,7 +257,7 @@ def start_ims(experiment=None):
             labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )
             data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
 
-        response = render_template('instructor_setup_tool.html', info=data)
+        response = render_template('lti/instructor_setup_tool.html', info=data)
 
     elif ('Learner' in current_role):
 
@@ -270,11 +270,11 @@ def start_ims(experiment=None):
             data['access'] = True
 
         data['experiment'] = experiment
-        response = render_template('learner_launch_tool.html', info=data)
+        response = render_template('lti/learner_launch_tool.html', info=data)
 
     else:
 
-       response = render_template('unknown_role.html', info=data)
+       response = render_template('lti/unknown_role.html', info=data)
 
 
     return response
