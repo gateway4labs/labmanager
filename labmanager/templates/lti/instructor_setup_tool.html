@@ -4,33 +4,39 @@
     Hello{{ " "+info.role }}!<br/>
     {{ info.resource_name }} from {{ info.course }} on {{ info.lms }} has no experiment assigned yet.
   </p>
-  <fieldset>
-    <legend>1. Choose the experiment you would like to request access to.</legend>
-    
-    <form action=''>
-      {% for remotes in info.rlms %}
+  <form action="request_permission/" method="POST">
+
+    <fieldset>
+      <legend>1. Choose the experiment you would like to request access to.</legend>
+
+      {% for remote in info.rlms %}
       <fieldset style='border:none'>
-        <legend>{{ remotes }}</legend>
+        <legend>{{ remote }}</legend>
         <table><tbody>
-            {% for exp in info.rlms[remotes] %}
-            <tr><input type="radio" name="experiment" value={{exp}}>{{ exp }}</tr>
+            {% for exp in info.rlms[remote] %}
+            <tr>
+              <input type="radio" name="experiment" value={{ info.rlms_ids[remote] }}:{{ exp.id }}>
+              {{ exp.name }}
+            </tr>
             {% endfor %}
         </tbody></table>
       </fieldset>
       {% endfor %}
-    </form>
-  </fieldset>
-  
-  <fieldset>
-    <legend>2. Message the Labmanager administrator (Optional)</legend>
-    <p><textarea rows='5' cols='50'></textarea></p>
-  </fieldset>
-  
-  <fieldset>
-    <legend>3. Request Access</legend>
-    {{ info.course_id}} -> {{ info.course }}<br/>
-    {{ info.lms }}<br/>
-    {{ info.resource_id }} -> {{ info.resource_name }}<br/>
-    <a href=''>Submit Request</a>
-  </fieldset>
+
+    </fieldset>
+    <!--
+        <fieldset>
+          <legend>2. Message the Labmanager administrator (Optional)</legend>
+          <p><textarea rows='5' cols='50'></textarea></p>
+        </fieldset>
+        -->
+    <fieldset>
+      <legend>3. Request Access</legend>
+      <input type="text" name="context_id" value={{ info.course_id }}><br/>
+      <input type="text" name="resource_id" value={{ info.resource_id }}><br/>
+      <input type="text" name="lms_id" value={{ info.lms_id }}><br/>
+
+      <input type="submit" value="Submit Request">
+    </fieldset>
+  </form>
 </div>
