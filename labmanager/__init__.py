@@ -16,15 +16,13 @@
 #
 import os
 from flask import Flask
-from flask.ext.superadmin import Admin
-from flask.ext.superadmin.contrib import sqlamodel
 
 app = Flask(__name__)
-admin = Admin()
-admin.init_app(app)
 app.config.from_object('config')
 
 from labmanager.database import db_session
+from labmanager.views.admin import init_admin
+init_admin(app, db_session)
 
 @app.teardown_request
 def shutdown_session(exception = None):
