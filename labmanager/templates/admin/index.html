@@ -1,0 +1,9 @@
+{% extends 'admin/layout.html' %}
+{% block body %}
+<p>LabManager Admin Dashboard</p>
+
+{% if info.requests %}
+{% include 'admin/_request_access.html' %}
+{% endif %}
+
+{% endblock %}

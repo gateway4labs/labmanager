@@ -1,0 +1,16 @@
+<p>The following access requests need your attention:</p>
+<div id="requests">
+  {% for request in info.requests %}
+  <p>Course {{ request.context_id }} from
+    <a href="{{ url_for( 'admin.show', model=request.newlms.__class__.__name__, r_id=request.newlms.id ) }}">
+      {{ request.newlms.name }}
+    </a>
+    is requesting access to
+    <a href="{{url_for( 'admin.show', model=request.experiment.__class__.__name__, r_id=request.experiment.id ) }}">
+      {{ request.experiment.name }}
+    </a>
+    <a href="{{ url_for( 'admin.update', id=request.id, status='granted' ) }}"> Grant </a>
+    <a href="{{ url_for( 'admin.update', id=request.id, status='denied'  ) }}"> Deny </a>
+  </p>
+  {% endfor %}
+</div>
