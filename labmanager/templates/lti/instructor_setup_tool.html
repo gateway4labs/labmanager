@@ -1,42 +1,38 @@
 <div>
+  {% if info.message %}
   <fieldset><legend>DEBUG MESSAGES</legend><p style='color:#F00; text-align:center'>{{ info.message|safe }}</p></fieldset>
+  {% endif %}
   <p>
     Hello{{ " "+info.role }}!<br/>
     {{ info.resource_name }} from {{ info.course }} on {{ info.lms }} has no experiment assigned yet.
   </p>
   <form action="request_permission/" method="POST">
-
     <fieldset>
       <legend>1. Choose the experiment you would like to request access to.</legend>
-
       {% for remote in info.rlms %}
+      {% set iteri = loop.index %}
       <fieldset style='border:none'>
         <legend>{{ remote }}</legend>
-        <table><tbody>
-            {% for exp in info.rlms[remote] %}
-            <tr>
-              <input type="radio" name="experiment" value={{ info.rlms_ids[remote] }}:{{ exp.id }}>
-              {{ exp.name }}
-            </tr>
-            {% endfor %}
-        </tbody></table>
+        {% for exp in info.rlms[remote] %}
+        {% set iterj = loop.index %}
+        <input type="radio"
+               name="experiment"
+               value={{ info.rlms_ids[remote] }}:{{ exp.id }}
+               {% if iteri == iterj %}checked="true"{% endif %}>
+        {{ exp.name }}
+        <br/>
+        {% endfor %}
       </fieldset>
       {% endfor %}
-
+      
     </fieldset>
-    <!--
-        <fieldset>
-          <legend>2. Message the Labmanager administrator (Optional)</legend>
-          <p><textarea rows='5' cols='50'></textarea></p>
-        </fieldset>
-        -->
     <fieldset>
-      <legend>3. Request Access</legend>
-      <input type="text" name="context_id" value={{ info.course_id }}><br/>
-      <input type="text" name="resource_id" value={{ info.resource_id }}><br/>
-      <input type="text" name="lms_id" value={{ info.lms_id }}><br/>
+      <legend>2. Request Access</legend>
+      <input type="hidden" name="context_id" value={{ info.course_id }}>
+      <input type="hidden" name="resource_id" value={{ info.resource_id }}>
+      <input type="hidden" name="lms_id" value={{ info.lms_id }}>
 
-      <input type="submit" value="Submit Request">
+      <input type="submit" value="Submit Request"/>
     </fieldset>
   </form>
 </div>
