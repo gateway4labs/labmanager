@@ -1,5 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
-# 
+#
 # lms4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
 # lms4labs is distributed in the hope that it will be useful,
@@ -23,27 +23,30 @@ except ImportError:
     print >> sys.stderr, "Missing config.py. Copy config.py.dist into config.py"
     sys.exit(-1)
 
-from config import USERNAME, PASSWORD, HOST, DBNAME
+heroku = os.environ.get('HEROKU', None)
+if heroku is None:
+    from config import USERNAME, PASSWORD, HOST, DBNAME
 
-from config import ENGINE
-if ENGINE == 'mysql':
-    try:
-        from config import USE_PYMYSQL
-    except:
-        USE_PYMYSQL = False
-    if USE_PYMYSQL:
-        import pymysql as dbi
+    from config import ENGINE
+    if ENGINE == 'mysql':
+        try:
+            from config import USE_PYMYSQL
+        except:
+            USE_PYMYSQL = False
+        if USE_PYMYSQL:
+            import pymysql as dbi
+        else:
+            import MySQLdb as dbi
+    elif ENGINE == 'sqlite':
+        import sqlite3 as dbi
     else:
-        import MySQLdb as dbi
-elif ENGINE == 'sqlite':
-    import sqlite3 as dbi
-else:
-    print >> sys.stderr, "Unsupported engine %s. You will have to create the database and the users by your own." % ENGINE 
+        print >> sys.stderr, "Unsupported engine %s. You will have to create the database and the users by your own." % ENGINE
+
+    ROOT_USERNAME = None
+    ROOT_PASSWORD = None
 
 from labmanager.database import init_db, db_session, add_sample_users
 
-ROOT_USERNAME = None
-ROOT_PASSWORD = None
 
 def create_user():
     if ENGINE == 'mysql':
@@ -76,7 +79,7 @@ def create_db():
             ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
 
         try:
-            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = DBNAME, host = HOST) 
+            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = DBNAME, host = HOST)
         except:
             pass # DB does not exist
         else:
@@ -85,7 +88,7 @@ def create_db():
             connection.commit()
             connection.close()
 
-        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = HOST) 
+        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = HOST)
         cursor = connection.cursor()
         cursor.execute("CREATE DATABASE %s" % DBNAME)
         connection.commit()
