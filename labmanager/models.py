@@ -231,10 +231,11 @@ class Credential(Base):
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     secret = Column(Unicode(50), nullable = False)
 
-    def __init__(self, key = None, secret = None, type = None):
+    def __init__(self, key = None, secret = None, kind = None, lms = None):
         self.key = key
         self.secret = secret
-        self.type = type
+        self.kind = kind
+        self.newlms = lms
 
     def __repr__(self):
         return "<Credential: %s LMS:%s>" % ( self.lms_id, self.kind )
@@ -306,14 +307,17 @@ class Experiment(Base):
     def find_with_id_and_rlms_id(self, id, rlms_id):
         return DBS.query(self).filter(sql.and_(self.id == id, self.rlms_id == rlms_id)).first()
 
-class NewCourse(Base):
+class NewCourse(Base, SBBase):
     __tablename__ = 'newcourses'
     id = Column(Integer, primary_key = True)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     name = Column(Unicode(50), nullable = False)
+    context_id = Column(Unicode(50), nullable = False)
 
-    def __init__(self, name = None):
+    def __init__(self, name = None, context_id = None, lms = None):
         self.name = name
+        self.context_id = context_id
+        self.newlms = lms
 
     def __repr__(self):
         return "<NewCourse: %s LMS:%s>" % (self.name, self.lms_id)
@@ -321,6 +325,9 @@ class NewCourse(Base):
     def __unicode__(self):
         return "%s on %s" % (self.name, self.lms_id)
 
+    @classmethod
+    def find_by_lms_and_context(self, lms, context):
+        return DBS.query(self).filter(sql.and_(self.newlms == lms, self.context_id == context)).first()
 
 class NewRLMS(Base, SBBase):
     __tablename__ = 'newrlmss'
