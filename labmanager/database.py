@@ -47,7 +47,7 @@ def init_db(drop = False):
 
 def add_sample_users():
     from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
-    from labmanager.models import NewLMS, NewRLMS, Permission, Experiment, Credential
+    from labmanager.models import NewLMS, NewRLMS, Permission, Experiment, Credential, NewCourse
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -169,6 +169,11 @@ def add_sample_users():
                        version = u"1.2.2")
     db_session.add(newrlms2)
 
+    course1 = NewCourse(name = u"EE101",
+                        lms = newlms1,
+                        context_id = u"1")
+    db_session.add(course1)
+
     exp_robot = Experiment(name = u"robot",
                             rlms = newrlms1,
                             url = u"http://www.weblab.deusto.es/weblab/client/federated.html#reservation_id=bae5ddd3-fe8d-433f-a200-25146260212a;bae5ddd3-fe8d-433f-a200-25146260212a.route1")
@@ -185,14 +190,14 @@ def add_sample_users():
     db_session.add(exp_3)
 
     permission1 = Permission(lms = newlms1,
-                             context_id = u"course2",
+                             context = course1,
                              resource_link_id = 1,
                              experiment = exp_robot,
                              access = u"pending")
     db_session.add(permission1)
 
     permission2 = Permission(lms = newlms1,
-                             context_id = u"course2",
+                             context = course1,
                              resource_link_id = 4,
                              experiment = exp_robot,
                              access = u"pending")

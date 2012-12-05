@@ -209,17 +209,13 @@ def permission_request():
     exp = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
     newlms = NewLMS.find(lms_id)
     context = NewCourse.find_by_lms_and_context(newlms, c_id)
-    print "The context: ", context, c_id, request.form['context_label']
-    if context is None:
-        context_name = request.form['context_label']
-        context = NewCourse.new(name = context_name, lms = newlms, context_id = c_id)
 
     permission_request = Permission.find_with_params(lms=newlms,
-                                                     context_id=context.context_id,
+                                                     context=context,
                                                      resource_id=r_id)
 
     if permission_request is None:
-        permission_request = Permission.new(lms=newlms, context_id=c_id,
+        permission_request = Permission.new(lms=newlms, context=context,
                                             resource_link_id=r_id, experiment=exp)
 
 
@@ -259,7 +255,13 @@ def start_ims(experiment=None):
         message += printdebug(request)
         data['message'] = message
 
-    exp_access = Permission.find_with_params(lms=auth.newlms, resource_id=data['resource_id'], context_id=data['context_id'])
+    context = NewCourse.find_by_lms_and_context(auth.newlms, data['context_id'])
+
+    if context is None:
+        context_name = request.form['context_label']
+        context = NewCourse.new(name = context_name, lms = auth.newlms, context_id = data['context_id'])
+
+    exp_access = Permission.find_with_params(lms=auth.newlms, resource_id=data['resource_id'], context=context)
 
     if ('Instructor' in current_role):
 

@@ -251,16 +251,17 @@ class Permission(Base, SBBase):
     __tablename__  = 'permissions'
     id = Column(Integer, primary_key = True)
     access = Column(Unicode(50), nullable = False)
-    context_id = Column(Unicode(50), nullable = False)
+#    context_id = Column(Unicode(50), nullable = False)
     experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
+    course_id = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
     resource_link_id = Column(Integer, nullable = False)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    def __init__(self, lms = None, context_id = None, resource_link_id = None,
+    def __init__(self, lms = None, context = None, resource_link_id = None,
                  experiment = None, access = u"pending"):
         self.newlms = lms
-        self.context_id = context_id
+        self.newcourse = context
         self.resource_link_id = resource_link_id
         self.experiment = experiment
         self.access = access
@@ -269,7 +270,7 @@ class Permission(Base, SBBase):
         return "<Permission %d: %s LMS:%s %s>" % (self.id, self.experiment_id, self.lms_id, self.access)
 
     def __unicode__(self):
-        return "%s(%d) from %s on %s (%s)" % (self.context_id, self.resource_link_id, self.newlms.name, self.experiment.name, self.access)
+        return "%s(%d) from %s on %s (%s)" % (self.newcourse.name, self.resource_link_id, self.newlms.name, self.experiment.name, self.access)
 
     def change_status(self, new_status):
         self.access = new_status
@@ -280,8 +281,8 @@ class Permission(Base, SBBase):
         return DBS.query(self).filter(self.access == status).all()
 
     @classmethod
-    def find_with_params(self, lms = None, resource_id = None, context_id = None):
-        return DBS.query(self).filter(sql.and_(self.newlms == lms, self.resource_link_id == resource_id, self.context_id == context_id)).first()
+    def find_with_params(self, lms = None, resource_id = None, context = None):
+        return DBS.query(self).filter(sql.and_(self.newlms == lms, self.resource_link_id == resource_id, self.newcourse == context)).first()
 
 class Experiment(Base):
     __tablename__  = 'experiments'
@@ -290,7 +291,7 @@ class Experiment(Base):
     rlms_id = Column(Integer, ForeignKey('newrlmss.id'), nullable = False)
     url = Column(Unicode(300), nullable = False)
 
-    permissions = relation('Permission', backref=backref('experiment',order_by=id))
+    permissions = relation('Permission', backref=backref('experiment', order_by=id))
 
     def __init__(self, name = None, rlms = None, url = None):
         self.name = name
@@ -314,16 +315,18 @@ class NewCourse(Base, SBBase):
     name = Column(Unicode(50), nullable = False)
     context_id = Column(Unicode(50), nullable = False)
 
-    def __init__(self, name = None, context_id = None, lms = None):
+    permissions = relation('Permission', backref=backref('newcourse', order_by=id))
+
+    def __init__(self, name = None, lms = None, context_id = None):
         self.name = name
-        self.context_id = context_id
         self.newlms = lms
+        self.context_id = context_id
 
     def __repr__(self):
-        return "<NewCourse: %s LMS:%s>" % (self.name, self.lms_id)
+        return "<NewCourse: %s LMS:%s>" % (self.name, self.newlms)
 
     def __unicode__(self):
-        return "%s on %s" % (self.name, self.lms_id)
+        return "%s on %s" % (self.name, self.newlms)
 
     @classmethod
     def find_by_lms_and_context(self, lms, context):
