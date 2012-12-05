@@ -29,7 +29,7 @@ from flask import Response, render_template, request, g, abort
 # LabManager imports
 #
 from labmanager.database import db_session
-from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory, NewLMS
+from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory, NewLMS, Credential, NewRLMS, Permission, Experiment
 from labmanager.rlms     import get_manager_class
 
 from labmanager import app
@@ -184,50 +184,70 @@ def requests():
                 return messages_codes['ERROR_'] % error_msg
 
 
-@app.route("/t/<id>", methods=['GET'])
 @app.route("/t", methods=['GET'])
 def just_for_the_fun_of_testing_app(id = None):
-    ans = ""
-#    lab_access = db_session.query(PermissionOnLaboratory).filter_by(lms_id = 4,                                           local_identifier = "cloudbased").first()
-#    print lab_access.configuration
-    req = []
-    if id is None:
-        req = NewLMS.all()
-    else:
-        req.append(NewLMS.find(int(id)))
+    ans = ":)"
+    print Permission.find_by_lms_and_resource(NewLMS.find(1), 2)
 
-    print req
     return ans
 
-
-@app.route("/lms4labs/labmanager/ims/", methods = ['POST'])
-@app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['POST'])
-def start_ims(experiment=None):
-    message = ""
-    response = ""
+@app.before_first_request
+def verify_credentials():
 
     consumer_key = request.form['oauth_consumer_key']
-    lms = db_session.query(LMS).filter( LMS.lms_login == consumer_key ).first()
+    auth = Credential.find_by_key(consumer_key)
 
-    if lms is None:
+    if auth is None:
         abort(412)
 
-    secret = lms.lms_password
+    secret = auth.secret
     tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
     message = messages_codes['MSG_tool_created']
 
     if (tool_provider.valid_request(request) == False):
         abort(403)
 
+@app.route('/labmanager/ims/request_permission/', methods = ['POST'])
+def permission_request():
+    data = {}
+    choice_data = request.form['experiment'].split(':')
+    rlms_id, exp_id = int(choice_data[0]), int(choice_data[1])
+
+    lms_id = int(request.form['lms_id'])
+    r_id = int(request.form['resource_id'])
+    c_id = int(request.form['context_id'])
+
+    exp = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
+    newlms = NewLMS.find(lms_id)
+
+    permission_request = Permission.find_with_params(lms=newlms,
+                                                     context_id=c_id,
+                                                     resource_id=r_id)
+
+    if permission_request is None:
+        permission_request = Permission.new(lms=newlms, context_id=c_id,
+                                            resource_link_id=r_id, experiment=exp)
+
+
+    data['status'] = permission_request.access
+
+    return render_template('lti/request_status.html', info=data)
+
+@app.route("/labmanager/ims/", methods = ['POST'])
+@app.route("/labmanager/ims/<experiment>", methods = ['POST'])
+def start_ims(experiment=None):
+    message = ""
+    response = ""
+
+    consumer_key = request.form['oauth_consumer_key']
+    auth = Credential.find_by_key(consumer_key)
+
     # check for nonce
     # check for old requests
-    prinddebug(request)
-
-    check_lms_auth(request.form['oauth_consumer_key'], secret)
 
     # Cross reference information
-    req_lms_name = lms.name
-    req_lms = db_session.query(LMS.id).filter( LMS.lms_login == consumer_key).one().id
+    req_lms_name = auth.newlms.name
+    req_lms = auth.newlms.id
     req_course = request.form['context_label']
     current_role = Set(request.form['roles'].split(','))
     req_course_id = request.form['context_id']
@@ -238,7 +258,6 @@ def start_ims(experiment=None):
     data = { 'user_agent' : request.user_agent,
              'experiment' : experiment,
              'origin_ip' : request.remote_addr,
-             'message' : message,
              'lms' : req_lms_name,
              'lms_id' : req_lms,
              'course' : req_course,
@@ -248,33 +267,42 @@ def start_ims(experiment=None):
              'access' : False
              }
 
+    if app.config.get('DEBUGGING_REQUESTS', True):
+        message += printdebug(request)
+        data['message'] = message
+
+    exp_access = Permission.find_with_params(lms=auth.newlms, resource_id=req_course_resource_id, context_id=req_course_id)
+
     if ('Instructor' in current_role):
 
         data['role'] = 'Instructor'
         data['rlms'] = {}
+        data['rlms_ids'] = {}
 
-        for remote in db_session.query(RLMS): # filter by allowed RLMSs
-            labs_in_rlms = db_session.query(Laboratory).join(RLMS).filter( Laboratory.rlms_id == remote.id )
-            data['rlms'][remote.name] = [ lab.name for lab in labs_in_rlms ]
+        if exp_access is None:
+            for remote in NewRLMS.all(): # filter by allowed RLMSs
+                experiments_in_rlms = remote.experiments
+                data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
+                data['rlms_ids'][remote.kind] = remote.id
 
-        response = render_template('lti/instructor_setup_tool.html', info=data)
+            response = render_template('lti/instructor_setup_tool.html', info=data)
+        else:
+            data['status'] = exp_access.access
+            response = render_template('lti/request_status.html', info=data)
 
     elif ('Learner' in current_role):
 
         data['role'] = 'Learner'
         # retrieve experiment for course
-        lab_access = db_session.query(PermissionOnLaboratory).filter_by(lms_id = req_lms,
-                                                                        local_identifier = experiment).first()
 
-        if lab_access is not None:
+        if exp_access is not None:
             data['access'] = True
 
         data['experiment'] = experiment
         response = render_template('lti/learner_launch_tool.html', info=data)
 
     else:
-
-       response = render_template('lti/unknown_role.html', info=data)
+        response = render_template('lti/unknown_role.html', info=data)
 
 
     return response
@@ -352,7 +380,9 @@ def create_lab_with_data(lab_info):
             return messages_codes['ERROR_'] % error_msg
 
 def printdebug(request):
+    message = ""
     dict = request.form.keys()
     dict.sort()
     message += "<br/>"
     message += '<br/>'.join(["%s = <strong>%s</strong>" % (x,request.form[x]) for x in dict])
+    return message
