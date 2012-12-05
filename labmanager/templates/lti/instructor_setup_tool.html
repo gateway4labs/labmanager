@@ -28,10 +28,10 @@
     </fieldset>
     <fieldset>
       <legend>2. Request Access</legend>
-      <input type="hidden" name="context_id" value={{ info.course_id }}>
+      <input type="hidden" name="context_id" value={{ info.context_id }}>
       <input type="hidden" name="resource_id" value={{ info.resource_id }}>
       <input type="hidden" name="lms_id" value={{ info.lms_id }}>
-
+      <input type="hidden" name="context_label" value={{ info.context_label }}>
       <input type="submit" value="Submit Request"/>
     </fieldset>
   </form>
