@@ -239,6 +239,9 @@ class Credential(Base):
     def __repr__(self):
         return "<Credential: %s LMS:%s>" % ( self.lms_id, self.kind )
 
+    def __unicode__(self):
+        return "%s auth for %s" %(self.kind, self.newlms.name)
+
     @classmethod
     def find_by_key(self, r_key):
         return DBS.query(self).filter( self.key == r_key ).first()
@@ -265,7 +268,7 @@ class Permission(Base, SBBase):
         return "<Permission %d: %s LMS:%s %s>" % (self.id, self.experiment_id, self.lms_id, self.access)
 
     def __unicode__(self):
-        return "Permission %d: %s from %s on %s" % (self.id, self.access, self.lms_id, self.experiment_id)
+        return "%s(%d) from %s on %s (%s)" % (self.context_id, self.resource_link_id, self.newlms.name, self.experiment.name, self.access)
 
     def change_status(self, new_status):
         self.access = new_status
