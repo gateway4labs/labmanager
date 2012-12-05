@@ -46,7 +46,8 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory, NewLMS, NewRLMS, Permission, Experiment
+    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
+    from labmanager.models import NewLMS, NewRLMS, Permission, Experiment, Credential
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -162,10 +163,26 @@ def add_sample_users():
                        version = u"4.0.1")
     db_session.add(newrlms1)
 
+    newrlms2 = NewRLMS(kind = u'iLabs',
+                       location = u'MIT',
+                       url = u'ilabs.mit.edu',
+                       version = u"1.2.2")
+    db_session.add(newrlms2)
+
     exp_robot = Experiment(name = u"robot",
                             rlms = newrlms1,
-                            url = u"robot.com")
+                            url = u"http://www.weblab.deusto.es/weblab/client/federated.html#reservation_id=bae5ddd3-fe8d-433f-a200-25146260212a;bae5ddd3-fe8d-433f-a200-25146260212a.route1")
     db_session.add(exp_robot)
+
+    exp_2 = Experiment(name = u"Lego",
+                            rlms = newrlms2,
+                            url = u"robot.com")
+    db_session.add(exp_2)
+
+    exp_3 = Experiment(name = u"heat",
+                            rlms = newrlms2,
+                            url = u"robot.com")
+    db_session.add(exp_3)
 
     permission1 = Permission(lms = newlms1,
                              context_id = u"course2",
@@ -180,5 +197,11 @@ def add_sample_users():
                              experiment = exp_robot,
                              access = u"pending")
     db_session.add(permission2)
+
+    auth1 = Credential(key = u"admin",
+                      kind = u"OAuth1.0",
+                      secret = u"80072568beb3b2102325eb203f6d0ff92f5cef8e",
+                      lms = newlms1)
+    db_session.add(auth1)
 
     db_session.commit()
