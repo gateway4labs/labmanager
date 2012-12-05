@@ -5,8 +5,20 @@ from flask.ext.superadmin.contrib import sqlamodel
 from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential
 from labmanager.database import db_session as DBS
 
+
+class RLMSPanel(sqlamodel.ModelAdmin):
+    def is_accessible(self):
+        return True
+
+class LMSPanel(sqlamodel.ModelAdmin):
+    def is_accessible(self):
+        return True
+
 #Create the Admin Views
-class AdminView(AdminIndexView):
+class AdminPanel(AdminIndexView):
+    def is_accessible(self):
+        return True
+
     @expose('/')
     def index(self):
         pending_requests = Permission.find_by_status('pending')
@@ -30,12 +42,18 @@ class AdminView(AdminIndexView):
         return redirect('/admin/')
 
 def init_admin(self, db_session):
-    admin = Admin(index_view = AdminView())
+    admin = Admin(index_view = AdminPanel())
+    
+    lmspanel = LMSPanel(NewLMS, session = db_session)
+    admin.add_view(lmspanel)
+    
+    rlmspanel = RLMSPanel(NewRLMS, session = db_session)
+    admin.add_view(rlmspanel)
 
-    admin.register(NewLMS, session = db_session)
-    admin.register(NewRLMS, session = db_session)
+    experimentpanel = RLMSPanel(Experiment, session = db_session)
+    admin.add_view(experimentpanel)
+
     admin.register(Permission, session = db_session)
-    admin.register(Experiment, session = db_session)
     admin.register(Credential, session = db_session)
 
     admin.init_app(self)
