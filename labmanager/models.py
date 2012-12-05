@@ -11,7 +11,7 @@
   :license: BSD, see LICENSE for more details
 """
 
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
 
@@ -190,13 +190,17 @@ class SBBase(object):
 
     @classmethod
     def all(args):
-        return find_all(args)
+        return DBS.query(args).all()
+
+    @classmethod
+    def new(self, **params):
+        instance = self(**params)
+        DBS.add(instance)
+        DBS.commit()
+        return instance
 
 def find_by_id(self, query_id):
     return DBS.query(self).filter(self.id == query_id).first()
-
-def find_all(self):
-    return DBS.query(self).all()
 
 
 class NewLMS(Base, SBBase):
@@ -233,7 +237,11 @@ class Credential(Base):
         self.type = type
 
     def __repr__(self):
-        return "<Credential: %s LMS:%s>" % (self.lms_id, self.kind)
+        return "<Credential: %s LMS:%s>" % ( self.lms_id, self.kind )
+
+    @classmethod
+    def find_by_key(self, r_key):
+        return DBS.query(self).filter( self.key == r_key ).first()
 
 class Permission(Base, SBBase):
     __tablename__  = 'permissions'
@@ -246,7 +254,7 @@ class Permission(Base, SBBase):
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
     def __init__(self, lms = None, context_id = None, resource_link_id = None,
-                 experiment = None, access = None):
+                 experiment = None, access = u"pending"):
         self.newlms = lms
         self.context_id = context_id
         self.resource_link_id = resource_link_id
@@ -266,6 +274,10 @@ class Permission(Base, SBBase):
     @classmethod
     def find_by_status(self, status):
         return DBS.query(self).filter(self.access == status).all()
+
+    @classmethod
+    def find_with_params(self, lms = None, resource_id = None, context_id = None):
+        return DBS.query(self).filter(sql.and_(self.newlms == lms, self.resource_link_id == resource_id, self.context_id == context_id)).first()
 
 class Experiment(Base):
     __tablename__  = 'experiments'
@@ -287,6 +299,9 @@ class Experiment(Base):
     def __unicode__(self):
         return "%s @ %s" % (self.name, self.newrlms)
 
+    @classmethod
+    def find_with_id_and_rlms_id(self, id, rlms_id):
+        return DBS.query(self).filter(sql.and_(self.id == id, self.rlms_id == rlms_id)).first()
 
 class NewCourse(Base):
     __tablename__ = 'newcourses'
@@ -304,7 +319,7 @@ class NewCourse(Base):
         return "%s on %s" % (self.name, self.lms_id)
 
 
-class NewRLMS(Base):
+class NewRLMS(Base, SBBase):
     __tablename__ = 'newrlmss'
     id = Column(Integer, primary_key = True)
     kind = Column(Unicode(50), nullable = False)

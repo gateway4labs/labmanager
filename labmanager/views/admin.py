@@ -2,7 +2,7 @@ import sys
 from flask import redirect, url_for, abort
 from flask.ext.superadmin import Admin, BaseView, expose, AdminIndexView
 from flask.ext.superadmin.contrib import sqlamodel
-from labmanager.models import NewLMS, Permission, Experiment, NewRLMS
+from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential
 from labmanager.database import db_session as DBS
 
 #Create the Admin Views
@@ -28,13 +28,14 @@ class AdminView(AdminIndexView):
     def update(self, id, status):
         Permission.find(id).change_status(status)
         return redirect('/admin/')
-    
+
 def init_admin(self, db_session):
     admin = Admin(index_view = AdminView())
-    
+
     admin.register(NewLMS, session = db_session)
     admin.register(NewRLMS, session = db_session)
     admin.register(Permission, session = db_session)
     admin.register(Experiment, session = db_session)
+    admin.register(Credential, session = db_session)
 
     admin.init_app(self)
