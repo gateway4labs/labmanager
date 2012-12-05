@@ -69,7 +69,7 @@ def add_sample_users():
     db_session.add(lms2)
 
     lms3 = LMS(u'Moodle Test',
-               u'http://localhost:8888/moodle',
+               u'http://localhost:8888/moodle/blocks/lms4labs/lms/list.php',
                u'admin',
                u'80072568beb3b2102325eb203f6d0ff92f5cef8e',
                u'admin',

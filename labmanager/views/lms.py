@@ -92,7 +92,6 @@ def requests():
         return render_template("test_requests.html")
     
     json_data = get_json()
-#    print "\n\n\n","\n".join(["%s = %s" % (x,y) for x,y in json_data.iteritems()]),"\n\n\n"
 
     if json_data is None: return messages_codes['ERROR_json']
 
@@ -137,38 +136,52 @@ def requests():
             if course_permission.course.course_id in courses:
                 # Let the server choose among the best possible configuration
                 courses_configurations.append(course_permission.configuration)
-            if len(courses_configurations) == 0 and not general_role:
-                error_msg = messages_codes['ERROR_enrolled']
-            else:
-                lms_configuration = permission_on_lab.configuration
-                db_laboratory   = permission_on_lab.laboratory
-                db_rlms         = db_laboratory.rlms
-                db_rlms_version = db_rlms.rlms_version
-                db_rlms_type    = db_rlms_version.rlms_type
 
-                ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
-                remote_laboratory = ManagerClass(db_rlms.configuration)
-                reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id, author, lms_configuration, courses_configurations, request_payload, user_agent, origin_ip, referer)
-                good_msg = messages_codes['MSG_asigned'] % (db_rlms.name, db_rlms_type.name, db_rlms_version.version, reservation_url, reservation_url)
-                print "**-",reservation_url,"-**"
-                if app.config.get('DEBUGGING_REQUESTS', True):
-                    rendering_data = {
-                        'name'        : cgi.escape(complete_name),
-                        'author'      : cgi.escape(author),
-                        'lms'         : cgi.escape(g.lms),
-                        'courses'     : courses,
-                        'request'     : cgi.escape(request_payload_str),
-                        'admin'       : general_role,
-                        'json'        : cgi.escape(json.dumps(json_data)),
-                        'error_msg'   : cgi.escape(error_msg or 'no error message'),
-                        'good_msg'    : good_msg or 'no good message',
-                        }
-                    return render_template('debug.html', data=rendering_data)
+        if len(courses_configurations) == 0 and not general_role:
+            error_msg = messages_codes['ERROR_enrolled']
+        else:
+            lms_configuration = permission_on_lab.configuration
+            db_laboratory   = permission_on_lab.laboratory
+            db_rlms         = db_laboratory.rlms
+            db_rlms_version = db_rlms.rlms_version
+            db_rlms_type    = db_rlms_version.rlms_type
 
-    if error_msg is None:
-        return reservation_url
+            ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
+            remote_laboratory = ManagerClass(db_rlms.configuration)
+            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id,
+                                                        author,
+                                                        lms_configuration,
+                                                        courses_configurations,
+                                                        request_payload,
+                                                        user_agent,
+                                                        origin_ip,
+                                                        referer)
+            good_msg = messages_codes['MSG_asigned'] % (db_rlms.name,
+                                                        db_rlms_type.name,
+                                                        db_rlms_version.version,
+                                                        reservation_url,
+                                                        reservation_url)
+
+    print "**-",reservation_url,"-**"
+
+    if app.config.get('DEBUGGING_REQUESTS', True):
+        rendering_data = {
+            'name'        : cgi.escape(complete_name),
+            'author'      : cgi.escape(author),
+            'lms'         : cgi.escape(g.lms),
+            'courses'     : courses,
+            'request'     : cgi.escape(request_payload_str),
+            'admin'       : general_role,
+            'json'        : cgi.escape(json.dumps(json_data)),
+            'error_msg'   : cgi.escape(error_msg or 'no error message'),
+            'good_msg'    : good_msg or 'no good message',
+            }
+        return render_template('debug.html', data=rendering_data)
     else:
-        return messages_codes['ERROR_'] % error_msg
+        if error_msg is None:
+            return reservation_url
+        else:
+            return messages_codes['ERROR_'] % error_msg
 
 
 @app.route("/t", methods=['GET'])
@@ -191,7 +204,6 @@ def verify_credentials():
 
     secret = auth.secret
     tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
-    message = messages_codes['MSG_tool_created']
 
     if (tool_provider.valid_request(request) == False):
         abort(403)
