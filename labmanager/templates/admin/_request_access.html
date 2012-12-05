@@ -1,7 +1,7 @@
 <p>The following access requests need your attention:</p>
 <div id="requests">
   {% for request in info.requests %}
-  <p>Course {{ request.context_id }} from
+  <p>Course {{ request.newcourse.name }} from
     <a href="{{ url_for( 'admin.show', model=request.newlms.__class__.__name__, r_id=request.newlms.id ) }}">
       {{ request.newlms.name }}
     </a>
