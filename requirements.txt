@@ -9,3 +9,4 @@ cherrypy
 ims-lti-py
 Flask-SuperAdmin
 simplejson
+flask-login

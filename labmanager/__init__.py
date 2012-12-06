@@ -22,7 +22,9 @@ app.config.from_object('config')
 
 from labmanager.database import db_session
 from labmanager.views.admin import init_admin
+from labmanager.views.login import init_login
 init_admin(app, db_session)
+init_login(app)
 
 @app.teardown_request
 def shutdown_session(exception = None):
@@ -34,7 +36,6 @@ load()
 def run():
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-    # app.run(threaded = True, host = '0.0.0.0')
 
 if __name__ == "__main__":
     run()
