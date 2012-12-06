@@ -15,6 +15,27 @@ from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, s
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
 
+class SBBase(object):
+
+    @classmethod
+    def find(self, query_id = None):
+        return DBS.query(self).filter(self.id == query_id).first()
+#        return find_by_id(self, query_id)
+
+    @classmethod
+    def all(args):
+        return DBS.query(args).all()
+
+    @classmethod
+    def new(self, **params):
+        instance = self(**params)
+        DBS.add(instance)
+        DBS.commit()
+        return instance
+
+#def find_by_id(self, query_id):
+#    return DBS.query(self).filter(self.id == query_id).first()
+
 class LMS(Base):
 
     __tablename__ = 'LMSs'
@@ -39,20 +60,27 @@ class LMS(Base):
         self.labmanager_password = labmanager_password
 
 
-class LabManagerUser(Base):
+class LabManagerUser(Base, SBBase):
     __tablename__ = 'LabManagerUsers'
 
     id = Column(Integer, primary_key=True)
 
-    login    = Column(Unicode(50),  unique = True ) 
-    name     = Column(Unicode(50) )
+    login    = Column(Unicode(50), unique = True )
+    name     = Column(Unicode(50))
     password = Column(Unicode(50)) # hash
+    access_level = Column(Unicode(50))
 
-    def __init__(self, login = None, name = None, password = None):
+    def __init__(self, login = None, name = None, password = None, access_level = None):
         self.login    = login
         self.name     = name
         self.password = password
+        self.access_level = access_level
 
+    def __repr__(self):
+        return "<LabMUser: %s level:>" % (self.name, self.access_level)
+
+    def __unicode__(self):
+        return "%s (%s)" % (self.name, self.access_level)
 
 class RLMSType(Base):
     __tablename__ = 'RLMS_types'
@@ -182,26 +210,6 @@ class PermissionOnCourse(Base):
         self.course            = course
         self.configuration     = configuration
 
-class SBBase(object):
-
-    @classmethod
-    def find(self, query_id = None):
-        return find_by_id(self, query_id)
-
-    @classmethod
-    def all(args):
-        return DBS.query(args).all()
-
-    @classmethod
-    def new(self, **params):
-        instance = self(**params)
-        DBS.add(instance)
-        DBS.commit()
-        return instance
-
-def find_by_id(self, query_id):
-    return DBS.query(self).filter(self.id == query_id).first()
-
 
 class NewLMS(Base, SBBase):
     __tablename__  = 'newlmss'
@@ -251,7 +259,6 @@ class Permission(Base, SBBase):
     __tablename__  = 'permissions'
     id = Column(Integer, primary_key = True)
     access = Column(Unicode(50), nullable = False)
-#    context_id = Column(Unicode(50), nullable = False)
     experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     course_id = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
