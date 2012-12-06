@@ -2,9 +2,13 @@ import sys
 from flask import redirect, url_for, abort
 from flask.ext.superadmin import Admin, BaseView, expose, AdminIndexView
 from flask.ext.superadmin.contrib import sqlamodel
-from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential
+from labmanager.models import LabManagerUser
+from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential, NewCourse
 from labmanager.database import db_session as DBS
 
+class PermissionPanel(sqlamodel.ModelAdmin):
+    def is_accessible(self):
+        return True
 
 class RLMSPanel(sqlamodel.ModelAdmin):
     def is_accessible(self):
@@ -21,7 +25,7 @@ class AdminPanel(AdminIndexView):
 
     @expose('/')
     def index(self):
-        pending_requests = Permission.find_by_status('pending')
+        pending_requests = Permission.find_by_status(u'pending')
         data = {'requests' : pending_requests }
         return self.render('admin/index.html', info=data)
 
@@ -43,17 +47,19 @@ class AdminPanel(AdminIndexView):
 
 def init_admin(self, db_session):
     admin = Admin(index_view = AdminPanel())
-    
-    lmspanel = LMSPanel(NewLMS, session = db_session)
-    admin.add_view(lmspanel)
-    
-    rlmspanel = RLMSPanel(NewRLMS, session = db_session)
-    admin.add_view(rlmspanel)
 
-    experimentpanel = RLMSPanel(Experiment, session = db_session)
+    permissionpanel = PermissionPanel(Permission, session = db_session, name = 'Permissions')
+    admin.add_view(permissionpanel)
+
+    coursepanel = LMSPanel(NewCourse, session = db_session, name = 'Courses')
+    admin.add_view(coursepanel)
+
+    experimentpanel = RLMSPanel(Experiment, session = db_session, name = 'Experiments')
     admin.add_view(experimentpanel)
 
-    admin.register(Permission, session = db_session)
-    admin.register(Credential, session = db_session)
+    admin.register(NewLMS, session = db_session, category = 'Admin', name = 'LMS')
+    admin.register(NewRLMS, session = db_session, category = 'Admin', name = 'ReLMS')
+    admin.register(Credential, session = db_session, category = 'Admin', name = 'Credential')
+    admin.register(LabManagerUser, session = db_session, category = 'Admin', name = 'Users')
 
     admin.init_app(self)
