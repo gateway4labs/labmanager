@@ -1,9 +1,15 @@
 {% extends 'admin/layout.html' %}
 {% block body %}
-<p>LabManager Admin Dashboard</p>
+<h1>LabManager Admin Dashboard</h1>
 
 {% if info.requests %}
-{% include 'admin/_request_access.html' %}
+<p>
+<p>The following access requests need your attention:</p>
+<div id="requests">
+  {% for request in info.requests %}
+  {% include 'admin/_request_access.html' %}
+  {% endfor %}
+</div>
+</p>
 {% endif %}
-
 {% endblock %}

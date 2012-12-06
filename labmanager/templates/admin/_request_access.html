@@ -1,16 +1,13 @@
-<p>The following access requests need your attention:</p>
-<div id="requests">
-  {% for request in info.requests %}
-  <p>Course {{ request.newcourse.name }} from
-    <a href="{{ url_for( 'admin.show', model=request.newlms.__class__.__name__, r_id=request.newlms.id ) }}">
-      {{ request.newlms.name }}
-    </a>
-    is requesting access to
-    <a href="{{url_for( 'admin.show', model=request.experiment.__class__.__name__, r_id=request.experiment.id ) }}">
-      {{ request.experiment.name }}
-    </a>
-    <a href="{{ url_for( 'admin.update', id=request.id, status='granted' ) }}"> Grant </a>
-    <a href="{{ url_for( 'admin.update', id=request.id, status='denied'  ) }}"> Deny </a>
-  </p>
-  {% endfor %}
-</div>
+{#
+This file describes an entry in the Admin Index page.
+Each entry is an access request from a tool to an experiment.
+The contents of this file will be rendered for each pending request.
+#}
+<p>Course <a href="{{ url_for( 'admin.show', model=request.newcourse.__class__.__name__, r_id=request.newcourse.id ) }}">{{ request.newcourse.name }}</a>
+  (resource: {{request.resource_link_id}}) from
+  <a href="{{ url_for( 'admin.show', model=request.newlms.__class__.__name__, r_id=request.newlms.id ) }}">{{ request.newlms.name }}</a>
+  is requesting access to
+  <a href="{{url_for( 'admin.show', model=request.experiment.__class__.__name__, r_id=request.experiment.id ) }}">{{ request.experiment.name }}</a>
+  <a style="color:#0F0" href="{{ url_for( 'admin.update', id=request.id, status='granted' ) }}"> Grant </a>
+  <a style="color:#F00" href="{{ url_for( 'admin.update', id=request.id, status='denied'  ) }}"> Deny </a>
+</p>
