@@ -18,7 +18,6 @@ class LMSPanel(sqlamodel.ModelAdmin):
     def is_accessible(self):
         return True
 
-#Create the Admin Views
 class AdminPanel(AdminIndexView):
     def is_accessible(self):
         return True
@@ -43,9 +42,9 @@ class AdminPanel(AdminIndexView):
     @expose('/Permission/<int:id>/update/<status>')
     def update(self, id, status):
         Permission.find(id).change_status(status)
-        return redirect('/admin/')
+        return redirect('/admin')
 
-def init_admin(self, db_session):
+def init_admin(labmanager, db_session):
     admin = Admin(index_view = AdminPanel())
 
     permissionpanel = PermissionPanel(Permission, session = db_session, name = 'Permissions')
@@ -62,4 +61,4 @@ def init_admin(self, db_session):
     admin.register(Credential, session = db_session, category = 'Admin', name = 'Credential')
     admin.register(LabManagerUser, session = db_session, category = 'Admin', name = 'Users')
 
-    admin.init_app(self)
+    admin.init_app(labmanager)

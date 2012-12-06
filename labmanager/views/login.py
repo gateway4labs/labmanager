@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import Response, render_template, request, g, abort
+from flask import Response, render_template, request, g, abort, flash
 from flask.ext.login import LoginManager
 from labmanager import app
 from labmanager.models import LMS, LabManagerUser
@@ -60,11 +60,19 @@ def verify_credentials():
         consumer_key = request.form['oauth_consumer_key']
         auth = Credential.find_by_key(consumer_key)
 
-    if auth is None:
-        abort(412)
+        if auth is None:
+            abort(412)
 
-    secret = auth.secret
-    tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
+        secret = auth.secret
+        tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
 
-    if (tool_provider.valid_request(request) == False):
-        abort(403)
+        if (tool_provider.valid_request(request) == False):
+            abort(403)
+
+    elif request.authorization:
+        requires_lms_auth()
+        return
+
+    else:
+        flash('Bypassing authorization')
+        return
