@@ -10,3 +10,4 @@ ims-lti-py
 Flask-Admin
 simplejson
 flask-login
+pyyaml
