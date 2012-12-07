@@ -1,0 +1,21 @@
+permission_status:
+        - pending
+        - granted
+        - denied
+
+authentication_types:
+        - oauth1.0
+        - basic
+
+user_access_level:
+        - admin
+        - rlms
+        - lms
+
+installed_rlms:
+        weblab_deusto:
+                - 1.0.2
+                - 1.1
+        ilabs:
+                - 1.0
+                - 2.0.1
