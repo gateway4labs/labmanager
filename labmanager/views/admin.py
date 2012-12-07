@@ -1,17 +1,28 @@
 import sys
 from flask import redirect, url_for, abort
+from wtforms import fields
+from flask.ext import wtf
 from flask.ext.admin import Admin, BaseView, expose, AdminIndexView
+from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import LabManagerUser as User
 from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential, NewCourse
 from labmanager.database import db_session as DBS
+
+class CredentialForm(InlineFormAdmin):
+    form_columns = ('id','kind', 'key', 'secret')
+    excluded_form_fields = ('id')
+    def postprocess_form(self, form):
+        form.kind = wtf.SelectField(u'Kind', choices=[('OAuth1.0','OAuth1.0'), ('Basic', 'HTTP Basic')])
+        return form
 
 class RLMSPanel(ModelView):
     def is_accesible(self):
         return True
 
 class LMSPanel(ModelView):
-    inline_models = (Credential,)
+    inline_models = (CredentialForm(Credential),)
+
     def is_accessible(self):
         return True
 
@@ -45,11 +56,13 @@ def init_admin(labmanager, db_session):
     admin = Admin(index_view = AdminPanel(), name='LabManager')
 
     admin.add_view(ModelView(Permission, session=db_session, name='Permissions'))
-    admin.add_view(ModelView(Experiment, session=db_session, name='Experiments'))
 
-    admin.add_view(LMSPanel(NewLMS, session=db_session, category='Admin', name='LMS'))
-    admin.add_view(ModelView(NewCourse, session=db_session, category='Admin', name='Courses'))
-    admin.add_view(ModelView(NewRLMS, session=db_session, category='Admin', name='RLMS'))
-    admin.add_view(ModelView(User, session=db_session, category='Admin', name='Users'))
+    admin.add_view(LMSPanel(NewLMS, session=db_session, category='LMS', name='LMS'))
+    admin.add_view(ModelView(NewCourse, session=db_session, category='LMS', name='Courses'))
+
+    admin.add_view(ModelView(NewRLMS, session=db_session, category='ReLMS', name='RLMS'))
+    admin.add_view(ModelView(Experiment, session=db_session, category='ReLMS', name='Experiments'))
+
+    admin.add_view(ModelView(User, session=db_session, name='Users'))
 
     admin.init_app(labmanager)
