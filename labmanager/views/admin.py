@@ -1,20 +1,17 @@
 import sys
 from flask import redirect, url_for, abort
-from flask.ext.superadmin import Admin, BaseView, expose, AdminIndexView
-from flask.ext.superadmin.contrib import sqlamodel
-from labmanager.models import LabManagerUser
+from flask.ext.admin import Admin, BaseView, expose, AdminIndexView
+from flask.ext.admin.contrib.sqlamodel import ModelView
+from labmanager.models import LabManagerUser as User
 from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential, NewCourse
 from labmanager.database import db_session as DBS
 
-class PermissionPanel(sqlamodel.ModelAdmin):
-    def is_accessible(self):
+class RLMSPanel(ModelView):
+    def is_accesible(self):
         return True
 
-class RLMSPanel(sqlamodel.ModelAdmin):
-    def is_accessible(self):
-        return True
-
-class LMSPanel(sqlamodel.ModelAdmin):
+class LMSPanel(ModelView):
+    inline_models = (Credential,)
     def is_accessible(self):
         return True
 
@@ -45,20 +42,14 @@ class AdminPanel(AdminIndexView):
         return redirect('/admin')
 
 def init_admin(labmanager, db_session):
-    admin = Admin(index_view = AdminPanel())
+    admin = Admin(index_view = AdminPanel(), name='LabManager')
 
-    permissionpanel = PermissionPanel(Permission, session = db_session, name = 'Permissions')
-    admin.add_view(permissionpanel)
+    admin.add_view(ModelView(Permission, session=db_session, name='Permissions'))
+    admin.add_view(ModelView(Experiment, session=db_session, name='Experiments'))
 
-    coursepanel = LMSPanel(NewCourse, session = db_session, name = 'Courses')
-    admin.add_view(coursepanel)
-
-    experimentpanel = RLMSPanel(Experiment, session = db_session, name = 'Experiments')
-    admin.add_view(experimentpanel)
-
-    admin.register(NewLMS, session = db_session, category = 'Admin', name = 'LMS')
-    admin.register(NewRLMS, session = db_session, category = 'Admin', name = 'ReLMS')
-    admin.register(Credential, session = db_session, category = 'Admin', name = 'Credential')
-    admin.register(LabManagerUser, session = db_session, category = 'Admin', name = 'Users')
+    admin.add_view(LMSPanel(NewLMS, session=db_session, category='Admin', name='LMS'))
+    admin.add_view(ModelView(NewCourse, session=db_session, category='Admin', name='Courses'))
+    admin.add_view(ModelView(NewRLMS, session=db_session, category='Admin', name='RLMS'))
+    admin.add_view(ModelView(User, session=db_session, category='Admin', name='Users'))
 
     admin.init_app(labmanager)

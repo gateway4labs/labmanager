@@ -7,6 +7,6 @@ pymysql_sa
 pyflakes
 cherrypy
 ims-lti-py
-Flask-SuperAdmin
+Flask-Admin
 simplejson
 flask-login
