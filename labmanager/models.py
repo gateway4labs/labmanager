@@ -15,6 +15,8 @@ from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, s
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
 
+from flask.ext.login import UserMixin
+
 class SBBase(object):
 
     @classmethod
@@ -60,7 +62,7 @@ class LMS(Base):
         self.labmanager_password = labmanager_password
 
 
-class LabManagerUser(Base, SBBase):
+class LabManagerUser(Base, SBBase, UserMixin):
     __tablename__ = 'LabManagerUsers'
 
     id = Column(Integer, primary_key=True)
@@ -77,10 +79,14 @@ class LabManagerUser(Base, SBBase):
         self.access_level = access_level
 
     def __repr__(self):
-        return "<LabMUser: %s level:>" % (self.name, self.access_level)
+        return "<LabMUser: %s level:%s>" % (self.name, self.access_level)
 
     def __unicode__(self):
         return "%s (%s)" % (self.name, self.access_level)
+
+    @classmethod
+    def exists(self, login, word):
+        return DBS.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
 class RLMSType(Base):
     __tablename__ = 'RLMS_types'
