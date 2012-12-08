@@ -1,10 +1,9 @@
 from sys import modules
-
 from yaml import load as yload
 
 from flask import redirect, url_for, abort
-
 from flask.ext import wtf
+from flask.ext.login import login_required, current_user
 from flask.ext.admin import Admin, BaseView, expose, AdminIndexView
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
@@ -16,6 +15,9 @@ from labmanager.database import db_session as DBS
 configs = yload(open('labmanager/config.yaml'))
 
 class PermissionPanel(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated()
+
     form_columns = ('newlms','newcourse','experiment','resource_link_id','configuration','access')
     sel_choices = [(status, status.title()) for status in configs['permission_status']]
     form_overrides = dict(access=wtf.SelectField)
@@ -24,6 +26,8 @@ class PermissionPanel(ModelView):
         )
 
 class LabmanagerUser(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated()
 
     form_columns = ('name', 'login', 'password', 'access_level')
     sel_choices = [(level, level.title()) for level in configs['user_access_level']]
@@ -45,7 +49,7 @@ class LMSPanel(ModelView):
     inline_models = (CredentialForm(Credential),)
 
     def is_accessible(self):
-        return True
+        return current_user.is_authenticated()
 
 class RLMSPanel(ModelView):
     form_columns = ('kind', 'location', 'url')
@@ -65,11 +69,11 @@ class RLMSPanel(ModelView):
         pass
 
     def is_accesible(self):
-        return True
+        return current_user.is_authenticated()
 
 class AdminPanel(AdminIndexView):
     def is_accessible(self):
-        return True
+        return current_user.is_authenticated()
 
     @expose('/')
     def index(self):
