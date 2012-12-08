@@ -13,7 +13,6 @@
 
 #
 # Python imports
-import hashlib
 import json
 import cgi
 import traceback
