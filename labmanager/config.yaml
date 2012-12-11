@@ -1,3 +1,8 @@
+standard_urn_admin_roles:
+        - Administrator
+        - SysAdmin
+        - AccountAdmin
+
 permission_status:
         - pending
         - granted

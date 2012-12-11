@@ -6,7 +6,9 @@ from flask import Response, render_template, request, g, abort, flash, redirect,
 from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
 
 from labmanager import app
-from labmanager.models import LMS, LabManagerUser as User
+from labmanager.models import LMS, LabManagerUser as User, Credential
+
+from ims_lti_py import ToolProvider
 
 login_manager = LoginManager()
 
