@@ -4,21 +4,18 @@
   {% endif %}
   <p>
     Hello{{ " "+info.role }}!<br/>
-    {{ info.resource_name }} from {{ info.course }} on {{ info.lms }} has no experiment assigned yet.
+    '{{ info.context_label }}' on '{{ info.lms }}' has no experiments assigned yet.
   </p>
   <form action="request_permission/" method="POST">
     <fieldset>
-      <legend>1. Choose the experiment you would like to request access to.</legend>
+      <legend>1. Choose the experiments you would like to request access to.</legend>
       {% for remote in info.rlms %}
       {% set iteri = loop.index %}
       <fieldset style='border:none'>
         <legend>{{ remote }}</legend>
         {% for exp in info.rlms[remote] %}
         {% set iterj = loop.index %}
-        <input type="radio"
-               name="experiment"
-               value={{ info.rlms_ids[remote] }}:{{ exp.id }}
-               {% if iteri == iterj %}checked="true"{% endif %}>
+        <input type="checkbox" name="rlmsexperiments" value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
         {{ exp.name }}
         <br/>
         {% endfor %}
@@ -29,7 +26,6 @@
     <fieldset>
       <legend>2. Request Access</legend>
       <input type="hidden" name="context_id" value={{ info.context_id }}>
-      <input type="hidden" name="resource_id" value={{ info.resource_id }}>
       <input type="hidden" name="lms_id" value={{ info.lms_id }}>
       <input type="hidden" name="context_label" value={{ info.context_label }}>
       <input type="submit" value="Submit Request">
