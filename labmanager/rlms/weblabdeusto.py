@@ -20,6 +20,7 @@ from labmanager.data import Laboratory
 
 from .weblabdeusto_client import WebLabDeustoClient
 from .weblabdeusto_data import ExperimentId
+from .base import BaseRLMS
 
 class AddForm(AddForm):
 
@@ -92,7 +93,7 @@ def connection_tester(configuration):
     # TODO
     return None
 
-class ManagerClass(object):
+class ManagerClass(BaseRLMS):
     def __init__(self, configuration):
         config = json.loads(configuration or '{}')
         self.login    = config.get('remote_login')
