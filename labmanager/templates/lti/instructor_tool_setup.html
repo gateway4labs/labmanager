@@ -9,22 +9,14 @@
   <form action="tool_linking/" method="POST">
     <fieldset>
       <legend>1. Choose the experiment you would like for this tool.</legend>
-      {% for remote in info.rlms %}
-      {% set iteri = loop.index %}
-      <fieldset style='border:none'>
-        <legend>{{ remote }}</legend>
-        {% for exp in info.rlms[remote] %}
-        {% set iterj = loop.index %}
-        <input type="radio"
-               name="experiment"
-               value={{ info.rlms_ids[remote] }}:{{ exp.id }}
-               {% if iteri == iterj %}checked="true"{% endif %}>
-        {{ exp.name }}
-        <br/>
+      <table>
+        {% for lab in info.allowed_experiments %}
+        <tr>
+          <td> <input type="radio" name="experiment" value="{{ lab.id }}"> {{ lab.experiment }} </td>
+          <td>(Access:{{ lab.access| title }})</td>
+        </tr>
         {% endfor %}
-      </fieldset>
-      {% endfor %}
-      
+      </table>
     </fieldset>
     <fieldset>
       <legend>2. Link Tool</legend>
