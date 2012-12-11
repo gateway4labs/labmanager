@@ -6,6 +6,20 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+"""
+In order to implement a RLMS plug-in, the following steps are required:
+
+ 1. Implement a BaseRLMS-based class, which is essentially a RLMS client.
+    This class must be called RLMS.
+
+ 2. Implement a BaseFormCreator-based class, which provides the WTForms
+    required to store, serialize and validate the RLMS dependent fields.
+    There must be an instance of this class at module level called
+    FORM_CREATOR.
+
+"""
+
+
 from abc import ABCMeta, abstractmethod
 
 class BaseRLMS(object):
@@ -17,6 +31,14 @@ class BaseRLMS(object):
     """
 
     __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def test(self):
+        """test()
+        
+        test will test if the current configuration is valid or not (valid URLs, valid credentials, 
+        etc.) by connecting to the foreign server.
+        """
 
     @abstractmethod
     def get_laboratories(self):
@@ -73,4 +95,37 @@ class BaseRLMS(object):
     # - user_agent, origin_ip, referer... should be a dictionary 
     #   (so if in the future we add more field, we don't need to change the interface)
     # 
+
+class BaseFormCreator(object):
+    """Any instance of BaseFormCreator will have to return custom form classes for 
+    different tasks. Each form class will be RLMS dependent, and will provide the
+    custom fields required by that RLMS to work.
+    """
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def get_add_form(self):
+        """get_add_form() -> AddForm
+
+        Returns a RLMS dependent WTForm class, which inherits from labmanager.forms.AddForm.
+        The purpose of this class is to request RLMS specific parameters, validate them, and
+        generate a RLMS dependent JSON file.
+        """
+
+    @abstractmethod
+    def get_permission_form(self):
+        """get_permission_form() -> PermissionForm
+
+        Returns a RLMS dependent form for managing course-level permissions.
+        """
+
+    @abstractmethod
+    def get_lms_permission_form(self):
+        """get_lms_permission_form() -> LmsPermissionForm
+        
+        Returns a RLMS dependent form for managing lms-level permissions. The main difference
+        with get_permission_form is that they must have an identifier, so it should inherit from
+        labmanager.forms.GenericPermissionForm.
+        """
 
