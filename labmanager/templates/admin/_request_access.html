@@ -4,7 +4,7 @@ Each entry is an access request from a tool to an experiment.
 The contents of this file will be rendered for each pending request.
 #}
 <p>Course <a href="{{ url_for( 'admin.show', model=request.newcourse.__class__.__name__, r_id=request.newcourse.id ) }}">{{ request.newcourse.name }}</a>
-  (resource: {{request.resource_link_id}}) from
+  from
   <a href="{{ url_for( 'admin.show', model=request.newlms.__class__.__name__, r_id=request.newlms.id ) }}">{{ request.newlms.name }}</a>
   is requesting access to
   <a href="{{url_for( 'admin.show', model=request.experiment.__class__.__name__, r_id=request.experiment.id ) }}">{{ request.experiment.name }}</a>
