@@ -3,6 +3,16 @@
   <fieldset><legend>DEBUG MESSAGES</legend><p style='color:#F00; text-align:center'>{{ info.message|safe }}</p></fieldset>
   {% endif %}
   
-  <h2>The permission status is: <span id={{info.status}}>{{ info.status | title }}</span></h2>
+  {% if info.access_requests %}
+  <h2>Permission status for this course:</h2>
+  <table>
+    {% for permission in info.access_requests %}
+    <tr>
+      <td> {{ permission.experiment }}</td>
+      <td> {{ permission.access | title }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
   
 </div>

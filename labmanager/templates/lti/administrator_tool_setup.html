@@ -6,6 +6,23 @@
     Hello{{ " "+info.role }}!<br/>
     '{{ info.context_label }}' on '{{ info.lms }}' has no experiments assigned yet.
   </p>
+
+  {% if info.access_requests %}
+  <fieldset>
+    <legend>Permission status for this course:</legend>
+    <table>
+      {% for permission in info.access_requests %}
+      <tr>
+        <td> {{ permission.access | title }}</td>
+        <td> {{ permission.experiment }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </fieldset>
+  {% endif %}
+
+
+
   <form action="request_permission/" method="POST">
     <fieldset>
       <legend>1. Choose the experiments you would like to request access to.</legend>
