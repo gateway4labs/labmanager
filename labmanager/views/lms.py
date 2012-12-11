@@ -17,6 +17,7 @@ import json
 import cgi
 import traceback
 from sets import Set
+from yaml import load as yload
 
 #
 # Flask imports
@@ -35,7 +36,8 @@ from labmanager import app
 from labmanager.views import get_json
 from error_codes import messages_codes
 from login import requires_lms_auth
-from ims_lti_py import ToolProvider
+
+configs = yload(open('labmanager/config.yaml'))
 
 ###############################################################################
 #
@@ -153,37 +155,98 @@ def just_for_the_fun_of_testing_app(id = None):
 
     return ans
 
+@app.route('/labmanager/ims/tool_linking/', methods = ['POST'])
+def tool_link_ims():
+    return render_template('lti/request_status.html', info={})
 
-@app.route('/labmanager/ims/request_permission/', methods = ['POST'])
+@app.route('/ims/admin/request_permission/', methods = ['POST'])
 def permission_request():
     data = {}
-    choice_data = request.form['experiment'].split(':')
-    rlms_id, exp_id = int(choice_data[0]), int(choice_data[1])
+    choice_data = []
+
+    for exps in request.form.getlist('rlmsexperiments'):
+        split_choice = exps.split(':')
+        rlms_id, exp_id = int(split_choice[0]), int(split_choice[1])
+        choice_data.append((rlms_id, exp_id))
 
     lms_id = int(request.form['lms_id'])
-    r_id = int(request.form['resource_id'])
-    c_id = request.form['context_id']
-
-    exp = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
+    context_id = request.form['context_id']
+    context_label = request.form['context_label']
     newlms = NewLMS.find(lms_id)
-    context = NewCourse.find_by_lms_and_context(newlms, c_id)
 
-    permission_request = Permission.find_with_params(lms=newlms,
-                                                     context=context,
-                                                     resource_id=r_id)
+    local_context = NewCourse.find_or_create(lms = newlms,
+                                             context = context_id,
+                                             name = context_label)
+    exp_status = []
+    for rlms_id, exp_id in choice_data:
+        experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
+        permission = Permission.find_or_create(lms = newlms,
+                                               experiment = experiment,
+                                               context = local_context)
+        exp_status.append(permission)
 
-    if permission_request is None:
-        permission_request = Permission.new(lms=newlms, context=context,
-                                            resource_link_id=r_id, experiment=exp)
-
-
-    data['status'] = permission_request.access
+    data['access_requests'] = exp_status
 
     return render_template('lti/request_status.html', info=data)
 
+@app.route("/ims/admin/", methods = ['POST'])
+def admin_ims():
+    message = ""
+    response = ""
+
+    consumer_key = request.form['oauth_consumer_key']
+    auth = Credential.find_by_key(consumer_key)
+
+    data = { 'user_agent' : request.user_agent,
+             'origin_ip' : request.remote_addr,
+             'lms' : auth.newlms.name,
+             'lms_id' : auth.newlms.id,
+             'context_label' : request.form['context_label'],
+             'context_id' : request.form['context_id'],
+             }
+
+    # Defined by the standard. After this comes the role of the user as in
+    # 'urn:lti:sysrole:ims/lis/Administrator' or 'urn:lti:sysrole:ims/lis/SysAdmin'
+    urn_role_base = 'urn:lti:sysrole:ims/lis/'
+    roles = Set()
+
+    split_roles = request.form['roles'].split(',')
+    for role in split_roles:
+        if role.startswith(urn_role_base):
+            roles.add(role[len(urn_role_base):])
+
+    admin_roles = Set(configs['standard_urn_admin_roles'])
+    current_users_roles = roles & admin_roles # Set intersection
+
+    if len(current_users_roles) > 0:
+
+        data['role'] = current_users_roles.pop() # Returns an arbitrary element
+        data['rlms'] = {}
+        data['rlms_ids'] = {}
+
+        local_context = NewCourse.find_or_create(lms = auth.newlms,
+                                                 context = request.form['context_id'],
+                                                 name = request.form['context_label'])
+
+        current_permissions = Permission.find_all_with_lms_and_context(lms = auth.newlms,
+                                                                       context = local_context)
+
+        data['access_requests'] = current_permissions
+
+        for remote in NewRLMS.all(): # filter by allowed RLMSs
+            experiments_in_rlms = remote.experiments
+            data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
+            data['rlms_ids'][remote.kind] = remote.id
+
+        return render_template('lti/administrator_tool_setup.html', info=data)
+
+    else:
+        data['role'] = split_roles[0]
+        return render_template('lti/unknown_role.html', info=data)
+
+
 @app.route("/labmanager/ims/", methods = ['POST'])
-@app.route("/labmanager/ims/<experiment>", methods = ['POST'])
-def start_ims(experiment=None):
+def start_ims():
     message = ""
     response = ""
 
@@ -198,7 +261,6 @@ def start_ims(experiment=None):
     req_course_data = request.form['lis_result_sourcedid']
 
     data = { 'user_agent' : request.user_agent,
-             'experiment' : experiment,
              'origin_ip' : request.remote_addr,
              'lms' : auth.newlms.name,
              'lms_id' : auth.newlms.id,
@@ -217,9 +279,13 @@ def start_ims(experiment=None):
 
     if context is None:
         context_name = request.form['context_label']
-        context = NewCourse.new(name = context_name, lms = auth.newlms, context_id = data['context_id'])
+        context = NewCourse.new(name = context_name,
+                                lms = auth.newlms,
+                                context_id = data['context_id'])
 
-    exp_access = Permission.find_with_params(lms=auth.newlms, resource_id=data['resource_id'], context=context)
+    exp_access = Permission.find_with_params(lms=auth.newlms,
+                                             resource_id=data['resource_id'],
+                                             context=context)
 
     if ('Instructor' in current_role):
 
@@ -228,12 +294,12 @@ def start_ims(experiment=None):
         data['rlms_ids'] = {}
 
         if exp_access is None:
-            for remote in NewRLMS.all(): # filter by allowed RLMSs
-                experiments_in_rlms = remote.experiments
-                data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
-                data['rlms_ids'][remote.kind] = remote.id
+#             for remote in NewRLMS.all(): # filter by allowed RLMSs
+#                 experiments_in_rlms = remote.experiments
+#                 data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
+#                 data['rlms_ids'][remote.kind] = remote.id
 
-            response = render_template('lti/instructor_setup_tool.html', info=data)
+            response = render_template('lti/instructor_tool_setup.html', info=data)
         else:
             data['status'] = exp_access.access
             response = render_template('lti/request_status.html', info=data)
@@ -252,7 +318,6 @@ def start_ims(experiment=None):
 
     else:
         response = render_template('lti/unknown_role.html', info=data)
-
 
     return response
 
