@@ -6,7 +6,9 @@ from flask import Response, render_template, request, g, abort, flash, redirect,
 from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
 
 from labmanager import app
-from labmanager.models import LMS, LabManagerUser as User
+from labmanager.models import LMS, LabManagerUser as User, Credential
+
+from ims_lti_py import ToolProvider
 
 login_manager = LoginManager()
 
@@ -16,8 +18,6 @@ def init_login(labmanager):
 
 @login_manager.user_loader
 def load_user(userid):
-    print "current user:",userid
-    print User.find(int(userid))
     return User.find(int(userid))
 
 @app.before_first_request
@@ -27,6 +27,10 @@ def verify_credentials():
     if 'oauth_consumer_key' in request.form:
         consumer_key = request.form['oauth_consumer_key']
         auth = Credential.find_by_key(consumer_key)
+
+        # check for nonce
+        # check for old requests
+        # Cross reference information
 
         if auth is None:
             abort(412)
