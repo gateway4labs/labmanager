@@ -20,10 +20,10 @@ RLMSS = {
     #     "version" : "full.module.path",
     # },
     "WebLab-Deusto" : {
-        "4.0" : 'labmanager.rlms.weblabdeusto',
+        "4.0" : 'labmanager.rlms.ext.weblabdeusto',
     },
     "iLab" : {
-        "4.5" : 'labmanager.rlms.ilab',
+        "4.5" : 'labmanager.rlms.ext.ilab',
     },
 }
 

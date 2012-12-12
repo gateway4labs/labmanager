@@ -17,10 +17,10 @@ from flask.ext.wtf import TextField, PasswordField, Required, URL, ValidationErr
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.data import Laboratory
+from labmanager.rlms.base import BaseRLMS
 
 from .weblabdeusto_client import WebLabDeustoClient
 from .weblabdeusto_data import ExperimentId
-from .base import BaseRLMS
 
 class AddForm(AddForm):
 
