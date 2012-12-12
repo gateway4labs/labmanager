@@ -1,5 +1,20 @@
-<form action="{{url_for('login')}}" method="POST">
-  <input type="text" name="username" placeholder="Username">
-  <input type="password" name="password" placeholder="Password">
-  <input type="submit" value="Log in">
-</form>
+<body onload="javascript:document.getElementById('first-input').focus();">
+  <div class="hero-unit" align="center">
+    <p><img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="LMS4labs Logo" /></p>
+    <p>LabManager administrator</p>
+  </div>
+    <div align="center">
+      <form action="{{url_for('login')}}" method="POST">
+        <br/>
+        <label > Username </label>
+        <input type="text" name="username" placeholder="Username" id="first-input">
+        <br/>
+        <label > Password </label>
+        <input type="password" name="password" placeholder="Password">
+        <br/>
+        <input type="submit" value="Log in">
+
+      </form>
+
+  </div>
+</body>

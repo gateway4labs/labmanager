@@ -1,0 +1,30 @@
+<div>
+  {% if info.message %}
+  <fieldset><legend>DEBUG MESSAGES</legend><p style='color:#F00; text-align:center'>{{ info.message|safe }}</p></fieldset>
+  {% endif %}
+  <p>
+    Hello{{ " "+info.role }}!<br/>
+    '{{ info.resource_name }}' from '{{ info.context_label }}' on '{{ info.lms }}' has no experiment assigned yet.
+  </p>
+  <form action="tool_linking/" method="POST">
+    <fieldset>
+      <legend>1. Choose the experiment you would like for this tool.</legend>
+      <table>
+        {% for lab in info.allowed_experiments %}
+        <tr>
+          <td> <input type="radio" name="experiment" value="{{ lab.id }}"> {{ lab.experiment }} </td>
+          <td>(Access:{{ lab.access| title }})</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </fieldset>
+    <fieldset>
+      <legend>2. Link Tool</legend>
+      <input type="hidden" name="context_id" value={{ info.context_id }}>
+      <input type="hidden" name="resource_id" value={{ info.resource_id }}>
+      <input type="hidden" name="lms_id" value={{ info.lms_id }}>
+      <input type="hidden" name="context_label" value={{ info.context_label }}>
+      <input type="submit" value="Link">
+    </fieldset>
+  </form>
+</div>
