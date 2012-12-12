@@ -288,6 +288,12 @@ def start_ims():
         data['role'] = 'Learner'
 
         if context_experiments:
+            wo_denied = []
+            for exp in context_experiments:
+                if exp.access != 'denied':
+                    wo_denied.append(exp)
+            data['context_experiments'] = wo_denied
+
             response = render_template('lti/experiments.html', info=data)
         else:
             response = render_template('lti/no_experiments_info.html', info=data)
