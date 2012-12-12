@@ -21,8 +21,6 @@
   </fieldset>
   {% endif %}
 
-
-
   <form action="request_permission/" method="POST">
     <fieldset>
       <legend>1. Choose the experiments you would like to request access to.</legend>
@@ -32,8 +30,8 @@
         <legend>{{ remote }}</legend>
         {% for exp in info.rlms[remote] %}
         {% set iterj = loop.index %}
-        <input type="checkbox" name="rlmsexperiments" value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
-        {{ exp.name }}
+        <input type="checkbox" name="rlmsexperiments" id="exp-{{exp.id}}" value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
+        <label for="exp-{{ exp.id }}">{{ exp.name }}</label>
         <br/>
         {% endfor %}
       </fieldset>
