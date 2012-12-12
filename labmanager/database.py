@@ -191,14 +191,14 @@ def add_sample_users():
 
     permission1 = Permission(lms = newlms1,
                              context = course1,
-                             resource_link_id = 1,
+
                              experiment = exp_robot,
                              access = u"pending")
     db_session.add(permission1)
 
     permission2 = Permission(lms = newlms1,
                              context = course1,
-                             resource_link_id = 4,
+
                              experiment = exp_robot,
                              access = u"pending")
     db_session.add(permission2)
