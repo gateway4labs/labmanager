@@ -18,8 +18,6 @@ def init_login(labmanager):
 
 @login_manager.user_loader
 def load_user(userid):
-    print "current user:",userid
-    print User.find(int(userid))
     return User.find(int(userid))
 
 @app.before_first_request
@@ -29,6 +27,10 @@ def verify_credentials():
     if 'oauth_consumer_key' in request.form:
         consumer_key = request.form['oauth_consumer_key']
         auth = Credential.find_by_key(consumer_key)
+
+        # check for nonce
+        # check for old requests
+        # Cross reference information
 
         if auth is None:
             abort(412)
