@@ -264,22 +264,23 @@ class Permission(Base, SBBase):
     experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     course_id = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
-    resource_link_id = Column(Integer)
+#    resource_link_id = Column(Integer)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    def __init__(self, lms = None, context = None, resource_link_id = None,
-                 experiment = None, access = u"pending"):
+    def __init__(self, lms = None, context = None, experiment = None,
+                 access = u"pending"):
         self.newlms = lms
         self.newcourse = context
-        self.resource_link_id = resource_link_id
         self.experiment = experiment
         self.access = access
 
     def __repr__(self):
-        return "<Permission %d: %s LMS:%s %s>" % (self.id, self.experiment_id, self.lms_id, self.access)
+        return "<Permission %d: %s LMS:%s %s>" % (self.id, self.experiment_id,
+                                                  self.lms_id, self.access)
 
     def __unicode__(self):
-        return "%s(%d) from %s on %s (%s)" % (self.newcourse.name, self.resource_link_id, self.newlms.name, self.experiment.name, self.access)
+        return "%s from %s on %s (%s)" % (self.newcourse.name, self.newlms.name,
+                                          self.experiment.name, self.access)
 
     def change_status(self, new_status):
         self.access = new_status
@@ -290,9 +291,8 @@ class Permission(Base, SBBase):
         return DBS.query(self).filter(self.access == status).all()
 
     @classmethod
-    def find_with_params(self, lms = None, resource_id = None, context = None):
+    def find_with_params(self, lms = None, context = None):
         return DBS.query(self).filter(sql.and_(self.newlms == lms,
-                                               self.resource_link_id == resource_id,
                                                self.newcourse == context)
                                       ).first()
 
@@ -311,7 +311,8 @@ class Permission(Base, SBBase):
 
     @classmethod
     def find_or_create(self, lms, context, experiment):
-        instance = self.find_with_lms_context_exp(lms = lms, context = context, experiment = experiment)
+        instance = self.find_with_lms_context_exp(lms = lms, context = context,
+                                                  experiment = experiment)
         if instance:
             return instance
         else:
@@ -363,7 +364,8 @@ class NewCourse(Base, SBBase):
 
     @classmethod
     def find_by_lms_and_context(self, lms, context):
-        return DBS.query(self).filter(sql.and_(self.newlms == lms, self.context_id == context)).first()
+        return DBS.query(self).filter(sql.and_(self.newlms == lms,
+                                               self.context_id == context)).first()
 
     @classmethod
     def find_or_create(self, lms, context, name=None):

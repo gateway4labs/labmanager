@@ -155,25 +155,6 @@ def just_for_the_fun_of_testing_app(id = None):
 
     return ans
 
-@app.route('/labmanager/ims/tool_linking/', methods = ['POST'])
-def tool_link_ims():
-    data = {}
-    permission_id = int( request.form['experiment'])
-    permission = Permission.find(permission_id)
-    if permission.resource_link_id is None:
-        # Update the permission with this resource link id?
-        # permission.update_value("resource_link_id", int(request.form['resource_id']))
-        
-        
-        print "Resource link id is None"
-    else:
-        
-        # Update the permission with this resource link id?
-        print "Resource link id exists"
-
-    data['access_requests'] = [permission]
-    return render_template('lti/request_status.html', info=data)
-
 @app.route('/ims/admin/request_permission/', methods = ['POST'])
 def permission_request():
     data = {}
@@ -192,17 +173,17 @@ def permission_request():
     local_context = NewCourse.find_or_create(lms = newlms,
                                              context = context_id,
                                              name = context_label)
-    exp_status = []
-    for rlms_id, exp_id in choice_data:
-        experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
-        permission = Permission.find_or_create(lms = newlms,
-                                               experiment = experiment,
-                                               context = local_context)
-        exp_status.append(permission)
 
-    data['access_requests'] = exp_status
+    if 'rlmsexperiments' in request.form:
+        for rlms_id, exp_id in choice_data:
+            experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
+            Permission.find_or_create(lms = newlms, experiment = experiment,
+                                      context = local_context)
 
-    return render_template('lti/request_status.html', info=data)
+    exp_status = Permission.find_all_with_lms_and_context(lms = newlms, context = local_context)
+    data['context_experiments'] = exp_status
+
+    return render_template('lti/experiments.html', info=data)
 
 @app.route("/ims/admin/", methods = ['POST'])
 def admin_ims():
@@ -268,10 +249,6 @@ def start_ims():
     consumer_key = request.form['oauth_consumer_key']
     auth = Credential.find_by_key(consumer_key)
 
-    # check for nonce
-    # check for old requests
-
-    # Cross reference information
     current_role = Set(request.form['roles'].split(','))
     req_course_data = request.form['lis_result_sourcedid']
 
@@ -281,8 +258,6 @@ def start_ims():
              'lms_id' : auth.newlms.id,
              'context_label' : request.form['context_label'],
              'context_id' : request.form['context_id'],
-             'resource_name' : request.form['resource_link_title'],
-             'resource_id' : request.form['resource_link_id'],
              'access' : False
              }
 
@@ -295,45 +270,34 @@ def start_ims():
                                              context = data['context_id'],
                                              name = data['context_label'])
 
-    permission_for_resource = Permission.find_with_params(lms = auth.newlms,
-                                                          resource_id = data['resource_id'],
-                                                          context = local_context)
+    context_experiments = Permission.find_all_with_lms_and_context(auth.newlms,
+                                                                   local_context)
+
+    if context_experiments:
+        data['context_experiments'] = context_experiments
 
     if ('Instructor' in current_role):
         data['role'] = 'Instructor'
 
-        if permission_for_resource is None:
-            allowed_experiments = Permission.find_all_with_lms_and_context(auth.newlms,
-                                                                           local_context)
-
-            if allowed_experiments:
-                data['allowed_experiments'] = allowed_experiments
-                response = render_template('lti/instructor_tool_setup.html', info=data)
-            else:
-                response = render_template('lti/instructions.html', info=data)
-
+        if context_experiments:
+            response = render_template('lti/experiments.html', info=data)
         else:
-            data['access_requests'] = [permission_for_resource]
-            response = render_template('lti/request_status.html', info=data)
+            response = render_template('lti/instructions.html', info=data)
 
     elif ('Learner' in current_role):
         data['role'] = 'Learner'
 
-        if permission_for_resource is None:
-            # show message of tool not configured
-            response = ""
-
+        if context_experiments:
+            response = render_template('lti/experiments.html', info=data)
         else:
-            # Show experiment link
-            response = ""
-
+            response = render_template('lti/no_experiments_info.html', info=data)
 
     else:
         response = render_template('lti/unknown_role.html', info=data)
 
     return response
 
-@app.route("/lms4labs/labmanager/ims/<experiment>", methods = ['GET'])
+@app.route("/labmanager/ims/experiment/<experiment>", methods = ['GET'])
 def launch_experiment(experiment=None):
     response = ""
 

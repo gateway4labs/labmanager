@@ -18,7 +18,7 @@ class PermissionPanel(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated()
 
-    form_columns = ('newlms','newcourse','experiment','resource_link_id','configuration','access')
+    form_columns = ('newlms','newcourse','experiment','configuration','access')
     sel_choices = [(status, status.title()) for status in configs['permission_status']]
     form_overrides = dict(access=wtf.SelectField)
     form_args = dict(
