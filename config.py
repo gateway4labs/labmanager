@@ -8,6 +8,7 @@ DEBUG      = True
 SECRET_KEY = 'secret'
 DEBUGGING_REQUESTS = False
 
+RLMS = ['weblabdeusto']
 
 heroku = os.environ.get('HEROKU', None)
 if heroku:

@@ -11,16 +11,27 @@
   :license: BSD, see LICENSE for more details
 """
 
+import sys
 import json
 
 from flask.ext.wtf import TextField, PasswordField, Required, URL, ValidationError
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.data import Laboratory
+from labmanager.rlms import register
 from labmanager.rlms.base import BaseRLMS, BaseFormCreator
 
 from .weblabdeusto_client import WebLabDeustoClient
 from .weblabdeusto_data import ExperimentId
+
+def get_module(version):
+    """get_module(version) -> proper module for that version
+
+    Right now, a single version is supported, so this module itself will be returned.
+    When compatibility is required, we may change this and import different modules.
+    """
+    # TODO: check version
+    return sys.modules[__name__]
 
 class WebLabDeustoAddForm(AddForm):
 
@@ -192,3 +203,6 @@ class RLMS(BaseRLMS):
         if overall_max_time is not None:
             consumer_data['time_allowed'] = overall_max_time
         return consumer_data
+
+
+register("WebLab-Deusto", ['4.0', '5.0'], __name__)
