@@ -7,7 +7,33 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 """
-In order to implement a RLMS plug-in, the following steps are required:
+A RLMS plug-in is composed of a module or package, called l4l_rlms_FOO, which
+will have a function called get_module(version):
+
+   def get_module(version):
+       # ...
+       return # the plug-in module for that version
+
+This way, with get_module a single plug-in may support different versions. An
+example of an strict version parser would be the following:
+
+   def get_module(version):
+       if version.startswith( ('4.', '5.') ):
+          import mylab4
+          return mylab4
+       elif version.startswith('6.'):
+          import mylab6
+          return mylab6
+       else:
+          raise ValueError("Version not supported by XXX plug-in: %s" % version)
+
+Although most times, the implementation will simply be:
+
+   def get_module(version):
+       return sys.modules[__name__]
+
+The returned module by get_module must have two variables defined, called RLMS
+and FORM_CREATOR. So as to do it:
 
  1. Implement a BaseRLMS-based class, which is essentially a RLMS client.
     This class must be called RLMS.
@@ -17,6 +43,8 @@ In order to implement a RLMS plug-in, the following steps are required:
     There must be an instance of this class at module level called
     FORM_CREATOR.
 
+Finally, the module must call the labmanager.rlms.register() function providing
+itself.
 """
 
 
