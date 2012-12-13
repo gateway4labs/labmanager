@@ -34,7 +34,6 @@ from labmanager.rlms     import get_manager_class
 from labmanager.views import get_json
 from error_codes import messages_codes
 
-configs = yload(open('labmanager/config.yaml'))
 basic_auth = Blueprint('basic_auth', __name__)
 
 ###############################################################################

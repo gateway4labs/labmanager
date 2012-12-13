@@ -22,7 +22,7 @@ from labmanager.models import NewLMS, Credential, NewRLMS, Permission, Experimen
 
 from error_codes import messages_codes
 
-configs = yload(open('labmanager/config.yaml'))
+config = yload(open('labmanager/config.yaml'))
 lti = Blueprint('lti', __name__)
 
 @lti.route("/admin/", methods = ['POST'])
@@ -51,7 +51,7 @@ def admin_ims():
         if role.startswith(urn_role_base):
             roles.add(role[len(urn_role_base):])
 
-    admin_roles = Set(configs['standard_urn_admin_roles'])
+    admin_roles = Set(config['standard_urn_admin_roles'])
     current_users_roles = roles & admin_roles # Set intersection
 
     if len(current_users_roles) > 0:

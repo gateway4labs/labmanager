@@ -21,7 +21,7 @@ from functools import wraps
 # 
 # Flask imports
 # 
-from flask import render_template, request, session, redirect, url_for, flash
+from flask import render_template, request, session, redirect, url_for, flash, Blueprint
 
 # 
 # LabManager imports
@@ -35,6 +35,8 @@ from labmanager import app
 from labmanager.views import deletes_elements, get_authentication_scorm, retrieve_courses
 from labmanager.views.lms_admin import _login_as_lms
 
+
+labmanager = Blueprint('labmanager', __name__)
 
 ###############################################################################
 # 
@@ -63,7 +65,7 @@ def requires_labmanager_admin_session(f):
 # L O G I N 
 # 
 
-@app.route("/lms4labs/labmanager/admin/login", methods = ['GET', 'POST'])
+@labmanager.route("/admin/login", methods = ['GET', 'POST'])
 def admin_login():
     login_error = False
 
@@ -89,12 +91,12 @@ def admin_login():
 
     return render_template("labmanager_admin/login.html", login_error = login_error, next = request.args.get('next','') )
 
-@app.route("/lms4labs/labmanager/admin/logout", methods = ['GET', 'POST'])
+@labmanager.route("/admin/logout", methods = ['GET', 'POST'])
 def admin_logout():
     session.pop('logged_in', None)
     return redirect(url_for('admin_login'))
 
-@app.route("/lms4labs/labmanager/admin/logout/show", methods = ['GET', 'POST'])
+@labmanager.route("/admin/logout/show", methods = ['GET', 'POST'])
 def admin_before_logout():
     return render_template("labmanager_admin/logout.html")
 
@@ -104,7 +106,7 @@ def admin_before_logout():
 # 
 
 
-@app.route("/lms4labs/labmanager/admin/")
+@labmanager.route("/admin/")
 @requires_labmanager_admin_session
 def admin_index():
     return render_template("labmanager_admin/index.html")
@@ -114,7 +116,7 @@ def admin_index():
 # L M S 
 # 
 
-@app.route("/lms4labs/labmanager/admin/lms_authenticate_<lms_login>.zip")
+@labmanager.route("/admin/lms_authenticate_<lms_login>.zip")
 @requires_labmanager_admin_session
 @deletes_elements(LMS)
 def admin_lms_authenticate_scorm(lms_login):
@@ -124,7 +126,7 @@ def admin_lms_authenticate_scorm(lms_login):
 
     return get_authentication_scorm(db_lms.url)
 
-@app.route("/lms4labs/labmanager/admin/lms/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/lms/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 @deletes_elements(LMS)
 def admin_lms():
@@ -184,7 +186,7 @@ def _add_or_edit_lms(id):
 
     return render_template("labmanager_admin/lms_add.html", form = form, name = name)
 
-@app.route("/lms4labs/labmanager/admin/lms/<lms_login>/edit/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/lms/<lms_login>/edit/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_edit(lms_login):
     lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
@@ -193,12 +195,12 @@ def admin_lms_edit(lms_login):
 
     return _add_or_edit_lms(lms.id)
 
-@app.route("/lms4labs/labmanager/admin/lms/add/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/lms/add/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_add():
     return _add_or_edit_lms(id = None)
 
-@app.route("/lms4labs/labmanager/admin/lms/<lms_login>/login/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/lms/<lms_login>/login/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_lms_login(lms_login):
     return _login_as_lms(session['user_name'], lms_login)
@@ -208,7 +210,7 @@ def admin_lms_login(lms_login):
 # R L M S 
 # 
 
-@app.route("/lms4labs/labmanager/admin/rlms/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(RLMSType)
 def admin_rlms():
@@ -228,7 +230,7 @@ def admin_rlms():
 
     return render_template("labmanager_admin/rlms_types.html", types = types, supported = get_supported_types(), any_supported_missing = any_supported_missing)
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(RLMSTypeVersion)
 def admin_rlms_versions(rlmstype):
@@ -316,7 +318,7 @@ def _add_or_edit_rlms(rlmstype, rlmsversion, id):
     return render_template("labmanager_admin/rlms_rlms_add.html", rlmss = rlms_version.rlms, name = rlms_version.rlms_type.name, version = rlms_version.version, form = form)
 
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(RLMS)
 def admin_rlms_rlms(rlmstype, rlmsversion):
@@ -330,17 +332,17 @@ def admin_rlms_rlms(rlmstype, rlmsversion):
     return render_template("labmanager_admin/rlms_rlms.html", rlmss = rlms_version.rlms, name = rlms_version.rlms_type.name, version = rlms_version.version)
 
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/add/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_add(rlmstype, rlmsversion):
     return _add_or_edit_rlms(rlmstype, rlmsversion, None)
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_edit(rlmstype, rlmsversion, id):
     return _add_or_edit_rlms(rlmstype, rlmsversion, id)
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_list(rlmstype, rlmsversion, id):
@@ -367,7 +369,7 @@ def admin_rlms_rlms_list(rlmstype, rlmsversion, id):
 
     return render_template("labmanager_admin/rlms_rlms_list.html", laboratories = laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, confirmed_laboratory_ids = confirmed_laboratory_ids, rlms_id = rlms.id)
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/externals/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/externals/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 def admin_rlms_rlms_list_external(rlmstype, rlmsversion, id):
     rlms = db_session.query(RLMS).filter_by(id = id).first()
@@ -409,7 +411,7 @@ def get_lab_and_lms(rlmstype, rlmsversion, id, lab_id):
     return lab, rlms
 
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
@@ -446,7 +448,7 @@ def admin_rlms_rlms_lab_edit_permissions(rlmstype, rlmsversion, id, lab_id):
 
     return render_template("labmanager_admin/rlms_rlms_lab_edit_permissions.html", **template_variables)
 
-@app.route("/lms4labs/labmanager/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<lms_login>", methods = ('GET','POST'))
+@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/labs/<int:lab_id>/permissions/<lms_login>", methods = ('GET','POST'))
 @requires_labmanager_admin_session
 @deletes_elements(Laboratory)
 def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, lms_login):
@@ -518,7 +520,7 @@ def admin_rlms_rlms_lab_edit_permissions_lms(rlmstype, rlmsversion, id, lab_id, 
 # 
 
 
-@app.route("/lms4labs/labmanager/admin/user/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/user/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 @deletes_elements(LabManagerUser)
 def admin_users():
@@ -568,12 +570,12 @@ def _add_or_edit_user(id):
     return render_template("labmanager_admin/user_add.html", form = form, name = name)
 
 
-@app.route("/lms4labs/labmanager/admin/user/add/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/user/add/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_user_add():
     return _add_or_edit_user(id = None)
 
-@app.route("/lms4labs/labmanager/admin/user/<user_login>/edit/", methods = ['GET', 'POST'])
+@labmanager.route("/admin/user/<user_login>/edit/", methods = ['GET', 'POST'])
 @requires_labmanager_admin_session
 def admin_user_edit(user_login):
     user = db_session.query(LabManagerUser).filter_by(login = user_login).first()
