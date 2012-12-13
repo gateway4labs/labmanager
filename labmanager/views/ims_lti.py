@@ -18,12 +18,13 @@ from flask import Response, render_template, request, abort, Blueprint
 
 from labmanager.database import db_session
 from labmanager.models import NewLMS, Credential, NewRLMS, Permission, Experiment, NewCourse
-#from labmanager.rlms     import get_manager_class
+
+from labmanager.ims_lti import lti_blueprint as lti
+from labmanager.rlms import get_manager_class
 
 from error_codes import messages_codes
 
 config = yload(open('labmanager/config.yaml'))
-lti = Blueprint('lti', __name__)
 
 @lti.route("/admin/", methods = ['POST'])
 def admin_ims():

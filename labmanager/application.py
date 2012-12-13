@@ -30,9 +30,18 @@ app = Flask(__name__)
 app.config.from_object('config')
 app.secret_key = os.urandom(32)
 
+login_manager = LoginManager()
+login_manager.setup_app(app)
+login_manager.session_protection = "strong"
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.find(int(userid))
+
 @app.route('/favicon.ico')
 def favicon():
     return redirect(url_for('static', filename='favicon.ico'))
+
 
 @app.route("/")
 def index():
@@ -42,6 +51,7 @@ def index():
     #  redirect /login
     """Global index for the whole application."""
     return render_template("index.html")
+
 
 @app.route('/login', methods=['GET'])
 def login():
