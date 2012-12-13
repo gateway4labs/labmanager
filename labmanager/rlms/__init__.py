@@ -39,29 +39,28 @@ def is_supported(rlms_type, rlms_version):
     module_name = RLMSS.get(rlms_type, {}).get(rlms_version, None)
     return module_name is not None
 
-def get_module(rlms_type, rlms_version):
+def _get_module(rlms_type, rlms_version):
     module_name = RLMSS.get(rlms_type, {}).get(rlms_version, None)
     if module_name is None: 
         raise Exception("Misconfiguration: %s %s does not exist" % (rlms_type, rlms_version))
 
     return __import__(module_name, {}, {}, [ module_name ])
 
+def _get_form_creator(rlms_type, rlms_version):
+    return _get_module(rlms_type, rlms_version).FORM_CREATOR
+
 def get_form_class(rlms_type, rlms_version):
-    module = get_module(rlms_type, rlms_version)
-    return module.AddForm
+    form_creator = _get_form_creator(rlms_type, rlms_version)
+    return form_creator.get_add_form()
 
 def get_permissions_form_class(rlms_type, rlms_version):
-    module = get_module(rlms_type, rlms_version)
-    return module.PermissionForm
+    form_creator = _get_form_creator(rlms_type, rlms_version)
+    return form_creator.get_permission_form()
 
 def get_lms_permissions_form_class(rlms_type, rlms_version):
-    module = get_module(rlms_type, rlms_version)
-    return module.LmsPermissionForm
-
-def get_connetion_tester(rlms_type, rlms_version):
-    module = get_module(rlms_type, rlms_version)
-    return module.connection_tester
+    form_creator = _get_form_creator(rlms_type, rlms_version)
+    return form_creator.get_lms_permission_form()
 
 def get_manager_class(rlms_type, rlms_version):
-    module = get_module(rlms_type, rlms_version)
-    return module.ManagerClass
+    module = _get_module(rlms_type, rlms_version)
+    return module.RLMS
