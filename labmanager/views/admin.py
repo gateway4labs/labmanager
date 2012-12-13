@@ -101,9 +101,14 @@ class AdminPanel(AdminIndexView):
     @expose('/Permission/<int:id>/update/<status>')
     def update(self, id, status):
         Permission.find(id).change_status(status)
-        return redirect('/admin')
+        return redirect('/admin') # redirect to index
 
-def init_admin(labmanager, db_session):
+def init_admin(app, db_session):
+    """
+    Creates a whole administration interface using Flask Admin.
+    
+    It will add a blueprint called `admin` to the `app` flask application.
+    """
     admin = Admin(index_view = AdminPanel(), name='LabManager')
 
     admin.add_view(PermissionPanel(Permission, session=db_session, name='Permissions'))
@@ -117,4 +122,4 @@ def init_admin(labmanager, db_session):
 
     admin.add_view(LabmanagerUser(User, session=db_session, name='Users'))
 
-    admin.init_app(labmanager)
+    admin.init_app(app)

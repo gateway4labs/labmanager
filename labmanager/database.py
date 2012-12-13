@@ -13,14 +13,11 @@
 
 import json
 import hashlib
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
-from labmanager import app
-
-SQLALCHEMY_ENGINE_STR = app.config['SQLALCHEMY_ENGINE_STR']
-USE_PYMYSQL           = app.config.get('USE_PYMYSQL', False)
+from config import SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
 
 if USE_PYMYSQL:
     import pymysql_sa
