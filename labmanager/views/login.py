@@ -7,7 +7,8 @@ from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, lo
 
 from labmanager import app
 from labmanager.models import LMS, LabManagerUser as User, Credential
-
+from labmanager.views.ims_lti import lti
+from labmanager.views.lms import basic_auth
 from ims_lti_py import ToolProvider
 
 login_manager = LoginManager()
@@ -20,7 +21,7 @@ def init_login(labmanager):
 def load_user(userid):
     return User.find(int(userid))
 
-@app.before_request
+@lti.before_request
 def verify_credentials():
     auth = None
 
@@ -57,10 +58,6 @@ def verify_credentials():
 
         return
 
-    elif request.authorization:
-        requires_lms_auth()
-        return
-
     else:
         abort(403)
 
@@ -91,15 +88,14 @@ def logout():
     session.pop('loggeduser', None)
     return redirect('login')
 
-#
-# LMS authentication
-#
+
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
     lms = db_session.query(LMS).filter_by(lms_login = lmsname, lms_password = hash_password).first()
     g.lms = lmsname
     return lms is not None
 
+@basic_auth.before_request
 def requires_lms_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):

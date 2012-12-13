@@ -22,7 +22,7 @@ from functools import wraps
 # 
 # Flask imports
 # 
-from flask import render_template, request, g, session, redirect, url_for, flash, Response
+from flask import render_template, request, g, session, redirect, url_for, flash, Response, Blueprint
 
 # 
 # LabManager imports
@@ -31,9 +31,9 @@ from labmanager.database import db_session
 from labmanager.models   import LMS, Course, PermissionOnLaboratory, PermissionOnCourse
 from labmanager.rlms     import get_permissions_form_class
 
-from labmanager import app
 from labmanager.views import get_json, deletes_elements, get_scorm_object, get_authentication_scorm, retrieve_courses
-from labmanager.views.lms import requires_lms_auth
+
+lms_admin = Blueprint('lms_admin', __name__)
 
 ###############################################################################
 # 
@@ -50,16 +50,16 @@ def requires_lms_admin_session(f):
         logged_in    = session.get('logged_in', False)
         session_type = session.get('session_type', '')
         if not logged_in or session_type != 'lms_admin':
-            return 'Not authorized. If you are a LabManager administrator, download <a href="%s">this SCORM</a>, install it, and you will be able to administrate the system. Otherwise, you should ask your LMS to authenticate you through <a href="%s">%s</a>.' % (url_for('lms_admin_authenticate_scorm'), url_for('lms_admin_authenticate'), url_for('lms_admin_authenticate'))
+            return 'Not authorized. If you are a LabManager administrator, download <a href="%s">this SCORM</a>, install it, and you will be able to administrate the system. Otherwise, you should ask your LMS to authenticate you through <a href="%s">%s</a>.' % (url_for('lms_admin.lms_admin_authenticate_scorm'), url_for('lms_admin.lms_admin_authenticate'), url_for('lms_admin.lms_admin_authenticate'))
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/lms4labs/labmanager/lms/admin/logout", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/logout", methods = ['GET', 'POST'])
 def lms_admin_logout():
     session.pop('logged_in', None)
     referrer = session['referrer']
     if not referrer:
-        return redirect(url_for('index'))
+        return redirect(url_for('lms_admin.index'))
     else:
         return redirect(session['referrer'])
 
@@ -73,8 +73,7 @@ TOKENS = {
     # }
 }
 
-@app.route("/lms4labs/labmanager/lms/admin/authenticate/", methods = ['GET', 'POST'])
-@requires_lms_auth
+@lms_admin.route("/admin/authenticate/", methods = ['GET', 'POST'])
 def lms_admin_authenticate():
     """SCORM packages will perform requests to this method, which will 
     interact with the permitted laboratories"""
@@ -101,10 +100,10 @@ def _login_as_lms(user_name, lms_login):
     session['lms']           = lms_login
     session['referrer']       = request.referrer
 
-    return redirect(url_for('lms_admin_index'))
+    return redirect(url_for('lms_admin.lms_admin_index'))
 
 
-@app.route("/lms4labs/labmanager/lms/admin/authenticate/<token>")
+@lms_admin.route("/admin/authenticate/<token>")
 def lms_admin_redeem_authentication(token):
     token_info = TOKENS.pop(token, None)
     if token_info is None:
@@ -112,26 +111,27 @@ def lms_admin_redeem_authentication(token):
     return _login_as_lms(token_info['user_name'], token_info['lms'])
 
 
-@app.route("/lms4labs/labmanager/lms/")
+@lms_admin.route("/")
 def lms_index():
-    return redirect(url_for('lms_admin_index'))
+    print "coming in"
+    return redirect(url_for('lms_admin.lms_admin_index'))
 
-@app.route("/lms4labs/labmanager/lms/admin/")
+@lms_admin.route("/admin/")
 @requires_lms_admin_session
 def lms_admin_index():
     return render_template("lms_admin/index.html")
 
-@app.route("/lms4labs/labmanager/lms/admin/courses/", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/courses/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 @deletes_elements(Course)
 def lms_admin_courses():
     if request.method == 'POST':
         if request.form['action'] == 'add':
-            return redirect(url_for('lms_admin_external_courses'))
+            return redirect(url_for('lms_admin.lms_admin_external_courses'))
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     return render_template("lms_admin/courses.html", courses = db_lms.courses)
 
-@app.route("/lms4labs/labmanager/lms/admin/courses/<int:course_id>/", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/courses/<int:course_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 @deletes_elements(PermissionOnCourse)
 def lms_admin_courses_permissions(course_id):
@@ -156,11 +156,11 @@ def lms_admin_courses_permissions(course_id):
                 db_session.delete(permission_on_course)
                 db_session.commit()
                 
-            return redirect(url_for('lms_admin_courses_permissions', course_id = course_id))
+            return redirect(url_for('lms_admin.lms_admin_courses_permissions', course_id = course_id))
 
     return render_template("lms_admin/courses_permissions.html", permissions = db_lms.permissions, course = course, granted_permission_ids = granted_permission_ids)
 
-@app.route("/lms4labs/labmanager/lms/admin/courses/<int:course_id>/permissions/<int:permission_on_lab_id>/", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/courses/<int:course_id>/permissions/<int:permission_on_lab_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
@@ -196,7 +196,7 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
         else: # Already granted: edit it
             permission.configuration    = configuration
         db_session.commit()
-        return redirect(url_for('lms_admin_courses_permissions', course_id = course_id))
+        return redirect(url_for('lms_admin.lms_admin_courses_permissions', course_id = course_id))
 
     if permission is not None:
         configuration_dict = json.loads(permission.configuration or '{}')
@@ -206,7 +206,7 @@ def lms_admin_courses_permissions_edit(course_id, permission_on_lab_id):
 
     return render_template("lms_admin/courses_permissions_add.html", course = course, form = form, lab = lab)
 
-@app.route("/lms4labs/labmanager/lms/admin/courses/external/", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/courses/external/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_external_courses():
     q     = request.args.get('q','')
@@ -262,11 +262,11 @@ def lms_admin_external_courses():
                 db_course = Course(db_lms, course_id, course_dict[course_id])
                 db_session.add(db_course)
         db_session.commit()
-        return redirect(url_for('lms_admin_courses'))
+        return redirect(url_for('lms_admin.lms_admin_courses'))
 
     return render_template("lms_admin/courses_external.html", courses = courses, existing_course_ids = existing_course_ids, q = q, current_page = current_page, number = number, current_pages = current_pages, per_page = per_page, start = start)
     
-@app.route("/lms4labs/labmanager/lms/admin/scorms/files/scorm_<laboratory_identifier>.zip", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/scorms/files/scorm_<laboratory_identifier>.zip", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_scorm(laboratory_identifier):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
@@ -288,7 +288,7 @@ def lms_admin_scorm(laboratory_identifier):
     content = get_scorm_object(False, laboratory_identifier, lms_path, extension)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % laboratory_identifier})
 
-@app.route("/lms4labs/labmanager/lms/admin/authenticate_scorm.zip", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/authenticate_scorm.zip", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_authenticate_scorm():
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
@@ -298,7 +298,7 @@ def lms_admin_authenticate_scorm():
 
     return get_authentication_scorm(db_lms.url)
 
-@app.route("/lms4labs/labmanager/lms/admin/scorms/", methods = ['GET', 'POST'])
+@lms_admin.route("/admin/scorms/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
 def lms_admin_scorms():
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()

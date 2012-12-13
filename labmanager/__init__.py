@@ -15,7 +15,7 @@
 # Flask imports
 #
 import os, sys
-from flask import Flask
+from flask import Flask, Blueprint
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -33,8 +33,14 @@ for _rlms in _RLMSs:
     __import__('labmanager.rlms.ext.%s' % _rlms)
 
 from labmanager.database import db_session
+from labmanager.views import lms, ims_lti, lms_admin, load
 from labmanager.views.admin import init_admin
 from labmanager.views.login import init_login
+
+app.register_blueprint(lms.basic_auth)
+app.register_blueprint(ims_lti.lti, url_prefix='/lti')
+app.register_blueprint(lms_admin.lms_admin, url_prefix='/lms4labs/labmanager/lms')
+
 init_admin(app, db_session)
 init_login(app)
 
@@ -42,7 +48,6 @@ init_login(app)
 def shutdown_session(exception = None):
     db_session.remove()
 
-from labmanager.views import load
 load()
 
 def run():
