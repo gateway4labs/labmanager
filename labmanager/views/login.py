@@ -60,33 +60,6 @@ def verify_credentials():
         abort(403)
 
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST' and 'username' in request.form:
-        username = request.form['username']
-        hashed = new_hash("sha", request.form['password']).hexdigest()
-        user = User.exists(username, hashed)
-        if user is not None:
-            if login_user(user):
-                session['loggeduser'] = username
-                session['last_request'] = time()
-                return redirect(url_for('admin.index'))
-            else:
-                flash(u'Could not log in.')
-        else:
-            flash(u'Invalid username.')
-    return render_template('login.html')
-
-
-@app.route("/logout", methods=['GET'])
-@login_required
-def logout():
-    logout_user()
-    session.pop('loggeduser', None)
-    return redirect('login')
-
-
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
     lms = db_session.query(LMS).filter_by(lms_login = lmsname, lms_password = hash_password).first()
