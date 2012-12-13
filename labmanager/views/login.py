@@ -30,13 +30,11 @@ def verify_credentials():
     if 'consumer' in session:
         if float(session['last_request']) - time() < 60 * 60 * 5: # Five Hours
             session['last_request'] = time()
-            print "good boy!"
             return
 
     elif 'loggeduser' in session:
         if float(session['last_request']) - time() < 60 * 5: # Five minutes
             session['last_request'] = time()
-            print "good boy!"
             return
 
     if 'oauth_consumer_key' in request.form:
