@@ -20,9 +20,9 @@ from labmanager.data import Laboratory
 
 from .weblabdeusto_client import WebLabDeustoClient
 from .weblabdeusto_data import ExperimentId
-from .base import BaseRLMS
+from .base import BaseRLMS, BaseFormCreator
 
-class AddForm(AddForm):
+class WebLabDeustoAddForm(AddForm):
 
     remote_login = TextField("Login",        validators = [Required()])
     password     = PasswordField("Password")
@@ -32,7 +32,7 @@ class AddForm(AddForm):
     mappings     = TextField("Mappings",     validators = [Required()], default = "{}")
 
     def __init__(self, add_or_edit, *args, **kwargs):
-        super(AddForm, self).__init__(*args, **kwargs)
+        super(WebLabDeustoAddForm, self).__init__(*args, **kwargs)
         self.add_or_edit = add_or_edit
 
     @staticmethod
@@ -70,7 +70,7 @@ class AddForm(AddForm):
             if '@' not in value:
                 raise ValidationError("Value format: experiment_name@experiment_category ")
 
-class PermissionForm(RetrospectiveForm):
+class WebLabDeustoPermissionForm(RetrospectiveForm):
     priority = TextField("Priority")
     time     = TextField("Time (in seconds)")
 
@@ -85,16 +85,28 @@ class PermissionForm(RetrospectiveForm):
     validate_priority = validate_number
     validate_time     = validate_number
 
-class LmsPermissionForm(PermissionForm, GenericPermissionForm):
+class WebLabDeustoLmsPermissionForm(WebLabDeustoPermissionForm, GenericPermissionForm):
     pass
 
-def connection_tester(configuration):
-    json.loads(configuration)
-    # TODO
-    return None
+class WebLabFormCreator(BaseFormCreator):
 
-class ManagerClass(BaseRLMS):
+    def get_add_form(self):
+        return WebLabDeustoAddForm
+
+    def get_permission_form(self):
+        return WebLabDeustoPermissionForm
+
+    def get_lms_permission_form(self):
+        return WebLabDeustoLmsPermissionForm
+
+FORM_CREATOR = WebLabFormCreator()
+
+class RLMS(BaseRLMS):
+
     def __init__(self, configuration):
+
+        self.configuration = configuration
+
         config = json.loads(configuration or '{}')
         self.login    = config.get('remote_login')
         self.password = config.get('password')
@@ -102,6 +114,11 @@ class ManagerClass(BaseRLMS):
         
         if self.login is None or self.password is None or self.base_url is None:
             raise Exception("Laboratory misconfigured: fields missing" )
+
+    def test(self):
+        json.loads(self.configuration)
+        # TODO
+        return None
 
     def get_laboratories(self):
         client = WebLabDeustoClient(self.base_url)
