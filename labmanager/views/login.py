@@ -1,8 +1,8 @@
 from hashlib import new as new_hash
-
+from time import time
 from functools import wraps
 
-from flask import Response, render_template, request, g, abort, flash, redirect, url_for
+from flask import Response, render_template, request, g, abort, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
 
 from labmanager import app
@@ -20,9 +20,21 @@ def init_login(labmanager):
 def load_user(userid):
     return User.find(int(userid))
 
-@app.before_first_request
+@app.before_request
 def verify_credentials():
     auth = None
+
+    if 'consumer' in session:
+        if float(session['last_request']) - time() < 60 * 60 * 5: # Five Hours
+            session['last_request'] = time()
+            print "good boy!"
+            return
+
+    elif 'loggeduser' in session:
+        if float(session['last_request']) - time() < 60 * 5: # Five minutes
+            session['last_request'] = time()
+            print "good boy!"
+            return
 
     if 'oauth_consumer_key' in request.form:
         consumer_key = request.form['oauth_consumer_key']
@@ -30,7 +42,6 @@ def verify_credentials():
 
         # check for nonce
         # check for old requests
-        # Cross reference information
 
         if auth is None:
             abort(412)
@@ -41,13 +52,18 @@ def verify_credentials():
         if (tool_provider.valid_request(request) == False):
             abort(403)
 
+        session['consumer'] = consumer_key
+        session['last_request'] = time()
+
+        return
+
     elif request.authorization:
         requires_lms_auth()
         return
 
     else:
-        flash('Bypassing authorization')
-        return
+        abort(403)
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -58,6 +74,8 @@ def login():
         user = User.exists(username, hashed)
         if user is not None:
             if login_user(user):
+                session['loggeduser'] = username
+                session['last_request'] = time()
                 return redirect(url_for('admin.index'))
             else:
                 flash(u'Could not log in.')
@@ -65,10 +83,12 @@ def login():
             flash(u'Invalid username.')
     return render_template('login.html')
 
+
 @app.route("/logout", methods=['GET'])
 @login_required
 def logout():
     logout_user()
+    session.pop('loggeduser', None)
     return redirect('login')
 
 #

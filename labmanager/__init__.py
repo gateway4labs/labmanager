@@ -19,6 +19,7 @@ from flask import Flask
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.secret_key = os.urandom(32)
 
 from labmanager.database import db_session
 from labmanager.views.admin import init_admin
