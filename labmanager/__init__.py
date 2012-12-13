@@ -18,18 +18,20 @@ import os, sys
 
 from labmanager.views import lms, ims_lti, lms_admin, load, labmanager_admin
 from labmanager.views.admin import init_admin
-from labmanager.views.login import init_login
+from labmanager.ims_lti import lti_blueprint
+# from labmanager.views.login import init_login
+
 from config import RLMS as _RLMSs
 from application import app, db_session
 
 app.register_blueprint(lms.basic_auth)
 app.register_blueprint(labmanager_admin.labmanager, url_prefix='/lms4labs/labmanager')
-app.register_blueprint(ims_lti.lti, url_prefix='/lti')
+app.register_blueprint(lti_blueprint, url_prefix='/lti')
 
 # app.register_blueprint(lms_admin.lms_admin, url_prefix='/lms4labs/labmanager/lms')
 
 init_admin(app, db_session)
-init_login(app)
+# init_login(app)
 
 load()
 

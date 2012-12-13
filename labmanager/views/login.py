@@ -9,55 +9,6 @@ from labmanager import app
 from labmanager.models import LMS, LabManagerUser as User, Credential
 from labmanager.views.ims_lti import lti
 from labmanager.views.lms import basic_auth
-from ims_lti_py import ToolProvider
-
-login_manager = LoginManager()
-
-def init_login(labmanager):
-    login_manager.setup_app(labmanager)
-    login_manager.session_protection = "strong"
-
-@login_manager.user_loader
-def load_user(userid):
-    return User.find(int(userid))
-
-@lti.before_request
-def verify_credentials():
-    auth = None
-
-    if 'consumer' in session:
-        if float(session['last_request']) - time() < 60 * 60 * 5: # Five Hours
-            session['last_request'] = time()
-            return
-
-    elif 'loggeduser' in session:
-        if float(session['last_request']) - time() < 60 * 5: # Five minutes
-            session['last_request'] = time()
-            return
-
-    if 'oauth_consumer_key' in request.form:
-        consumer_key = request.form['oauth_consumer_key']
-        auth = Credential.find_by_key(consumer_key)
-
-        # check for nonce
-        # check for old requests
-
-        if auth is None:
-            abort(412)
-
-        secret = auth.secret
-        tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
-
-        if (tool_provider.valid_request(request) == False):
-            abort(403)
-
-        session['consumer'] = consumer_key
-        session['last_request'] = time()
-
-        return
-
-    else:
-        abort(403)
 
 
 def check_lms_auth(lmsname, password):
