@@ -81,7 +81,7 @@ def admin_ims():
         return render_template('lti/unknown_role.html', info=data)
 
 
-@lti.route('/request_permission/', methods = ['POST'])
+@lti.route('/admin/request_permission/', methods = ['POST'])
 def permission_request():
     data = {}
     choice_data = []
