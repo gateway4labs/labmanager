@@ -15,7 +15,7 @@
 # Flask imports
 #
 import os, sys
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, render_template
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -33,16 +33,28 @@ for _rlms in _RLMSs:
     __import__('labmanager.rlms.ext.%s' % _rlms)
 
 from labmanager.database import db_session
-from labmanager.views import lms, ims_lti, lms_admin, load
+from labmanager.views import lms, ims_lti, lms_admin, load, labmanager_admin
 from labmanager.views.admin import init_admin
 from labmanager.views.login import init_login
 
 app.register_blueprint(lms.basic_auth)
+app.register_blueprint(labmanager_admin.labmanager, url_prefix='/lms4labs/labmanager')
 app.register_blueprint(ims_lti.lti, url_prefix='/lti')
 app.register_blueprint(lms_admin.lms_admin, url_prefix='/lms4labs/labmanager/lms')
 
 init_admin(app, db_session)
 init_login(app)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='favicon.ico'))
+
+
+@app.route("/")
+def index():
+  """Global index for the whole application."""
+  return render_template("index.html")
 
 @app.teardown_request
 def shutdown_session(exception = None):
