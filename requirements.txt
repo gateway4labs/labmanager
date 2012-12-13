@@ -11,3 +11,4 @@ Flask-Admin
 simplejson
 flask-login
 pyyaml
+git+https://github.com/lms4labs/rlms_weblabdeusto.git

@@ -11,40 +11,41 @@
   :license: BSD, see LICENSE for more details
 """
 
+import sys
+
 # 
 # Add the proper managers by pointing to a module
 # 
 
-RLMSS = {
-    # "RLMS type" : {
-    #     "version" : "full.module.path",
-    # },
-    "WebLab-Deusto" : {
-        "4.0" : 'labmanager.rlms.weblabdeusto',
-    },
-    "iLab" : {
-        "4.5" : 'labmanager.rlms.ilab',
-    },
+_RLMSs = {
+    # "RLMS type" :  <module>, 
+
+    # e.g.
+    # "WebLab-Deusto" : ( labmanager.rlms.ext.weblabdeusto, ['4.0'] ),
 }
 
+def register(name, versions, module_name):
+    _RLMSs[name] = (module_name, versions)
+
 def get_supported_types():
-    return RLMSS.keys()
+    return _RLMSs.keys()
         
 def get_supported_versions(rlms_type):
-    if rlms_type in RLMSS:
-        return RLMSS[rlms_type].keys()
+    if rlms_type in _RLMSs:
+        _, versions = _RLMSs[rlms_type]
+        return versions
     return []
 
 def is_supported(rlms_type, rlms_version):
-    module_name = RLMSS.get(rlms_type, {}).get(rlms_version, None)
-    return module_name is not None
+    _, versions = _RLMSs.get(rlms_type, (None, []))
+    return rlms_version in versions
 
 def _get_module(rlms_type, rlms_version):
-    module_name = RLMSS.get(rlms_type, {}).get(rlms_version, None)
-    if module_name is None: 
+    module_name, versions = _RLMSs.get(rlms_type, (None, []))
+    if rlms_version in versions:
+        return sys.modules[module_name].get_module(rlms_version)
+    else:
         raise Exception("Misconfiguration: %s %s does not exist" % (rlms_type, rlms_version))
-
-    return __import__(module_name, {}, {}, [ module_name ])
 
 def _get_form_creator(rlms_type, rlms_version):
     return _get_module(rlms_type, rlms_version).FORM_CREATOR
