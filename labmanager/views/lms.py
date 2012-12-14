@@ -33,8 +33,7 @@ from labmanager.rlms     import get_manager_class
 
 from labmanager.views import get_json
 from error_codes import messages_codes
-
-basic_auth = Blueprint('basic_auth', __name__)
+from labmanager.scorm_package import scorm_blueprint as basic_auth
 
 ###############################################################################
 #
