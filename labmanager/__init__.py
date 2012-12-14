@@ -21,10 +21,12 @@ from labmanager.views.admin import init_admin
 from labmanager.ims_lti import lti_blueprint
 # from labmanager.views.login import init_login
 
+from labmanager.scorm_package import scorm_blueprint
+
 from config import RLMS as _RLMSs
 from application import app, db_session
 
-app.register_blueprint(lms.basic_auth)
+app.register_blueprint(scorm_blueprint)
 app.register_blueprint(labmanager_admin.labmanager, url_prefix='/lms4labs/labmanager')
 app.register_blueprint(lti_blueprint, url_prefix='/lti')
 
