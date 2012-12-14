@@ -6,7 +6,7 @@ from flask.ext.login import current_user
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
-from labmanager.models import Credential
+from labmanager.models import Credential, NewLMS, NewCourse
 
 config = yload(open('labmanager/config.yaml'))
 
@@ -20,14 +20,21 @@ class CredentialForm(InlineFormAdmin):
         return form
 
 class LMSPanel(ModelView):
-    category = 'LMS'
-    name = 'LMS'
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        default_args = { "category":u"LMS", "name":u"LMS" }
+        default_args.update(**kwargs)
+        super(LMSPanel, self).__init__(NewLMS, session, **default_args)
+
     inline_models = (CredentialForm(Credential),)
 
     def is_accessible(self):
         return current_user.is_authenticated()
 
 class CoursePanel(ModelView):
-    category = 'LMS'
-    name = 'Courses'
-    pass
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        default_args = { "category":u"LMS", "name":u"Courses" }
+        default_args.update(**kwargs)
+        super(CoursePanel, self).__init__(NewCourse, session, **default_args)
+
