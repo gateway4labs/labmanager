@@ -12,14 +12,14 @@ from labmanager.models import LabManagerUser as User
 from labmanager.models import NewLMS, Permission, Experiment, NewRLMS, Credential, NewCourse
 from labmanager.database import db_session as DBS
 
-configs = yload(open('labmanager/config.yaml'))
+config = yload(open('labmanager/config.yaml'))
 
 class PermissionPanel(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated()
 
     form_columns = ('newlms','newcourse','experiment','configuration','access')
-    sel_choices = [(status, status.title()) for status in configs['permission_status']]
+    sel_choices = [(status, status.title()) for status in config['permission_status']]
     form_overrides = dict(access=wtf.SelectField)
     form_args = dict(
         access=dict( choices=sel_choices )
@@ -30,7 +30,7 @@ class LabmanagerUser(ModelView):
         return current_user.is_authenticated()
 
     form_columns = ('name', 'login', 'password', 'access_level')
-    sel_choices = [(level, level.title()) for level in configs['user_access_level']]
+    sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(access_level=wtf.SelectField)
     form_args = dict(
         access_level=dict( choices=sel_choices )
@@ -41,7 +41,7 @@ class CredentialForm(InlineFormAdmin):
     excluded_form_fields = ('id')
 
     def postprocess_form(self, form):
-        sel_choices =  [ (x , x.title()) for x in configs['authentication_types']]
+        sel_choices =  [ (x , x.title()) for x in config['authentication_types']]
         form.kind = wtf.SelectField(u'Kind', choices=sel_choices)
         return form
 
@@ -55,8 +55,8 @@ class RLMSPanel(ModelView):
     form_columns = ('kind', 'location', 'url')
     column_exclude_list = ('version')
     sel_choices = []
-    for ins_rlms in configs['installed_rlms']:
-        for ver in configs['installed_rlms'][ins_rlms]:
+    for ins_rlms in config['installed_rlms']:
+        for ver in config['installed_rlms'][ins_rlms]:
             sel_choices.append(("%s<>%s" % (ins_rlms, ver),"%s - %s" % (ins_rlms.title(), ver)) )
     form_overrides = dict(kind=wtf.SelectField)
     form_args = dict(
