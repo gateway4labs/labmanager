@@ -1,15 +1,5 @@
-from hashlib import new as new_hash
-from time import time
-from functools import wraps
-
-from flask import Response, render_template, request, g, abort, flash, redirect, url_for, session
-from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
-
-from labmanager import app
-from labmanager.models import LMS, LabManagerUser as User, Credential
-from labmanager.views.ims_lti import lti
-from labmanager.views.lms import basic_auth
-
+from flask import Response, render_template, request, g, abort, Blueprint
+scorm_blueprint = Blueprint('basic_auth', __name__)
 
 def check_lms_auth(lmsname, password):
     hash_password = hashlib.new("sha", password).hexdigest()
@@ -17,7 +7,7 @@ def check_lms_auth(lmsname, password):
     g.lms = lmsname
     return lms is not None
 
-@basic_auth.before_request
+@scorm_blueprint.before_request
 def requires_lms_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
