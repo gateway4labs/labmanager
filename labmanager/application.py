@@ -9,7 +9,7 @@
 """
   :copyright: 2012 Pablo Orduña, Elio San Cristobal, Alberto Pesquera Martín
   :license: BSD, see LICENSE for more details
-  
+
   This will handle the main application routes. It will be in charge of
   registering all the blueprint that it needs and exposing some of the
   basic routes (like login and logout).
@@ -26,6 +26,8 @@ from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, lo
 from labmanager.database import db_session
 from labmanager.models import LMS, LabManagerUser as User, Credential
 
+from labmanager.admin import init_admin
+
 app = Flask(__name__)
 app.config.from_object('config')
 app.secret_key = os.urandom(32)
@@ -33,6 +35,8 @@ app.secret_key = os.urandom(32)
 login_manager = LoginManager()
 login_manager.setup_app(app)
 login_manager.session_protection = "strong"
+
+init_admin(app, db_session)
 
 @login_manager.user_loader
 def load_user(userid):
