@@ -5,11 +5,17 @@ from flask.ext import wtf
 from flask.ext.login import current_user
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
+from labmanager.models import Permission, Experiment, NewRLMS
+
 config = yload(open('labmanager/config.yaml'))
 
 class RLMSPanel(ModelView):
-    name = 'RLMS'
-    category = 'ReLMS'
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        default_args = { "category":u"ReLMS", "name":u"RLMS" }
+        default_args.update(**kwargs)
+        super(RLMSPanel, self).__init__(NewRLMS, session, **default_args)
+
     form_columns = ('kind', 'location', 'url')
     column_exclude_list = ('version')
     sel_choices = []
@@ -30,12 +36,20 @@ class RLMSPanel(ModelView):
         return current_user.is_authenticated()
 
 class ExperimentPanel(ModelView):
-    name = 'Experiments'
-    category = 'ReLMs'
-    pass
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        default_args = { "category":u"ReLMS", "name":u"Experiments" }
+        default_args.update(**kwargs)
+        super(ExperimentPanel, self).__init__(Experiment, session, **default_args)
+
 
 class PermissionPanel(ModelView):
-    name = 'Permissions'
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        default_args = { "name":u"Permissions" }
+        default_args.update(**kwargs)
+        super(PermissionPanel, self).__init__(Permission, session, **default_args)
+
     def is_accessible(self):
         return current_user.is_authenticated()
 

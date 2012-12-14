@@ -9,12 +9,12 @@ from flask.ext.admin import expose, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
 from labmanager.models import Permission
+from labmanager.models import LabManagerUser as User
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yaml'))
 
 class AdminPanel(AdminIndexView):
-    name = 'LabManager'
     def is_accessible(self):
         return current_user.is_authenticated()
 
@@ -47,7 +47,12 @@ class AdminPanel(AdminIndexView):
         return redirect('/admin') # redirect to index
 
 class UsersPanel(ModelView):
-    name = 'Users'
+    def __init__(self, session, **kwargs):
+        # You can pass name and other parameters if you want to
+        default_args = { "name":u"Users" }
+        default_args.update(**kwargs)
+        super(UsersPanel, self).__init__(User, session, **default_args)
+
     def is_accessible(self):
         return current_user.is_authenticated()
 
