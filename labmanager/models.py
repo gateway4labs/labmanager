@@ -1,5 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
-# 
+#
 # lms4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
 # lms4labs is distributed in the hope that it will be useful,
@@ -45,7 +45,7 @@ class LMS(Base):
 
     lms_login           = Column(Unicode(50), nullable = False, unique=True)
     lms_password        = Column(Unicode(50), nullable = False) # hash
-    
+
     labmanager_login    = Column(Unicode(50), nullable = False)
     labmanager_password = Column(Unicode(50), nullable = False) # plaintext: my password there
 
@@ -80,9 +80,11 @@ class LabManagerUser(Base, SBBase, UserMixin):
     def __unicode__(self):
         return "%s (%s)" % (self.name, self.access_level)
 
+
     @classmethod
     def exists(self, login, word):
         return DBS.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
+
 
 class RLMSType(Base):
     __tablename__ = 'RLMS_types'
@@ -115,7 +117,7 @@ class RLMSTypeVersion(Base):
 
 class RLMS(Base):
     __tablename__ = 'RLMSs'
-    
+
     id = Column(Integer, primary_key = True)
 
     name     = Column(Unicode(100), nullable = False)
@@ -123,7 +125,7 @@ class RLMS(Base):
     rlms_version_id = Column(Integer, ForeignKey('RLMS_type_versions.id'), nullable = False)
 
     configuration = Column(Unicode(10 * 1024)) # JSON document
-    
+
     rlms_version = relation(RLMSTypeVersion.__name__, backref = backref('rlms', order_by=id, cascade = 'all,delete'))
 
     def __init__(self, name = None, location = None, rlms_version = None, configuration = None):
@@ -196,7 +198,7 @@ class Course(Base):
 class PermissionOnCourse(Base):
     __tablename__  = 'PermissionOnCourses'
     __table_args__ = (UniqueConstraint('course_id', 'permission_on_lab_id'),)
-    
+
     id = Column(Integer, primary_key = True)
 
     configuration        = Column(Unicode(10 * 1024)) # JSON document
