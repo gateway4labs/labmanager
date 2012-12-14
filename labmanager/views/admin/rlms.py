@@ -42,6 +42,9 @@ class ExperimentPanel(ModelView):
         default_args.update(**kwargs)
         super(ExperimentPanel, self).__init__(Experiment, session, **default_args)
 
+    def is_accessible(self):
+        return current_user.is_authenticated()
+
 
 class PermissionPanel(ModelView):
     def __init__(self, session, **kwargs):

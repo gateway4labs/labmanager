@@ -40,3 +40,6 @@ class CoursePanel(ModelView):
         default_args.update(**kwargs)
         super(CoursePanel, self).__init__(NewCourse, session, **default_args)
 
+    def is_accessible(self):
+        return current_user.is_authenticated()
+
