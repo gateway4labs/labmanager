@@ -20,6 +20,8 @@ class CredentialForm(InlineFormAdmin):
         return form
 
 class LMSPanel(ModelView):
+    # los que se muestran en el index, son current_user.accessible_lmss()
+
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
         default_args = { "category":u"LMS", "name":u"LMS" }
