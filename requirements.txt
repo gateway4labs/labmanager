@@ -12,3 +12,4 @@ simplejson
 flask-login
 pyyaml
 git+https://github.com/lms4labs/rlms_weblabdeusto.git
+git+https://github.com/lms4labs/rlms_unr.git
