@@ -3,9 +3,11 @@ from hashlib import new as new_hash
 from functools import wraps
 
 from flask import Response, render_template, request, g, abort, flash, redirect, url_for
-from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
+from flask.ext.login import LoginManager, login_user, logout_user, login_required
 
 from labmanager import app
+from labmanager.views import get_json
+from labmanager.database import db_session
 from labmanager.models import LMS, LabManagerUser as User, Credential
 
 from ims_lti_py import ToolProvider
@@ -75,7 +77,7 @@ def logout():
 # LMS authentication
 #
 def check_lms_auth(lmsname, password):
-    hash_password = hashlib.new("sha", password).hexdigest()
+    hash_password = new_hash("sha", password).hexdigest()
     lms = db_session.query(LMS).filter_by(lms_login = lmsname, lms_password = hash_password).first()
     g.lms = lmsname
     return lms is not None
