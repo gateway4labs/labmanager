@@ -13,8 +13,10 @@ class Permission(Base, SBBase):
     experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     course_id = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
-#    resource_link_id = Column(Integer)
     configuration = Column(Unicode(10 * 1024), nullable = True)
+
+    experiment = relation('Experiment', backref=backref('permissions', order_by=id, cascade='all, delete'))
+    newlms = relation('NewLMS', backref=backref('permissions_on_experiments', order_by=id, cascade='all, delete'))
 
     def __init__(self, lms = None, context = None, experiment = None,
                  access = u"pending"):

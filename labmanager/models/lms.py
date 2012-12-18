@@ -35,10 +35,6 @@ class NewLMS(Base, SBBase):
     name = Column(Unicode(50), nullable = False)
     url = Column(Unicode(300), nullable = False)
 
-    permissions_on_experiments = relation('Permission', backref=backref('newlms', order_by=id))
-    authentications = relation('Credential', backref=backref('newlms', order_by=id))
-    courses = relation('NewCourse', backref=backref('newlms', order_by=id))
-
     def __init__(self, name = None, url = None):
         self.name = name
         self.url = url

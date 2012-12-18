@@ -11,7 +11,7 @@ class Experiment(Base):
     rlms_id = Column(Integer, ForeignKey('newrlmss.id'), nullable = False)
     url = Column(Unicode(300), nullable = False)
 
-    permissions = relation('Permission', backref=backref('experiment', order_by=id))
+    newrlms = relation('NewRLMS', backref=backref('experiments', cascade='all,delete'))
 
     def __init__(self, name = None, rlms = None, url = None):
         self.name = name

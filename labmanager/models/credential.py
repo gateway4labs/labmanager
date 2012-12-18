@@ -11,6 +11,8 @@ class Credential(Base):
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     secret = Column(Unicode(50), nullable = False)
 
+    newlms = relation('NewLMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
+
     def __init__(self, key = None, secret = None, kind = None, lms = None):
         self.key = key
         self.secret = secret

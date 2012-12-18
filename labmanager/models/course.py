@@ -13,6 +13,7 @@ class NewCourse(Base, SBBase):
     context_id = Column(Unicode(50), nullable = False)
 
     permissions = relation('Permission', backref=backref('newcourse', order_by=id))
+    newlms = relation('NewLMS', backref=backref('courses', order_by=id, cascade='all, delete'))
 
     def __init__(self, name = None, lms = None, context_id = None):
         self.name = name

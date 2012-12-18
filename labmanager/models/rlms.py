@@ -63,8 +63,6 @@ class NewRLMS(Base, SBBase):
     url = Column(Unicode(300), nullable = False)
     version = Column(Unicode(50), nullable = False)
 
-    experiments = relation('Experiment', backref=backref('newrlms', order_by=id))
-
     def __init__(self, kind = None, url = None, location = None, version = None):
         self.kind = kind
         self.location = location
