@@ -50,6 +50,10 @@ def load_rlms_modules():
     for _rlms in _RLMSs:
         __import__('labmanager.rlms.ext.%s' % _rlms)
 
+# This will register all the RLMSs in the global registry. So it will
+# always be called (regardles we're using the Flask debugger or a WSGI
+# environment).
+load_rlms_modules()
 
 def run():
     port = int(os.environ.get('PORT', 5000))
@@ -57,4 +61,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-    load_rlms_modules()

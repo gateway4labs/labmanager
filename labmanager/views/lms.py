@@ -33,7 +33,7 @@ from labmanager.rlms     import get_manager_class
 
 from labmanager.views import get_json
 from error_codes import messages_codes
-from labmanager.scorm_package import scorm_blueprint as basic_auth
+from labmanager.scorm_package import scorm_blueprint
 
 ###############################################################################
 #
@@ -44,7 +44,7 @@ from labmanager.scorm_package import scorm_blueprint as basic_auth
 #
 #
 
-@basic_auth.route("/lms4labs/labmanager/requests/", methods = ['GET', 'POST'])
+@scorm_blueprint.route("/lms4labs/labmanager/requests/", methods = ['GET', 'POST'])
 def requests():
     """SCORM packages will perform requests to this method, which will
     interact with the permitted laboratories"""
