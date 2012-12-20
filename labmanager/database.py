@@ -154,10 +154,10 @@ def add_sample_users():
                      url = u"http://moodle.com.co.co")
     db_session.add(newlms1)
 
-    newrlms1 = NewRLMS(kind = u"Deusto",
+    newrlms1 = NewRLMS(kind = u"weblabdeusto",
                        location = u"Deusto Spain",
                        url = u"labs.deusto.com",
-                       version = u"4.0.1")
+                       version = u"4.0")
     db_session.add(newrlms1)
 
     newrlms2 = NewRLMS(kind = u'iLabs',

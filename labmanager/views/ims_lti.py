@@ -14,22 +14,18 @@
 from sets import Set
 from yaml import load as yload
 
-from flask import Response, render_template, request, abort, Blueprint
+from flask import render_template, request, redirect
 
-from labmanager.database import db_session
 from labmanager.models import NewLMS, Credential, NewRLMS, Permission, Experiment, NewCourse
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
-from error_codes import messages_codes
-
 config = yload(open('labmanager/config.yaml'))
 
 @lti.route("/admin/", methods = ['POST'])
 def admin_ims():
-    message = ""
-    response = ""
+    response = None
 
     consumer_key = request.form['oauth_consumer_key']
     auth = Credential.find_by_key(consumer_key)
@@ -75,12 +71,13 @@ def admin_ims():
             data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
             data['rlms_ids'][remote.kind] = remote.id
 
-        return render_template('lti/administrator_tool_setup.html', info=data)
+        response = render_template('lti/administrator_tool_setup.html', info=data)
 
     else:
         data['role'] = split_roles[0]
-        return render_template('lti/unknown_role.html', info=data)
+        response = render_template('lti/unknown_role.html', info=data)
 
+    return response
 
 @lti.route('/admin/request_permission/', methods = ['POST'])
 def permission_request():
@@ -115,7 +112,6 @@ def permission_request():
 
 @lti.route("/", methods = ['POST'])
 def start_ims():
-    message = ""
     response = ""
 
     consumer_key = request.form['oauth_consumer_key']
@@ -176,6 +172,7 @@ def launch_experiment(experiment=None):
 
     if (experiment):
         response = experiment
+
     else:
         response = "No soup for you!"
 

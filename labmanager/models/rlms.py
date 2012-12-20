@@ -63,6 +63,8 @@ class NewRLMS(Base, SBBase):
     url = Column(Unicode(300), nullable = False)
     version = Column(Unicode(50), nullable = False)
 
+    configuration = Column(Unicode(10 * 1024))
+
     def __init__(self, kind = None, url = None, location = None, version = None):
         self.kind = kind
         self.location = location

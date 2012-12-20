@@ -32,7 +32,7 @@ class RLMSPanel(ModelView):
         model.kind, model.version = rlms_ver[0], rlms_ver[1]
         pass
 
-    def is_accesible(self):
+    def is_accessible(self):
         return current_user.is_authenticated()
 
 class ExperimentPanel(ModelView):

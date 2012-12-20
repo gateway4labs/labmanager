@@ -9,7 +9,7 @@ from flask.ext.admin import expose, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
 from labmanager.models import Permission
-from labmanager.models import LabManagerUser as User
+from labmanager.models import LabManagerUser as User, NewLMS, NewCourse, Experiment
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yaml'))

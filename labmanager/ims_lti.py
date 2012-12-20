@@ -1,5 +1,9 @@
-from flask import Response, render_template, request, abort, Blueprint
+from time import time
+
+from flask import request, abort, Blueprint, session
 from ims_lti_py import ToolProvider
+
+from labmanager.models import Credential
 
 lti_blueprint = Blueprint('lti', __name__)
 
@@ -9,11 +13,6 @@ def verify_credentials():
 
     if 'consumer' in session:
         if float(session['last_request']) - time() < 60 * 60 * 5: # Five Hours
-            session['last_request'] = time()
-            return
-
-    elif 'loggeduser' in session:
-        if float(session['last_request']) - time() < 60 * 5: # Five minutes
             session['last_request'] = time()
             return
 

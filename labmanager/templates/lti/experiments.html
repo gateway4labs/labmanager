@@ -11,7 +11,7 @@
       <td> {{ permission.experiment }}</td>
       <td>
         {% if permission.access == "granted" %}
-        <a href="experiment/{{permission.experiment.name}}">Go to experiment</a>
+        <a href="experiment/{{permission.experiment.name}}?r={{permission.experiment.newrlms.id}}">Go to experiment</a>
         {% else %}
         {{ permission.access | title }}
         {% endif %}
