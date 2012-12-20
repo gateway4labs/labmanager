@@ -9,7 +9,7 @@ SECRET_KEY = 'secret'
 DEBUGGING_REQUESTS = False
 
 # Have you run... "pip install git+https://github.com/lms4labs/rlms_weblabdeusto.git" first?
-RLMS = ['weblabdeusto']
+RLMS = ['weblabdeusto','unr']
 
 heroku = os.environ.get('HEROKU', None)
 if heroku:
