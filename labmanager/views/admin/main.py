@@ -1,4 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
+from hashlib import new as new_hash
 from sys import modules
 from yaml import load as yload
 
@@ -62,4 +63,7 @@ class UsersPanel(ModelView):
     form_args = dict(
         access_level=dict( choices=sel_choices )
         )
+
+    def on_model_change(self, form, model):
+        model.password = new_hash("sha", model.password).hexdigest()
 
