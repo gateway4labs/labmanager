@@ -156,13 +156,13 @@ def add_sample_users():
 
     newrlms1 = NewRLMS(kind = u"weblabdeusto",
                        location = u"Deusto Spain",
-                       url = u"labs.deusto.com",
+                       url = u"https://www.weblab.deusto.es/",
                        version = u"4.0")
     db_session.add(newrlms1)
 
     newrlms2 = NewRLMS(kind = u'iLabs',
                        location = u'MIT',
-                       url = u'ilabs.mit.edu',
+                       url = u'http://ilab.mit.edu/wiki/',
                        version = u"1.2.2")
     db_session.add(newrlms2)
 
