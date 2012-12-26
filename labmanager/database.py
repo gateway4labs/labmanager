@@ -154,10 +154,17 @@ def add_sample_users():
                      url = u"http://moodle.com.co.co")
     db_session.add(newlms1)
 
-    newrlms1 = NewRLMS(kind = u"weblabdeusto",
+    configuration = {
+        'remote_login' : 'weblabfed',
+        'password'     : 'password',
+        'base_url'     : 'http://www.weblab.deusto.es/weblab/',
+    }
+
+    newrlms1 = NewRLMS(kind = u"WebLab-Deusto",
                        location = u"Deusto Spain",
                        url = u"https://www.weblab.deusto.es/",
-                       version = u"4.0")
+                       version = u"5.0",
+                       configuration = json.dumps(configuration) )
     db_session.add(newrlms1)
 
     newrlms2 = NewRLMS(kind = u'iLabs',

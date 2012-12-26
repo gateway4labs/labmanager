@@ -65,11 +65,12 @@ class NewRLMS(Base, SBBase):
 
     configuration = Column(Unicode(10 * 1024))
 
-    def __init__(self, kind = None, url = None, location = None, version = None):
+    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
         self.kind = kind
         self.location = location
         self.url = url
         self.version = version
+        self.configuration = configuration
 
     def __repr__(self):
         return "<NewRLMS: %s %s %s>" % (self.kind, self.version, self.location)

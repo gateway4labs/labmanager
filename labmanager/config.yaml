@@ -24,7 +24,7 @@ user_access_level:
 # at the beginning)
 # 
 installed_rlms:
-        weblabdeusto:
-                - 4.0
+        WebLab-Deusto:
+                - 5.0
         FCEIA-UNR:
                 - 1.0

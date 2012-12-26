@@ -24,8 +24,7 @@ class RetrospectiveForm(Form):
 
 
 class AddForm(RetrospectiveForm):
-    name     = TextField("Name", validators=[Required()])
-    location = TextField("Location", validators=[Required()])
+    pass
 
 class AddLmsForm(RetrospectiveForm):
     name      = TextField("Name", validators = [ Required() ])
