@@ -44,7 +44,7 @@ from labmanager.scorm_package import scorm_blueprint
 #
 #
 
-@scorm_blueprint.route("/lms4labs/labmanager/requests/", methods = ['GET', 'POST'])
+@scorm_blueprint.route("/requests/", methods = ['GET', 'POST'])
 def requests():
     """SCORM packages will perform requests to this method, which will
     interact with the permitted laboratories"""
