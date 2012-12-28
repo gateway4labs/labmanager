@@ -60,7 +60,8 @@ def index():
 @app.route('/login', methods=['GET'])
 def login():
     """Login screen for application"""
-    return render_template('login.html')
+    next = request.args.get('next','')
+    return render_template('login.html', next=next)
 
 @app.route('/login', methods=['POST'])
 def create_session():
@@ -73,7 +74,8 @@ def create_session():
             if login_user(user):
                 session['loggeduser'] = username
                 session['last_request'] = time()
-                return redirect(url_for('admin.index'))
+                next = request.args.get('next', url_for('admin.index'))
+                return redirect(next)
             else:
                 flash(u'Could not log in.')
         else:

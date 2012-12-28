@@ -4,7 +4,7 @@
     <p>LabManager administrator</p>
   </div>
     <div align="center">
-      <form action="{{url_for('login')}}" method="POST">
+      <form action="{{url_for('login', next=next)}}" method="POST">
         <br/>
         <label > Username </label>
         <input type="text" name="username" placeholder="Username" id="first-input">

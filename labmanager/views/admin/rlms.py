@@ -4,8 +4,7 @@ from yaml import load as yload
 
 from flask import request, abort
 from flask.ext import wtf
-from flask.ext.login import current_user
-from flask.ext.admin.contrib.sqlamodel import ModelView
+from labmanager.views.admin import L4lModelView
 
 from labmanager.models import Permission, Experiment, NewRLMS
 from labmanager.rlms import get_form_class
@@ -21,14 +20,21 @@ class DynamicSelectWidget(wtf.widgets.Select):
 class DynamicSelectField(wtf.SelectField):
     widget = DynamicSelectWidget()
 
-class RLMSPanel(ModelView):
 
-    form_columns = ('kind', 'location', 'url')
-    column_exclude_list = ('version')
+def _generate_choices():
     sel_choices = [('','')]
     for ins_rlms in config['installed_rlms']:
         for ver in config['installed_rlms'][ins_rlms]:
             sel_choices.append(("%s<>%s" % (ins_rlms, ver),"%s - %s" % (ins_rlms.title(), ver)) )
+    return sel_choices
+
+class RLMSPanel(L4lModelView):
+
+    form_columns = ('kind', 'location', 'url')
+    column_exclude_list = ('version','configuration')
+   
+    sel_choices = _generate_choices()
+
     form_overrides = dict(kind=DynamicSelectField)
     form_args = dict( kind=dict( choices=sel_choices ))
 
@@ -122,30 +128,21 @@ class RLMSPanel(ModelView):
         
         model.configuration = json.dumps(other_data)
 
-    def is_accessible(self):
-        return current_user.is_authenticated()
 
-
-class ExperimentPanel(ModelView):
+class ExperimentPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
         default_args = { "category":u"ReLMS", "name":u"Experiments" }
         default_args.update(**kwargs)
         super(ExperimentPanel, self).__init__(Experiment, session, **default_args)
 
-    def is_accessible(self):
-        return current_user.is_authenticated()
 
-
-class PermissionPanel(ModelView):
+class PermissionPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
         default_args = { "name":u"Permissions" }
         default_args.update(**kwargs)
         super(PermissionPanel, self).__init__(Permission, session, **default_args)
-
-    def is_accessible(self):
-        return current_user.is_authenticated()
 
     form_columns = ('newlms','newcourse','experiment','configuration','access')
     sel_choices = [(status, status.title()) for status in config['permission_status']]
