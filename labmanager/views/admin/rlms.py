@@ -31,6 +31,7 @@ def _generate_choices():
 class RLMSPanel(L4lModelView):
 
     form_columns = ('kind', 'location', 'url')
+    column_list  = ('kind', 'location', 'url','version')
     column_exclude_list = ('version','configuration')
    
     sel_choices = _generate_choices()

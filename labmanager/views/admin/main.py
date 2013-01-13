@@ -3,6 +3,8 @@ from hashlib import new as new_hash
 from sys import modules
 from yaml import load as yload
 
+from wtforms.fields import PasswordField
+
 from flask import redirect, abort, url_for, request
 from flask.ext import wtf
 from flask.ext.login import current_user
@@ -66,10 +68,8 @@ class UsersPanel(L4lModelView):
 
     form_columns = ('name', 'login', 'password', 'access_level')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
-    form_overrides = dict(access_level=wtf.SelectField)
-    form_args = dict(
-        access_level=dict( choices=sel_choices )
-        )
+    form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
+    form_args = dict( access_level=dict( choices=sel_choices ) )
 
     def on_model_change(self, form, model):
         model.password = new_hash("sha", model.password).hexdigest()

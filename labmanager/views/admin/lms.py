@@ -13,7 +13,7 @@ config = yload(open('labmanager/config.yaml'))
 
 class CredentialForm(InlineFormAdmin):
     form_columns = ('id','kind', 'key', 'secret')
-    excluded_form_fields = ('id')
+    excluded_form_fields = ('id',)
 
     def postprocess_form(self, form):
         sel_choices =  [ (x , x.title()) for x in config['authentication_types']]
@@ -23,16 +23,14 @@ class CredentialForm(InlineFormAdmin):
 class LMSPanel(L4lModelView):
     # los que se muestran en el index, son current_user.accessible_lmss()
 
+    inline_models = (CredentialForm(Credential),)
+
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
         default_args = { "category":u"LMS", "name":u"LMS" }
         default_args.update(**kwargs)
         super(LMSPanel, self).__init__(NewLMS, session, **default_args)
 
-    inline_models = (CredentialForm(Credential),)
-
-    def is_accessible(self):
-        return current_user.is_authenticated()
 
 class CoursePanel(L4lModelView):
     def __init__(self, session, **kwargs):
@@ -40,7 +38,4 @@ class CoursePanel(L4lModelView):
         default_args = { "category":u"LMS", "name":u"Courses" }
         default_args.update(**kwargs)
         super(CoursePanel, self).__init__(NewCourse, session, **default_args)
-
-    def is_accessible(self):
-        return current_user.is_authenticated()
 

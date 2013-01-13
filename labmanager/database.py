@@ -74,7 +74,7 @@ def add_sample_users():
     db_session.add(lms3)
 
 
-    user6 = LabManagerUser(u'admin', u'Administrator', password)
+    user6 = LabManagerUser(u'admin', u'Administrator', password, 'admin')
     db_session.add(user6)
 
     course1 = Course(lms1, u"1", u"my course 1")
