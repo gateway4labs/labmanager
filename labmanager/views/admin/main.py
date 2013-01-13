@@ -3,12 +3,13 @@ from hashlib import new as new_hash
 from sys import modules
 from yaml import load as yload
 
-from flask import redirect, abort
+from flask import redirect, abort, url_for, request
 from flask.ext import wtf
 from flask.ext.login import current_user
 from flask.ext.admin import expose, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
+from labmanager.views.admin import L4lModelView
 from labmanager.models import Permission
 from labmanager.models import LabManagerUser as User, NewLMS, NewCourse, Experiment
 from labmanager.database import db_session as DBS
@@ -18,6 +19,12 @@ config = yload(open('labmanager/config.yaml'))
 class AdminPanel(AdminIndexView):
     def is_accessible(self):
         return current_user.is_authenticated()
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login', next=request.url))
+
+        return super(AdminPanel, self)._handle_view(name, **kwargs)
 
     @expose('/')
     def index(self):
@@ -47,7 +54,7 @@ class AdminPanel(AdminIndexView):
         Permission.find(id).change_status(status)
         return redirect('/admin') # redirect to index
 
-class UsersPanel(ModelView):
+class UsersPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
         default_args = { "name":u"Users" }
