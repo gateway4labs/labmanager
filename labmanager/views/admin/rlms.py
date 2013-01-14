@@ -7,7 +7,7 @@ from flask.ext import wtf
 from labmanager.views.admin import L4lModelView
 
 from labmanager.models import Permission, Experiment, NewRLMS
-from labmanager.rlms import get_form_class
+from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions
 
 config = yload(open('labmanager/config.yaml'))
 
@@ -23,21 +23,18 @@ class DynamicSelectField(wtf.SelectField):
 
 def _generate_choices():
     sel_choices = [('','')]
-    for ins_rlms in config['installed_rlms']:
-        for ver in config['installed_rlms'][ins_rlms]:
+    for ins_rlms in get_supported_types():
+        for ver in get_supported_versions(ins_rlms):
             sel_choices.append(("%s<>%s" % (ins_rlms, ver),"%s - %s" % (ins_rlms.title(), ver)) )
     return sel_choices
 
 class RLMSPanel(L4lModelView):
 
     form_columns = ('kind', 'location', 'url')
-    column_list  = ('kind', 'location', 'url','version')
+    column_list  = ('kind', 'version', 'location', 'url')
     column_exclude_list = ('version','configuration')
    
-    sel_choices = _generate_choices()
-
     form_overrides = dict(kind=DynamicSelectField)
-    form_args = dict( kind=dict( choices=sel_choices ))
 
     def __init__(self, session, **kwargs):
 
@@ -88,6 +85,7 @@ class RLMSPanel(L4lModelView):
             form = form_class(add_or_edit=True, fields=form._fields)
             form.kind.default = rlms
             self._fill_form_instance(form, old_form, obj)
+        form.kind.choices = _generate_choices()
         return form
 
     def edit_form(self, obj, *args, **kwargs):

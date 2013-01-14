@@ -57,6 +57,9 @@ class AdminPanel(AdminIndexView):
         return redirect('/admin') # redirect to index
 
 class UsersPanel(L4lModelView):
+
+    column_list = ('login', 'name', 'access_level')
+
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
         default_args = { "name":u"Users" }

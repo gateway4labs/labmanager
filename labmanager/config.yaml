@@ -17,14 +17,3 @@ user_access_level:
         - rlms
         - lms
 
-# 
-# XXX 
-# This should not be loaded from the YAML file,
-# but from the registry (where extensions are loaded
-# at the beginning)
-# 
-installed_rlms:
-        WebLab-Deusto:
-                - 5.0
-        FCEIA-UNR:
-                - 1.0
