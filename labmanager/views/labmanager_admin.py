@@ -27,7 +27,7 @@ from flask import render_template, request, session, redirect, url_for, flash, B
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Laboratory, PermissionOnLaboratory
+from labmanager.models   import LMS, LabManagerUser, RLMS, Laboratory, PermissionOnLaboratory
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_lms_permissions_form_class
 from labmanager.forms    import AddLmsForm, AddUserForm
 
@@ -79,41 +79,6 @@ def admin_lms_authenticate_scorm(lms_login):
 def admin_lms_login(lms_login):
     return _login_as_lms(session['user_name'], lms_login)
 
-############
-# 
-# R L M S 
-# 
-
-@labmanager.route("/admin/rlms/<rlmstype>/<rlmsversion>/<int:id>/externals/", methods = ('GET','POST'))
-@requires_labmanager_admin_session
-def admin_rlms_rlms_list_external(rlmstype, rlmsversion, id):
-    rlms = db_session.query(RLMS).filter_by(id = id).first()
-    if rlms is None or rlms.rlms_version.version != rlmsversion or rlms.rlms_version.rlms_type.name != rlmstype:
-        return render_template("labmanager_admin/rlms_errors.html")
-
-    existing_laboratory_ids = [ laboratory.laboratory_id for laboratory in rlms.laboratories ]
-
-    ManagerClass          = get_manager_class(rlmstype, rlmsversion)
-    manager_class         = ManagerClass(rlms.configuration)
-    try:
-        available_laboratories = manager_class.get_laboratories()
-    except:
-        traceback.print_exc()
-        flash("There was an error retrieving laboratories. Check the trace")
-        return render_template("labmanager_admin/rlms_errors.html")
-
-    available_laboratory_ids = [ lab.laboratory_id for lab in available_laboratories ]
-
-    if request.method == 'POST':
-        if request.form.get('action','') == 'add':
-            for laboratory_id in request.form:
-                if laboratory_id != 'action' and laboratory_id in available_laboratory_ids and laboratory_id not in existing_laboratory_ids:
-                    new_lab = Laboratory(laboratory_id, laboratory_id, rlms)
-                    db_session.add(new_lab)
-            db_session.commit()
-            return redirect(url_for('admin_rlms_rlms_list', rlmstype = rlmstype, rlmsversion = rlmsversion, id = id))
-
-    return render_template("labmanager_admin/rlms_rlms_list_external.html", available_laboratories = available_laboratories, type_name = rlmstype, version = rlmsversion, rlms_name = rlms.name, existing_laboratory_ids = existing_laboratory_ids)
 
 def get_lab_and_lms(rlmstype, rlmsversion, id, lab_id):
     lab  = db_session.query(Laboratory).filter_by(id = lab_id).first()

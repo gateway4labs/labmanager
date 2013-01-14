@@ -43,8 +43,8 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, RLMSType, RLMSTypeVersion, RLMS, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
-    from labmanager.models import NewLMS, NewRLMS, Permission, Experiment, Credential, NewCourse
+    from labmanager.models import LMS, LabManagerUser, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
+    from labmanager.models import NewLMS, RLMS, Permission, Credential, NewCourse
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -84,48 +84,30 @@ def add_sample_users():
     db_session.add(course2)
 
 
-    weblab_deusto = RLMSType(u'WebLab-Deusto')
-    db_session.add(weblab_deusto)
-
-    ilab = RLMSType(u'iLab')
-    db_session.add(ilab)
-
-    unsupported   = RLMSType(u'Unsupported')
-
-    weblab_deusto_4_0 = RLMSTypeVersion(weblab_deusto, u'4.0')
-    db_session.add(weblab_deusto_4_0)
-
-    weblab_deusto_4_5 = RLMSTypeVersion(weblab_deusto, u'4.5')
-    db_session.add(weblab_deusto_4_5)
-
-    unsupported_4_5 = RLMSTypeVersion(unsupported,   u'4.5')
-    db_session.add(unsupported_4_5)
-
-    ilab_4_0 = RLMSTypeVersion(ilab, u'4.5')
-    db_session.add(ilab_4_0)
-
     configuration = {
         'remote_login' : 'weblabfed',
         'password'     : 'password',
         'base_url'     : 'http://www.weblab.deusto.es/weblab/',
     }
 
-    weblab_deusto_instance = RLMS(name = u"WebLab-Deusto at Deusto",
-                                  location = u"Deusto",
-                                  rlms_version = weblab_deusto_4_0,
-                                  configuration = unicode(json.dumps(configuration)))
-    db_session.add(weblab_deusto_instance)
+    rlms1 = RLMS(kind = u"WebLab-Deusto",
+                       location = u"Deusto Spain",
+                       url = u"https://www.weblab.deusto.es/",
+                       version = u"5.0",
+                       configuration = json.dumps(configuration) )
+    db_session.add(rlms1)
 
-    ilab_instance = RLMS(name = u"iLab MIT",
-                         location = u"MIT",
-                         rlms_version = ilab_4_0,
-                         configuration = u"{}")
+    rlms2 = RLMS(kind = u'iLabs',
+                       location = u'MIT',
+                       url = u'http://ilab.mit.edu/wiki/',
+                       version = u"1.2.2")
+    db_session.add(rlms2)
 
-    db_session.add(ilab_instance)
+
 
     robot_lab = Laboratory(name = u"robot-movement@Robot experiments",
                            laboratory_id = u"robot-movement@Robot experiments",
-                           rlms = weblab_deusto_instance)
+                           rlms = rlms1)
 
     permission_on_uned = PermissionOnLaboratory(lms = lms1,
                                                 laboratory = robot_lab,
@@ -154,56 +136,20 @@ def add_sample_users():
                      url = u"http://moodle.com.co.co")
     db_session.add(newlms1)
 
-    configuration = {
-        'remote_login' : 'weblabfed',
-        'password'     : 'password',
-        'base_url'     : 'http://www.weblab.deusto.es/weblab/',
-    }
-
-    newrlms1 = NewRLMS(kind = u"WebLab-Deusto",
-                       location = u"Deusto Spain",
-                       url = u"https://www.weblab.deusto.es/",
-                       version = u"5.0",
-                       configuration = json.dumps(configuration) )
-    db_session.add(newrlms1)
-
-    newrlms2 = NewRLMS(kind = u'iLabs',
-                       location = u'MIT',
-                       url = u'http://ilab.mit.edu/wiki/',
-                       version = u"1.2.2")
-    db_session.add(newrlms2)
-
     course1 = NewCourse(name = u"EE101",
                         lms = newlms1,
                         context_id = u"1")
     db_session.add(course1)
 
-    exp_robot = Experiment(name = u"robot",
-                            rlms = newrlms1,
-                            url = u"http://www.weblab.deusto.es/weblab/client/federated.html#reservation_id=bae5ddd3-fe8d-433f-a200-25146260212a;bae5ddd3-fe8d-433f-a200-25146260212a.route1")
-    db_session.add(exp_robot)
-
-    exp_2 = Experiment(name = u"Lego",
-                            rlms = newrlms2,
-                            url = u"robot.com")
-    db_session.add(exp_2)
-
-    exp_3 = Experiment(name = u"heat",
-                            rlms = newrlms2,
-                            url = u"robot.com")
-    db_session.add(exp_3)
-
     permission1 = Permission(lms = newlms1,
                              context = course1,
-
-                             experiment = exp_robot,
+                             laboratory = robot_lab,
                              access = u"pending")
     db_session.add(permission1)
 
     permission2 = Permission(lms = newlms1,
                              context = course1,
-
-                             experiment = exp_robot,
+                             laboratory = robot_lab,
                              access = u"pending")
     db_session.add(permission2)
 

@@ -1,7 +1,7 @@
 from flask.ext.admin import Admin
 
 from .views.admin.lms  import LMSPanel, CoursePanel
-from .views.admin.rlms import RLMSPanel, ExperimentPanel, PermissionPanel
+from .views.admin.rlms import RLMSPanel, LaboratoryPanel, PermissionPanel
 from .views.admin.main import AdminPanel, UsersPanel
 
 def init_admin(app, db_session):
@@ -19,7 +19,7 @@ def init_admin(app, db_session):
   admin.add_view(CoursePanel(db_session))
 
   admin.add_view(RLMSPanel(db_session))
-  admin.add_view(ExperimentPanel(db_session))
+  admin.add_view(LaboratoryPanel(db_session))
 
   admin.add_view(UsersPanel(db_session))
 

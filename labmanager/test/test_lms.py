@@ -45,7 +45,7 @@ class RequestProxy(object):
 
     def add_rlms(self, kind = RLMS_KIND, location = RLMS_LOCATION, url = RLMS_URL):
         data = dict(kind = kind, location = location, url = url)
-        rv = self.app.post('/admin/newrlmsview/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
+        rv = self.app.post('/admin/rlmsview/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
 
 class FlaskrTestCase(unittest.TestCase):
 
@@ -73,7 +73,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert name in rv.data
 
     def _list_rlms(self, location = RLMS_LOCATION, url = RLMS_URL):
-        rv = self.app.get('/admin/newrlmsview/')
+        rv = self.app.get('/admin/rlmsview/')
         assert location in rv.data 
         assert url in rv.data
 

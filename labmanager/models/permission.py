@@ -10,28 +10,28 @@ class Permission(Base, SBBase):
     __tablename__  = 'permissions'
     id = Column(Integer, primary_key = True)
     access = Column(Unicode(50), nullable = False)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'), nullable = False)
+    laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     course_id = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    experiment = relation('Experiment', backref=backref('permissions', order_by=id, cascade='all, delete'))
+    laboratory = relation('Laboratory', backref=backref('permissions', order_by=id, cascade='all, delete'))
     newlms = relation('NewLMS', backref=backref('permissions_on_experiments', order_by=id, cascade='all, delete'))
 
-    def __init__(self, lms = None, context = None, experiment = None,
+    def __init__(self, lms = None, context = None, laboratory = None,
                  access = u"pending"):
         self.newlms = lms
         self.newcourse = context
-        self.experiment = experiment
+        self.laboratory = laboratory
         self.access = access
 
     def __repr__(self):
-        return "<Permission %d: %s LMS:%s %s>" % (self.id, self.experiment_id,
+        return "<Permission %d: %s LMS:%s %s>" % (self.id, self.laboratory_id,
                                                   self.lms_id, self.access)
 
     def __unicode__(self):
         return "%s from %s on %s (%s)" % (self.newcourse.name, self.newlms.name,
-                                          self.experiment.name, self.access)
+                                          self.laboratory.name, self.access)
 
     def change_status(self, new_status):
         self.access = new_status
@@ -48,9 +48,9 @@ class Permission(Base, SBBase):
                                       ).first()
 
     @classmethod
-    def find_with_lms_context_exp(self, lms, context, experiment):
+    def find_with_lms_context_exp(self, lms, context, laboratory):
         return DBS.query(self).filter(sql.and_(self.newlms == lms,
-                                               self.experiment == experiment,
+                                               self.laboratory == laboratory,
                                                self.newcourse == context)
                                       ).first()
 
@@ -61,10 +61,10 @@ class Permission(Base, SBBase):
                                       ).all()
 
     @classmethod
-    def find_or_create(self, lms, context, experiment):
+    def find_or_create(self, lms, context, laboratory):
         instance = self.find_with_lms_context_exp(lms = lms, context = context,
-                                                  experiment = experiment)
+                                                  laboratory = laboratory)
         if instance:
             return instance
         else:
-            return self.new(lms = lms, context = context, experiment = experiment)
+            return self.new(lms = lms, context = context, laboratory = laboratory)

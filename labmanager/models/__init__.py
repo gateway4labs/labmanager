@@ -18,11 +18,10 @@ class SBBase(object):
         DBS.commit()
         return instance
 
-from .rlms import RLMSType, RLMSTypeVersion, RLMS, NewRLMS
+from .rlms import RLMS
 from .lms import LMS, NewLMS
 from .laboratory import Laboratory, PermissionOnLaboratory
 from .credential import Credential
-from .experiment import Experiment
 from .permission import Permission
 from .course import NewCourse, Course, PermissionOnCourse
 from .user import LabManagerUser

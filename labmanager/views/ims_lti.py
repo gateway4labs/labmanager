@@ -16,7 +16,7 @@ from yaml import load as yload
 
 from flask import render_template, request, redirect
 
-from labmanager.models import NewLMS, Credential, NewRLMS, Permission, Experiment, NewCourse
+from labmanager.models import NewLMS, Credential, RLMS, Permission, NewCourse
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
@@ -66,7 +66,7 @@ def admin_ims():
 
         data['access_requests'] = current_permissions
 
-        for remote in NewRLMS.all(): # filter by allowed RLMSs
+        for remote in RLMS.all(): # filter by allowed RLMSs
             experiments_in_rlms = remote.experiments
             data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
             data['rlms_ids'][remote.kind] = remote.id
@@ -100,6 +100,7 @@ def permission_request():
 
     if 'rlmsexperiments' in request.form:
         for rlms_id, exp_id in choice_data:
+            # TODO: pass this to the Laboratory
             experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
             Permission.find_or_create(lms = newlms, experiment = experiment,
                                       context = local_context)

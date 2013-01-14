@@ -13,7 +13,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 
 from labmanager.views.admin import L4lModelView
 from labmanager.models import Permission
-from labmanager.models import LabManagerUser as User, NewLMS, NewCourse, Experiment
+from labmanager.models import LabManagerUser as User, NewLMS, NewCourse
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yaml'))
