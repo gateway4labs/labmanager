@@ -23,5 +23,5 @@ class L4lBaseView(BaseView):
         if not self.is_accessible():
             return redirect(url_for('login', next=request.url))
 
-        return super(L4lModelView, self)._handle_view(name, **kwargs)
+        return super(L4lBaseView, self)._handle_view(name, **kwargs)
 

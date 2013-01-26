@@ -2,14 +2,14 @@
 import json
 from yaml import load as yload
 
-from flask import request, abort
+from flask import request, abort, Markup, url_for
 from flask.ext import wtf
 from flask.ext.admin import expose
 
 from labmanager.views.admin import L4lModelView, L4lBaseView
 
 from labmanager.models import Permission, RLMS, Laboratory
-from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions
+from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
 config = yload(open('labmanager/config.yaml'))
 
@@ -32,11 +32,17 @@ def _generate_choices():
 
 class RLMSPanel(L4lModelView):
 
+    # For editing
     form_columns = ('kind', 'location', 'url')
-    column_list  = ('kind', 'version', 'location', 'url')
-    column_exclude_list = ('version','configuration')
-   
     form_overrides = dict(kind=DynamicSelectField)
+
+    # For listing 
+    column_list  = ['kind', 'version', 'location', 'url', 'labs']
+    column_exclude_list = ('version','configuration')
+
+    column_formatters = dict(
+            labs = lambda c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id)))
+        )
 
     def __init__(self, session, **kwargs):
         super(RLMSPanel, self).__init__(RLMS, session, **kwargs)
@@ -125,11 +131,63 @@ class RLMSPanel(L4lModelView):
         
         model.configuration = json.dumps(other_data)
 
-class LaboratoryView(L4lBaseView):
-    def __init__(self, session, **kwargs):
-        super(LaboratoryView, self).__init__(**kwargs)
+    @expose('/labs/<id>/', methods = ['GET','POST'])
+    def labs(self, id):
+        # 
+        # TODO: CSRF is not used here. Security hole
+        # 
+
+        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
+        if rlms_db is None:
+            return abort(404)
+
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        rlms = RLMS_CLASS(rlms_db.configuration)
+        labs = rlms.get_laboratories()
+
+        registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
+
+        if request.method == 'POST':
+            selected = []
+            for name, value in request.form.items():
+                if name != 'action' and value == 'on':
+                    for lab in labs:
+                        if lab.laboratory_id == name:
+                            selected.append(lab)
+            changes = False
+
+            if request.form['action'] == 'register':
+                for lab in selected:
+                    if not lab.laboratory_id in registered_labs:
+                        self.session.add(Laboratory(name = lab.name, laboratory_id = lab.laboratory_id, rlms = rlms_db))
+                        changes = True
+
+            elif request.form['action'] == 'unregister':
+
+                for lab in selected:
+                    if lab.laboratory_id in registered_labs:
+                        cur_lab_db = None
+                        for lab_db in rlms_db.laboratories:
+                            if lab_db.laboratory_id == lab.laboratory_id:
+                                cur_lab_db = lab_db
+                                break
+
+                        if cur_lab_db is not None:
+                            self.session.delete(cur_lab_db)
+                            changes = True
+
+            if changes:
+                self.session.commit()
+
+        registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
+
+        return self.render('admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
 class LaboratoryPanel(L4lModelView):
+
+    can_create = False
+    can_edit   = False
+
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
 

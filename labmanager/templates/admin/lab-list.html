@@ -1,0 +1,44 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<h3>Available labs for <a href="{{rlms.url}}">{{ rlms.kind }} ({{rlms.version }})</a> at {{ rlms.location }}</h3>
+
+
+{% if labs|length > 0 %}
+<form action="." method="POST">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Selected</th>
+                <th>Identifier</th>
+                <th>Name</th>
+                <th>Registered?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lab in labs %}
+            <tr>
+                <td><label class="checkbox"><input type="checkbox" name="{{ lab.laboratory_id }}"></label></td>
+                <td>{{ lab.laboratory_id }}</td>
+                <td>{{ lab.name }}</td>
+                {% if lab.laboratory_id in registered_labs %}
+                    <td><i class="icon-ok"></i></td>
+                {% else %}
+                    <td><i class="icon-remove"></i></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        </form>
+    </table>
+    <div class="form-actions" align="center">
+        <button class="btn btn-primary" name="action" type="submit" value="register">Register</button>
+        <button class="btn btn-danger"  name="action" type="submit" value="unregister">Unregister</button>
+    </div>
+</form>
+{% else %}
+<div class="alert">
+    No laboratory found
+</div>
+{% endif %}
+
+{% endblock %}

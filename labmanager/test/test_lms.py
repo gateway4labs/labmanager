@@ -5,6 +5,8 @@ import json
 import unittest
 import tempfile
 
+from bs4 import BeautifulSoup
+
 from werkzeug import Headers
 
 sys.path.append('.')
@@ -15,6 +17,7 @@ register_fake()
 
 import labmanager as server
 from labmanager.database import add_sample_users
+from labmanager.views.admin.rlms import RLMSPanel
 
 ADMIN = 'admin'
 PASSWORD = 'password'
@@ -26,6 +29,8 @@ LMS_PASSWORD = 'lms_password'
 RLMS_KIND     = 'FakeRLMS<>1.0'
 RLMS_LOCATION = 'Bilbao'
 RLMS_URL      = 'http://github.com/lms4labs/labmanager/'
+
+SELECTION_COLUMNS = 2 # Number of columns used by flask-admin for selection, deleting or editing
 
 class RequestProxy(object):
 
@@ -47,8 +52,38 @@ class RequestProxy(object):
         data = dict(kind = kind, location = location, url = url)
         rv = self.app.post('/admin/rlms/rlms/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
 
-    def add_lab(self):
-        pass
+    def add_lab(self, rlms_kind = RLMS_KIND):
+        rv = self.app.get('/admin/rlms/rlms/', follow_redirects = True)
+        table = self._parse_tables(rv.data)[0]
+
+        version_index = RLMSPanel.column_list.index('version') + SELECTION_COLUMNS
+        kind_index    = RLMSPanel.column_list.index('kind')    + SELECTION_COLUMNS
+
+        for row in table:
+            rlms_kind, rlms_version = RLMS_KIND.split('<>')
+            cur_kind    = row[kind_index].get_text()
+            cur_version = row[version_index].get_text()
+            if cur_version == rlms_version and cur_kind == rlms_kind:
+                lab_url = row[-1].find_all('a')[0].get('href')
+                break
+        
+        data = { LAB_ID   : u'on', 'action' : u'register' }
+        rv = self.app.post(lab_url, data=data, follow_redirects = True)
+        table = self._parse_tables(rv.data)[0]
+        return lab_url
+
+    def _parse_tables(self, html):
+        parsed = BeautifulSoup(html)
+        tables = []
+        for table in parsed.find_all('table'):
+            cur_table = []
+            rows = table.find_all('tr')
+            for row in rows:
+                columns = row.find_all('td')
+                if columns:
+                    cur_table.append(columns)
+            tables.append(cur_table)
+        return tables
 
 class FlaskrTestCase(unittest.TestCase):
 
@@ -80,8 +115,8 @@ class FlaskrTestCase(unittest.TestCase):
         assert location in rv.data 
         assert url in rv.data
 
-    def _check_labs_in_rlms(self, lab_name = LAB_NAME, lab_id = LAB_ID):
-        rv = self.app.get('/admin/???')
+    def _check_labs_in_rlms(self, lab_url, lab_name = LAB_NAME, lab_id = LAB_ID):
+        rv = self.app.get('/admin/rlms/labs/')
         assert lab_name in rv.data
         assert lab_id in rv.data
 
@@ -100,10 +135,10 @@ class FlaskrTestCase(unittest.TestCase):
     def test_add_lab(self):
         self.login()
         self.proxy.add_rlms()
-        self._check_labs_in_rlms()
-        self.proxy.add_lab()
-        
-        
+        lab_url = self.proxy.add_lab()
+        self._check_labs_in_rlms(lab_url)
+       
+
     # testing functions
     def test_lms_request(self):
         """Start with a blank database."""
@@ -112,6 +147,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         self.proxy.add_lms()
         self.proxy.add_rlms()
+        self.proxy.add_lab()
         
         #
         # TODO: add laboratory, add permission on laboratory, add course, add permission on course

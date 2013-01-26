@@ -10,5 +10,6 @@ ims-lti-py
 Flask-Admin
 flask-login
 pyyaml
+beautifulsoup4
 git+https://github.com/lms4labs/rlms_weblabdeusto.git
 git+https://github.com/lms4labs/rlms_unr.git
