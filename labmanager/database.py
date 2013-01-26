@@ -49,39 +49,39 @@ def add_sample_users():
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
 
-    lms1 = LMS(u'Universidad Nacional de Educacion a Distancia',
-               u"http://localhost:5000/fake_list_courses/lms4labs/list",
-               u'uned',
-               password,
-               u"labmanager",
-               u"password" )
-    db_session.add(lms1)
-
-    lms2 = LMS(u'Universidad de Deusto',
-               u"http://localhost:5000/fake_list_courses/lms4labs/list",
-               u'deusto',
-               password,
-               u"labmanager",
-               u"password" )
-    db_session.add(lms2)
-
-    lms3 = LMS(u'Moodle Test',
-               u'http://localhost:8888/moodle/blocks/lms4labs/lms/list.php',
-               u'admin',
-               u'80072568beb3b2102325eb203f6d0ff92f5cef8e',
-               u'admin',
-               u'password' )
-    db_session.add(lms3)
-
-
+#     lms1 = LMS(u'Universidad Nacional de Educacion a Distancia',
+#                u"http://localhost:5000/fake_list_courses/lms4labs/list",
+#                u'uned',
+#                password,
+#                u"labmanager",
+#                u"password" )
+#     db_session.add(lms1)
+# 
+#     lms2 = LMS(u'Universidad de Deusto',
+#                u"http://localhost:5000/fake_list_courses/lms4labs/list",
+#                u'deusto',
+#                password,
+#                u"labmanager",
+#                u"password" )
+#     db_session.add(lms2)
+# 
+#     lms3 = LMS(u'Moodle Test',
+#                u'http://localhost:8888/moodle/blocks/lms4labs/lms/list.php',
+#                u'admin',
+#                u'80072568beb3b2102325eb203f6d0ff92f5cef8e',
+#                u'admin',
+#                u'password' )
+#     db_session.add(lms3)
+# 
+# 
     user6 = LabManagerUser(u'admin', u'Administrator', password, 'admin')
     db_session.add(user6)
 
-    course1 = Course(lms1, u"1", u"my course 1")
-    db_session.add(course1)
-
-    course2 = Course(lms2, u"2", u"my course 2")
-    db_session.add(course2)
+#     course1 = Course(lms1, u"1", u"my course 1")
+#     db_session.add(course1)
+# 
+#     course2 = Course(lms2, u"2", u"my course 2")
+#     db_session.add(course2)
 
 
     configuration = {
@@ -108,28 +108,28 @@ def add_sample_users():
     robot_lab = Laboratory(name = u"robot-movement@Robot experiments",
                            laboratory_id = u"robot-movement@Robot experiments",
                            rlms = rlms1)
-
-    permission_on_uned = PermissionOnLaboratory(lms = lms1,
-                                                laboratory = robot_lab,
-                                                configuration = u"{}",
-                                                local_identifier = u"robot")
-    permission_on_deusto = PermissionOnLaboratory(lms = lms2,
-                                                  laboratory = robot_lab,
-                                                  configuration = u"{}",
-                                                  local_identifier = u"robot")
-
-    db_session.add(permission_on_uned)
-    db_session.add(permission_on_deusto)
-
-    permission_on_course1 = PermissionOnCourse(permission_on_lab = permission_on_uned,
-                                               course = course1,
-                                               configuration = u"{}")
-    permission_on_course2 = PermissionOnCourse(permission_on_lab = permission_on_deusto,
-                                               course = course2,
-                                               configuration = u"{}")
-
-    db_session.add(permission_on_course1)
-    db_session.add(permission_on_course2)
+# 
+#     permission_on_uned = PermissionOnLaboratory(lms = lms1,
+#                                                 laboratory = robot_lab,
+#                                                 configuration = u"{}",
+#                                                 local_identifier = u"robot")
+#     permission_on_deusto = PermissionOnLaboratory(lms = lms2,
+#                                                   laboratory = robot_lab,
+#                                                   configuration = u"{}",
+#                                                   local_identifier = u"robot")
+# 
+#     db_session.add(permission_on_uned)
+#     db_session.add(permission_on_deusto)
+# 
+#     permission_on_course1 = PermissionOnCourse(permission_on_lab = permission_on_uned,
+#                                                course = course1,
+#                                                configuration = u"{}")
+#     permission_on_course2 = PermissionOnCourse(permission_on_lab = permission_on_deusto,
+#                                                course = course2,
+#                                                configuration = u"{}")
+# 
+#     db_session.add(permission_on_course1)
+#     db_session.add(permission_on_course2)
 
 
     newlms1 = NewLMS(name = u"My Moodle",
@@ -141,14 +141,12 @@ def add_sample_users():
                         context_id = u"1")
     db_session.add(course1)
 
-    permission1 = Permission(lms = newlms1,
-                             context = course1,
+    permission1 = Permission(context = course1,
                              laboratory = robot_lab,
                              access = u"pending")
     db_session.add(permission1)
 
-    permission2 = Permission(lms = newlms1,
-                             context = course1,
+    permission2 = Permission(context = course1,
                              laboratory = robot_lab,
                              access = u"pending")
     db_session.add(permission2)

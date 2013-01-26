@@ -8,7 +8,7 @@ from flask.ext.admin import expose
 
 from labmanager.views.admin import L4lModelView, L4lBaseView
 
-from labmanager.models import Permission, RLMS, Laboratory
+from labmanager.models import Permission, RLMS, Laboratory, PermissionOnLaboratory
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
 config = yload(open('labmanager/config.yaml'))
@@ -191,10 +191,22 @@ class LaboratoryPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
 
+class PermissionOnLaboratoryPanel(L4lModelView):
+    # 
+    # TODO: manage configuration
+    # 
+    column_descriptions = dict(
+                laboratory       = u"Laboratory",
+                lms              = u"Learning Management System",
+                local_identifier = u"Unique identifier for a LMS to access a laboratory",
+            )
+
+    def __init__(self, session, **kwargs):
+        super(PermissionOnLaboratoryPanel, self).__init__(PermissionOnLaboratory, session, **kwargs)
 
 class PermissionPanel(L4lModelView):
 
-    form_columns = ('newlms','newcourse','laboratory','configuration','access')
+    form_columns = ('course', 'laboratory','configuration','access')
     sel_choices = [(status, status.title()) for status in config['permission_status']]
     form_overrides = dict(access=wtf.SelectField)
     form_args = dict(

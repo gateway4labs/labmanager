@@ -11,27 +11,22 @@ class Permission(Base, SBBase):
     id = Column(Integer, primary_key = True)
     access = Column(Unicode(50), nullable = False)
     laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
-    lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     course_id = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
     laboratory = relation('Laboratory', backref=backref('permissions', order_by=id, cascade='all, delete'))
-    newlms = relation('NewLMS', backref=backref('permissions_on_experiments', order_by=id, cascade='all, delete'))
+    course     = relation('NewCourse', backref=backref('permissions', order_by=id, cascade='all, delete'))
 
-    def __init__(self, lms = None, context = None, laboratory = None,
-                 access = u"pending"):
-        self.newlms = lms
-        self.newcourse = context
+    def __init__(self, context = None, laboratory = None, access = u"pending"):
+        self.course = context
         self.laboratory = laboratory
         self.access = access
 
     def __repr__(self):
-        return "<Permission %d: %s LMS:%s %s>" % (self.id, self.laboratory_id,
-                                                  self.lms_id, self.access)
+        return "<Permission %r: %r %r>" % (self.id, self.laboratory_id, self.access)
 
     def __unicode__(self):
-        return "%s from %s on %s (%s)" % (self.newcourse.name, self.newlms.name,
-                                          self.laboratory.name, self.access)
+        return u"%s from %s on %s (%s)" % (self.newcourse.name, self.course.lms.name, self.laboratory.name, self.access)
 
     def change_status(self, new_status):
         self.access = new_status

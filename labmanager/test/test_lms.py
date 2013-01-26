@@ -85,7 +85,7 @@ class RequestProxy(object):
             tables.append(cur_table)
         return tables
 
-class FlaskrTestCase(unittest.TestCase):
+class LabmanagerTestCase(unittest.TestCase):
 
     def setUp(self):
         """Before each test, set up a blank database"""
@@ -141,17 +141,27 @@ class FlaskrTestCase(unittest.TestCase):
 
     # testing functions
     def test_lms_request(self):
-        """Start with a blank database."""
-
         self.login()
 
-        self.proxy.add_lms()
+        # 1. Add the RLMS
         self.proxy.add_rlms()
+
+        # 2. Add the laboratory for that RLMS
         self.proxy.add_lab()
+
+        # 3. Add the LMS
+        self.proxy.add_lms()
+    
+        # 4. Add a permission to that LMS
+        self.fail("Missing adding permission on LMS")
+
+        # 5. Add a course
+        self.fail("Missing adding course")
+
+        # 6. Add a permission on that course
+        self.fail("Missing adding permission on course")
         
-        #
-        # TODO: add laboratory, add permission on laboratory, add course, add permission on course
-        # 
+        # 7. Perform a request
         rv = self.app.post('/lms4labs/requests/', data = json.dumps({
             'courses'        : { "1" : ["student"], "2" : ["teacher"] },
             'request-payload': "the payload",
@@ -160,6 +170,10 @@ class FlaskrTestCase(unittest.TestCase):
             'complete-name'  : "Pablo Orduña",
         }), headers = self.headers, content_type = "application/json")
 
+        # 8. Validate the request
+        # TODO
+        
+        # kthxbai
         self.logout()
 
 

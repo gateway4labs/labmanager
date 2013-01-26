@@ -78,8 +78,11 @@ def create_session():
                 return redirect(next)
             else:
                 flash(u'Could not log in.')
+                return "Could not log in"
         else:
             flash(u'Invalid username.')
+            return "Invalid username"
+    return "Error in create_session"
 
 
 @app.route("/logout", methods=['GET'])

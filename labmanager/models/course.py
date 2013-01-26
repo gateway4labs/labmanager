@@ -12,23 +12,22 @@ class NewCourse(Base, SBBase):
     name = Column(Unicode(50), nullable = False)
     context_id = Column(Unicode(50), nullable = False)
 
-    permissions = relation('Permission', backref=backref('newcourse', order_by=id))
-    newlms = relation('NewLMS', backref=backref('courses', order_by=id, cascade='all, delete'))
+    lms = relation('NewLMS', backref=backref('courses', order_by=id, cascade='all, delete'))
 
     def __init__(self, name = None, lms = None, context_id = None):
         self.name = name
-        self.newlms = lms
+        self.lms = lms
         self.context_id = context_id
 
     def __repr__(self):
-        return "<NewCourse: %s LMS:%s>" % (self.name, self.newlms)
+        return "<NewCourse: %s LMS:%s>" % (self.name, self.lms)
 
     def __unicode__(self):
-        return "%s on %s" % (self.name, self.newlms)
+        return "%s on %s" % (self.name, self.lms)
 
     @classmethod
     def find_by_lms_and_context(self, lms, context):
-        return DBS.query(self).filter(sql.and_(self.newlms == lms,
+        return DBS.query(self).filter(sql.and_(self.lms == lms,
                                                self.context_id == context)).first()
 
     @classmethod

@@ -30,6 +30,7 @@ class AdminPanel(AdminIndexView):
 
     @expose('/')
     def index(self):
+        return "To be implemented!!! (labmanager/views/admin/main.py)"
         pending_requests = Permission.find_by_status(u'pending')
         data = {'requests' : pending_requests }
         return self.render('admin/index.html', info=data)
