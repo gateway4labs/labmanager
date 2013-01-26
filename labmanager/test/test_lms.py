@@ -10,7 +10,7 @@ from werkzeug import Headers
 sys.path.append('.')
 os.environ['TESTING_LABMANAGER'] = 'sqlite:///:memory:'
 
-from labmanager.test.fake_rlms import register_fake
+from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID
 register_fake()
 
 import labmanager as server
@@ -41,11 +41,14 @@ class RequestProxy(object):
             for key in 'key', 'secret', 'kind':
                 data['autentications-%s-%s' % (pos, key)] = auth_config[key]
 
-        self.app.post('/admin/newlmsview/new/', data=data, follow_redirects = True)
+        self.app.post('/admin/lms/lms/new/', data=data, follow_redirects = True)
 
     def add_rlms(self, kind = RLMS_KIND, location = RLMS_LOCATION, url = RLMS_URL):
         data = dict(kind = kind, location = location, url = url)
-        rv = self.app.post('/admin/rlmsview/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
+        rv = self.app.post('/admin/rlms/rlms/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
+
+    def add_lab(self):
+        pass
 
 class FlaskrTestCase(unittest.TestCase):
 
@@ -68,27 +71,39 @@ class FlaskrTestCase(unittest.TestCase):
     def logout(self):
         return self.app.get('/logout', follow_redirects=True)
 
-    def _list_lms(self, name = LMS_NAME):
-        rv = self.app.get('/admin/newlmsview/')
+    def _check_lms(self, name = LMS_NAME):
+        rv = self.app.get('/admin/lms/lms/')
         assert name in rv.data
 
-    def _list_rlms(self, location = RLMS_LOCATION, url = RLMS_URL):
-        rv = self.app.get('/admin/rlmsview/')
+    def _check_rlms(self, location = RLMS_LOCATION, url = RLMS_URL):
+        rv = self.app.get('/admin/rlms/rlms/')
         assert location in rv.data 
         assert url in rv.data
+
+    def _check_labs_in_rlms(self, lab_name = LAB_NAME, lab_id = LAB_ID):
+        rv = self.app.get('/admin/???')
+        assert lab_name in rv.data
+        assert lab_id in rv.data
 
     def test_add_lms(self):
         self.login()
         self.proxy.add_lms()
-        self._list_lms()
+        self._check_lms()
         self.logout()
 
     def test_add_rlms(self):
         self.login()
         self.proxy.add_rlms()
-        self._list_rlms()
+        self._check_rlms()
         self.logout()
 
+    def test_add_lab(self):
+        self.login()
+        self.proxy.add_rlms()
+        self._check_labs_in_rlms()
+        self.proxy.add_lab()
+        
+        
     # testing functions
     def test_lms_request(self):
         """Start with a blank database."""
