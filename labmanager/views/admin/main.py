@@ -61,10 +61,7 @@ class UsersPanel(L4lModelView):
     column_list = ('login', 'name', 'access_level')
 
     def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        default_args = { "name":u"Users" }
-        default_args.update(**kwargs)
-        super(UsersPanel, self).__init__(User, session, **default_args)
+        super(UsersPanel, self).__init__(User, session, **kwargs)
 
     def is_accessible(self):
         return current_user.is_authenticated()

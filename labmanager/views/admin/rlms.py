@@ -4,7 +4,9 @@ from yaml import load as yload
 
 from flask import request, abort
 from flask.ext import wtf
-from labmanager.views.admin import L4lModelView
+from flask.ext.admin import expose
+
+from labmanager.views.admin import L4lModelView, L4lBaseView
 
 from labmanager.models import Permission, RLMS, Laboratory
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions
@@ -37,11 +39,7 @@ class RLMSPanel(L4lModelView):
     form_overrides = dict(kind=DynamicSelectField)
 
     def __init__(self, session, **kwargs):
-
-        default_args = { "category":u"ReLMS", "name":u"RLMS" }
-        default_args.update(**kwargs)
-
-        super(RLMSPanel, self).__init__(RLMS, session, **default_args)
+        super(RLMSPanel, self).__init__(RLMS, session, **kwargs)
         
         # 
         # For each supported RLMS, it provides a different edition
@@ -127,25 +125,24 @@ class RLMSPanel(L4lModelView):
         
         model.configuration = json.dumps(other_data)
 
+class LaboratoryView(L4lBaseView):
+    def __init__(self, session, **kwargs):
+        super(LaboratoryView, self).__init__(**kwargs)
 
 class LaboratoryPanel(L4lModelView):
     def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        default_args = { "category":u"ReLMS", "name":u"Laboratories" }
-        default_args.update(**kwargs)
-        super(LaboratoryPanel, self).__init__(Laboratory, session, **default_args)
+        super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
 
 
 class PermissionPanel(L4lModelView):
-    def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        default_args = { "name":u"Permissions" }
-        default_args.update(**kwargs)
-        super(PermissionPanel, self).__init__(Permission, session, **default_args)
 
     form_columns = ('newlms','newcourse','laboratory','configuration','access')
     sel_choices = [(status, status.title()) for status in config['permission_status']]
     form_overrides = dict(access=wtf.SelectField)
     form_args = dict(
-        access=dict( choices=sel_choices )
+            access=dict( choices=sel_choices )
         )
+
+    def __init__(self, session, **kwargs):
+        super(PermissionPanel, self).__init__(Permission, session, **kwargs)
+

@@ -11,16 +11,16 @@ def init_admin(app, db_session):
   It will add a blueprint called `admin` to the `app` flask application.
   """
 
-  admin = Admin(index_view = AdminPanel(url='/admin'), name = 'Lab Manager')
+  admin = Admin(index_view = AdminPanel(url='/admin'), name = u"Lab Manager")
 
-  admin.add_view(PermissionPanel(db_session))
+  admin.add_view(PermissionPanel(db_session, name = u"Permissions"))
 
-  admin.add_view(LMSPanel(db_session))
-  admin.add_view(CoursePanel(db_session))
+  admin.add_view(LMSPanel(db_session,        category = u"LMS", name = u"LMS"))
+  admin.add_view(CoursePanel(db_session,     category = u"LMS", name = u"Courses"))
 
-  admin.add_view(RLMSPanel(db_session))
-  admin.add_view(LaboratoryPanel(db_session))
+  admin.add_view(RLMSPanel(db_session,       category = u"ReLMS", name = u"RLMS"))
+  admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS", name = u"Laboratories"))
 
-  admin.add_view(UsersPanel(db_session))
+  admin.add_view(UsersPanel(db_session,      name     = u"Users"))
 
   admin.init_app(app)

@@ -26,16 +26,10 @@ class LMSPanel(L4lModelView):
     inline_models = (CredentialForm(Credential),)
 
     def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        default_args = { "category":u"LMS", "name":u"LMS" }
-        default_args.update(**kwargs)
-        super(LMSPanel, self).__init__(NewLMS, session, **default_args)
+        super(LMSPanel, self).__init__(NewLMS, session, **kwargs)
 
 
 class CoursePanel(L4lModelView):
     def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        default_args = { "category":u"LMS", "name":u"Courses" }
-        default_args.update(**kwargs)
-        super(CoursePanel, self).__init__(NewCourse, session, **default_args)
+        super(CoursePanel, self).__init__(NewCourse, session, **kwargs)
 
