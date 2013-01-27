@@ -6,8 +6,11 @@ from labmanager.database import Base, db_session as DBS
 from labmanager.models import LMS, SBBase, PermissionOnLaboratory
 
 class NewCourse(Base, SBBase):
+
     __tablename__ = 'newcourses'
+
     id = Column(Integer, primary_key = True)
+
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     name = Column(Unicode(50), nullable = False)
     context_id = Column(Unicode(50), nullable = False)

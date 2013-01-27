@@ -28,6 +28,9 @@ LMS_NAME = 'Testing LMS'
 LMS_URL  = 'http://localhost:31337/'
 LMS_PASSWORD = 'lms_password'
 
+COURSE_NAME = 'My course'
+CONTEXT_ID  = 'context-id'
+
 RLMS_KIND     = 'FakeRLMS<>1.0'
 RLMS_LOCATION = 'Bilbao'
 RLMS_URL      = 'http://github.com/lms4labs/labmanager/'
@@ -49,6 +52,15 @@ class RequestProxy(object):
                 data['autentications-%s-%s' % (pos, key)] = auth_config[key]
 
         self.app.post('/admin/lms/lms/new/', data=data, follow_redirects = True)
+
+    def add_course(self, lms_name = LMS_NAME, course_name = COURSE_NAME, context_id = CONTEXT_ID):
+        rv = self.app.get('/admin/lms/courses/new/', follow_redirects = True)
+        data = self._parse_selects(rv.data)
+
+        lms_id = self._find_in_select(data, 'lms', lms_name)
+
+        request_data = dict( lms = lms_id,  name = course_name, context_id = context_id)
+        self.app.post('/admin/lms/courses/new/', data = request_data, follow_redirects = True)
 
     def add_rlms(self, kind = RLMS_KIND, location = RLMS_LOCATION, url = RLMS_URL):
         data = dict(kind = kind, location = location, url = url)
@@ -78,25 +90,19 @@ class RequestProxy(object):
         rv = self.app.get('/admin/permissions/lms/new/', follow_redirects = True)
         data = self._parse_selects(rv.data)
 
-        lab_id = None
-        for value, name in data['laboratory']:
-            if lab_name in name:
-                lab_id = value
-                break
-
-        lms_id = None
-        for value, name in data['lms']:
-            if lms_name in name:
-                lms_id = value
-                break
+        lab_id = self._find_in_select(data, 'laboratory', lab_name)
+        lms_id = self._find_in_select(data, 'lms', lms_name)
 
         request_data = {
-            'laboratory'       : lab_id,
-            'lms'              : lms_id,
-            'configuration'    : '',
-            'local_identifier' : local_id,
+            'laboratory'       : lab_id, 'lms'              : lms_id,
+            'configuration'    : '',     'local_identifier' : local_id,
         }
         self.app.post('/admin/permissions/lms/new/', data = request_data, follow_redirects = True)
+
+    def _find_in_select(self, select_data, name, pattern):
+        for value, name in select_data[name]:
+            if pattern in name:
+                return value
     
     def _parse_selects(self, html):
         """ Returns a dictionary with the <select found in the HTML document """
@@ -150,6 +156,10 @@ class LabmanagerTestCase(unittest.TestCase):
         rv = self.app.get('/admin/lms/lms/')
         assert name in rv.data
 
+    def _check_course(self, name = COURSE_NAME):
+        rv = self.app.get('/admin/lms/courses/')
+        assert name in rv.data
+
     def _check_rlms(self, location = RLMS_LOCATION, url = RLMS_URL):
         rv = self.app.get('/admin/rlms/rlms/')
         assert location in rv.data 
@@ -190,6 +200,12 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_permission_on_lms()
         self._check_local_id_in_lms_permissions()
 
+    def test_add_course(self):
+        self.login()
+        self.proxy.add_lms()
+        self.proxy.add_course()
+        self._check_course()
+
     # testing functions
     def test_lms_request(self):
         self.login()
@@ -207,7 +223,7 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_permission_on_lms()
 
         # 5. Add a course
-        self.fail("Missing adding course")
+        self.proxy.add_course()
 
         # 6. Add a permission on that course
         self.fail("Missing adding permission on course")
