@@ -45,7 +45,7 @@ FAKE_ADDRESS = 'http://fake-address.com/payload='
 class RLMS(BaseRLMS):
 
     def __init__(self, configuration):
-        self.configuration = configuration
+        self.configuration = json.loads(configuration)
 
     def test(self):
         return None
@@ -54,8 +54,9 @@ class RLMS(BaseRLMS):
         return [ Laboratory(LAB_NAME, LAB_ID) ]
 
     def reserve(self, **kwargs):
-        kwargs.update(self.configuration)
-        return FAKE_ADDRESS + json.dumps(kwargs)
+        obtained_kwargs = self.configuration.copy()
+        obtained_kwargs.update(kwargs)
+        return FAKE_ADDRESS + json.dumps(obtained_kwargs)
 
 def register_fake():
     register("FakeRLMS", ['1.0'], __name__)

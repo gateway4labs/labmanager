@@ -31,7 +31,7 @@ class Permission(Base, SBBase):
         self.access            = access
 
     def __repr__(self):
-        return "<Permission %r: %r %r>" % (self.id, self.laboratory_id, self.access)
+        return "<Permission %r: %r %r>" % (self.id, self.permission_on_lab.laboratory_id, self.access)
 
     def __unicode__(self):
         return u"%s from %s on %s (%s)" % (self.newcourse.name, self.course.lms.name, self.laboratory.name, self.access)

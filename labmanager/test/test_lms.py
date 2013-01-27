@@ -1,5 +1,6 @@
 # -*-*- encoding: utf-8 -*-*-
 import os
+import sha
 import sys
 import json
 import urlparse
@@ -15,7 +16,7 @@ os.environ['TESTING_LABMANAGER'] = 'sqlite:///:memory:'
 
 from flask import request
 
-from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID
+from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDRESS
 register_fake()
 
 import labmanager as server
@@ -216,7 +217,7 @@ class LabmanagerTestCase(unittest.TestCase):
     def logout(self):
         return self.client.get('/logout', follow_redirects=True)
 
-    def _check_lms(self, name = LMS_NAME):
+    def _check_lms(self, name = LMS_NAME, lms_password = LMS_PASSWORD):
         rv = self.client.get('/admin/lms/lms/')
         table = _parse_tables(rv.data)[0]
 
@@ -233,6 +234,12 @@ class LabmanagerTestCase(unittest.TestCase):
         rv = self.client.get(edit_url)
         inline_forms = _parse_inline_forms(rv.data, 'authentications')
         self.assertEquals(1, len(inline_forms))
+
+        password = None
+        for key, value in inline_forms[0]:
+            if key.endswith('-secret'):
+                password = value
+        self.assertEquals(password, sha.new(lms_password).hexdigest())
 
     def _check_course(self, name = COURSE_NAME):
         rv = self.client.get('/admin/lms/courses/')
@@ -323,16 +330,27 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_permission_to_course()
         
         # 7. Perform a request
+        USERNAME  = 'pablo'
+        FULL_NAME = u'Pablo Orduña'
+        request_payload = {
+                            'action'     : 'reserve',
+                            'experiment' : LOCAL_ID,
+        }
         rv = self.client.post('/labmanager/requests/', data = json.dumps({
-            'courses'        : { "1" : ["student"], "2" : ["teacher"] },
-            'request-payload': "the payload",
+            'courses'        : { CONTEXT_ID : ["student"] },
+            'request-payload': json.dumps(request_payload),
             'general-role'   : "admin",
-            'author'         : "pablo",
-            'complete-name'  : "Pablo Orduña",
+            'user-id'        : "pablo",
+            'full-name'      : u"Pablo Orduña",
         }), headers = self.headers, content_type = "application/json")
 
         # 8. Validate the request
-        print rv.data
+        assert rv.data.startswith(FAKE_ADDRESS)
+        rd = json.loads(rv.data.split(FAKE_ADDRESS, 1)[1])
+
+        self.assertEquals(rd['laboratory_id'], LAB_ID)
+        self.assertEquals(rd['username'],      USERNAME)
+        self.assertEquals(rd['request_payload'], request_payload)
         
         # kthxbai
         self.logout()

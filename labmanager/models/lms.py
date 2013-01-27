@@ -33,6 +33,7 @@ class LMS(Base):
 class NewLMS(Base, SBBase):
 
     __tablename__  = 'newlmss'
+    __table_args__ = (UniqueConstraint('name'), )
 
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False, index = True)

@@ -28,8 +28,9 @@ from flask import Response, render_template, request, g, abort, Blueprint
 # LabManager imports
 #
 from labmanager.database import db_session
-from labmanager.models   import LMS, PermissionOnLaboratory, RLMS, Laboratory
+from labmanager.models   import NewLMS, PermissionOnLaboratory, RLMS, Laboratory
 from labmanager.rlms     import get_manager_class
+from labmanager.application import app
 
 from labmanager.views import get_json
 from error_codes import messages_codes
@@ -84,8 +85,8 @@ def requests():
 
 
     # reserving...
-    db_lms = db_session.query(LMS).filter_by(lms_login = g.lms).first()
-    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms_id = db_lms.id, local_identifier = experiment_identifier).first()
+    db_lms = db_session.query(NewLMS).filter_by(name = g.lms).first()
+    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
     reservation_url = ""
@@ -94,32 +95,34 @@ def requests():
     else:
         courses_configurations = []
         for course_permission in permission_on_lab.course_permissions:
-            if course_permission.course.course_id in courses:
+            if course_permission.course.context_id in courses:
                 # Let the server choose among the best possible configuration
                 courses_configurations.append(course_permission.configuration)
-
+        
         if len(courses_configurations) == 0 and not general_role:
             error_msg = messages_codes['ERROR_enrolled']
         else:
             lms_configuration = permission_on_lab.configuration
             db_laboratory   = permission_on_lab.laboratory
             db_rlms         = db_laboratory.rlms
-            db_rlms_version = db_rlms.rlms_version
-            db_rlms_type    = db_rlms_version.rlms_type
+            rlms_version    = db_rlms.version
+            rlms_kind       = db_rlms.kind
 
-            ManagerClass = get_manager_class(db_rlms_type.name, db_rlms_version.version)
+            ManagerClass = get_manager_class(rlms_kind, rlms_version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
-            reservation_url = remote_laboratory.reserve(db_laboratory.laboratory_id,
-                                                        author,
-                                                        lms_configuration,
-                                                        courses_configurations,
-                                                        request_payload,
-                                                        user_agent,
-                                                        origin_ip,
-                                                        referer)
-            good_msg = messages_codes['MSG_asigned'] % (db_rlms.name,
-                                                        db_rlms_type.name,
-                                                        db_rlms_version.version,
+            
+            # XXX TODO: a dictionary should be passed here so as to enable changing details among versions
+            reservation_url = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+                                                        username                  = author,
+                                                        general_configuration_str = lms_configuration,
+                                                        particular_configurations = courses_configurations,
+                                                        request_payload           = request_payload,
+                                                        user_agent                = user_agent,
+                                                        origin_ip                 = origin_ip,
+                                                        referer                   = referer)
+            good_msg = messages_codes['MSG_asigned'] % (db_rlms.kind,
+                                                        db_rlms.version,
+                                                        db_rlms.url,
                                                         reservation_url,
                                                         reservation_url)
 

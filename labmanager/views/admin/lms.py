@@ -1,4 +1,7 @@
 # -*-*- encoding: utf-8 -*-*-
+import sha
+import threading
+
 from yaml import load as yload
 
 from flask.ext import wtf
@@ -28,7 +31,29 @@ class LMSPanel(L4lModelView):
 
     def __init__(self, session, **kwargs):
         super(LMSPanel, self).__init__(NewLMS, session, **kwargs)
+        self.local_data = threading.local()
 
+    def edit_form(self, obj = None):
+        form = super(LMSPanel, self).edit_form(obj)
+        self.local_data.authentications = {}
+        if obj is not None:
+            for auth in obj.authentications:
+                self.local_data.authentications[auth.id] = auth.secret
+        return form
+
+    def on_model_change(self, form, model):
+        old_authentications = getattr(self.local_data, 'authentications', {})
+
+        for authentication in model.authentications:
+            if authentication.kind == 'basic':
+                # If it's the same secret, don't change it
+                old_secret = old_authentications.get(authentication.id, None)
+                if authentication.secret == old_secret:
+                    continue
+                # Otherwise, regenerate the hash
+                hash_password = sha.new(authentication.secret).hexdigest()
+                authentication.secret = hash_password 
+            
 
 class CoursePanel(L4lModelView):
     def __init__(self, session, **kwargs):

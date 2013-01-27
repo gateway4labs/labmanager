@@ -1,4 +1,4 @@
-import hashlib
+import sha
 
 from werkzeug.exceptions import Unauthorized
 from flask import request, g, Blueprint
@@ -10,15 +10,13 @@ from labmanager.views import get_json
 scorm_blueprint = Blueprint('basic_auth', __name__)
 
 def check_lms_auth(lmsname, password):
-    hash_password = hashlib.new("sha", password).hexdigest()
+    hash_password = sha.new(password).hexdigest()
     # TODO: check if there could be a conflict between two LMSs with same key??
     credential = db_session.query(Credential).filter_by(key = lmsname, secret = hash_password).first()
-    print credential, lmsname, password
-    print db_session.query(Credential).all()
     if credential is None:
         return False
     g.lms = credential.lms.name
-    return 
+    return True
 
 @scorm_blueprint.before_request
 def requires_lms_auth():
