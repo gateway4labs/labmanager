@@ -86,7 +86,7 @@ class RequestProxy(object):
         table = self._parse_tables(rv.data)[0]
         return lab_url
 
-    def add_permission_on_lms(self, lms_name = LMS_NAME, lab_name = LAB_NAME, local_id = LOCAL_ID):
+    def add_permission_to_lms(self, lms_name = LMS_NAME, lab_name = LAB_NAME, local_id = LOCAL_ID):
         rv = self.app.get('/admin/permissions/lms/new/', follow_redirects = True)
         data = self._parse_selects(rv.data)
 
@@ -99,10 +99,26 @@ class RequestProxy(object):
         }
         self.app.post('/admin/permissions/lms/new/', data = request_data, follow_redirects = True)
 
-    def _find_in_select(self, select_data, name, pattern):
-        for value, name in select_data[name]:
+    def add_permission_to_course(self, local_id = LOCAL_ID, course_name = COURSE_NAME):
+        rv = self.app.get('/admin/permissions/course/new/', follow_redirects = True)
+
+        selects_data         = self._parse_selects(rv.data)
+        permission_on_lab_id = self._find_in_select(selects_data, 'permission_on_lab', local_id)
+        course_id            = self._find_in_select(selects_data, 'course', course_name)
+        
+        request_data = {
+            'permission_on_lab' : permission_on_lab_id, 'course' : course_id,
+            'access'            : 'granted',            'configuration' : '',
+        }
+
+        self.app.post('/admin/permissions/course/new/', data = request_data, follow_redirects = True)
+        
+
+    def _find_in_select(self, select_data, select_name, pattern):
+        for value, name in select_data[select_name]:
             if pattern in name:
                 return value
+        raise AssertionError('Pattern %s not found in %s' % (pattern, select_data[select_name]))
     
     def _parse_selects(self, html):
         """ Returns a dictionary with the <select found in the HTML document """
@@ -174,6 +190,10 @@ class LabmanagerTestCase(unittest.TestCase):
         rv = self.app.get('/admin/permissions/lms/')
         assert local_id in rv.data
 
+    def _check_local_id_in_course_permissions(self, local_id = LOCAL_ID):
+        rv = self.app.get('/admin/permissions/course/')
+        assert local_id in rv.data
+
     def test_add_lms(self):
         self.login()
         self.proxy.add_lms()
@@ -192,12 +212,12 @@ class LabmanagerTestCase(unittest.TestCase):
         lab_url = self.proxy.add_lab()
         self._check_labs_in_rlms(lab_url)
     
-    def test_add_permission_on_lms(self):
+    def test_add_permission_to_lms(self):
         self.login()
         self.proxy.add_rlms()
         self.proxy.add_lab()
         self.proxy.add_lms()
-        self.proxy.add_permission_on_lms()
+        self.proxy.add_permission_to_lms()
         self._check_local_id_in_lms_permissions()
 
     def test_add_course(self):
@@ -205,6 +225,17 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_lms()
         self.proxy.add_course()
         self._check_course()
+
+    def test_add_permission_to_course(self):
+        self.login()
+        self.proxy.add_rlms()
+        self.proxy.add_lab()
+        self.proxy.add_lms()
+        self.proxy.add_course()
+        self.proxy.add_permission_to_lms()
+        self.proxy.add_permission_to_course()
+        self._check_local_id_in_course_permissions()
+       
 
     # testing functions
     def test_lms_request(self):
@@ -220,13 +251,13 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_lms()
     
         # 4. Add a permission to that LMS
-        self.proxy.add_permission_on_lms()
+        self.proxy.add_permission_to_lms()
 
         # 5. Add a course
         self.proxy.add_course()
 
         # 6. Add a permission on that course
-        self.fail("Missing adding permission on course")
+        self.proxy.add_permission_to_course()
         
         # 7. Perform a request
         rv = self.app.post('/lms4labs/requests/', data = json.dumps({
@@ -238,7 +269,7 @@ class LabmanagerTestCase(unittest.TestCase):
         }), headers = self.headers, content_type = "application/json")
 
         # 8. Validate the request
-        # TODO
+        print rv.data
         
         # kthxbai
         self.logout()
