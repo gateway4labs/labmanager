@@ -4,8 +4,8 @@ standard_urn_admin_roles:
         - AccountAdmin
 
 permission_status:
-        - pending
         - granted
+        - pending
         - denied
 
 authentication_types:

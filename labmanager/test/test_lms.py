@@ -22,6 +22,8 @@ from labmanager.views.admin.rlms import RLMSPanel
 ADMIN = 'admin'
 PASSWORD = 'password'
 
+LOCAL_ID = 'localid'
+
 LMS_NAME = 'Testing LMS'
 LMS_URL  = 'http://localhost:31337/'
 LMS_PASSWORD = 'lms_password'
@@ -72,6 +74,44 @@ class RequestProxy(object):
         table = self._parse_tables(rv.data)[0]
         return lab_url
 
+    def add_permission_on_lms(self, lms_name = LMS_NAME, lab_name = LAB_NAME, local_id = LOCAL_ID):
+        rv = self.app.get('/admin/permissions/lms/new/', follow_redirects = True)
+        data = self._parse_selects(rv.data)
+
+        lab_id = None
+        for value, name in data['laboratory']:
+            if lab_name in name:
+                lab_id = value
+                break
+
+        lms_id = None
+        for value, name in data['lms']:
+            if lms_name in name:
+                lms_id = value
+                break
+
+        request_data = {
+            'laboratory'       : lab_id,
+            'lms'              : lms_id,
+            'configuration'    : '',
+            'local_identifier' : local_id,
+        }
+        self.app.post('/admin/permissions/lms/new/', data = request_data, follow_redirects = True)
+    
+    def _parse_selects(self, html):
+        """ Returns a dictionary with the <select found in the HTML document """
+        parsed = BeautifulSoup(html)
+        select_data = {}
+        for select in parsed.find_all('select'):
+            name = select.get('name')
+            values = []
+            for option in select.find_all('option'):
+                text  = option.get_text()
+                value = option.get('value')
+                values.append((value, text))
+            select_data[name] = values
+        return select_data
+
     def _parse_tables(self, html):
         parsed = BeautifulSoup(html)
         tables = []
@@ -120,6 +160,10 @@ class LabmanagerTestCase(unittest.TestCase):
         assert lab_name in rv.data
         assert lab_id in rv.data
 
+    def _check_local_id_in_lms_permissions(self, local_id = LOCAL_ID):
+        rv = self.app.get('/admin/permissions/lms/')
+        assert local_id in rv.data
+
     def test_add_lms(self):
         self.login()
         self.proxy.add_lms()
@@ -137,7 +181,14 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_rlms()
         lab_url = self.proxy.add_lab()
         self._check_labs_in_rlms(lab_url)
-       
+    
+    def test_add_permission_on_lms(self):
+        self.login()
+        self.proxy.add_rlms()
+        self.proxy.add_lab()
+        self.proxy.add_lms()
+        self.proxy.add_permission_on_lms()
+        self._check_local_id_in_lms_permissions()
 
     # testing functions
     def test_lms_request(self):
@@ -153,7 +204,7 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_lms()
     
         # 4. Add a permission to that LMS
-        self.fail("Missing adding permission on LMS")
+        self.proxy.add_permission_on_lms()
 
         # 5. Add a course
         self.fail("Missing adding course")
