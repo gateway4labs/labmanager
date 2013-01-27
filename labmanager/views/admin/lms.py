@@ -23,6 +23,7 @@ class CredentialForm(InlineFormAdmin):
 class LMSPanel(L4lModelView):
     # los que se muestran en el index, son current_user.accessible_lmss()
 
+    column_list = ('name', 'url')
     inline_models = (CredentialForm(Credential),)
 
     def __init__(self, session, **kwargs):

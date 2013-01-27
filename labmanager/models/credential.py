@@ -11,19 +11,19 @@ class Credential(Base):
     lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
     secret = Column(Unicode(50), nullable = False)
 
-    newlms = relation('NewLMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
+    lms = relation('NewLMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
 
     def __init__(self, key = None, secret = None, kind = None, lms = None):
         self.key = key
         self.secret = secret
         self.kind = kind
-        self.newlms = lms
+        self.lms = lms
 
     def __repr__(self):
         return "<Credential: %s LMS:%s>" % ( self.lms_id, self.kind )
 
     def __unicode__(self):
-        return "%s auth for %s" %(self.kind, self.newlms.name)
+        return "%s auth for %s" %(self.kind, self.lms.name)
 
     @classmethod
     def find_by_key(self, r_key):

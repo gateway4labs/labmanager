@@ -31,9 +31,11 @@ class LMS(Base):
 
 
 class NewLMS(Base, SBBase):
+
     __tablename__  = 'newlmss'
+
     id = Column(Integer, primary_key = True)
-    name = Column(Unicode(50), nullable = False)
+    name = Column(Unicode(50), nullable = False, index = True)
     url = Column(Unicode(300), nullable = False)
 
     def __init__(self, name = None, url = None):
