@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, s
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
 
-from labmanager.models import LMS, SBBase, PermissionOnLaboratory
+from labmanager.models import SBBase, PermissionOnLaboratory
 
 class NewCourse(Base, SBBase):
 
@@ -41,47 +41,3 @@ class NewCourse(Base, SBBase):
         else:
             return self.new(name = name, lms = lms, context_id = context)
 
-
-
-##########
-
-# XXX DEPRECATED: TO BE DELETED
-class Course(Base):
-    __tablename__  = 'Courses'
-    __table_args__ = (UniqueConstraint('course_id', 'lms_id'), )
-
-    id = Column(Integer, primary_key = True)
-
-    # The ID in the remote LMS
-    course_id = Column(Unicode(50), nullable = False)
-
-    name   = Column(Unicode(50), nullable = False)
-
-    lms_id = Column(Integer, ForeignKey('LMSs.id'), nullable = False)
-
-    lms  = relation(LMS.__name__, backref = backref('courses', order_by=id, cascade = 'all,delete'))
-
-    def __init__(self, lms = None, course_id = None, name = None):
-        self.course_id = course_id
-        self.name      = name
-        self.lms       = lms
-
-# XXX DEPRECATED: TO BE DELETED
-class PermissionOnCourse(Base):
-    __tablename__  = 'PermissionOnCourses'
-    __table_args__ = (UniqueConstraint('course_id', 'permission_on_lab_id'),)
-
-    id = Column(Integer, primary_key = True)
-
-    configuration        = Column(Unicode(10 * 1024)) # JSON document
-
-    permission_on_lab_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
-    course_id            = Column(Integer, ForeignKey('Courses.id'), nullable = False)
-
-    # permission_on_lab    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
-    course               = relation(Course.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
-
-    def __init__(self, permission_on_lab = None, course = None, configuration = None):
-        self.permission_on_lab = permission_on_lab
-        self.course            = course
-        self.configuration     = configuration

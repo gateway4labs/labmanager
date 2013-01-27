@@ -28,7 +28,7 @@ from flask import render_template, request, g, session, redirect, url_for, flash
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, Course, PermissionOnLaboratory, PermissionOnCourse
+from labmanager.models   import PermissionOnLaboratory
 from labmanager.rlms     import get_permissions_form_class
 
 from labmanager.views import get_json, deletes_elements, get_scorm_object, get_authentication_scorm, retrieve_courses
@@ -123,7 +123,7 @@ def lms_admin_index():
 
 @lms_admin.route("/admin/courses/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
-@deletes_elements(Course)
+# @deletes_elements(Course)
 def lms_admin_courses():
     if request.method == 'POST':
         if request.form['action'] == 'add':
@@ -133,7 +133,7 @@ def lms_admin_courses():
 
 @lms_admin.route("/admin/courses/<int:course_id>/", methods = ['GET', 'POST'])
 @requires_lms_admin_session
-@deletes_elements(PermissionOnCourse)
+# @deletes_elements(PermissionOnCourse)
 def lms_admin_courses_permissions(course_id):
     db_lms = db_session.query(LMS).filter_by(lms_login = session['lms']).first()
     course = db_session.query(Course).filter_by(id = course_id, lms = db_lms).first()

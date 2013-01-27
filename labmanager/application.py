@@ -24,7 +24,7 @@ from flask import Flask, Blueprint, render_template, Response, request, g, abort
 from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
 
 from labmanager.database import db_session
-from labmanager.models import LMS, LabManagerUser as User, Credential
+from labmanager.models import LabManagerUser as User, Credential
 
 from labmanager.admin import init_admin
 

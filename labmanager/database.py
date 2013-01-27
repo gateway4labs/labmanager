@@ -43,7 +43,7 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LMS, LabManagerUser, Course, PermissionOnCourse, PermissionOnLaboratory, Laboratory
+    from labmanager.models import LabManagerUser, PermissionOnLaboratory, Laboratory
     from labmanager.models import NewLMS, RLMS, Permission, Credential, NewCourse
 
     init_db(drop = True)

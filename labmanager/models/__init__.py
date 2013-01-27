@@ -19,9 +19,9 @@ class SBBase(object):
         return instance
 
 from .rlms import RLMS
-from .lms import LMS, NewLMS
+from .lms import NewLMS
 from .laboratory import Laboratory, PermissionOnLaboratory
 from .credential import Credential
 from .permission import Permission
-from .course import NewCourse, Course, PermissionOnCourse
+from .course import NewCourse
 from .user import LabManagerUser

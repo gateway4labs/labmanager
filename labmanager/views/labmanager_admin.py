@@ -27,11 +27,11 @@ from flask import render_template, request, session, redirect, url_for, flash, B
 # LabManager imports
 # 
 from labmanager.database import db_session
-from labmanager.models   import LMS, LabManagerUser, RLMS, Laboratory, PermissionOnLaboratory
+from labmanager.models   import LabManagerUser, RLMS, Laboratory, PermissionOnLaboratory
 from labmanager.rlms     import get_supported_types, get_supported_versions, is_supported, get_form_class, get_manager_class, get_lms_permissions_form_class
 from labmanager.forms    import AddLmsForm, AddUserForm
 
-from labmanager.views import deletes_elements, get_authentication_scorm, retrieve_courses
+from labmanager.views import get_authentication_scorm, retrieve_courses
 from labmanager.views.lms_admin import _login_as_lms
 
 
@@ -66,7 +66,7 @@ def requires_labmanager_admin_session(f):
 
 @labmanager.route("/admin/lms_authenticate_<lms_login>.zip")
 @requires_labmanager_admin_session
-@deletes_elements(LMS)
+# @deletes_elements(LMS)
 def admin_lms_authenticate_scorm(lms_login):
     db_lms = db_session.query(LMS).filter_by(lms_login = lms_login).first()
     if db_lms is None:
