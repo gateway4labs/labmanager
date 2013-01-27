@@ -1,13 +1,16 @@
 # -*-*- encoding: utf-8 -*-*-
 import json
+import urlparse
+
 from yaml import load as yload
 
-from flask import request, abort, Markup, url_for
+from flask import request, abort, Markup, url_for, Response
 from flask.ext import wtf
 from flask.ext.admin import expose
 
 from labmanager.views.admin import L4lModelView, L4lBaseView
 
+from labmanager.scorm import get_scorm_object
 from labmanager.models import Permission, RLMS, Laboratory, PermissionOnLaboratory
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
@@ -191,18 +194,48 @@ class LaboratoryPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
 
+def scorm_formatter(c, permission, p):
+    
+    for auth in permission.lms.authentications:
+        if auth.kind == 'basic':
+            return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lms_id = permission.lms.id,  local_id = permission.local_identifier)))
+
+    return 'N/A'
+
 class PermissionOnLaboratoryPanel(L4lModelView):
     # 
     # TODO: manage configuration
     # 
+
+    column_list = ('laboratory', 'lms', 'local_identifier', 'configuration', 'SCORM')
+
     column_descriptions = dict(
                 laboratory       = u"Laboratory",
                 lms              = u"Learning Management System",
                 local_identifier = u"Unique identifier for a LMS to access a laboratory",
             )
 
+    column_formatters = dict( SCORM = scorm_formatter )
+
+
     def __init__(self, session, **kwargs):
         super(PermissionOnLaboratoryPanel, self).__init__(PermissionOnLaboratory, session, **kwargs)
+
+    @expose('/scorm/<lms_id>/scorm_<local_id>.zip')
+    def get_scorm(self, lms_id, local_id):
+        permission = self.session.query(PermissionOnLaboratory).filter_by(lms_id = lms_id, local_identifier = local_id).one()
+        
+        db_lms = permission.lms 
+
+        lms_path = urlparse.urlparse(db_lms.url).path or '/'
+        extension = '/'
+        if 'lms4labs/' in lms_path:
+            extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
+            lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
+
+        contents = get_scorm_object(False, local_id, lms_path, extension)
+        return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})
+        
 
 class PermissionPanel(L4lModelView):
 

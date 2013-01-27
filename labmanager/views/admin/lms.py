@@ -4,11 +4,14 @@ import threading
 
 from yaml import load as yload
 
+from flask import Markup, url_for
 from flask.ext import wtf
 from flask.ext.login import current_user
+from flask.ext.admin import expose
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
+from labmanager.scorm import get_authentication_scorm
 from labmanager.models import Credential, NewLMS, NewCourse
 from labmanager.views.admin import L4lModelView
 
@@ -23,11 +26,19 @@ class CredentialForm(InlineFormAdmin):
         form.kind = wtf.SelectField(u'Kind', choices=sel_choices)
         return form
 
-class LMSPanel(L4lModelView):
-    # los que se muestran en el index, son current_user.accessible_lmss()
+def download(c, lms, p):
+    for auth in lms.authentications:
+        if auth.kind == 'basic':
+            return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lms.id)))
+    return 'N/A'
 
-    column_list = ('name', 'url')
+class LMSPanel(L4lModelView):
+
     inline_models = (CredentialForm(Credential),)
+
+    column_list = ('name', 'url', 'download')
+    column_formatters = dict( download = download )
+
 
     def __init__(self, session, **kwargs):
         super(LMSPanel, self).__init__(NewLMS, session, **kwargs)
@@ -53,6 +64,11 @@ class LMSPanel(L4lModelView):
                 # Otherwise, regenerate the hash
                 hash_password = sha.new(authentication.secret).hexdigest()
                 authentication.secret = hash_password 
+
+    @expose('/<id>/scorm_authentication.zip')
+    def scorm_authentication(self, id):
+        lms = self.session.query(NewLMS).filter_by(id = id).one()
+        return get_authentication_scorm(lms.url)
             
 
 class CoursePanel(L4lModelView):
