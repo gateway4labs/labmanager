@@ -206,7 +206,7 @@ class PermissionOnLaboratoryPanel(L4lModelView):
 
 class PermissionPanel(L4lModelView):
 
-    form_columns = ('course', 'laboratory','configuration','access')
+#    form_columns = ('course', 'laboratory','configuration','access')
     sel_choices = [(status, status.title()) for status in config['permission_status']]
     form_overrides = dict(access=wtf.SelectField)
     form_args = dict(

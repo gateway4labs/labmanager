@@ -5,6 +5,7 @@ from labmanager.database import Base, db_session as DBS
 
 from labmanager.models import SBBase
 
+# XXX DEPRECATED: TO BE DELETED
 class LMS(Base):
 
     __tablename__ = 'LMSs'

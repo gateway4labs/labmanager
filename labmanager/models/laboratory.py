@@ -46,3 +46,6 @@ class PermissionOnLaboratory(Base):
         self.laboratory       = laboratory
         self.configuration    = configuration
         self.local_identifier = local_identifier
+
+    def __unicode__(self):
+        return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lms.name)

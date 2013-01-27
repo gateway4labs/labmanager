@@ -45,6 +45,7 @@ class NewCourse(Base, SBBase):
 
 ##########
 
+# XXX DEPRECATED: TO BE DELETED
 class Course(Base):
     __tablename__  = 'Courses'
     __table_args__ = (UniqueConstraint('course_id', 'lms_id'), )
@@ -65,6 +66,7 @@ class Course(Base):
         self.name      = name
         self.lms       = lms
 
+# XXX DEPRECATED: TO BE DELETED
 class PermissionOnCourse(Base):
     __tablename__  = 'PermissionOnCourses'
     __table_args__ = (UniqueConstraint('course_id', 'permission_on_lab_id'),)
@@ -76,7 +78,7 @@ class PermissionOnCourse(Base):
     permission_on_lab_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
     course_id            = Column(Integer, ForeignKey('Courses.id'), nullable = False)
 
-    permission_on_lab    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
+    # permission_on_lab    = relation(PermissionOnLaboratory.__name__, backref = backref('course_permissions', order_by=id, cascade = 'all,delete'))
     course               = relation(Course.__name__, backref = backref('permissions', order_by=id, cascade = 'all,delete'))
 
     def __init__(self, permission_on_lab = None, course = None, configuration = None):

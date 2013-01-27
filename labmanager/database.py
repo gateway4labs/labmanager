@@ -141,15 +141,12 @@ def add_sample_users():
                         context_id = u"1")
     db_session.add(course1)
 
+    permission_to_lms1 = PermissionOnLaboratory(lms = newlms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+
     permission1 = Permission(context = course1,
-                             laboratory = robot_lab,
+                             permission_on_lab = permission_to_lms1,
                              access = u"pending")
     db_session.add(permission1)
-
-    permission2 = Permission(context = course1,
-                             laboratory = robot_lab,
-                             access = u"pending")
-    db_session.add(permission2)
 
     auth1 = Credential(key = u"admin",
                       kind = u"OAuth1.0",
