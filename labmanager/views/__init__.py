@@ -174,8 +174,5 @@ def load():
     import labmanager.views.lms_admin
     assert labmanager.views.lms_admin != None
 
-    import labmanager.views.labmanager_admin
-    assert labmanager.views.labmanager_admin != None
-
     import labmanager.views.admin
     assert labmanager.views.admin != None

@@ -19,7 +19,7 @@ import os, sys
 # - LTI blueprint (user requests through LMS using LTI)
 # - Labmanager blueprint (labmanager management)
 # 
-from labmanager.views import lms_admin, labmanager_admin, load
+from labmanager.views import lms_admin, load
 from labmanager.ims_lti import lti_blueprint
 from labmanager.scorm_package import scorm_blueprint
 
@@ -41,7 +41,6 @@ import config as _config
 # Register the blueprints in the application
 # 
 app.register_blueprint(scorm_blueprint, url_prefix='/labmanager')
-app.register_blueprint(labmanager_admin.labmanager, url_prefix='/labmanager')
 app.register_blueprint(lms_admin.lms_admin, url_prefix='/labmanager/lms')
 app.register_blueprint(lti_blueprint, url_prefix='/lti')
 
