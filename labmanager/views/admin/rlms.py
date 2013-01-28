@@ -184,7 +184,7 @@ class RLMSPanel(L4lModelView):
 
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
-        return self.render('admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
+        return self.render('l4l-admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
 class LaboratoryPanel(L4lModelView):
 

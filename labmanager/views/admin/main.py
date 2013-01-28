@@ -32,7 +32,7 @@ class AdminPanel(AdminIndexView):
         return "To be implemented!!! (labmanager/views/admin/main.py)"
         pending_requests = Permission.find_by_status(u'pending')
         data = {'requests' : pending_requests }
-        return self.render('admin/index.html', info=data)
+        return self.render('l4l-admin/index.html', info=data)
 
     @expose('/<model>/<int:r_id>/show')
     def show(self, model ,r_id):
@@ -46,7 +46,7 @@ class AdminPanel(AdminIndexView):
                 col_name = col[col.find('.') + 1:]
                 data[col_name] = info.__dict__[col_name]
 
-            response = self.render('admin/models/show.html', info=data)
+            response = self.render('l4l-admin/models/show.html', info=data)
         except AttributeError:
             response = abort(404)
         return response
