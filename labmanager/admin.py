@@ -1,15 +1,15 @@
 from flask.ext.admin import Admin
 
-from .views.admin.lms  import LMSPanel, CoursePanel
-from .views.admin.rlms import RLMSPanel, LaboratoryPanel, PermissionPanel, PermissionOnLaboratoryPanel
-from .views.admin.main import AdminPanel, UsersPanel
-
 def init_admin(app, db_session):
     """
     Creates a whole administration interface using Flask Admin.
 
     It will add a blueprint called `admin` to the `app` flask application.
     """
+
+    from .views.admin.lms  import LMSPanel, CoursePanel
+    from .views.admin.rlms import RLMSPanel, LaboratoryPanel, PermissionPanel, PermissionOnLaboratoryPanel
+    from .views.admin.main import AdminPanel, UsersPanel
 
     admin_url = '/admin'
 
@@ -28,7 +28,8 @@ def init_admin(app, db_session):
 
     admin.init_app(app)
 
+    from .views.lms.main import LmsPanel
+
     lms_url = '/lms'
-    # lms = Admin(index_view = AdminPanel(url=lms_url), name = u"Lab Manager", url = lms_url, endpoint = lms_url)
-    lms = Admin(name = u"Lab Manager", url = lms_url, endpoint = lms_url)
+    lms = Admin(index_view = LmsPanel(url=lms_url, endpoint = 'lms'), name = u"Lab Manager", url = lms_url, endpoint = lms_url)
     lms.init_app(app)

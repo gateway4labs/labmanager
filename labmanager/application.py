@@ -22,8 +22,6 @@ from flask.ext.login import LoginManager, login_user, logout_user, login_require
 from labmanager.database import db_session
 from labmanager.models import LabManagerUser as User
 
-from labmanager.admin import init_admin
-
 app = Flask(__name__)
 app.config.from_object('config')
 app.secret_key = os.urandom(32)
@@ -31,6 +29,9 @@ app.secret_key = os.urandom(32)
 login_manager = LoginManager()
 login_manager.setup_app(app)
 login_manager.session_protection = "strong"
+
+
+from labmanager.admin import init_admin
 
 init_admin(app, db_session)
 

@@ -5,7 +5,6 @@ from flask import request, g, Blueprint
 
 from labmanager.database import db_session
 from labmanager.models import Credential
-from labmanager.views import get_json
 
 scorm_blueprint = Blueprint('basic_auth', __name__)
 
@@ -22,6 +21,7 @@ def check_lms_auth(lmsname, password):
 def requires_lms_auth():
     auth = request.authorization
     if not auth:
+        from labmanager.views import get_json
         json_data = get_json()
         if json_data is None:
             raise Unauthorized("Could not verify your access level for that URL")

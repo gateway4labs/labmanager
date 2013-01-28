@@ -29,9 +29,9 @@ class AdminPanel(AdminIndexView):
 
     @expose('/')
     def index(self):
-        return "To be implemented!!! (labmanager/views/admin/main.py)"
-        pending_requests = Permission.find_by_status(u'pending')
-        data = {'requests' : pending_requests }
+        # pending_requests = Permission.find_by_status(u'pending')
+        # data = {'requests' : pending_requests }
+        data = {}
         return self.render('l4l-admin/index.html', info=data)
 
     @expose('/<model>/<int:r_id>/show')
