@@ -7,9 +7,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 """
-  :copyright: 2012 Pablo Orduña, Elio San Cristobal, Alberto Pesquera Martín
-  :license: BSD, see LICENSE for more details
-
   This will handle the main application routes. It will be in charge of
   registering all the blueprint that it needs and exposing some of the
   basic routes (like login and logout).

@@ -6,11 +6,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-"""
-  :copyright: 2012 Pablo Orduña, Elio San Cristobal, Alberto Pesquera Martín
-  :license: BSD, see LICENSE for more details
-"""
-
 import sys
 
 # 
