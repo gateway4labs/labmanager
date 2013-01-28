@@ -17,11 +17,11 @@ class Permission(Base, SBBase):
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
     permission_on_lab_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
-    course_id            = Column(Integer, ForeignKey('newcourses.id'), nullable = False)
+    course_id            = Column(Integer, ForeignKey('courses.id'), nullable = False)
 
 
     permission_on_lab = relation('PermissionOnLaboratory', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
-    course            = relation('NewCourse', backref=backref('permissions', order_by=id, cascade='all, delete'))
+    course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
     
     # TODO: context or course: select one
     def __init__(self, context = None, permission_on_lab = None, configuration = None, access = None):
@@ -34,7 +34,7 @@ class Permission(Base, SBBase):
         return "<Permission %r: %r %r>" % (self.id, self.permission_on_lab.laboratory_id, self.access)
 
     def __unicode__(self):
-        return u"%s from %s on %s (%s)" % (self.newcourse.name, self.course.lms.name, self.laboratory.name, self.access)
+        return u"%s from %s on %s (%s)" % (self.course.name, self.course.lms.name, self.laboratory.name, self.access)
 
     def change_status(self, new_status):
         self.access = new_status

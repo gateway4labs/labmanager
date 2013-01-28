@@ -4,9 +4,9 @@ from labmanager.database import Base
 
 from labmanager.models import SBBase
 
-class NewLMS(Base, SBBase):
+class LMS(Base, SBBase):
 
-    __tablename__  = 'newlmss'
+    __tablename__  = 'lmss'
     __table_args__ = (UniqueConstraint('name'), )
 
     id = Column(Integer, primary_key = True)
@@ -18,7 +18,7 @@ class NewLMS(Base, SBBase):
         self.url = url
 
     def __repr__(self):
-        return "<NewLMS:%s %s>" % (self.id, self.name)
+        return "<LMS:%s %s>" % (self.id, self.name)
 
     def __unicode__(self):
         return self.name

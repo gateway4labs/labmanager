@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base
 
-from labmanager.models import RLMS, NewLMS
+from labmanager.models import RLMS, LMS
 
 class Laboratory(Base):
     __tablename__ = 'laboratories'
@@ -34,12 +34,12 @@ class PermissionOnLaboratory(Base):
     local_identifier     = Column(Unicode(100), nullable = False, index = True)
 
     laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
-    lms_id        = Column(Integer, ForeignKey('newlmss.id'),  nullable = False)
+    lms_id        = Column(Integer, ForeignKey('lmss.id'),  nullable = False)
 
     configuration = Column(Unicode(10 * 1024)) # JSON document
 
     laboratory = relation(Laboratory.__name__,  backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
-    lms        = relation(NewLMS.__name__, backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
+    lms        = relation(LMS.__name__, backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
 
     def __init__(self, lms = None, laboratory = None, configuration = None, local_identifier = None):
         self.lms              = lms

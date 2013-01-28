@@ -8,10 +8,10 @@ class Credential(Base):
     id = Column(Integer, primary_key = True)
     key = Column(Unicode(50), nullable = False, unique=True)
     kind = Column(Unicode(50), nullable = False)
-    lms_id = Column(Integer, ForeignKey('newlmss.id'), nullable = False)
+    lms_id = Column(Integer, ForeignKey('lmss.id'), nullable = False)
     secret = Column(Unicode(50), nullable = False)
 
-    lms = relation('NewLMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
+    lms = relation('LMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
 
     def __init__(self, key = None, secret = None, kind = None, lms = None):
         self.key = key

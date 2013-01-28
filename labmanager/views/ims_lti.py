@@ -16,7 +16,7 @@ from yaml import load as yload
 
 from flask import render_template, request, redirect
 
-from labmanager.models import NewLMS, Credential, RLMS, Permission, NewCourse
+from labmanager.models import LMS, Credential, RLMS, Permission, Course
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
@@ -57,7 +57,7 @@ def admin_ims():
         data['rlms'] = {}
         data['rlms_ids'] = {}
 
-        local_context = NewCourse.find_or_create(lms = auth.newlms,
+        local_context = Course.find_or_create(lms = auth.newlms,
                                                  context = request.form['context_id'],
                                                  name = request.form['context_label'])
 
@@ -92,9 +92,9 @@ def permission_request():
     lms_id = int(request.form['lms_id'])
     context_id = request.form['context_id']
     context_label = request.form['context_label']
-    newlms = NewLMS.find(lms_id)
+    newlms = LMS.find(lms_id)
 
-    local_context = NewCourse.find_or_create(lms = newlms,
+    local_context = Course.find_or_create(lms = newlms,
                                              context = context_id,
                                              name = context_label)
 
@@ -130,7 +130,7 @@ def start_ims():
              'access' : False
              }
 
-    local_context = NewCourse.find_or_create(lms = auth.newlms,
+    local_context = Course.find_or_create(lms = auth.newlms,
                                              context = data['context_id'],
                                              name = data['context_label'])
 

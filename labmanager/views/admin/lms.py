@@ -10,7 +10,7 @@ from flask.ext.admin import expose
 from flask.ext.admin.model import InlineFormAdmin
 
 from labmanager.scorm import get_authentication_scorm
-from labmanager.models import Credential, NewLMS, NewCourse
+from labmanager.models import Credential, LMS, Course
 from labmanager.views.admin import L4lModelView
 
 config = yload(open('labmanager/config.yaml'))
@@ -39,7 +39,7 @@ class LMSPanel(L4lModelView):
 
 
     def __init__(self, session, **kwargs):
-        super(LMSPanel, self).__init__(NewLMS, session, **kwargs)
+        super(LMSPanel, self).__init__(LMS, session, **kwargs)
         self.local_data = threading.local()
 
     def edit_form(self, obj = None):
@@ -65,11 +65,11 @@ class LMSPanel(L4lModelView):
 
     @expose('/<id>/scorm_authentication.zip')
     def scorm_authentication(self, id):
-        lms = self.session.query(NewLMS).filter_by(id = id).one()
+        lms = self.session.query(LMS).filter_by(id = id).one()
         return get_authentication_scorm(lms.url)
             
 
 class CoursePanel(L4lModelView):
     def __init__(self, session, **kwargs):
-        super(CoursePanel, self).__init__(NewCourse, session, **kwargs)
+        super(CoursePanel, self).__init__(Course, session, **kwargs)
 

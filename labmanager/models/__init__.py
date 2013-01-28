@@ -19,20 +19,20 @@ class SBBase(object):
         return instance
 
 from .rlms import RLMS
-from .lms import NewLMS
+from .lms import LMS
 from .laboratory import Laboratory, PermissionOnLaboratory
 from .credential import Credential
 from .permission import Permission
-from .course import NewCourse
+from .course import Course
 from .user import LabManagerUser
 
 # Avoid pyflakes warnings
 assert RLMS
-assert NewLMS
+assert LMS
 assert Laboratory
 assert PermissionOnLaboratory
 assert Credential
 assert Permission
-assert NewCourse
+assert Course
 assert LabManagerUser
 
