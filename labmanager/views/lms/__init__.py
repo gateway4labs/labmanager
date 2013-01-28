@@ -26,7 +26,7 @@ from labmanager.rlms     import get_manager_class
 from labmanager.application import app
 
 from labmanager.views import get_json
-from error_codes import messages_codes
+from labmanager.views.error_codes import messages_codes
 from labmanager.scorm_package import scorm_blueprint
 
 ###############################################################################
