@@ -1,7 +1,7 @@
 # -*-*- encoding: utf-8 -*-*-
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relation, backref
-from labmanager.database import Base, db_session as DBS
+from labmanager.database import Base
 
 from labmanager.models import RLMS, NewLMS
 

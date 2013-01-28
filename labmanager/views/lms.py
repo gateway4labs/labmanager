@@ -16,19 +16,17 @@
 import json
 import cgi
 import traceback
-from sets import Set
-from yaml import load as yload
 
 #
 # Flask imports
 #
-from flask import Response, render_template, request, g, abort, Blueprint
+from flask import render_template, request, g
 
 #
 # LabManager imports
 #
 from labmanager.database import db_session
-from labmanager.models   import NewLMS, PermissionOnLaboratory, RLMS, Laboratory
+from labmanager.models   import NewLMS, PermissionOnLaboratory
 from labmanager.rlms     import get_manager_class
 from labmanager.application import app
 

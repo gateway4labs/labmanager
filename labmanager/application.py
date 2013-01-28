@@ -15,16 +15,15 @@
   basic routes (like login and logout).
 """
 
-import os, sys
+import os
 from time import time
-from functools import wraps
 from hashlib import new as new_hash
 
-from flask import Flask, Blueprint, render_template, Response, request, g, abort, flash, redirect, url_for, session
-from flask.ext.login import LoginManager, login_user, logout_user, UserMixin, login_required
+from flask import Flask, render_template, request, flash, redirect, url_for, session
+from flask.ext.login import LoginManager, login_user, logout_user, login_required
 
 from labmanager.database import db_session
-from labmanager.models import LabManagerUser as User, Credential
+from labmanager.models import LabManagerUser as User
 
 from labmanager.admin import init_admin
 

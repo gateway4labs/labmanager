@@ -9,11 +9,10 @@ from flask import redirect, abort, url_for, request
 from flask.ext import wtf
 from flask.ext.login import current_user
 from flask.ext.admin import expose, AdminIndexView
-from flask.ext.admin.contrib.sqlamodel import ModelView
 
 from labmanager.views.admin import L4lModelView
 from labmanager.models import Permission
-from labmanager.models import LabManagerUser as User, NewLMS, NewCourse
+from labmanager.models import LabManagerUser as User
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yaml'))

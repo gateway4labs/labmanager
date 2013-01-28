@@ -26,7 +26,7 @@ import urllib2
 # 
 # Flask imports
 # 
-from flask import Response, render_template, request, redirect, url_for, flash
+from flask import Response, render_template, request, flash
 
 # 
 # LabManager imports

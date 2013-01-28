@@ -25,3 +25,14 @@ from .credential import Credential
 from .permission import Permission
 from .course import NewCourse
 from .user import LabManagerUser
+
+# Avoid pyflakes warnings
+assert RLMS
+assert NewLMS
+assert Laboratory
+assert PermissionOnLaboratory
+assert Credential
+assert Permission
+assert NewCourse
+assert LabManagerUser
+

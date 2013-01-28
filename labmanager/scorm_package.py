@@ -4,7 +4,7 @@ from werkzeug.exceptions import Unauthorized
 from flask import request, g, Blueprint
 
 from labmanager.database import db_session
-from labmanager.models import NewLMS, Credential
+from labmanager.models import Credential
 from labmanager.views import get_json
 
 scorm_blueprint = Blueprint('basic_auth', __name__)

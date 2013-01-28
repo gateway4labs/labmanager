@@ -6,10 +6,8 @@ from yaml import load as yload
 
 from flask import Markup, url_for
 from flask.ext import wtf
-from flask.ext.login import current_user
 from flask.ext.admin import expose
 from flask.ext.admin.model import InlineFormAdmin
-from flask.ext.admin.contrib.sqlamodel import ModelView
 
 from labmanager.scorm import get_authentication_scorm
 from labmanager.models import Credential, NewLMS, NewCourse

@@ -8,7 +8,7 @@ from flask import request, abort, Markup, url_for, Response
 from flask.ext import wtf
 from flask.ext.admin import expose
 
-from labmanager.views.admin import L4lModelView, L4lBaseView
+from labmanager.views.admin import L4lModelView
 
 from labmanager.scorm import get_scorm_object
 from labmanager.models import Permission, RLMS, Laboratory, PermissionOnLaboratory

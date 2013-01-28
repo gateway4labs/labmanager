@@ -3,9 +3,7 @@ import os
 import sha
 import sys
 import json
-import urlparse
 import unittest
-import tempfile
 
 from bs4 import BeautifulSoup, Tag
 
@@ -13,8 +11,6 @@ from werkzeug import Headers
 
 sys.path.append('.')
 os.environ['TESTING_LABMANAGER'] = 'sqlite:///:memory:'
-
-from flask import request
 
 from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDRESS
 register_fake()
@@ -132,7 +128,7 @@ class RequestProxy(object):
                 data['authentications-%s-%s' % (pos, key)] = auth_config[key]
             data['authentications-%s-id' % pos] = ''
 
-        rv = self.client.post('/admin/lms/lms/new/', data=data, follow_redirects = True)
+        self.client.post('/admin/lms/lms/new/', data=data, follow_redirects = True)
 
     def add_course(self, lms_name = LMS_NAME, course_name = COURSE_NAME, context_id = CONTEXT_ID):
         rv = self.client.get('/admin/lms/courses/new/', follow_redirects = True)
@@ -145,7 +141,7 @@ class RequestProxy(object):
 
     def add_rlms(self, kind = RLMS_KIND, location = RLMS_LOCATION, url = RLMS_URL):
         data = dict(kind = kind, location = location, url = url)
-        rv = self.client.post('/admin/rlms/rlms/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
+        self.client.post('/admin/rlms/rlms/new/?rlms=FakeRLMS<>1.0', data=data, follow_redirects = True)
 
     def add_lab(self, rlms_kind = RLMS_KIND):
         rv = self.client.get('/admin/rlms/rlms/', follow_redirects = True)
@@ -340,8 +336,8 @@ class LabmanagerTestCase(unittest.TestCase):
             'courses'        : { CONTEXT_ID : ["student"] },
             'request-payload': json.dumps(request_payload),
             'general-role'   : "admin",
-            'user-id'        : "pablo",
-            'full-name'      : u"Pablo Orduña",
+            'user-id'        : USERNAME,
+            'full-name'      : FULL_NAME,
         }), headers = self.headers, content_type = "application/json")
 
         # 8. Validate the request
