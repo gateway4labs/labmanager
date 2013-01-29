@@ -15,7 +15,10 @@ import traceback
 #
 # Flask imports
 #
-from flask import render_template, request, g
+from flask import render_template, request, g, redirect, url_for
+from flask.ext.login import current_user
+from flask.ext.admin import BaseView
+from flask.ext.admin.contrib.sqlamodel import ModelView
 
 #
 # LabManager imports
@@ -27,6 +30,24 @@ from labmanager.application import app
 
 from labmanager.views.error_codes import messages_codes
 from labmanager.scorm_package import scorm_blueprint
+
+#################################################################
+# 
+#            Base class
+# 
+
+class L4lLmsModelView(ModelView):
+    def is_accessible(self):
+        # TODO
+        return True
+        # return current_user.is_authenticated()
+    
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login', next=request.url))
+
+        return super(L4lLmsModelView, self)._handle_view(name, **kwargs)
+
 
 ###############################################################################
 #

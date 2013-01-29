@@ -29,7 +29,9 @@ def init_admin(app, db_session):
     admin.init_app(app)
 
     from .views.lms.main import LmsPanel
+    from .views.lms.user import LmsUsersPanel
 
     lms_url = '/lms'
     lms = Admin(index_view = LmsPanel(url=lms_url, endpoint = 'lms'), name = u"Lab Manager", url = lms_url, endpoint = lms_url)
+    lms.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'lms/users'))
     lms.init_app(app)
