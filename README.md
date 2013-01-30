@@ -1,6 +1,6 @@
 # RUNNING THE LAB MANAGER
 
-[![Build Status](https://travis-ci.org/lms4labs/deustorb.png?branch=master)](https://travis-ci.org/lms4labs/deustorb)
+[![Build Status](https://travis-ci.org/lms4labs/labmanager.png?branch=master)](https://travis-ci.org/lms4labs/labmanager)
 
 ## INSTALL
 
