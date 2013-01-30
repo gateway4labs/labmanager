@@ -1,11 +1,6 @@
 # -*-*- encoding: utf-8 -*-*-
 # 
 
-"""
-  :copyright: 2012 Pablo Orduña, Elio San Cristobal, Alberto Pesquera Martín
-  :license: BSD, see LICENSE for more details
-"""
-
 messages_codes = {
     "ERROR_enrolled" : "Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it",
     "ERROR_permission" : "Your LMS does not have permission to use that laboratory or that identifier does not exist",

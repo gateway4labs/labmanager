@@ -6,11 +6,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-"""
-  :copyright: 2012 Pablo Orduña, Elio San Cristobal, Alberto Pesquera Martín
-  :license: BSD, see LICENSE for more details
-"""
-
 from flask.ext.wtf import Form, TextField, Required, PasswordField, ValidationError
 
 class RetrospectiveForm(Form):
@@ -24,8 +19,7 @@ class RetrospectiveForm(Form):
 
 
 class AddForm(RetrospectiveForm):
-    name     = TextField("Name", validators=[Required()])
-    location = TextField("Location", validators=[Required()])
+    pass
 
 class AddLmsForm(RetrospectiveForm):
     name      = TextField("Name", validators = [ Required() ])
