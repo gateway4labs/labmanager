@@ -7,7 +7,7 @@
 Python 2.7 is required. **Do not use Python >= 3**
 
 `easy_install` and `pip` must be installed. `virtualenv` is also highly recommended.
-Firts, a couple of steps which depend on the operating system:
+First, a couple of steps which depend on the operating system:
 
 ### WINDOWS
 
