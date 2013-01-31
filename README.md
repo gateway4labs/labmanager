@@ -1,6 +1,6 @@
 # RUNNING THE LAB MANAGER
 
-[![Build Status](https://travis-ci.org/lms4labs/labmanager.png?branch=master)](https://travis-ci.org/lms4labs/labmanager)
+[![Build Status](https://travis-ci.org/lms4labs/labmanager.png?branch=modular_labmanager)](https://travis-ci.org/lms4labs/labmanager)
 
 ## INSTALL
 
