@@ -1,6 +1,0 @@
-language: python
-
-install:
-  - pip install -q -r requirements.txt --use-mirrors
-
-script: python labmanager/test/test_lms.py
