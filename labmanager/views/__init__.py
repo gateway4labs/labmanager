@@ -88,6 +88,9 @@ def precondition_failed(e):
     return "412 precondition failed", 412
 
 def load():
+    import labmanager.views.ims_lti
+    assert labmanager.views.ims_lti != None
+
     import labmanager.views.lms
     assert labmanager.views.lms != None
 
