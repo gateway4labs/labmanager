@@ -32,8 +32,8 @@ def admin_ims():
 
     data = { 'user_agent' : request.user_agent,
              'origin_ip' : request.remote_addr,
-             'lms' : auth.newlms.name,
-             'lms_id' : auth.newlms.id,
+             'lms' : auth.lms.name,
+             'lms_id' : auth.lms.id,
              'context_label' : request.form['context_label'],
              'context_id' : request.form['context_id'],
              }
@@ -57,11 +57,11 @@ def admin_ims():
         data['rlms'] = {}
         data['rlms_ids'] = {}
 
-        local_context = Course.find_or_create(lms = auth.newlms,
+        local_context = Course.find_or_create(lms = auth.lms,
                                                  context = request.form['context_id'],
                                                  name = request.form['context_label'])
 
-        current_permissions = Permission.find_all_with_lms_and_context(lms = auth.newlms,
+        current_permissions = Permission.find_all_with_lms_and_context(lms = auth.lms,
                                                                        context = local_context)
 
         data['access_requests'] = current_permissions
@@ -92,9 +92,9 @@ def permission_request():
     lms_id = int(request.form['lms_id'])
     context_id = request.form['context_id']
     context_label = request.form['context_label']
-    newlms = LMS.find(lms_id)
+    incoming_lms = LMS.find(lms_id)
 
-    local_context = Course.find_or_create(lms = newlms,
+    local_context = Course.find_or_create(lms = incoming_lms,
                                              context = context_id,
                                              name = context_label)
 
@@ -102,10 +102,10 @@ def permission_request():
         for rlms_id, exp_id in choice_data:
             # TODO: pass this to the Laboratory
             experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
-            Permission.find_or_create(lms = newlms, experiment = experiment,
+            Permission.find_or_create(lms = incoming_lms, experiment = experiment,
                                       context = local_context)
 
-    exp_status = Permission.find_all_with_lms_and_context(lms = newlms, context = local_context)
+    exp_status = Permission.find_all_with_lms_and_context(lms = incoming_lms, context = local_context)
     data['context_experiments'] = exp_status
 
     return render_template('lti/experiments.html', info=data)
@@ -123,18 +123,18 @@ def start_ims():
 
     data = { 'user_agent' : request.user_agent,
              'origin_ip' : request.remote_addr,
-             'lms' : auth.newlms.name,
-             'lms_id' : auth.newlms.id,
+             'lms' : auth.lms.name,
+             'lms_id' : auth.lms.id,
              'context_label' : request.form['context_label'],
              'context_id' : request.form['context_id'],
              'access' : False
              }
 
-    local_context = Course.find_or_create(lms = auth.newlms,
+    local_context = Course.find_or_create(lms = auth.lms,
                                              context = data['context_id'],
                                              name = data['context_label'])
 
-    context_experiments = Permission.find_all_with_lms_and_context(auth.newlms,
+    context_experiments = Permission.find_all_with_lms_and_context(auth.lms,
                                                                    local_context)
 
     if context_experiments:

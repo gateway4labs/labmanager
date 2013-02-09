@@ -22,7 +22,7 @@ class Permission(Base, SBBase):
 
     permission_on_lab = relation('PermissionOnLaboratory', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
-    
+
     # TODO: context or course: select one
     def __init__(self, context = None, permission_on_lab = None, configuration = None, access = None):
         self.course            = context
@@ -46,20 +46,20 @@ class Permission(Base, SBBase):
 
     @classmethod
     def find_with_params(self, lms = None, context = None):
-        return DBS.query(self).filter(sql.and_(self.newlms == lms,
+        return DBS.query(self).filter(sql.and_(self.lms == lms,
                                                self.newcourse == context)
                                       ).first()
 
     @classmethod
     def find_with_lms_context_exp(self, lms, context, laboratory):
-        return DBS.query(self).filter(sql.and_(self.newlms == lms,
+        return DBS.query(self).filter(sql.and_(self.lms == lms,
                                                self.laboratory == laboratory,
                                                self.newcourse == context)
                                       ).first()
 
     @classmethod
     def find_all_with_lms_and_context(self, lms, context):
-        return DBS.query(self).filter(sql.and_(self.newlms == lms,
+        return DBS.query(self).filter(sql.and_(self.lms == lms,
                                                self.newcourse == context)
                                       ).all()
 
