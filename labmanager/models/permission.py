@@ -45,29 +45,5 @@ class Permission(Base, SBBase):
         return DBS.query(self).filter(self.access == status).all()
 
     @classmethod
-    def find_with_params(self, lms = None, context = None):
-        return DBS.query(self).filter(sql.and_(self.lms == lms,
-                                               self.newcourse == context)
-                                      ).first()
-
-    @classmethod
-    def find_with_lms_context_exp(self, lms, context, laboratory):
-        return DBS.query(self).filter(sql.and_(self.lms == lms,
-                                               self.laboratory == laboratory,
-                                               self.newcourse == context)
-                                      ).first()
-
-    @classmethod
-    def find_all_with_lms_and_context(self, lms, context):
-        return DBS.query(self).filter(sql.and_(self.lms == lms,
-                                               self.newcourse == context)
-                                      ).all()
-
-    @classmethod
-    def find_or_create(self, lms, context, laboratory):
-        instance = self.find_with_lms_context_exp(lms = lms, context = context,
-                                                  laboratory = laboratory)
-        if instance:
-            return instance
-        else:
-            return self.new(lms = lms, context = context, laboratory = laboratory, access = u'pending')
+    def find_all_for_context(self, context):
+        return DBS.query(self).filter(self.course == context).all()

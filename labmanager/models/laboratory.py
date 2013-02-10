@@ -1,7 +1,7 @@
 # -*-*- encoding: utf-8 -*-*-
 from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relation, backref
-from labmanager.database import Base
+from labmanager.database import Base, db_session as DBS
 
 from labmanager.models import RLMS, LMS
 
@@ -49,3 +49,7 @@ class PermissionOnLaboratory(Base):
 
     def __unicode__(self):
         return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lms.name)
+
+    @classmethod
+    def find_all_for_lms(self, lms):
+        return DBS.query(self).filter(self.lms == lms).all()
