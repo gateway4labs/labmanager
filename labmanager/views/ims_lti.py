@@ -16,76 +16,20 @@ from yaml import load as yload
 
 from flask import render_template, request, redirect
 
-from labmanager.models import LMS, Credential, RLMS, Permission, Course
+from labmanager.models import LMS, Credential, RLMS, Permission, Course, PermissionOnLaboratory
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
 config = yload(open('labmanager/config.yaml'))
 
-@lti.route("/admin/", methods = ['POST'])
-def admin_ims():
-    response = None
-
-    consumer_key = request.form['oauth_consumer_key']
-    auth = Credential.find_by_key(consumer_key)
-
-    data = { 'user_agent' : request.user_agent,
-             'origin_ip' : request.remote_addr,
-             'lms' : auth.lms.name,
-             'lms_id' : auth.lms.id,
-             'context_label' : request.form['context_label'],
-             'context_id' : request.form['context_id'],
-             }
-
-    # Defined by the standard. After this comes the role of the user as in
-    # 'urn:lti:sysrole:ims/lis/Administrator' or 'urn:lti:sysrole:ims/lis/SysAdmin'
-    urn_role_base = 'urn:lti:sysrole:ims/lis/'
-    roles = Set()
-
-    split_roles = request.form['roles'].split(',')
-    for role in split_roles:
-        if role.startswith(urn_role_base):
-            roles.add(role[len(urn_role_base):])
-
-    admin_roles = Set(config['standard_urn_admin_roles'])
-    current_users_roles = roles & admin_roles # Set intersection
-
-    if len(current_users_roles) > 0:
-
-        data['role'] = current_users_roles.pop() # Returns an arbitrary element
-        data['rlms'] = {}
-        data['rlms_ids'] = {}
-
-        local_context = Course.find_or_create(lms = auth.lms,
-                                                 context = request.form['context_id'],
-                                                 name = request.form['context_label'])
-
-        current_permissions = Permission.find_all_with_lms_and_context(lms = auth.lms,
-                                                                       context = local_context)
-
-        data['access_requests'] = current_permissions
-
-        for remote in RLMS.all(): # filter by allowed RLMSs
-            experiments_in_rlms = remote.experiments
-            data['rlms'][remote.kind] = [ exp for exp in experiments_in_rlms ]
-            data['rlms_ids'][remote.kind] = remote.id
-
-        response = render_template('lti/administrator_tool_setup.html', info=data)
-
-    else:
-        data['role'] = split_roles[0]
-        response = render_template('lti/unknown_role.html', info=data)
-
-    return response
-
 @lti.route('/admin/request_permission/', methods = ['POST'])
 def permission_request():
     data = {}
     choice_data = []
 
-    for exps in request.form.getlist('rlmsexperiments'):
-        split_choice = exps.split(':')
+    for labs in request.form.getlist('rlmslaboratories'):
+        split_choice = labs.split(':')
         rlms_id, exp_id = int(split_choice[0]), int(split_choice[1])
         choice_data.append((rlms_id, exp_id))
 
@@ -98,7 +42,7 @@ def permission_request():
                                              context = context_id,
                                              name = context_label)
 
-    if 'rlmsexperiments' in request.form:
+    if 'rlmslaboratories' in request.form:
         for rlms_id, exp_id in choice_data:
             # TODO: pass this to the Laboratory
             experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
@@ -106,14 +50,14 @@ def permission_request():
                                       context = local_context)
 
     exp_status = Permission.find_all_with_lms_and_context(lms = incoming_lms, context = local_context)
-    data['context_experiments'] = exp_status
+    data['context_laboratories'] = exp_status
 
     return render_template('lti/experiments.html', info=data)
 
 
 @lti.route("/", methods = ['POST'])
 def start_ims():
-    response = ""
+    response = None
 
     consumer_key = request.form['oauth_consumer_key']
     auth = Credential.find_by_key(consumer_key)
@@ -131,38 +75,50 @@ def start_ims():
              }
 
     local_context = Course.find_or_create(lms = auth.lms,
-                                             context = data['context_id'],
-                                             name = data['context_label'])
+                                          context = data['context_id'],
+                                          name = data['context_label'])
 
-    context_experiments = Permission.find_all_with_lms_and_context(auth.lms,
-                                                                   local_context)
-
-    if context_experiments:
-        data['context_experiments'] = context_experiments
+    context_laboratories = Permission.find_all_for_context(local_context)
+    if context_laboratories:
+        data['context_laboratories'] = context_laboratories
 
     if ('Instructor' in current_role):
         data['role'] = 'Instructor'
+        data['rlms'] = {}
+        data['rlms_ids'] = {}
 
-        if context_experiments:
-            response = render_template('lti/experiments.html', info=data)
+        lms_laboratories = PermissionOnLaboratory.find_all_for_lms(auth.lms)
+
+        for allowed_lab in lms_laboratories:
+            laboratory = allowed_lab.laboratory
+            owner_rlms = laboratory.rlms
+            if( owner_rlms.kind in data['rlms'] ):
+                data['rlms'][owner_rlms.kind].append(laboratory)
+            else:
+                data['rlms'][owner_rlms.kind] = [laboratory]
+                data['rlms_ids'][owner_rlms.kind] = owner_rlms.id
+
+        if lms_laboratories:
+            response = render_template('lti/administrator_tool_setup.html', info=data)
         else:
             response = render_template('lti/instructions.html', info=data)
 
     elif ('Learner' in current_role):
         data['role'] = 'Learner'
 
-        if context_experiments:
+        if context_laboratories:
             wo_denied = []
-            for exp in context_experiments:
+            for exp in context_laboratories:
                 if exp.access != 'denied':
                     wo_denied.append(exp)
-            data['context_experiments'] = wo_denied
+            data['context_laboratories'] = wo_denied
 
             response = render_template('lti/experiments.html', info=data)
         else:
             response = render_template('lti/no_experiments_info.html', info=data)
 
     else:
+        data['role'] = split_roles[0]
         response = render_template('lti/unknown_role.html', info=data)
 
     return response
