@@ -24,17 +24,23 @@ class Permission(Base, SBBase):
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
 
     # TODO: context or course: select one
-    def __init__(self, context = None, permission_on_lab = None, configuration = None, access = None):
+    def __init__(self, context = None, permission_on_lab = None,
+                 configuration = None, access = u"pending"):
         self.course            = context
         self.configuration     = configuration
         self.permission_on_lab = permission_on_lab
         self.access            = access
 
     def __repr__(self):
-        return "<Permission %r: %r %r>" % (self.id, self.permission_on_lab.laboratory_id, self.access)
+        return "<Permission %r: %r %r>" % (self.id,
+                                           self.permission_on_lab.laboratory_id,
+                                           self.access)
 
     def __unicode__(self):
-        return u"%s from %s on %s (%s)" % (self.course.name, self.course.lms.name, self.laboratory.name, self.access)
+        return u"%s from %s on %s (%s)" % (self.course.name,
+                                           self.course.lms.name,
+                                           self.laboratory.name,
+                                           self.access)
 
     def change_status(self, new_status):
         self.access = new_status
@@ -47,3 +53,13 @@ class Permission(Base, SBBase):
     @classmethod
     def find_all_for_context(self, context):
         return DBS.query(self).filter(self.course == context).all()
+
+    @classmethod
+    def find_or_create(self, context, perm_on_lab):
+        instance = DBS.query(self).filter(sql.and_(self.course == context,
+                                                   self.permission_on_lab == perm_on_lab)
+                                          ).first()
+        if instance:
+            return instance
+        else:
+            return self.new(context = context, permission_on_lab = perm_on_lab)

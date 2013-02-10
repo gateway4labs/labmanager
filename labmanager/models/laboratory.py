@@ -1,11 +1,11 @@
 # -*-*- encoding: utf-8 -*-*-
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
 
-from labmanager.models import RLMS, LMS
+from labmanager.models import SBBase, RLMS, LMS
 
-class Laboratory(Base):
+class Laboratory(Base, SBBase):
     __tablename__ = 'laboratories'
     __table_args__ = (UniqueConstraint('laboratory_id', 'rlms_id'), )
 
@@ -53,3 +53,7 @@ class PermissionOnLaboratory(Base):
     @classmethod
     def find_all_for_lms(self, lms):
         return DBS.query(self).filter(self.lms == lms).all()
+
+    @classmethod
+    def find_for_lms_on_lab(self, lms, lab):
+        return DBS.query(self).filter(sql.and_(self.lms == lms, self.laboratory == lab)).first()

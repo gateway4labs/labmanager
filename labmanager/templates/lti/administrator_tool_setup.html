@@ -33,7 +33,7 @@
         <legend>{{ remote }}</legend>
         {% for exp in info.rlms[remote] %}
         {% set iterj = loop.index %}
-        <input type="checkbox" name="rlmsexperiments" id="exp-{{exp.id}}" value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
+        <input type="checkbox" name="rlmslaboratories" id="exp-{{exp.id}}" value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
         <label for="exp-{{ exp.id }}">{{ exp.name }}</label>
         <br/>
         {% endfor %}

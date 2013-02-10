@@ -16,40 +16,40 @@ from yaml import load as yload
 
 from flask import render_template, request, redirect
 
-from labmanager.models import LMS, Credential, RLMS, Permission, Course, PermissionOnLaboratory
+from labmanager.models import LMS, Credential, RLMS, Course
+from labmanager.models import Permission, PermissionOnLaboratory, Laboratory
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
 config = yload(open('labmanager/config.yaml'))
 
-@lti.route('/admin/request_permission/', methods = ['POST'])
+@lti.route('/request_permission/', methods = ['POST'])
 def permission_request():
     data = {}
     choice_data = []
 
-    for labs in request.form.getlist('rlmslaboratories'):
-        split_choice = labs.split(':')
-        rlms_id, exp_id = int(split_choice[0]), int(split_choice[1])
-        choice_data.append((rlms_id, exp_id))
-
     lms_id = int(request.form['lms_id'])
     context_id = request.form['context_id']
     context_label = request.form['context_label']
-    incoming_lms = LMS.find(lms_id)
 
+    incoming_lms = LMS.find(lms_id)
     local_context = Course.find_or_create(lms = incoming_lms,
                                              context = context_id,
                                              name = context_label)
 
-    if 'rlmslaboratories' in request.form:
-        for rlms_id, exp_id in choice_data:
-            # TODO: pass this to the Laboratory
-            experiment = Experiment.find_with_id_and_rlms_id(exp_id, rlms_id)
-            Permission.find_or_create(lms = incoming_lms, experiment = experiment,
-                                      context = local_context)
+    for labs in request.form.getlist('rlmslaboratories'):
+        split_choice = labs.split(':')
+        rlms_id, lab_id = int(split_choice[0]), int(split_choice[1])
+        requested_lab = Laboratory.find(lab_id)
+        if( requested_lab.rlms.id == rlms_id ):
+            p_on_lab = PermissionOnLaboratory.find_for_lms_on_lab(incoming_lms,
+                                                                  requested_lab)
+            if(p_on_lab):
+                Permission.find_or_create(local_context, p_on_lab)
 
-    exp_status = Permission.find_all_with_lms_and_context(lms = incoming_lms, context = local_context)
+    exp_status = Permission.find_all_for_context(local_context)
+    print exp_status
     data['context_laboratories'] = exp_status
 
     return render_template('lti/experiments.html', info=data)
@@ -125,7 +125,7 @@ def start_ims():
 
 @lti.route("/experiment/<experiment>", methods = ['GET'])
 def launch_experiment(experiment=None):
-    response = ""
+    response = None
 
     if (experiment):
         response = experiment
