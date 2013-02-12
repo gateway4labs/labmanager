@@ -16,6 +16,8 @@ from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDR
 register_fake()
 
 import labmanager as server
+server.bootstrap()
+
 from labmanager.database import add_sample_users
 from labmanager.views.admin.rlms import RLMSPanel
 from labmanager.views.admin.lms import LMSPanel

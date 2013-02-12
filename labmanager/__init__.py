@@ -19,25 +19,12 @@ from labmanager.ims_lti import lti_blueprint
 from labmanager.scorm_package import scorm_blueprint
 
 # 
-# Load the required modules so as to register the views
-# in the blueprints
-# 
-load()
-
-# 
 # Import the Flask global application and the configuration
 # It must be imported after the views due to Python circular 
 # imports
 # 
 from application import app
 import config as _config
-
-# 
-# Register the blueprints in the application
-# 
-app.register_blueprint(scorm_blueprint, url_prefix='/labmanager')
-app.register_blueprint(lms_admin.lms_admin, url_prefix='/labmanager/lms')
-app.register_blueprint(lti_blueprint, url_prefix='/lti')
 
 # 
 # Initialize the login system
@@ -65,9 +52,23 @@ def load_rlms_modules():
 # This will register all the RLMSs in the global registry. So it will
 # always be called (regardless we're using the Flask debugger or a WSGI
 # environment).
-load_rlms_modules()
+
+def register_blueprints():
+    # 
+    # Register the blueprints in the application
+    # 
+    app.register_blueprint(scorm_blueprint, url_prefix='/labmanager')
+    app.register_blueprint(lms_admin.lms_admin, url_prefix='/labmanager/lms')
+    app.register_blueprint(lti_blueprint, url_prefix='/lti')
+
+def bootstrap():
+    load()
+    register_blueprints()
+    load_rlms_modules()
 
 def run():
+    bootstrap()
+
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, threaded = True)
 
