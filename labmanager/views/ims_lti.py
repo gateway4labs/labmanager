@@ -22,7 +22,7 @@ from labmanager.models import Permission, PermissionOnLaboratory, Laboratory
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
-config = yload(open('labmanager/config.yaml'))
+config = yload(open('labmanager/config.yml'))
 
 @lti.route('/request_permission/', methods = ['POST'])
 def permission_request():
