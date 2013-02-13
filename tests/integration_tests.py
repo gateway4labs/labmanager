@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     with api.settings(warn_only=False):
         run_services()
-    time.sleep(5)
+    # time.sleep(1)
     psaxf_report()
     api.local('lettuce tests/features --verbosity=2')
     kill_services()
