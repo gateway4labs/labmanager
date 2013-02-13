@@ -6,21 +6,27 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 
 os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
-os.environ['PORT'] = os.environ.get('PORT', '5001')
+os.environ['PORT']    = os.environ.get('PORT', '5001')
 
 import labmanager
+from labmanager.database import db_session, init_db
 
 @before.all
 def load_application():
     """Load the Lab Manager application using flask's test client"""
     world.display = Display(visible=0, size=(800, 600))
     world.display.start()
+    world.db_session = db_session
     world.labmanager = labmanager
-    world.labmanager.app.config['TESTING'] = True
-    world.labmanager.app.config['CSRF_ENABLED'] = False
+    world.app = labmanager.app
+    world.app.config['TESTING'] = True
+    world.app.config['CSRF_ENABLED'] = False
     world.labmanager.bootstrap()
-    world.client = labmanager.app.test_client()
     world.browser = webdriver.Firefox()
+
+@before.each_scenario
+def reset_database(scenario):
+    init_db(drop = True)
 
 @after.all
 def tear_down_app(app):

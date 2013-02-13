@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 from lettuce import step, world
 from lettuce_webdriver import webdriver
+import labmanager.models as models
+
+def create_admin(username, password):
+    return models.LabManagerUser.new(login= username,
+    name= 'Administrator',
+    password= password,
+    access_level='admin')
 
 @step(u'Given a LMS with \'([^\']*)\' public and \'([^\']*)\' secret keys')
 def given_a_lms_with_group1_public_and_group2_secret_keys(step, shared, secret):
@@ -28,10 +35,13 @@ def then_i_should_get_a_group1_http_code(step, http_code):
 @step(u'am logged in as an admin with \'([^\']*)\'')
 def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
     username, password = username_password.split(":")
-    world.browser.get('http://localhost:5000/login')
+    admin = create_admin(username, password)
+
+    world.browser.get('http://localhost:5001/login')
     step.given('I fill in "username" with "%s"' % username)
     step.given('I fill in "password" with "%s"' % password)
     step.given('I press "Log in"')
+
 
 @step(u'When I add an oauth LMS with name \'([^\']*)\' and url \'([^\']*)\'')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, group1, group2):

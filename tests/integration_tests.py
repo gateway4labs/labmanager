@@ -1,6 +1,7 @@
 from __future__ import with_statement
 import time
 import re
+import os
 from fabric import api
 
 def run_services():
@@ -28,6 +29,9 @@ def psaxf_report(capture = False):
     return api.local('ps ax |grep python |grep -v grep', capture=capture)
 
 if __name__ == '__main__':
+    os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
+    os.environ['PORT']    = os.environ.get('PORT', '5001')
+
     with api.settings(warn_only=True):
         kill_services()
 
