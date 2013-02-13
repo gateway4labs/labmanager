@@ -53,3 +53,19 @@ Now you can run it:
 `python run.py`
 
 And see it in http://localhost:5000/
+
+
+## Development
+
+If you want to contribute to the Lab Manager application, you'll need to install
+some external dependencies that are used only on development and testing.
+
+For this, simply run:
+
+`pip install -r requirements-test.txt`
+
+And you're ready to go.
+
+To test the application run:
+
+`python labmanager/test/test_lms.py`
