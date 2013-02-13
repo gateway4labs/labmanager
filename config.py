@@ -27,8 +27,6 @@ if SQLALCHEMY_ENGINE_STR is None:
         (env_config['username'], env_config['password'], env_config['host']
         , env_config['dbname'])
 
-
-print SQLALCHEMY_ENGINE_STR
 #
 # Flask configuration
 # 
@@ -36,27 +34,3 @@ print SQLALCHEMY_ENGINE_STR
 DEBUG      = True
 SECRET_KEY = 'secret'
 DEBUGGING_REQUESTS = False
-
-# 
-# heroku = os.environ.get('HEROKU', None)
-# testing = os.environ.get('TESTING_LABMANAGER', None)
-# if heroku:
-#     SQLALCHEMY_ENGINE_STR = os.environ.get('DATABASE_URL')
-#     USE_PYMYSQL = False
-# elif testing:
-#     SQLALCHEMY_ENGINE_STR = os.environ['TESTING_LABMANAGER']
-#     USE_PYMYSQL = False
-# else:
-# 
-#     # 
-#     # DB Configuration
-#     # 
-#     USERNAME = 'labmanager'
-#     PASSWORD = 'labmanager'
-#     HOST     = 'localhost'
-#     DBNAME   = 'labmanager'
-# 
-#     ENGINE   = 'mysql' # or 'sqlite', 'postgresql', 'oracle'
-#     USE_PYMYSQL = False
-# 
-#     
