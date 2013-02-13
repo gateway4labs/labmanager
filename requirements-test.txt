@@ -3,3 +3,4 @@ lettuce_webdriver
 splinter
 pyvirtualdisplay
 selenium
+fabric

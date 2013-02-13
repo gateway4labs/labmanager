@@ -15,15 +15,10 @@ def load_application():
     world.labmanager = labmanager
     world.labmanager.app.config['TESTING'] = True
     world.labmanager.app.config['CSRF_ENABLED'] = False
-    world.client = labmanager.test_client()
-
-    display = Display(visible=1, size=(800, 600))
-    display.start()
-    browser = webdriver.Firefox()
-    browser.get('http://localhost:5000')
-    print browser.title
+    world.labmanager.bootstrap()
+    world.client = labmanager.app.test_client()
+    world.browser = webdriver.Firefox()
 
 @after.all
-def tear_down_app():
-    browser.quit()
-    display.stop()    
+def tear_down_app(app):
+    world.browser.quit()
