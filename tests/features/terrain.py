@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-
+import os
 from lettuce import Runner, registry, before, after, world
 from splinter import Browser
 from pyvirtualdisplay import Display
 from selenium import webdriver
+
+os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
+os.environ['PORT'] = os.environ.get('PORT', '5001')
 
 import labmanager
 

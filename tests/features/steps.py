@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from lettuce import step, world
+from lettuce_webdriver import webdriver
 
 @step(u'Given a LMS with \'([^\']*)\' public and \'([^\']*)\' secret keys')
 def given_a_lms_with_group1_public_and_group2_secret_keys(step, shared, secret):
@@ -27,14 +28,19 @@ def then_i_should_get_a_group1_http_code(step, http_code):
 @step(u'am logged in as an admin with \'([^\']*)\'')
 def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
     username, password = username_password.split(":")
-    world.browser.get('http://localhost:5000')
+    world.browser.get('http://localhost:5000/login')
+    step.given('I fill in "username" with "%s"' % username)
+    step.given('I fill in "password" with "%s"' % password)
+    step.given('I press "Log in"')
 
 @step(u'When I add an oauth LMS with name \'([^\']*)\' and url \'([^\']*)\'')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, group1, group2):
     assert True, 'This step must be implemented'
+
 @step(u'And I visit the LMS list page')
 def and_i_visit_the_lms_list_page(step):
     assert True, 'This step must be implemented'
+
 @step(u'Then the LMS list should have:')
 def then_the_lms_list_should_have(step):
     assert True, 'This step must be implemented'

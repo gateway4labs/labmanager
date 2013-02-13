@@ -4,3 +4,4 @@ splinter
 pyvirtualdisplay
 selenium
 fabric
+nose
