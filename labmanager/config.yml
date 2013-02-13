@@ -1,19 +1,19 @@
 standard_urn_admin_roles:
-        - Administrator
-        - SysAdmin
-        - AccountAdmin
+  - Administrator
+  - SysAdmin
+  - AccountAdmin
 
 permission_status:
-        - granted
-        - pending
-        - denied
+  - granted
+  - pending
+  - denied
 
 authentication_types:
-        - oauth1.0
-        - basic
+  - oauth1.0
+  - basic
 
 user_access_level:
-        - admin
-        - rlms
-        - lms
+  - admin
+  - rlms
+  - lms
 
