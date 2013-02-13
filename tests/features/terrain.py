@@ -5,13 +5,13 @@ from splinter import Browser
 from pyvirtualdisplay import Display
 from selenium import webdriver
 
-
 import labmanager
 
 @before.all
 def load_application():
     """Load the Lab Manager application using flask's test client"""
-
+    world.display = Display(visible=0, size=(800, 600))
+    world.display.start()
     world.labmanager = labmanager
     world.labmanager.app.config['TESTING'] = True
     world.labmanager.app.config['CSRF_ENABLED'] = False
@@ -22,3 +22,4 @@ def load_application():
 @after.all
 def tear_down_app(app):
     world.browser.quit()
+    world.display.stop()

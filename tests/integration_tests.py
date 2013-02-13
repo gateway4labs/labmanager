@@ -35,5 +35,6 @@ if __name__ == '__main__':
         run_services()
     # time.sleep(1)
     psaxf_report()
+    api.local("python labmanager/test/test_lms.py")
     api.local('lettuce tests/features --verbosity=2')
     kill_services()
