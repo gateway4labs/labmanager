@@ -17,7 +17,7 @@ from labmanager.models import Permission, LMS, Laboratory, Course
 from labmanager.models import LabManagerUser as User
 from labmanager.database import db_session as DBS
 
-config = yload(open('labmanager/config.yaml'))
+config = yload(open('labmanager/config.yml'))
 
 class AdminPanel(AdminIndexView):
     def is_accessible(self):
