@@ -1,5 +1,10 @@
 language: python
 
-install: "pip install -r requirements.txt --use-mirrors"
+env:
+  - LAB_ENV=test
+
+install:
+  - "pip install -r requirements.txt --use-mirrors"
+  - "pip install -r requirements-test.txt --use-mirrors"
 
 script: "python labmanager/test/test_lms.py"

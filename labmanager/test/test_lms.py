@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup, Tag
 from werkzeug import Headers
 
 sys.path.append('.')
-os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+os.environ['LAB_ENV'] = 'test'
 
 from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDRESS
 register_fake()

@@ -11,6 +11,7 @@ import labmanager
 @before.all
 def load_application():
     """Load the Lab Manager application using flask's test client"""
+
     world.labmanager = labmanager
     world.labmanager.app.config['TESTING'] = True
     world.labmanager.app.config['CSRF_ENABLED'] = False

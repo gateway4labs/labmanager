@@ -17,11 +17,13 @@ if SQLALCHEMY_ENGINE_STR is None:
             env_config['host'], env_config['dbname'])
 
     elif env_config['engine'] == 'sqlite':
-        SQLALCHEMY_ENGINE_STR = "sqlite:///%s.db" % env_config['dbname']
+        SQLALCHEMY_ENGINE_STR = "sqlite:///%s" % env_config['dbname']
+
     elif env_config['engine'] == 'postgres':
         SQLALCHEMY_ENGINE_STR = "postgresql+%s://%s:%s@%s/%s" % \
             (env_config['driver'], env_config['username'],
             env_config['password'], env_config['host'], env_config['dbname'])
+
     elif env_config['engine'] == 'oracle':
         SQLALCHEMY_ENGINE_STR = "oracle://%s:%S@%s/%s" % \
         (env_config['username'], env_config['password'], env_config['host']

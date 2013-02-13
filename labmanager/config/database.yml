@@ -7,8 +7,8 @@ development:
   host: localhost
 
 test:
-  engine: sqlite3
-  dbname: some-db-name
+  engine: sqlite
+  dbname: tests/database.sqlite3
 
 production:
   driver: pg8000
