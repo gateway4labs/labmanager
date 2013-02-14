@@ -40,14 +40,7 @@ def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
 
 @step(u'I add an oauth LMS with name "([^"]*)" and url "([^"]*)"')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
-    step.given('I click "LMS Management"')
-    step.given('I click "LMS"')
-    step.given('I click "Create"')
-    step.given('I fill in "name" with "%s"' % name)
-    step.given('I fill in "url" with "%s"' % url)
-    step.given('I click "Add Authentications"')
-    step.given('I fill in "authentications-0-key" with "shared"')
-    step.given('I fill in "authentications-0-secret" with "secret"')
+    support.fill_in_lms_fields(step, name, url)
     step.given('I press "Submit"')
 
 @step(u'I visit the LMS list page')
@@ -58,3 +51,9 @@ def and_i_visit_the_lms_list_page(step):
 def create_oauth_lms(step, name, url):
     lms = support.create_lms(name, url)
     support.add_oauth_to_lms(lms)
+
+@step(u'add an basic auth LMS with name "([^"]*)" and url "([^"]*)"')
+def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
+    support.fill_in_lms_fields(step, name, url)
+    step.given('I select "Basic" from "authentications-0-kind"')
+    step.given('I press "Submit"')
