@@ -30,8 +30,8 @@ def reset_database(scenario):
     init_db(drop = True)
 
 @after.all
-def tear_down_app(app):
-    world.browser.quit()
-    world.display.stop()
+def tear_down_app(results):
     db_session.remove()
     init_db(drop = True)
+    world.browser.quit()
+    world.display.stop()

@@ -4,12 +4,12 @@ from lettuce_webdriver import webdriver
 
 import support
 
-@step(u'Given a LMS with \'([^\']*)\' public and \'([^\']*)\' secret keys')
+@step(u'Given a LMS with "([^"]*)" public and "([^"]*)" secret keys')
 def given_a_lms_with_group1_public_and_group2_secret_keys(step, shared, secret):
     # LMS.create(shared: shared, secret: secret)
     assert True, 'This step must be implemented'
 
-@step(u'I authenticate with \'([^\']*)\' and \'([^\']*)\'')
+@step(u'I authenticate with "([^"]*)" and "([^"]*)"')
 def when_i_authenticate_with_group1_and_group2(step, secret, signature):
     assert True, 'This step must be implemented'
 
@@ -27,7 +27,7 @@ def then_i_should_get_a_group1_http_code(step, http_code):
     # response.code.should eql(int(http_code))
     assert True, 'This step must be implemented'
 
-@step(u'am logged in as an admin with \'([^\']*)\'')
+@step(u'am logged in as an admin with "([^"]*)"')
 def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
     username, password = username_password.split(":")
     support.create_admin(username, password)
@@ -38,20 +38,23 @@ def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
     step.given('I press "Log in"')
     step.given('I should see "LabManager Admin Dashboard"')
 
-@step(u'I add an oauth LMS with name \'([^\']*)\' and url \'([^\']*)\'')
+@step(u'I add an oauth LMS with name "([^"]*)" and url "([^"]*)"')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
-    elem = world.browser.find_element_by_xpath('//a[./text()=LMS]')
-    elem.click()
-    # print world.browser.page_source
-    # lms = support.create_lms(name, url)
-    # oauth = support.add_oauth_to_lms(lms)
+    step.given('I click "LMS Management"')
+    step.given('I click "LMS"')
+    step.given('I click "Create"')
+    step.given('I fill in "name" with "%s"' % name)
+    step.given('I fill in "url" with "%s"' % url)
+    step.given('I click "Add Authentications"')
+    step.given('I fill in "authentications-0-key" with "shared"')
+    step.given('I fill in "authentications-0-secret" with "secret"')
+    step.given('I press "Submit"')
 
-    assert True, 'This step must be implemented'
-
-@step(u'And I visit the LMS list page')
+@step(u'I visit the LMS list page')
 def and_i_visit_the_lms_list_page(step):
-    assert True, 'This step must be implemented'
+    world.browser.get('http://localhost:5001/admin/lms/lms/')
 
-@step(u'Then the LMS list should have:')
-def then_the_lms_list_should_have(step):
-    assert True, 'This step must be implemented'
+@step(u'an? OAuth LMS with name "([^"]*)" and url "([^"]*)"')
+def create_oauth_lms(step, name, url):
+    lms = support.create_lms(name, url)
+    support.add_oauth_to_lms(lms)
