@@ -2,18 +2,8 @@
 from lettuce import step, world
 from lettuce_webdriver import webdriver
 
+import .steps.authentication
 import support
-
-@step(u'am logged in as an admin with "([^"]*)"')
-def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
-    username, password = username_password.split(":")
-    support.create_admin(username, password)
-
-    world.browser.get('http://localhost:5001/login')
-    step.given('I fill in "username" with "%s"' % username)
-    step.given('I fill in "password" with "%s"' % password)
-    step.given('I press "Log in"')
-    step.given('I should see "LabManager Admin Dashboard"')
 
 @step(u'I add an oauth LMS with name "([^"]*)" and url "([^"]*)"')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
@@ -29,7 +19,7 @@ def create_oauth_lms(step, name, url):
     lms = support.create_lms(name, url)
     support.add_oauth_to_lms(lms)
 
-@step(u'add an basic auth LMS with name "([^"]*)" and url "([^"]*)"')
+@step(u'add an? basic auth LMS with name "([^"]*)" and url "([^"]*)"')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
     support.fill_in_lms_fields(step, name, url)
     step.given('I select "Basic" from "authentications-0-kind"')
