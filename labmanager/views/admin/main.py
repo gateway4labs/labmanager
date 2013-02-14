@@ -5,7 +5,7 @@ from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
-from flask import redirect, abort, url_for, request
+from flask import redirect, abort, url_for, request, session
 from flask.ext import wtf
 from flask.ext.login import current_user
 from flask.ext.admin import expose, AdminIndexView
@@ -32,7 +32,10 @@ class AdminPanel(AdminIndexView):
     @expose('/')
     def index(self):
         pending_requests = Permission.find_by_status(u'pending')
-        data = {'requests' : pending_requests }
+        data = {
+            'requests' : pending_requests,
+            'current_user' : User.find(session.get('user_id'))
+        }
         return self.render('l4l-admin/index.html', info=data)
 
     @expose('/<model>/<int:r_id>/show')

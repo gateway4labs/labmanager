@@ -41,6 +41,6 @@ if __name__ == '__main__':
     psaxf_report()
     try:
         api.local("python labmanager/test/test_lms.py")
-        api.local('lettuce tests/features --verbosity=2')
+        api.local('lettuce tests/features')
     finally:
         kill_services()
