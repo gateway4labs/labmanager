@@ -18,11 +18,11 @@ def init_admin(app, db_session):
     admin.add_view(PermissionPanel(db_session,             category = u"Permissions", name = u"Course permissions", endpoint = 'permissions/course'))
     admin.add_view(PermissionOnLaboratoryPanel(db_session, category = u"Permissions", name = u"LMS permissions",    endpoint = 'permissions/lms'))
 
-    admin.add_view(LMSPanel(db_session,        category = u"LMS", name = u"LMS",     endpoint = 'lms/lms'))
-    admin.add_view(CoursePanel(db_session,     category = u"LMS", name = u"Courses", endpoint = 'lms/courses'))
+    admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
+    admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
 
-    admin.add_view(RLMSPanel(db_session,       category = u"ReLMS", name = u"RLMS",            endpoint = 'rlms/rlms'))
-    admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS", name = u"Registered labs", endpoint = 'rlms/labs'))
+    admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
+    admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
 
     admin.add_view(UsersPanel(db_session,      name     = u"Users", endpoint = 'users'))
 
