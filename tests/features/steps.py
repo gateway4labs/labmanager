@@ -4,29 +4,6 @@ from lettuce_webdriver import webdriver
 
 import support
 
-@step(u'Given a LMS with "([^"]*)" public and "([^"]*)" secret keys')
-def given_a_lms_with_group1_public_and_group2_secret_keys(step, shared, secret):
-    # LMS.create(shared: shared, secret: secret)
-    assert True, 'This step must be implemented'
-
-@step(u'I authenticate with "([^"]*)" and "([^"]*)"')
-def when_i_authenticate_with_group1_and_group2(step, secret, signature):
-    assert True, 'This step must be implemented'
-
-@step(u'I should be authenticated')
-def then_i_should_be_authenticated(step):
-    # session['consumer'] is not None
-    assert True, 'This step must be implemented'
-
-@step(u'Given no LMS')
-def given_no_lms(step):
-    assert True # no-op
-
-@step(u'I should get a "([^"]*)" http code')
-def then_i_should_get_a_group1_http_code(step, http_code):
-    # response.code.should eql(int(http_code))
-    assert True, 'This step must be implemented'
-
 @step(u'am logged in as an admin with "([^"]*)"')
 def given_i_am_logged_in_as_an_admin_with_group1(step, username_password):
     username, password = username_password.split(":")
