@@ -14,7 +14,7 @@
 from sets import Set
 from yaml import load as yload
 
-from flask import render_template, request, redirect
+from flask import render_template, request, redirect, session
 
 from labmanager.models import LMS, Credential, RLMS, Course
 from labmanager.models import Permission, PermissionOnLaboratory, Laboratory
@@ -59,7 +59,7 @@ def permission_request():
 def start_ims():
     response = None
 
-    consumer_key = request.form['oauth_consumer_key']
+    consumer_key = request.form.get('oauth_consumer_key')
     auth = Credential.find_by_key(consumer_key)
 
     current_role = Set(request.form['roles'].split(','))
@@ -69,8 +69,8 @@ def start_ims():
              'origin_ip' : request.remote_addr,
              'lms' : auth.lms.name,
              'lms_id' : auth.lms.id,
-             'context_label' : request.form['context_label'],
-             'context_id' : request.form['context_id'],
+             'context_label' : request.form.get('context_label'),
+             'context_id' : request.form.get('context_id'),
              'access' : False
              }
 
@@ -113,7 +113,7 @@ def start_ims():
                     wo_denied.append(exp)
             data['context_laboratories'] = wo_denied
 
-            response = render_template('lti/experiments.html', info=data)
+            response = render_template('lti/administrator_tool_setup.html', info=data)
         else:
             response = render_template('lti/no_experiments_info.html', info=data)
 
@@ -123,14 +123,45 @@ def start_ims():
 
     return response
 
-@lti.route("/experiment/<experiment>", methods = ['GET'])
-def launch_experiment(experiment=None):
-    response = None
+@lti.route("/experiment/", methods = ['POST'])
+def launch_experiment():
+    response = ""
+    consumer_key = session.get('consumer')
+    lab_id = request.form.get('p_on_lab')
+    context_id = request.form.get('context_id')
 
-    if (experiment):
-        response = experiment
+    auth = Credential.find_by_key(consumer_key)
+    course = Course.find_by_lms_and_context(auth.lms, context_id)
+    p_on_lab = PermissionOnLaboratory.find(lab_id)
+    permission = Permission.get_for_lab_and_context(p_on_lab, course)
 
+    if( permission and permission.has_access ):
+        ## TODO:
+        ## courses_configurations and request_payload
+        ## author (from session?)
+        ## referer
+        db_lms = auth.lms
+        courses_configurations = []
+        request_payload = {}
+        lms_configuration = p_on_lab.configuration
+        db_laboratory   = p_on_lab.laboratory
+        db_rlms         = db_laboratory.rlms
+        author = ""
+        referer = ""
+
+        ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
+        remote_laboratory = ManagerClass(db_rlms.configuration)
+
+        response = remote_laboratory.reserve(db_laboratory.laboratory_id,
+                                             author,
+                                             lms_configuration,
+                                             courses_configurations,
+                                             request_payload,
+                                             str(request.user_agent),
+                                             request.remote_addr,
+                                             referer)
+        return redirect(response)
     else:
-        response = "No soup for you!"
+        response = "Not Allowed"
 
     return response

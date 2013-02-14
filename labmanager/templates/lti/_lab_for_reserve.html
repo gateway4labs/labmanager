@@ -1,0 +1,11 @@
+<tr>
+  <input type="radio" name="p_on_lab"
+         id="res-{{p.permission_on_lab.id}}"
+         value="{{p.permission_on_lab.id}}">
+  <label for="res-{{p.permission_on_lab.laboratory.id}}">
+    {{ p.permission_on_lab.laboratory | title }} 
+  </label>
+  <label for="res-{{p.permission_on_lab.laboratory.id}}">
+    {{ p.permission_on_lab.laboratory.rlms.name }}
+  </label>
+</tr>

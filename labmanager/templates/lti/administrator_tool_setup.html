@@ -8,45 +8,52 @@
 
   {% if info.context_laboratories %}
   <fieldset>
-    <legend>Permission status for this course:</legend>
-    <table>
-      {% for p in info.context_laboratories %}
-      <tr>
-        <td> {{ p.permission_on_lab.laboratory | title }}</td>
-        <td> {{ p.permission_on_lab.laboratory.rlms.name }}</td>
-        <td> "<launch_url>" <td>
-      </tr>
-      {% endfor %}
-    </table>
+    <form action="experiment/" method="POST">
+      <legend>Reserve laboratory.</legend>
+      <table>
+
+        {% for p in info.context_laboratories %}
+        {% include 'lti/_lab_for_reserve.html' %}
+        {% endfor %}
+
+      </table>
+      <input type="hidden" name="context_id" value="{{info.context_id}}">
+      <input type="submit" value="Reserve Laboratory">
+    </form>
   </fieldset>
   {% else %}
   <p> This context has no access to laboratories yet.</p>
   {% endif %}
 
+  {% if info.role == 'Instructor' %}
   <form action="request_permission/" method="POST">
     <fieldset>
-      <legend>1. Choose the experiments you would like to request access to.</legend>
+      <legend>Request access to laboratories.</legend>
       {% for remote in info.rlms %}
       {% set iteri = loop.index %}
       <fieldset style='border:none'>
         <legend>{{ remote }}</legend>
         {% for exp in info.rlms[remote] %}
         {% set iterj = loop.index %}
-        <input type="checkbox" name="rlmslaboratories" id="exp-{{exp.id}}" value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
-        <label for="exp-{{ exp.id }}">{{ exp.name }}</label>
+        <input type="checkbox"
+               name="rlmslaboratories"
+               id="exp-{{exp.id}}"
+               value="{{ info.rlms_ids[remote] }}:{{ exp.id }}" />
+        <label for="exp-{{ exp.id }}">
+          {{ exp.name }}
+        </label>
         <br/>
         {% endfor %}
       </fieldset>
       {% endfor %}
 
-    </fieldset>
-    <fieldset>
-      <legend>2. Request Access</legend>
       <input type="hidden" name="context_id" value={{ info.context_id }}>
       <input type="hidden" name="lms_id" value={{ info.lms_id }}>
       <input type="hidden" name="context_label" value={{ info.context_label }}>
       <input type="submit" value="Submit Request">
     </fieldset>
   </form>
+  {% endif %}
+
 </div>
 {% endblock %}
