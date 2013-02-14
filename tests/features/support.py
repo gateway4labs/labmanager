@@ -1,10 +1,13 @@
+from labmanager.database import db_session
 import labmanager.models as models
+import hashlib
 
 def create_admin(username, password):
-    return models.LabManagerUser.new(login= username,
-    name= 'Administrator',
-    password= password,
-    access_level='admin')
+    password = unicode(hashlib.new('sha', password).hexdigest())
+    admin =  models.LabManagerUser.new(login = username,
+        name = 'Administrator',
+        password = password,
+        access_level ='admin')
 
 def create_lms(name=u'LMS Name', url=u'http://example.com'):
     return models.LMS.new(name=name, url=url)

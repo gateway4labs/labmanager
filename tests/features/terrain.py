@@ -26,9 +26,12 @@ def load_application():
 
 @before.each_scenario
 def reset_database(scenario):
+    db_session.remove()
     init_db(drop = True)
 
 @after.all
 def tear_down_app(app):
     world.browser.quit()
     world.display.stop()
+    db_session.remove()
+    init_db(drop = True)
