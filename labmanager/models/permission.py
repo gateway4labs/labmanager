@@ -46,6 +46,11 @@ class Permission(Base, SBBase):
         self.access = new_status
         DBS.commit()
 
+    def has_access(self):
+        if (self.access == u'granted'):
+            return True
+        return False
+
     @classmethod
     def find_by_status(self, status):
         return DBS.query(self).filter(self.access == status).all()
@@ -55,11 +60,16 @@ class Permission(Base, SBBase):
         return DBS.query(self).filter(self.course == context).all()
 
     @classmethod
-    def find_or_create(self, context, perm_on_lab):
+    def get_for_lab_and_context(self, p_on_lab, context):
         instance = DBS.query(self).filter(sql.and_(self.course == context,
-                                                   self.permission_on_lab == perm_on_lab)
+                                                   self.permission_on_lab == p_on_lab)
                                           ).first()
+        return instance
+
+    @classmethod
+    def find_or_create(self, context, p_on_lab):
+        instance = self.get_for_lab_and_context(self, p_on_lab, context)
         if instance:
             return instance
         else:
-            return self.new(context = context, permission_on_lab = perm_on_lab)
+            return self.new(context = context, permission_on_lab = p_on_lab)

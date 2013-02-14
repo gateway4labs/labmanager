@@ -25,7 +25,7 @@ class Laboratory(Base, SBBase):
     def __unicode__(self):
         return u'%s at %s' % (self.name, self.rlms)
 
-class PermissionOnLaboratory(Base):
+class PermissionOnLaboratory(Base, SBBase):
     __tablename__ = 'PermissionOnLaboratories'
     __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), UniqueConstraint('local_identifier', 'lms_id'))
 
