@@ -4,7 +4,7 @@ env:
   - LAB_ENV=test
 
 install:
-  - "pip install -r requirements.txt --use-mirrors"
-  - "pip install -r requirements-test.txt --use-mirrors"
+  - "pip install -r requirements.txt --use-mirrors --quiet"
+  - "pip install -r requirements-test.txt --use-mirrors --quiet"
 
 script: "python tests/integration_tests.py"
