@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from lettuce import step, world
 from lettuce_webdriver import webdriver
 
