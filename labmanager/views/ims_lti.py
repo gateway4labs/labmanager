@@ -49,8 +49,10 @@ def permission_request():
                 Permission.find_or_create(local_context, p_on_lab)
 
     exp_status = Permission.find_all_for_context(local_context)
-    print exp_status
-    data['context_laboratories'] = exp_status
+    data = {'context_id' :  context_id,
+            'context_laboratories' :  exp_status,
+            'consumer_key' : request.form.get('consumer_key')
+            }
 
     return render_template('lti/experiments.html', info=data)
 
@@ -63,7 +65,7 @@ def start_ims():
     auth = Credential.find_by_key(consumer_key)
 
     current_role = Set(request.form['roles'].split(','))
-    req_course_data = request.form['lis_result_sourcedid']
+    req_course_data = request.form.get('lis_result_sourcedid')
 
     data = { 'user_agent' : request.user_agent,
              'origin_ip' : request.remote_addr,
@@ -71,7 +73,8 @@ def start_ims():
              'lms_id' : auth.lms.id,
              'context_label' : request.form.get('context_label'),
              'context_id' : request.form.get('context_id'),
-             'access' : False
+             'access' : False,
+             'consumer_key': consumer_key
              }
 
     local_context = Course.find_or_create(lms = auth.lms,
@@ -126,7 +129,7 @@ def start_ims():
 @lti.route("/experiment/", methods = ['POST'])
 def launch_experiment():
     response = ""
-    consumer_key = session.get('consumer')
+    consumer_key = request.form.get('consumer_key')
     lab_id = request.form.get('p_on_lab')
     context_id = request.form.get('context_id')
 
