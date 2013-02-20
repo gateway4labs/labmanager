@@ -68,7 +68,7 @@ class Permission(Base, SBBase):
 
     @classmethod
     def find_or_create(self, context, p_on_lab):
-        instance = self.get_for_lab_and_context(self, p_on_lab, context)
+        instance = self.get_for_lab_and_context(p_on_lab, context)
         if instance:
             return instance
         else:

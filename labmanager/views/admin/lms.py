@@ -1,5 +1,4 @@
 # -*-*- encoding: utf-8 -*-*-
-import sha
 import threading
 
 from yaml import load as yload
@@ -54,14 +53,8 @@ class LMSPanel(L4lModelView):
         old_authentications = getattr(self.local_data, 'authentications', {})
 
         for authentication in model.authentications:
-            if authentication.kind == 'basic':
-                # If it's the same secret, don't change it
-                old_secret = old_authentications.get(authentication.id, None)
-                if authentication.secret == old_secret:
-                    continue
-                # Otherwise, regenerate the hash
-                hash_password = sha.new(authentication.secret).hexdigest()
-                authentication.secret = hash_password 
+            old_secret = old_authentications.get(authentication.id, None)
+            authentication.update_password(old_secret)
 
     @expose('/<id>/scorm_authentication.zip')
     def scorm_authentication(self, id):

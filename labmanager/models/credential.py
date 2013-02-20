@@ -1,4 +1,5 @@
 # -*-*- encoding: utf-8 -*-*-
+import sha
 from sqlalchemy import Column, Integer, Unicode, ForeignKey
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
@@ -29,3 +30,6 @@ class Credential(Base):
     def find_by_key(self, r_key):
         return DBS.query(self).filter( self.key == r_key ).first()
 
+    def update_password(self, old_secret):
+        if self.secret != old_secret:
+            self.secret = sha.new(self.secret).hexdigest()
