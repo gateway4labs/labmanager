@@ -4,8 +4,8 @@ standard_urn_admin_roles:
         - AccountAdmin
 
 permission_status:
-        - pending
         - granted
+        - pending
         - denied
 
 authentication_types:
@@ -17,10 +17,3 @@ user_access_level:
         - rlms
         - lms
 
-installed_rlms:
-        weblab_deusto:
-                - 1.0.2
-                - 1.1
-        ilabs:
-                - 1.0
-                - 2.0.1

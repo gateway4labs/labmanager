@@ -1,7 +1,6 @@
+{% extends "lti/layout.html" %}
+{% block content %}
 <div>
-  {% if info.message %}
-  <fieldset><legend>DEBUG MESSAGES</legend><p style='color:#F00; text-align:center'>{{ info.message|safe }}</p></fieldset>
-  {% endif %}
   <p>
     Hello{{ " " + info.role }}!
     You are enrolled as {{ info.role }} in {{ info.course }} from {{ info.lms }}.
@@ -12,3 +11,4 @@
   No access :(
   {% endif %}
 </div>
+{% endblock %}

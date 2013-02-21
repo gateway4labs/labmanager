@@ -1,24 +1,23 @@
+{% extends "lti/layout.html" %}
+{% block content %}
 <div>
-  {% if info.message %}
-  <fieldset><legend>DEBUG MESSAGES</legend><p style='color:#F00; text-align:center'>{{ info.message|safe }}</p></fieldset>
+  {% if info.context_laboratories %}
+  <fieldset>
+    <form action="/lti/experiment/" method="POST">
+      <legend>Reserve laboratory.</legend>
+      <table>
+
+        {% for p in info.context_laboratories %}
+        {% include 'lti/_lab_for_reserve.html' %}
+        {% endfor %}
+
+      </table>
+      {% include 'lti/_hidden_fields.html'%}
+      <input type="submit" value="Reserve Laboratory">
+    </form>
+  </fieldset>
+  {% else %}
+  <p> This context has no access to laboratories yet.</p>
   {% endif %}
-  
-  {% if info.context_experiments %}
-  <legend>Permission status for this course:</legend>
-  <table>
-    {% for permission in info.context_experiments %}
-    <tr>
-      <td> {{ permission.experiment }}</td>
-      <td>
-        {% if permission.access == "granted" %}
-        <a href="experiment/{{permission.experiment.name}}">Go to experiment</a>
-        {% else %}
-        {{ permission.access | title }}
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% endif %}
-  
 </div>
+{% endblock %}
