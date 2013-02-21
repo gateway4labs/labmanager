@@ -112,7 +112,7 @@ def start_ims():
         if context_laboratories:
             wo_denied = []
             for exp in context_laboratories:
-                if exp.access != 'denied':
+                if exp.has_access:
                     wo_denied.append(exp)
             data['context_laboratories'] = wo_denied
 

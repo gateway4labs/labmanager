@@ -11,7 +11,9 @@ from flask.ext.login import current_user
 from flask.ext.admin import expose, AdminIndexView
 
 from labmanager.views.admin import L4lModelView
-from labmanager.models import Permission
+# LMS, Laboratory and Course declarations are needed for the 'show' view
+# so that sys.modules[__name__] can find it and create the Class object
+from labmanager.models import Permission, LMS, Laboratory, Course
 from labmanager.models import LabManagerUser as User
 from labmanager.database import db_session as DBS
 
