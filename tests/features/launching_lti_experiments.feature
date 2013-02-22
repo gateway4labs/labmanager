@@ -5,7 +5,9 @@ Feature: Launching LTI Experiments
 
   Scenario: Reserving a lab
     Given An OAuth LMS with public key "shared" and private key "secret"
-    And an experiment named "dancing-robots-under-the-rain" exists
-    And LMS "shared" has permission to access "dancing-robots-under-the-rain"
-    When I reserve "dancing-robots-under-the-rain" as "shared:secret"
+    And an laboratory named "dancing-robots-under-the-rain" exists
+    And LMS with public key "shared" has permission on laboratory "dancing-robots-under-the-rain"
+    And the student comes from Course "fun-learning"
+    And Course "fun-learning" has permission granted to use laboratory "dancing-robots-under-the-rain" 
+    When the student selects "dancing-robots-under-the-rain" from the laboratories list
     Then the experiment should be reserved
