@@ -12,8 +12,13 @@ DEBUGGING_REQUESTS = False
 RLMS = ['weblabdeusto','unr']
 
 heroku = os.environ.get('HEROKU', None)
+testing = os.environ.get('TESTING_LABMANAGER', None)
 if heroku:
     SQLALCHEMY_ENGINE_STR = os.environ.get('DATABASE_URL')
+    USE_PYMYSQL = False
+elif testing:
+    SQLALCHEMY_ENGINE_STR = os.environ['TESTING_LABMANAGER']
+    USE_PYMYSQL = False
 else:
     
     # 
@@ -25,6 +30,7 @@ else:
     DBNAME   = 'labmanager'
     
     ENGINE   = 'mysql' # or 'sqlite', 'postgresql', 'oracle'
+    USE_PYMYSQL = False
     
     if ENGINE == 'mysql':
         SQLALCHEMY_ENGINE_STR = "mysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)

@@ -1,9 +1,12 @@
+{% extends "lti/layout.html" %}
+{% block content %}
 <p>
   This course has not requested any permissions.
 </p>
 
 <ol>
-  <li>The administrator for {{ info.lms }} has to request access to the experiments</li>
-  <li>An administrator from the remote experiment will grant or deny the request</li>
-  <li>Students will be able to use the experiment and learn</li>
+  <li>An instructor for {{ info.lms }} has to request access to the experiments.</li>
+  <li>An administrator from the remote experiment will grant or deny the request.</li>
+  <li>Students will be able to use the experiment and learn.</li>
 </ol>
+{% endblock %}
