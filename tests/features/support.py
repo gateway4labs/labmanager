@@ -26,6 +26,6 @@ def fill_in_lms_fields(step, name, url):
     step.given('I fill in "name" with "%s"' % name)
     step.given('I fill in "url" with "%s"' % url)
     step.given('I click "Add Authentications"')
-    # print world.browser.page_source
+    print world.browser.page_source
     step.given('I fill in "authentications-0-key" with "shared"')
     step.given('I fill in "authentications-0-secret" with "secret"')
