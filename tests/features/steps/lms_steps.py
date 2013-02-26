@@ -7,6 +7,7 @@ import support
 
 @step(u'I add an [Oo]auth LMS with name "([^"]*)" and url "([^"]*)"')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
+    print world.browser.page_source
     support.fill_in_lms_fields(step, name, url)
     step.given('I press "Submit"')
 
