@@ -16,6 +16,7 @@ def load_application():
     """Load the Lab Manager application using flask's test client"""
     world.display = Display(visible=0, size=(800, 600))
     world.display.start()
+
     world.db_session = db_session
     world.labmanager = labmanager
     world.app = labmanager.app
