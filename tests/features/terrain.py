@@ -14,8 +14,8 @@ from labmanager.database import db_session, init_db
 @before.all
 def load_application():
     """Load the Lab Manager application using flask's test client"""
-    world.display = Display(visible=0, size=(800, 600))
-    world.display.start()
+    # world.display = Display(visible=0, size=(800, 600))
+    # world.display.start()
 
     world.db_session = db_session
     world.labmanager = labmanager
@@ -35,4 +35,4 @@ def tear_down_app(results):
     db_session.remove()
     init_db(drop = True)
     world.browser.quit()
-    world.display.stop()
+    # world.display.stop()
