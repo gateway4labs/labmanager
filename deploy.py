@@ -18,16 +18,12 @@ except ImportError:
     print >> sys.stderr, "Missing config.py. Copy config.py.dist into config.py"
     sys.exit(-1)
 
+from config import env_config, SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
+ENGINE = env_config.get('engine')
 heroku = os.environ.get('HEROKU', None)
-if heroku is None:
-    from config import USERNAME, PASSWORD, HOST, DBNAME
 
-    from config import ENGINE
+if heroku is None:
     if ENGINE == 'mysql':
-        try:
-            from config import USE_PYMYSQL
-        except:
-            USE_PYMYSQL = False
         if USE_PYMYSQL:
             import pymysql as dbi
         else:
@@ -46,9 +42,9 @@ from labmanager.database import init_db, db_session, add_sample_users
 def create_user():
     if ENGINE == 'mysql':
         sentences = (
-            "DROP USER '%s'@'localhost'" % USERNAME,
-            "CREATE USER '%s'@'localhost' IDENTIFIED BY '%s'" % (USERNAME, PASSWORD),
-            "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (DBNAME, USERNAME, PASSWORD),
+            "DROP USER '%s'@'localhost'" % env_config['username'],
+            "CREATE USER '%s'@'localhost' IDENTIFIED BY '%s'" % (env_config['username'], env_config['password']),
+            "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (env_config['dbname'], env_config['username'], env_config['password']),
         )
 
         global ROOT_USERNAME, ROOT_PASSWORD
@@ -74,18 +70,18 @@ def create_db():
             ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
 
         try:
-            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = DBNAME, host = HOST)
+            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = env_config['dbname'], host = env_config['host'])
         except:
             pass # DB does not exist
         else:
             cursor = connection.cursor()
-            cursor.execute("DROP DATABASE IF EXISTS %s" % DBNAME)
+            cursor.execute("DROP DATABASE IF EXISTS %s" % env_config['dbname'])
             connection.commit()
             connection.close()
 
-        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = HOST)
+        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = env_config['host'])
         cursor = connection.cursor()
-        cursor.execute("CREATE DATABASE %s" % DBNAME)
+        cursor.execute("CREATE DATABASE %s" % env_config['dbname'])
         connection.commit()
         connection.close()
 

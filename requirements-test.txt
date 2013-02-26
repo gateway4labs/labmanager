@@ -1,0 +1,7 @@
+lettuce
+lettuce_webdriver
+splinter
+pyvirtualdisplay
+selenium
+fabric
+nose

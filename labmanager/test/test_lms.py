@@ -10,7 +10,9 @@ from bs4 import BeautifulSoup, Tag
 from werkzeug import Headers
 
 sys.path.append('.')
-os.environ['TESTING_LABMANAGER'] = 'sqlite:///:memory:'
+
+# Force test env unless specified
+os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
 
 from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDRESS
 register_fake()

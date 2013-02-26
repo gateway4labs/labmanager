@@ -12,7 +12,7 @@ from labmanager.scorm import get_authentication_scorm
 from labmanager.models import Credential, LMS, Course
 from labmanager.views.admin import L4lModelView
 
-config = yload(open('labmanager/config.yaml'))
+config = yload(open('labmanager/config.yml'))
 
 class CredentialForm(InlineFormAdmin):
     form_columns = ('id','kind', 'key', 'secret')
