@@ -20,13 +20,14 @@ def given_an_admin_user_with_group1(step, username_password):
 def when_i_login_with_group1(step, username_password):
     username, password = username_password.split(":")
     world.browser.get('http://localhost:5001/login')
+    print world.browser.page_source
     step.given('I fill in "username" with "%s"' % username)
     step.given('I fill in "password" with "%s"' % password)
     step.given('I press "Log in"')
 
 @step(u'I should be logged in')
 def then_i_should_be_logged_in(step):
-    # print world.browser.page_source
+    print world.browser.page_source
     step.given('I should see "You are logged in as"')
     step.given('I should see "LabManager Admin Dashboard"')
 
