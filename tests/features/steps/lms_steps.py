@@ -7,13 +7,12 @@ import support
 
 @step(u'I add an [Oo]auth LMS with name "([^"]*)" and url "([^"]*)"')
 def when_i_add_an_oauth_lms_with_name_group1_and_url_group2(step, name, url):
-    print world.browser.page_source
     support.fill_in_lms_fields(step, name, url)
     step.given('I press "Submit"')
 
 @step(u'I visit the LMS list page')
 def and_i_visit_the_lms_list_page(step):
-    print "HELLO!!"
+    # print "HELLO!!"
     world.browser.get('http://localhost:5001/admin/lms/lms/')
 
 @step(u'an? OAuth LMS with name "([^"]*)" and url "([^"]*)"')

@@ -5,6 +5,7 @@ from splinter import Browser
 from pyvirtualdisplay import Display
 from selenium import webdriver
 
+os.environ['DATABASE_URL'] = os.environ.get('DATABASE_URL', 'sqlite:///:memory:')
 os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
 os.environ['PORT']    = os.environ.get('PORT', '5001')
 
