@@ -35,7 +35,7 @@ def init_db(drop = False):
     assert labmanager.models != None # pyflakes ignore
 
     if drop:
-        puts "Droping Database"
+        print "Droping Database"
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
