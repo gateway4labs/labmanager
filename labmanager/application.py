@@ -57,7 +57,7 @@ def index():
 @app.route('/login', methods=['GET'])
 def login():
     """Login screen for application"""
-    next = request.args.get('next','')
+    next = request.args.get('next',url_for('admin.index'))
     return render_template('login.html', next=next)
 
 @app.route('/login', methods=['POST'])

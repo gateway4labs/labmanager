@@ -53,3 +53,24 @@ Now you can run it:
 `python run.py`
 
 And see it in http://localhost:5000/
+
+
+## Development
+
+If you want to contribute to the Lab Manager application, you'll need to install
+some external dependencies that are used only on development and testing.
+
+You will need Firefox and X11 to test the application.
+
+For this, simply run:
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements-test.txt
+```
+
+And you're ready to go.
+
+To test the application run:
+
+`python tests/integration_tests.py`
