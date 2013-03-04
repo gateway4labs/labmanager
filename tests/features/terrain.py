@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-
-os.environ['DATABASE_URL'] = os.environ.get('DATABASE_URL', 'sqlite:///:memory:')
-os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
-os.environ['PORT']    = os.environ.get('PORT', '5001')
-
 from lettuce import Runner, registry, before, after, world
 from splinter import Browser
 from pyvirtualdisplay import Display
 from selenium import webdriver
+
+os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
+os.environ['PORT']    = os.environ.get('PORT', '5001')
 
 import labmanager
 from labmanager.database import db_session, init_db
