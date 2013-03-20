@@ -3,8 +3,9 @@ import sha
 from sqlalchemy import Column, Integer, Unicode, ForeignKey
 from sqlalchemy.orm import relation, backref
 from labmanager.database import Base, db_session as DBS
+from labmanager.models import SBBase
 
-class Credential(Base):
+class Credential(Base, SBBase):
     __tablename__  = 'credentials'
     id = Column(Integer, primary_key = True)
     key = Column(Unicode(50), nullable = False, unique=True)
@@ -21,7 +22,7 @@ class Credential(Base):
         self.lms = lms
 
     def __repr__(self):
-        return "<Credential: %s LMS:%s>" % ( self.lms_id, self.kind )
+        return "<Credential: lms_id: %s Kind: '%s' Key: '%s'>" % ( self.lms_id, self.kind, self.key )
 
     def __unicode__(self):
         return "%s auth for %s" %(self.kind, self.lms.name)

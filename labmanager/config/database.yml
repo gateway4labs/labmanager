@@ -1,0 +1,20 @@
+development:
+  engine: mysql
+  pymsql: True
+  dbname: labmanager
+  username: labmanager
+  password: labmanager
+  host: localhost
+
+test:
+  engine: sqlite
+  dbname: "tests/test_db.sqlite3"
+
+production:
+  driver: pg8000
+  engine: postgresql
+  pymsql: false
+  dbname: some-db-name
+  username: labmanager
+  password: labmanager
+  host: localhost

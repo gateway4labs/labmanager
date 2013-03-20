@@ -14,7 +14,7 @@ from labmanager.scorm import get_scorm_object
 from labmanager.models import Permission, RLMS, Laboratory, PermissionOnLaboratory
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
-config = yload(open('labmanager/config.yaml'))
+config = yload(open('labmanager/config.yml'))
 
 class DynamicSelectWidget(wtf.widgets.Select):
     def __call__(self, *args, **kwargs):

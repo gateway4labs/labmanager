@@ -22,7 +22,7 @@ class LabManagerUser(Base, SBBase, UserMixin):
         self.access_level = access_level
 
     def __repr__(self):
-        return "<LabMUser: %s level:%s>" % (self.name, self.access_level)
+        return "<LabMUser: id: %s name: '%s' level: '%s' login: '%s'>" % (self.id, self.name, self.access_level, self.login)
 
     def __unicode__(self):
         return "%s (%s)" % (self.name, self.access_level)
