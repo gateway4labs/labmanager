@@ -1,7 +1,7 @@
 import sha
 
 from werkzeug.exceptions import Unauthorized
-from flask import request, g, Blueprint
+from flask import request, g, Blueprint, Response
 
 from labmanager.database import db_session
 from labmanager.models import Credential
@@ -19,12 +19,15 @@ def check_lms_auth(lmsname, password):
 
 @scorm_blueprint.before_request
 def requires_lms_auth():
+
+    UNAUTHORIZED = Response(response="Could not verify your credentials for that URL", status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
+
     auth = request.authorization
     if not auth:
         from labmanager.views import get_json
         json_data = get_json()
         if json_data is None:
-            raise Unauthorized("Could not verify your access level for that URL")
+            return UNAUTHORIZED
 
         username = json_data.get('lms_username','')
         password = json_data.get('lms_password','')
@@ -33,6 +36,6 @@ def requires_lms_auth():
         password = auth.password
 
     if not check_lms_auth(username, password):
-        raise Unauthorized("Could not verify your access level for that URL")
+        return UNAUTHORIZED
 
 
