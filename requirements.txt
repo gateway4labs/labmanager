@@ -11,5 +11,6 @@ Flask-Admin<1.1
 flask-login<0.2
 pyyaml<4
 beautifulsoup4<4.2
+pg8000
 git+https://github.com/lms4labs/rlms_weblabdeusto.git
 git+https://github.com/lms4labs/rlms_unr.git
