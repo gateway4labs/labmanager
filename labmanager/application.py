@@ -24,7 +24,10 @@ from labmanager.models import LabManagerUser as User
 
 app = Flask(__name__)
 app.config.from_object('config')
-app.secret_key = os.urandom(32)
+if app.config['DEBUG']:
+    app.secret_key = 'secret'
+else:
+    app.secret_key = os.urandom(32)
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
