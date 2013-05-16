@@ -14,7 +14,7 @@ from labmanager.views.admin import L4lModelView
 # LMS, Laboratory and Course declarations are needed for the 'show' view
 # so that sys.modules[__name__] can find it and create the Class object
 from labmanager.models import Permission, LMS, Laboratory, Course
-from labmanager.models import LabManagerUser as User
+from labmanager.models import LabManagerUser as User, LMSUser
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yml'))
@@ -71,6 +71,24 @@ class UsersPanel(L4lModelView):
         return current_user.is_authenticated()
 
     form_columns = ('name', 'login', 'password', 'access_level')
+    sel_choices = [(level, level.title()) for level in config['user_access_level']]
+    form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
+    form_args = dict( access_level=dict( choices=sel_choices ) )
+
+    def on_model_change(self, form, model):
+        model.password = new_hash("sha", model.password).hexdigest()
+
+class LmsUsersPanel(L4lModelView):
+
+    column_list = ('lms', 'login', 'full_name', 'access_level')
+
+    def __init__(self, session, **kwargs):
+        super(LmsUsersPanel, self).__init__(LMSUser, session, **kwargs)
+
+    def is_accessible(self):
+        return current_user.is_authenticated()
+
+    form_columns = ('full_name', 'login', 'password', 'access_level', 'lms')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
     form_args = dict( access_level=dict( choices=sel_choices ) )

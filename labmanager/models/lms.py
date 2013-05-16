@@ -28,23 +28,23 @@ class LMSUser(Base):
     __tablename__  = 'lmsusers'
     __table_args__ = (UniqueConstraint('login','lms_id'), )
 
-    id        = Column(Integer, primary_key = True)
+    id           = Column(Integer, primary_key = True)
 
-    login     = Column(Unicode(50), nullable = False, index = True)
-    full_name = Column(Unicode(50), nullable = False)
-    password  = Column(Unicode(128), nullable = False)
+    login        = Column(Unicode(50), nullable = False, index = True)
+    full_name    = Column(Unicode(50), nullable = False)
+    password     = Column(Unicode(128), nullable = False)
+    access_level = Column(Unicode(50), nullable = False)
 
     lms_id    = Column(Integer, ForeignKey('lmss.id'), nullable = False)
 
     lms       = relation('LMS', backref = backref('users', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, login = None, full_name = None, lms = None):
-        self.login     = login
-        self.full_name = full_name
-        self.lms       = lms
+    def __init__(self, login = None, full_name = None, lms = None, access_level = None):
+        self.login        = login
+        self.full_name    = full_name
+        self.lms          = lms
+        self.access_level = access_level
 
     def __unicode__(self):
         return u'%s@%s' % (self.login, self.lms.name)
         
-
-
