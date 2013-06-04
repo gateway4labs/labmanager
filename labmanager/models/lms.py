@@ -1,9 +1,11 @@
 # -*-*- encoding: utf-8 -*-*-
 from sqlalchemy import Column, Integer, Unicode, UniqueConstraint, ForeignKey
 from sqlalchemy.orm import relation, backref
-from labmanager.database import Base
+from labmanager.database import Base, db_session as DBS
 
 from labmanager.models import SBBase
+
+from flask.ext.login import UserMixin
 
 class LMS(Base, SBBase):
 
@@ -24,7 +26,7 @@ class LMS(Base, SBBase):
     def __unicode__(self):
         return self.name
 
-class LMSUser(Base):
+class LMSUser(Base, SBBase, UserMixin):
     __tablename__  = 'lmsusers'
     __table_args__ = (UniqueConstraint('login','lms_id'), )
 
@@ -47,4 +49,11 @@ class LMSUser(Base):
 
     def __unicode__(self):
         return u'%s@%s' % (self.login, self.lms.name)
-        
+    
+    def get_id(self):
+        return u'lms_user::%s::%s' % (self.lms.name, self.login)
+
+    @classmethod
+    def exists(self, login, word, lms_id):
+        return DBS.query(self).filter_by(login = login, password = word, lms_id = int(lms_id)).first()    
+

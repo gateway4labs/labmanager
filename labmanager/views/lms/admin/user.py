@@ -9,7 +9,7 @@ from flask.ext import wtf
 from flask.ext.login import current_user
 from flask.ext.admin import expose, AdminIndexView
 
-from labmanager.views.lms import L4lLmsModelView
+from labmanager.views.lms.admin import L4lLmsModelView
 from labmanager.models import Permission
 from labmanager.models import LMSUser
 from labmanager.database import db_session as DBS

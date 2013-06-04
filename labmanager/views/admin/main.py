@@ -8,9 +8,9 @@ from wtforms.fields import PasswordField
 from flask import redirect, abort, url_for, request, session
 from flask.ext import wtf
 from flask.ext.login import current_user
-from flask.ext.admin import expose, AdminIndexView
+from flask.ext.admin import expose
 
-from labmanager.views.admin import L4lModelView
+from labmanager.views.admin import L4lModelView, L4lAdminIndexView
 # LMS, Laboratory and Course declarations are needed for the 'show' view
 # so that sys.modules[__name__] can find it and create the Class object
 from labmanager.models import Permission, LMS, Laboratory, Course
@@ -19,16 +19,7 @@ from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yml'))
 
-class AdminPanel(AdminIndexView):
-    def is_accessible(self):
-        return current_user.is_authenticated()
-
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            return redirect(url_for('login', next=request.url))
-
-        return super(AdminPanel, self)._handle_view(name, **kwargs)
-
+class AdminPanel(L4lAdminIndexView):
     @expose('/')
     def index(self):
         pending_requests = Permission.find_by_status(u'pending')
@@ -67,9 +58,6 @@ class UsersPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(User, session, **kwargs)
 
-    def is_accessible(self):
-        return current_user.is_authenticated()
-
     form_columns = ('name', 'login', 'password', 'access_level')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
@@ -84,9 +72,6 @@ class LmsUsersPanel(L4lModelView):
 
     def __init__(self, session, **kwargs):
         super(LmsUsersPanel, self).__init__(LMSUser, session, **kwargs)
-
-    def is_accessible(self):
-        return current_user.is_authenticated()
 
     form_columns = ('full_name', 'login', 'password', 'access_level', 'lms')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]

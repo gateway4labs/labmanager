@@ -4,16 +4,24 @@ from labmanager.database import db_session as DBS
 class SBBase(object):
 
     @classmethod
-    def find(self, query_id = None):
-        return DBS.query(self).filter(self.id == query_id).first()
+    def find(klass, query_id = None, **kwargs):
+        query_obj = DBS.query(klass)
+        if query_id is not None:
+            query_obj = query_obj.filter(klass.id == query_id)
+        if kwargs:
+            query_obj = query_obj.filter_by(**kwargs)
+        return query_obj.first()
 
     @classmethod
-    def all(args):
-        return DBS.query(args).all()
+    def all(klass, **kwargs):
+        query_obj = DBS.query(klass)
+        if kwargs:
+            query_obj = query_obj.filter_by(**kwargs)
+        return query_obj.all()
 
     @classmethod
-    def new(self, **params):
-        instance = self(**params)
+    def new(klass, **params):
+        instance = klass(**params)
         DBS.add(instance)
         DBS.commit()
         return instance

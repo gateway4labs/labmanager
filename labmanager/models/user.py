@@ -27,6 +27,8 @@ class LabManagerUser(Base, SBBase, UserMixin):
     def __unicode__(self):
         return "%s (%s)" % (self.name, self.access_level)
 
+    def get_id(self):
+        return u'labmanager_admin::%s' % self.login
 
     @classmethod
     def exists(self, login, word):

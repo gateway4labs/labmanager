@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>LMS login</title>
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
+    <link href="{{ url_for('static', filename='select2/select2.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='jquery-1.8.3.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='select2/select2.min.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() { 
+            $("#lms_select").select2(); 
+            $("#username").focus();
+        });
+    </script>
+    <style>
+        body {
+            background-color: #eee;
+        }
+
+      /* The white background content wrapper */
+      .container > .content {
+        background-color: #fff;
+        padding: 20px;
+        margin: 0 -20px; 
+        -webkit-border-radius: 10px 10px 10px 10px;
+           -moz-border-radius: 10px 10px 10px 10px;
+                border-radius: 10px 10px 10px 10px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                box-shadow: 0 1px 2px rgba(0,0,0,.15);
+      }
+
+      legend {
+        margin-right: -50px;
+        font-weight: bold;
+      }
+
+      .login-form {
+        margin-left: 65px;
+      }
+
+      .container {
+        width: 600px;
+      }
+    </style>
+
+</head>
+
+<body>
+
+
+  <div class="container">
+      <div class="content">
+        <div class="row">
+          <div class="login-form">
+
+            <form action="{{url_for('login_lms', next=next)}}" method="POST" class="form-horizontal">
+                <div id="legend">
+                      <legend class="">LMS Login</legend>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="lms_select">LMS</label>
+                    <div class="controls">
+                        <select id="lms_select" name="lms">
+                            {% for lms in lmss %}
+                                <option value="{{ lms.id }}">{{ lms.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">        
+                    <label class="control-label" for="username"> Username </label>
+                    <div class="controls">
+                        <input type="text" name="username" placeholder="Username" id="username">
+                    </div>
+                </div>
+
+                <div class="control-group">        
+                    <label class="control-label" for="password"> Password </label>
+                    <div class="controls">
+                        <input type="password" name="password" placeholder="Password" id="password">
+                    </div>
+                </div>
+
+                <div class="control-group">        
+                    <div class="controls">
+                        <button type="submit" class="btn btn-success">Log in</button>
+                    </div>
+                </div>
+          </form>
+        </div>
+    </div>
+    </div>
+    </div>
+</body>

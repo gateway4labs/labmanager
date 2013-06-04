@@ -1,4 +1,17 @@
-from flask.ext.admin import Admin
+from flask import redirect, request, url_for
+
+from flask.ext.admin import Admin, BaseView, expose
+
+class RedirectView(BaseView):
+
+    def __init__(self, redirection_url, *args, **kwargs):
+        self.redirection_url = redirection_url
+        super(RedirectView, self).__init__(*args, **kwargs)
+
+    @expose()
+    def index(self):
+        return redirect(url_for(self.redirection_url))
+
 
 def init_admin(app, db_session):
     """
@@ -27,12 +40,15 @@ def init_admin(app, db_session):
     admin.add_view(UsersPanel(db_session,      category = u"Users", name = u"Labmanager Users", endpoint = 'users/labmanager'))
     admin.add_view(LmsUsersPanel(db_session,   category = u"Users", name = u"LMS Users",        endpoint = 'users/lms'))
 
+    admin.add_view(RedirectView('logout',      name = u"Log out", endpoint = 'admin/logout'))
+
     admin.init_app(app)
 
-    from .views.lms.main import LmsPanel
-    from .views.lms.user import LmsUsersPanel
+    from .views.lms.admin.main import LmsPanel
+    from .views.lms.admin.user import LmsUsersPanel
 
-    lms_url = '/lms'
+    lms_url = '/lms_admin'
     lms = Admin(index_view = LmsPanel(url=lms_url, endpoint = 'lms'), name = u"Lab Manager", url = lms_url, endpoint = lms_url)
     lms.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'lms/users'))
+    lms.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms/logout'))
     lms.init_app(app)
