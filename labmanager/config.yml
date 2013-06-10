@@ -14,6 +14,5 @@ authentication_types:
 
 user_access_level:
   - admin
-  - rlms
-  - lms
+  - instructor
 

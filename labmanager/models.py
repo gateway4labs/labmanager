@@ -64,21 +64,19 @@ class LabManagerUser(Base, SBBase, UserMixin):
     id = Column(Integer, primary_key=True)
 
     login    = Column(Unicode(50), unique = True )
-    name     = Column(Unicode(50))
-    password = Column(Unicode(50)) # hash
-    access_level = Column(Unicode(50))
+    name     = Column(Unicode(50), nullable = False)
+    password = Column(Unicode(50), nullable = False) # hash
 
-    def __init__(self, login = None, name = None, password = None, access_level = None):
+    def __init__(self, login = None, name = None, password = None):
         self.login    = login
         self.name     = name
         self.password = password
-        self.access_level = access_level
 
     def __repr__(self):
-        return "LabMUser(%r, %r, %r, %r)" % (self.login, self.name, self.password, self.access_level)
+        return "LabMUser(%r, %r, %r, %r)" % (self.login, self.name, self.password)
 
     def __unicode__(self):
-        return "%s (%s)" % (self.name, self.access_level)
+        return self.name
 
     def get_id(self):
         return u'labmanager_admin::%s' % self.login

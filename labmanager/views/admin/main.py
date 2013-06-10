@@ -14,7 +14,7 @@ from labmanager.views.admin import L4lModelView, L4lAdminIndexView
 # LMS, Laboratory and Course declarations are needed for the 'show' view
 # so that sys.modules[__name__] can find it and create the Class object
 from labmanager.models import PermissionToCourse, LMS, Laboratory, Course
-from labmanager.models import LabManagerUser as User, LmsUser
+from labmanager.models import LabManagerUser, LmsUser
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yml'))
@@ -25,7 +25,7 @@ class AdminPanel(L4lAdminIndexView):
         pending_requests = PermissionToCourse.find_by_status(u'pending')
         data = {
             'requests' : pending_requests,
-            'current_user' : User.find(session.get('user_id'))
+            'current_user' : LabManagerUser.find(session.get('user_id'))
         }
         return self.render('l4l-admin/index.html', info=data)
 
@@ -53,15 +53,13 @@ class AdminPanel(L4lAdminIndexView):
 
 class UsersPanel(L4lModelView):
 
-    column_list = ('login', 'name', 'access_level')
+    column_list = ('login', 'name')
 
     def __init__(self, session, **kwargs):
-        super(UsersPanel, self).__init__(User, session, **kwargs)
+        super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
 
-    form_columns = ('name', 'login', 'password', 'access_level')
-    sel_choices = [(level, level.title()) for level in config['user_access_level']]
+    form_columns = ('name', 'login', 'password')
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
-    form_args = dict( access_level=dict( choices=sel_choices ) )
 
     def on_model_change(self, form, model):
         model.password = new_hash("sha", model.password).hexdigest()

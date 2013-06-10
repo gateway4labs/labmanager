@@ -46,7 +46,7 @@ def add_sample_users():
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
  
-    user6 = LabManagerUser(u'admin', u'Administrator', password, 'admin')
+    user6 = LabManagerUser(u'admin', u'Administrator', password)
     db_session.add(user6)
 
     configuration = {
