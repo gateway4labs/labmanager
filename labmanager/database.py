@@ -40,7 +40,7 @@ def init_db(drop = False):
     Base.metadata.create_all(bind=engine)
 
 def add_sample_users():
-    from labmanager.models import LabManagerUser, PermissionOnLaboratory, Laboratory
+    from labmanager.models import LabManagerUser, PermissionToLms, Laboratory
     from labmanager.models import LMS, RLMS, Permission, Credential, Course
 
     init_db(drop = True)
@@ -83,7 +83,7 @@ def add_sample_users():
                         context_id = u"1")
     db_session.add(course1)
 
-    permission_to_lms1 = PermissionOnLaboratory(lms = newlms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    permission_to_lms1 = PermissionToLms(lms = newlms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
 
     permission1 = Permission(context = course1,
                              permission_on_lab = permission_to_lms1,

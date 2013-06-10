@@ -287,7 +287,7 @@ class Course(Base, SBBase):
         self.context_id = context_id
 
     def __repr__(self):
-        return "Course(%r, %r, %r)" % (self.name, self.lms, self.context_id)
+        return "Course(name=%r, lms=%r, context_id=%r)" % (self.name, self.lms, self.context_id)
 
     def __unicode__(self):
         return "%s on %s" % (self.name, self.lms)
@@ -317,16 +317,13 @@ class Course(Base, SBBase):
 
 ########################################################
 # 
-#     PermissionOnLaboratory
+#     PermissionToLms
 #
 # Defines that a LMS has permission on a Laboratory.
 #
-# TODO: Rename by PermissionToLms
-# 
 
-
-class PermissionOnLaboratory(Base, SBBase):
-    __tablename__ = 'PermissionOnLaboratories'
+class PermissionToLms(Base, SBBase):
+    __tablename__ = 'PermissionToLmss'
     __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), UniqueConstraint('local_identifier', 'lms_id'))
 
     id = Column(Integer, primary_key = True)
@@ -380,11 +377,11 @@ class Permission(Base, SBBase):
     access = Column(Unicode(50), nullable = False)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    permission_on_lab_id = Column(Integer, ForeignKey('PermissionOnLaboratories.id'), nullable = False)
+    permission_on_lab_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
     course_id            = Column(Integer, ForeignKey('courses.id'), nullable = False)
 
 
-    permission_on_lab = relation('PermissionOnLaboratory', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
+    permission_on_lab = relation('PermissionToLms', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
 
     # TODO: context or course: select one

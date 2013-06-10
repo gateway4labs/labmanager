@@ -24,7 +24,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 # LabManager imports
 #
 from labmanager.database import db_session
-from labmanager.models   import LMS, PermissionOnLaboratory
+from labmanager.models   import LMS, PermissionToLms
 from labmanager.rlms     import get_manager_class
 from labmanager.application import app
 
@@ -83,7 +83,7 @@ def requests():
 
     # reserving...
     db_lms = db_session.query(LMS).filter_by(name = g.lms).first()
-    permission_on_lab = db_session.query(PermissionOnLaboratory).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
+    permission_on_lab = db_session.query(PermissionToLms).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
     reservation_url = ""

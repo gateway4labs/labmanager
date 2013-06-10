@@ -11,7 +11,7 @@ from flask.ext.admin import expose
 from labmanager.views.admin import L4lModelView
 
 from labmanager.scorm import get_scorm_object
-from labmanager.models import Permission, RLMS, Laboratory, PermissionOnLaboratory
+from labmanager.models import Permission, RLMS, Laboratory, PermissionToLms
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
 config = yload(open('labmanager/config.yml'))
@@ -202,7 +202,7 @@ def scorm_formatter(c, permission, p):
 
     return 'N/A'
 
-class PermissionOnLaboratoryPanel(L4lModelView):
+class PermissionToLmsPanel(L4lModelView):
     # 
     # TODO: manage configuration
     # 
@@ -219,11 +219,11 @@ class PermissionOnLaboratoryPanel(L4lModelView):
 
 
     def __init__(self, session, **kwargs):
-        super(PermissionOnLaboratoryPanel, self).__init__(PermissionOnLaboratory, session, **kwargs)
+        super(PermissionToLmsPanel, self).__init__(PermissionToLms, session, **kwargs)
 
     @expose('/scorm/<lms_id>/scorm_<local_id>.zip')
     def get_scorm(self, lms_id, local_id):
-        permission = self.session.query(PermissionOnLaboratory).filter_by(lms_id = lms_id, local_identifier = local_id).one()
+        permission = self.session.query(PermissionToLms).filter_by(lms_id = lms_id, local_identifier = local_id).one()
         
         db_lms = permission.lms 
 

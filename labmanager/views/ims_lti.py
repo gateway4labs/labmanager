@@ -17,7 +17,7 @@ from yaml import load as yload
 from flask import render_template, request, redirect, session
 
 from labmanager.models import LMS, Credential, RLMS, Course
-from labmanager.models import Permission, PermissionOnLaboratory, Laboratory
+from labmanager.models import Permission, PermissionToLms, Laboratory
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
@@ -43,7 +43,7 @@ def permission_request():
         rlms_id, lab_id = int(split_choice[0]), int(split_choice[1])
         requested_lab = Laboratory.find(lab_id)
         if( requested_lab.rlms.id == rlms_id ):
-            p_on_lab = PermissionOnLaboratory.find_for_lms_on_lab(incoming_lms,
+            p_on_lab = PermissionToLms.find_for_lms_on_lab(incoming_lms,
                                                                   requested_lab)
             if(p_on_lab):
                 Permission.find_or_create(local_context, p_on_lab)
@@ -90,7 +90,7 @@ def start_ims():
         data['rlms'] = {}
         data['rlms_ids'] = {}
 
-        lms_laboratories = PermissionOnLaboratory.find_all_for_lms(auth.lms)
+        lms_laboratories = PermissionToLms.find_all_for_lms(auth.lms)
 
         for allowed_lab in lms_laboratories:
             laboratory = allowed_lab.laboratory
@@ -135,7 +135,7 @@ def launch_experiment():
 
     auth = Credential.find_by_key(consumer_key)
     course = Course.find_by_lms_and_context(auth.lms, context_id)
-    p_on_lab = PermissionOnLaboratory.find(lab_id)
+    p_on_lab = PermissionToLms.find(lab_id)
     permission = Permission.get_for_lab_and_context(p_on_lab, course)
 
     if( permission and permission.has_access ):

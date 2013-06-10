@@ -21,7 +21,7 @@ def init_admin(app, db_session):
     """
 
     from .views.admin.lms  import LMSPanel, CoursePanel
-    from .views.admin.rlms import RLMSPanel, LaboratoryPanel, PermissionPanel, PermissionOnLaboratoryPanel
+    from .views.admin.rlms import RLMSPanel, LaboratoryPanel, PermissionPanel, PermissionToLmsPanel
     from .views.admin.main import AdminPanel, UsersPanel, LmsUsersPanel
 
     admin_url = '/admin'
@@ -29,7 +29,7 @@ def init_admin(app, db_session):
     admin = Admin(index_view = AdminPanel(url=admin_url), name = u"Lab Manager", url = admin_url, endpoint = admin_url)
 
     admin.add_view(PermissionPanel(db_session,             category = u"Permissions", name = u"Course permissions", endpoint = 'permissions/course'))
-    admin.add_view(PermissionOnLaboratoryPanel(db_session, category = u"Permissions", name = u"LMS permissions",    endpoint = 'permissions/lms'))
+    admin.add_view(PermissionToLmsPanel(db_session, category = u"Permissions", name = u"LMS permissions",    endpoint = 'permissions/lms'))
 
     admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
     admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
