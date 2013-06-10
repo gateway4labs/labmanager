@@ -13,7 +13,7 @@ from flask.ext.admin import expose
 from labmanager.views.admin import L4lModelView, L4lAdminIndexView
 # LMS, Laboratory and Course declarations are needed for the 'show' view
 # so that sys.modules[__name__] can find it and create the Class object
-from labmanager.models import Permission, LMS, Laboratory, Course
+from labmanager.models import PermissionToCourse, LMS, Laboratory, Course
 from labmanager.models import LabManagerUser as User, LmsUser
 from labmanager.database import db_session as DBS
 
@@ -22,7 +22,7 @@ config = yload(open('labmanager/config.yml'))
 class AdminPanel(L4lAdminIndexView):
     @expose('/')
     def index(self):
-        pending_requests = Permission.find_by_status(u'pending')
+        pending_requests = PermissionToCourse.find_by_status(u'pending')
         data = {
             'requests' : pending_requests,
             'current_user' : User.find(session.get('user_id'))
@@ -48,7 +48,7 @@ class AdminPanel(L4lAdminIndexView):
 
     @expose('/Permission/<int:id>/update/<status>')
     def update(self, id, status):
-        Permission.find(id).change_status(status)
+        PermissionToCourse.find(id).change_status(status)
         return redirect('/admin') # redirect to index
 
 class UsersPanel(L4lModelView):

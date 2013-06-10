@@ -41,7 +41,7 @@ def init_db(drop = False):
 
 def add_sample_users():
     from labmanager.models import LabManagerUser, PermissionToLms, Laboratory
-    from labmanager.models import LMS, RLMS, Permission, LmsCredential, Course
+    from labmanager.models import LMS, RLMS, PermissionToCourse, LmsCredential, Course
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -85,7 +85,7 @@ def add_sample_users():
 
     permission_to_lms1 = PermissionToLms(lms = newlms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
 
-    permission1 = Permission(context = course1,
+    permission1 = PermissionToCourse(context = course1,
                              permission_on_lab = permission_to_lms1,
                              access = u"pending")
     db_session.add(permission1)

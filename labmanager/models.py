@@ -223,8 +223,6 @@ class LmsCredential(Base, SBBase):
 #   LMS Users (administrators or teachers) can
 #   authenticate and change stuff at LMS level.
 #  
-# TODO: rename to LmsUser
-# 
 
 
 class LmsUser(Base, SBBase, UserMixin):
@@ -362,13 +360,11 @@ class PermissionToLms(Base, SBBase):
 #
 # Defines that a Course has permission on a Laboratory.
 #
-# TODO: Rename by PermissionToCourse
-# 
 
 
-class Permission(Base, SBBase):
+class PermissionToCourse(Base, SBBase):
 
-    __tablename__  = 'permissions'
+    __tablename__  = 'PermissionsToCourses'
     __table_args__ = (UniqueConstraint('permission_on_lab_id', 'course_id'),)
 
     id = Column(Integer, primary_key = True)
@@ -392,7 +388,7 @@ class Permission(Base, SBBase):
         self.access            = access
 
     def __repr__(self):
-        return "<Permission %r: %r %r>" % (self.id,
+        return "PermissionToCourse %r: %r %r>" % (self.id,
                                            self.permission_on_lab.laboratory_id,
                                            self.access)
 

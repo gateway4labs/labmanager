@@ -11,7 +11,7 @@ from flask.ext.admin import expose
 from labmanager.views.admin import L4lModelView
 
 from labmanager.scorm import get_scorm_object
-from labmanager.models import Permission, RLMS, Laboratory, PermissionToLms
+from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
 config = yload(open('labmanager/config.yml'))
@@ -247,5 +247,5 @@ class PermissionPanel(L4lModelView):
         )
 
     def __init__(self, session, **kwargs):
-        super(PermissionPanel, self).__init__(Permission, session, **kwargs)
+        super(PermissionPanel, self).__init__(PermissionToCourse, session, **kwargs)
 
