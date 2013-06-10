@@ -46,9 +46,11 @@ def init_admin(app, db_session):
 
     from .views.lms.admin.main import LmsPanel
     from .views.lms.admin.user import LmsUsersPanel
+    from .views.lms.admin.courses import LmsCoursesPanel
 
     lms_url = '/lms_admin'
     lms = Admin(index_view = LmsPanel(url=lms_url, endpoint = 'lms'), name = u"Lab Manager", url = lms_url, endpoint = lms_url)
-    lms.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'lms/users'))
-    lms.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms/logout'))
+    lms.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
+    lms.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'mylms/users'))
+    lms.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mylms/logout'))
     lms.init_app(app)
