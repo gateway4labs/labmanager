@@ -16,7 +16,7 @@ from yaml import load as yload
 
 from flask import render_template, request, redirect, session
 
-from labmanager.models import LMS, Credential, RLMS, Course
+from labmanager.models import LMS, LmsCredential, RLMS, Course
 from labmanager.models import Permission, PermissionToLms, Laboratory
 
 from labmanager.ims_lti import lti_blueprint as lti
@@ -62,7 +62,7 @@ def start_ims():
     response = None
 
     consumer_key = request.form.get('oauth_consumer_key')
-    auth = Credential.find_by_key(consumer_key)
+    auth = LmsCredential.find_by_key(consumer_key)
 
     current_role = Set(request.form['roles'].split(','))
     req_course_data = request.form.get('lis_result_sourcedid')
@@ -133,7 +133,7 @@ def launch_experiment():
     lab_id = request.form.get('p_on_lab')
     context_id = request.form.get('context_id')
 
-    auth = Credential.find_by_key(consumer_key)
+    auth = LmsCredential.find_by_key(consumer_key)
     course = Course.find_by_lms_and_context(auth.lms, context_id)
     p_on_lab = PermissionToLms.find(lab_id)
     permission = Permission.get_for_lab_and_context(p_on_lab, course)

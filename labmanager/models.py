@@ -42,8 +42,9 @@ class SBBase(object):
 #     - Laboratory
 # 
 #   + LMS
-#     - Credentials
+#     - LmsCredentials
 #     - Course
+#     - LmsUser
 #
 #   + LabManagerUser
 # 
@@ -183,10 +184,8 @@ class LMS(Base, SBBase):
 # 
 #   Used by LMSs to authenticate in the system
 #  
-# TODO: rename to LmsCredential
-# 
 
-class Credential(Base, SBBase):
+class LmsCredential(Base, SBBase):
     __tablename__  = 'credentials'
     id = Column(Integer, primary_key = True)
     key = Column(Unicode(50), nullable = False, unique=True)
@@ -203,7 +202,7 @@ class Credential(Base, SBBase):
         self.lms = lms
 
     def __repr__(self):
-        return "Credential(key=%r, secret=%r, kind=%r, lms=%r)" % ( self.key, self.secret, self.kind, self.lms)
+        return "LmsCredential(key=%r, secret=%r, kind=%r, lms=%r)" % ( self.key, self.secret, self.kind, self.lms)
 
     def __unicode__(self):
         return "%s auth for %s" %(self.kind, self.lms.name)

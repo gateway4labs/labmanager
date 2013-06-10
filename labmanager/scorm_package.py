@@ -4,14 +4,14 @@ from werkzeug.exceptions import Unauthorized
 from flask import request, g, Blueprint, Response
 
 from labmanager.database import db_session
-from labmanager.models import Credential
+from labmanager.models import LmsCredential
 
 scorm_blueprint = Blueprint('basic_auth', __name__)
 
 def check_lms_auth(lmsname, password):
     hash_password = sha.new(password).hexdigest()
     # TODO: check if there could be a conflict between two LMSs with same key??
-    credential = db_session.query(Credential).filter_by(key = lmsname, secret = hash_password).first()
+    credential = db_session.query(LmsCredential).filter_by(key = lmsname, secret = hash_password).first()
     if credential is None:
         return False
     g.lms = credential.lms.name

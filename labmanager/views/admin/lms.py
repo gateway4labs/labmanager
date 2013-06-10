@@ -9,12 +9,12 @@ from flask.ext.admin import expose
 from flask.ext.admin.model import InlineFormAdmin
 
 from labmanager.scorm import get_authentication_scorm
-from labmanager.models import Credential, LMS, Course
+from labmanager.models import LmsCredential, LMS, Course
 from labmanager.views.admin import L4lModelView
 
 config = yload(open('labmanager/config.yml'))
 
-class CredentialForm(InlineFormAdmin):
+class LmsCredentialForm(InlineFormAdmin):
     form_columns = ('id','kind', 'key', 'secret')
     excluded_form_fields = ('id',)
 
@@ -31,7 +31,7 @@ def download(c, lms, p):
 
 class LMSPanel(L4lModelView):
 
-    inline_models = (CredentialForm(Credential),)
+    inline_models = (LmsCredentialForm(LmsCredential),)
 
     column_list = ('name', 'url', 'download')
     column_formatters = dict( download = download )

@@ -41,7 +41,7 @@ def init_db(drop = False):
 
 def add_sample_users():
     from labmanager.models import LabManagerUser, PermissionToLms, Laboratory
-    from labmanager.models import LMS, RLMS, Permission, Credential, Course
+    from labmanager.models import LMS, RLMS, Permission, LmsCredential, Course
 
     init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -90,7 +90,7 @@ def add_sample_users():
                              access = u"pending")
     db_session.add(permission1)
 
-    auth1 = Credential(key = u"admin",
+    auth1 = LmsCredential(key = u"admin",
                       kind = u"OAuth1.0",
                       secret = u"80072568beb3b2102325eb203f6d0ff92f5cef8e",
                       lms = newlms1)

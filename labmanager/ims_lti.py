@@ -3,7 +3,7 @@ from time import time
 from flask import request, abort, Blueprint, session
 from ims_lti_py import ToolProvider
 
-from labmanager.models import Credential
+from labmanager.models import LmsCredential
 
 lti_blueprint = Blueprint('lti', __name__)
 
@@ -18,7 +18,7 @@ def verify_credentials():
 
     if 'oauth_consumer_key' in request.form:
         consumer_key = request.form['oauth_consumer_key']
-        auth = Credential.find_by_key(consumer_key)
+        auth = LmsCredential.find_by_key(consumer_key)
 
         # check for nonce
         # check for old requests
