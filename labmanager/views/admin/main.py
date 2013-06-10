@@ -14,7 +14,7 @@ from labmanager.views.admin import L4lModelView, L4lAdminIndexView
 # LMS, Laboratory and Course declarations are needed for the 'show' view
 # so that sys.modules[__name__] can find it and create the Class object
 from labmanager.models import Permission, LMS, Laboratory, Course
-from labmanager.models import LabManagerUser as User, LMSUser
+from labmanager.models import LabManagerUser as User, LmsUser
 from labmanager.database import db_session as DBS
 
 config = yload(open('labmanager/config.yml'))
@@ -71,7 +71,7 @@ class LmsUsersPanel(L4lModelView):
     column_list = ('lms', 'login', 'full_name', 'access_level')
 
     def __init__(self, session, **kwargs):
-        super(LmsUsersPanel, self).__init__(LMSUser, session, **kwargs)
+        super(LmsUsersPanel, self).__init__(LmsUser, session, **kwargs)
 
     form_columns = ('full_name', 'login', 'password', 'access_level', 'lms')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]

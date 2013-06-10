@@ -14,7 +14,7 @@ from flask.ext.login import LoginManager, login_user, logout_user, login_require
 
 
 from .application import app
-from .models import LabManagerUser, LMSUser, LMS
+from .models import LabManagerUser, LmsUser, LMS
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
@@ -34,7 +34,7 @@ def load_user(userid):
             print "Invalid format (expected lms_user::lms_name::login"
             return None
 
-        potential_users = [ user for user in LMSUser.all(login = login) if user.lms.name == lms_name ]
+        potential_users = [ user for user in LmsUser.all(login = login) if user.lms.name == lms_name ]
         if len(potential_users) == 0:
             return None
         else:
@@ -86,7 +86,7 @@ def login_lms():
         username = request.form['username']
         hashed = new_hash("sha", request.form['password']).hexdigest()
         lms_id = request.form['lms']
-        user = LMSUser.exists(username, hashed, lms_id)
+        user = LmsUser.exists(username, hashed, lms_id)
         if user is not None:
             if login_user(user):
                 session['loggeduser'] = username

@@ -11,7 +11,7 @@ from flask.ext.admin import expose, AdminIndexView
 
 from labmanager.views.lms.admin import L4lLmsModelView
 from labmanager.models import Permission
-from labmanager.models import LMSUser
+from labmanager.models import LmsUser
 from labmanager.database import db_session as DBS
 
 
@@ -24,7 +24,7 @@ class LmsUsersPanel(L4lLmsModelView):
     form_overrides = dict(password=PasswordField)
 
     def __init__(self, session, **kwargs):
-        super(LmsUsersPanel, self).__init__(LMSUser, session, **kwargs)
+        super(LmsUsersPanel, self).__init__(LmsUser, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
         query_obj = super(LmsUsersPanel, self).get_query(*args, **kwargs)

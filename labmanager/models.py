@@ -227,7 +227,7 @@ class LmsCredential(Base, SBBase):
 # 
 
 
-class LMSUser(Base, SBBase, UserMixin):
+class LmsUser(Base, SBBase, UserMixin):
     __tablename__  = 'lmsusers'
     __table_args__ = (UniqueConstraint('login','lms_id'), )
 
