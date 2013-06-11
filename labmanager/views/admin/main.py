@@ -77,5 +77,6 @@ class LmsUsersPanel(L4lModelView):
     form_args = dict( access_level=dict( choices=sel_choices ) )
 
     def on_model_change(self, form, model):
+        # TODO: don't update password always
         model.password = new_hash("sha", model.password).hexdigest()
 

@@ -8,6 +8,8 @@
 
 
 import sha
+from flask.ext import wtf
+from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
@@ -18,6 +20,8 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser
+
+config = yload(open('labmanager/config.yml'))
 
 #################################################################
 # 
@@ -70,7 +74,10 @@ class LmsUsersPanel(L4lLmsModelView):
 
     form_columns = ('login', 'full_name', 'access_level', 'password')
 
-    form_overrides = dict(password=PasswordField)
+    sel_choices = [(level, level.title()) for level in config['user_access_level']]
+
+    form_overrides = dict(password=PasswordField, access_level=wtf.SelectField)
+    form_args = dict( access_level=dict( choices=sel_choices ) )
 
     def __init__(self, session, **kwargs):
         super(LmsUsersPanel, self).__init__(LmsUser, session, **kwargs)
