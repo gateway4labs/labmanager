@@ -376,15 +376,21 @@ class PermissionToLmsUser(Base, SBBase):
 
     id = Column(Integer, primary_key = True)
 
-    permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
-    lms_user_id          = Column(Integer, ForeignKey('lmsusers.id'), nullable = False)
+    permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False, index = True)
+    lms_user_id          = Column(Integer, ForeignKey('lmsusers.id'), nullable = False, index = True)
+    
+    # LTI data
+    key                  = Column(Unicode(100), nullable = False, unique = True)
+    secret               = Column(Unicode(100), nullable = False)
 
     permission_to_lms = relation('PermissionToLms', backref=backref('lms_user_permissions', order_by=id, cascade='all, delete'))
     lms_user = relation('LmsUser', backref=backref('lms_user_permissions', order_by=id, cascade='all, delete'))
 
-    def __init__(self, permission_to_lms = None, lms_user = None):
+    def __init__(self, permission_to_lms = None, lms_user = None, key = None, secret = None):
         self.permission_to_lms = permission_to_lms
         self.lms_user          = lms_user
+        self.key               = key
+        self.secret            = secret
 
 
 

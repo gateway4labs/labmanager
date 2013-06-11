@@ -8,6 +8,8 @@
 
 
 import sha
+import uuid
+
 from flask.ext import wtf
 from yaml import load as yload
 
@@ -109,13 +111,17 @@ def create_permission_to_lms_filter(session):
 
 class PermissionToLmsUserPanel(L4lLmsModelView):
 
-    lms_user_filter           = None
+    can_edit = False
+
+    lms_user_filter          = None
     permission_to_lms_filter = None
 
     form_args = dict(
         lms_user          = dict(query_factory = lambda : PermissionToLmsUserPanel.lms_user_filter()),
         permission_to_lms = dict(query_factory = lambda : PermissionToLmsUserPanel.permission_to_lms_filter()),
     )
+
+    form_columns = ('lms_user', 'permission_to_lms')
 
     def __init__(self, session, **kwargs):
         super(PermissionToLmsUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
@@ -124,8 +130,30 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PermissionToLmsUserPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
         return query_obj
+
+    def on_model_change(self, form, model):
+
+        existing_permission = self.session.query(PermissionToLmsUser).filter_by(lms_user = model.lms_user, permission_to_lms = model.permission_to_lms).first()
+
+        if existing_permission:
+            raise Exception("Existing permission on that user for that laboratory")
+
+        key = u'%s_%s_%s' % (current_user.lms, model.lms_user.login, model.permission_to_lms.local_identifier)
+        key = key.lower().replace(' ','_')
+        final_key = u''
+        for c in key:
+            if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-':
+                final_key += c
+            else:
+                final_key += '_'
+
+        # uuid4 returns a random string (based on random functions, not in any characteristic of this computer or network)
+        secret = uuid.uuid4().hex
+    
+        model.key    = final_key
+        model.secret = secret
 
 
 ###############################################
@@ -178,7 +206,7 @@ def init_lms_admin(app, db_session):
     lms_admin_url = '/lms_admin'
     lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms-admin'), name = u"LMS admin", url = lms_admin_url, endpoint = lms_admin_url)
     lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'mylms/labs'))
-    lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
+#    lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
     lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'mylms/users'))
     lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'mylms/user_permissions'))
     lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mylms/logout'))

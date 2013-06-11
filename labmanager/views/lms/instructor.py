@@ -51,11 +51,22 @@ class LmsInstructorPanel(L4lLmsInstructorIndexView):
 
 ###############################################################
 #
-#              Courses
+#              Permissions for this user
 #
 
-class CourseModelView(L4lLmsInstructorModelView):
-    pass
+from labmanager.models import PermissionToLmsUser
+
+class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
+
+    can_create = can_edit = can_delete = False
+
+    def __init__(self, session, **kwargs):
+        super(PermissionToLmsUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(PermissionToLmsUserPanel, self).get_query(*args, **kwargs)
+        query_obj = query_obj.filter_by(lms_user = current_user)
+        return query_obj
 
 #####################################################################
 # 
@@ -67,6 +78,7 @@ def init_instructor_admin(app, db_session):
 
     lms_instructor_url = '/lms_instructor'
     lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms-instructor'), name = u"LMS instructor", url = lms_instructor_url, endpoint = lms_instructor_url)
+    lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = u"Permissions", endpoint = 'user/permissions'))
     lms_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mycourses/logout'))
     lms_instructor.init_app(app)
 
