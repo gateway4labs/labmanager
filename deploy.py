@@ -36,7 +36,8 @@ if heroku is None:
     ROOT_USERNAME = None
     ROOT_PASSWORD = None
 
-from labmanager.database import init_db, db_session, add_sample_users
+from labmanager.database import init_db, db_session
+from labmanager.sample_data import add_sample_users
 
 
 def create_user():
@@ -106,8 +107,9 @@ if __name__ == '__main__':
         create_db()
 
     init_db()
-    init_db(drop=True)
 
     if options.add_sample_users:
         add_sample_users()
+    else:
+        init_db(drop=True)
 

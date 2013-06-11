@@ -6,8 +6,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-
-import json
 import hashlib
 
 from sqlalchemy import create_engine
@@ -31,69 +29,14 @@ def init_db(drop = False):
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
-    import labmanager.models
-    assert labmanager.models != None # pyflakes ignore
+    from labmanager.models import LabManagerUser
 
     if drop:
         print "Droping Database"
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
-def add_sample_users():
-    from labmanager.models import LabManagerUser, PermissionToLms, Laboratory
-    from labmanager.models import LMS, RLMS, PermissionToCourse, LmsCredential, Course
-
-    init_db(drop = True)
     password = unicode(hashlib.new('sha', 'password').hexdigest())
- 
-    user6 = LabManagerUser(u'admin', u'Administrator', password)
-    db_session.add(user6)
+    admin_user = LabManagerUser(u'admin', u'Administrator', password)
+    db_session.add(admin_user)
 
-    configuration = {
-        'remote_login' : 'weblabfed',
-        'password'     : 'password',
-        'base_url'     : 'http://www.weblab.deusto.es/weblab/',
-    }
-
-    rlms1 = RLMS(kind = u"WebLab-Deusto",
-                       location = u"Deusto Spain",
-                       url = u"https://www.weblab.deusto.es/",
-                       version = u"5.0",
-                       configuration = json.dumps(configuration) )
-    db_session.add(rlms1)
-
-    rlms2 = RLMS(kind = u'iLabs',
-                       location = u'MIT',
-                       url = u'http://ilab.mit.edu/wiki/',
-                       version = u"1.2.2")
-    db_session.add(rlms2)
-
-
-
-    robot_lab = Laboratory(name = u"robot-movement@Robot experiments",
-                           laboratory_id = u"robot-movement@Robot experiments",
-                           rlms = rlms1)
-
-    newlms1 = LMS(name = u"My Moodle",
-                     url = u"http://moodle.com.co.co")
-    db_session.add(newlms1)
-
-    course1 = Course(name = u"EE101",
-                        lms = newlms1,
-                        context_id = u"1")
-    db_session.add(course1)
-
-    permission_to_lms1 = PermissionToLms(lms = newlms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
-
-    permission1 = PermissionToCourse(context = course1,
-                             permission_on_lab = permission_to_lms1,
-                             access = u"pending")
-    db_session.add(permission1)
-
-    auth1 = LmsCredential(key = u"admin",
-                      kind = u"OAuth1.0",
-                      secret = u"80072568beb3b2102325eb203f6d0ff92f5cef8e",
-                      lms = newlms1)
-    db_session.add(auth1)
-
-    db_session.commit()
