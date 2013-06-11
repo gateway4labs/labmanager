@@ -18,12 +18,9 @@ from labmanager.models import PermissionToLmsUser
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
-@lti.route("/", methods = ['POST'])
+@lti.route("/", methods = ['GET', 'POST'])
 def start_ims():
-#    import pprint
-#    pprint.pprint(request.form)
-
-    consumer_key = request.form.get('oauth_consumer_key')
+    consumer_key = session.get('consumer')
     permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
 
     # current_role = set(request.form['roles'].split(','))
@@ -55,18 +52,13 @@ def launch_experiment():
 
     p_to_lms = permission_to_lms_user.permission_to_lms
 
-    # 
-    # TODO:
-    # 
-    # author (from session?)
-    # referer
     courses_configurations = [] # No such concept in the LTI version
     request_payload = {} # This could be populated in the HTML. Pending.
     lms_configuration = p_to_lms.configuration
     db_laboratory     = p_to_lms.laboratory
     db_rlms           = db_laboratory.rlms
     author            = session.get('author_identifier', '(not in session)')
-    referer           = ""
+    referer           = request.referrer
 
     ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
     remote_laboratory = ManagerClass(db_rlms.configuration)

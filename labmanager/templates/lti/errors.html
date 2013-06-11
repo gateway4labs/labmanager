@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Lab Manager</title>
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="">
+            <div>
+                <legend class="">Error while processing the request</legend>
+            </div>
+
+            <div class="alert alert-error">
+                {{ message }}
+            </div>
+
+        </div>
+    </div>
+</html>
