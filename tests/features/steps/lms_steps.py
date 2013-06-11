@@ -51,7 +51,7 @@ def and_an_laboratory_named_group1_exists(step, group1):
     assert True, 'This step must be implemented'
 
 @step(u'LMS with public key "([^"]*)" has permission on laboratory "([^"]*)"')
-def and_lms_with_public_key_group1_has_permission_on_laboratory_group2(step, group1, group2):
+def and_lms_with_public_key_group1_has_permission_to_lmsoratory_group2(step, group1, group2):
     assert True, 'This step must be implemented'
 
 @step(u'I come from course "([^"]*)"')

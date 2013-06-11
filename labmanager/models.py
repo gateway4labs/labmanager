@@ -351,6 +351,31 @@ class PermissionToLms(Base, SBBase):
         return DBS.query(self).filter(sql.and_(self.lms == lms, self.laboratory == lab)).first()
 
 
+########################################################
+# 
+#     PermissionToLmsUser
+#
+# Defines that a LMS User has permission on a Laboratory.
+#
+
+class PermissionToLmsUser(Base, SBBase):
+
+    __tablename__  = 'PermissionsToLmsUsers'
+    __table_args__ = (UniqueConstraint('permission_to_lms_id', 'lms_user_id'),)
+
+    id = Column(Integer, primary_key = True)
+
+    permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
+    lms_user_id          = Column(Integer, ForeignKey('lmsusers.id'), nullable = False)
+
+    permission_to_lms = relation('PermissionToLms', backref=backref('lms_user_permissions', order_by=id, cascade='all, delete'))
+    lms_user = relation('LmsUser', backref=backref('lms_user_permissions', order_by=id, cascade='all, delete'))
+
+    def __init__(self, permission_to_lms = None, lms_user = None):
+        self.permission_to_lms = permission_to_lms
+        self.lms_user          = lms_user
+
+
 
 ########################################################
 # 
@@ -363,31 +388,31 @@ class PermissionToLms(Base, SBBase):
 class PermissionToCourse(Base, SBBase):
 
     __tablename__  = 'PermissionsToCourses'
-    __table_args__ = (UniqueConstraint('permission_on_lab_id', 'course_id'),)
+    __table_args__ = (UniqueConstraint('permission_to_lms_id', 'course_id'),)
 
     id = Column(Integer, primary_key = True)
 
     access = Column(Unicode(50), nullable = False)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    permission_on_lab_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
+    permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
     course_id            = Column(Integer, ForeignKey('courses.id'), nullable = False)
 
 
-    permission_on_lab = relation('PermissionToLms', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
+    permission_to_lms = relation('PermissionToLms', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
 
     # TODO: context or course: select one
-    def __init__(self, context = None, permission_on_lab = None,
+    def __init__(self, context = None, permission_to_lms = None,
                  configuration = None, access = u"pending"):
         self.course            = context
         self.configuration     = configuration
-        self.permission_on_lab = permission_on_lab
+        self.permission_to_lms = permission_to_lms
         self.access            = access
 
     def __repr__(self):
         return "PermissionToCourse %r: %r %r>" % (self.id,
-                                           self.permission_on_lab.laboratory_id,
+                                           self.permission_to_lms.laboratory_id,
                                            self.access)
 
     def __unicode__(self):
@@ -416,7 +441,7 @@ class PermissionToCourse(Base, SBBase):
     @classmethod
     def get_for_lab_and_context(self, p_on_lab, context):
         instance = DBS.query(self).filter(sql.and_(self.course == context,
-                                                   self.permission_on_lab == p_on_lab)
+                                                   self.permission_to_lms == p_on_lab)
                                           ).first()
         return instance
 
@@ -426,7 +451,7 @@ class PermissionToCourse(Base, SBBase):
         if instance:
             return instance
         else:
-            return self.new(context = context, permission_on_lab = p_on_lab)
+            return self.new(context = context, permission_to_lms = p_on_lab)
 
 
 

@@ -12,7 +12,7 @@ import hashlib
 from .database import db_session, init_db
 
 def add_sample_users():
-    from labmanager.models import LabManagerUser, LmsUser, PermissionToLms, Laboratory
+    from labmanager.models import LmsUser, PermissionToLms, Laboratory
     from labmanager.models import LMS, RLMS, PermissionToCourse, LmsCredential, Course
 
     init_db(drop = True)
@@ -67,7 +67,7 @@ def add_sample_users():
     permission_to_lms1 = PermissionToLms(lms = newlms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
 
     permission1 = PermissionToCourse(context = course1,
-                             permission_on_lab = permission_to_lms1,
+                             permission_to_lms = permission_to_lms1,
                              access = u"pending")
     db_session.add(permission1)
 

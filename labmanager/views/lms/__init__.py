@@ -80,15 +80,15 @@ def requests():
 
     # reserving...
     db_lms = db_session.query(LMS).filter_by(name = g.lms).first()
-    permission_on_lab = db_session.query(PermissionToLms).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
+    permission_to_lms = db_session.query(PermissionToLms).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
     reservation_url = ""
-    if permission_on_lab is None:
+    if permission_to_lms is None:
         error_msg = messages_codes['ERROR_permission']
     else:
         courses_configurations = []
-        for course_permission in permission_on_lab.course_permissions:
+        for course_permission in permission_to_lms.course_permissions:
             if course_permission.course.context_id in courses:
                 # Let the server choose among the best possible configuration
                 courses_configurations.append(course_permission.configuration)
@@ -96,8 +96,8 @@ def requests():
         if len(courses_configurations) == 0 and not general_role:
             error_msg = messages_codes['ERROR_enrolled']
         else:
-            lms_configuration = permission_on_lab.configuration
-            db_laboratory   = permission_on_lab.laboratory
+            lms_configuration = permission_to_lms.configuration
+            db_laboratory   = permission_to_lms.laboratory
             db_rlms         = db_laboratory.rlms
             rlms_version    = db_rlms.version
             rlms_kind       = db_rlms.kind

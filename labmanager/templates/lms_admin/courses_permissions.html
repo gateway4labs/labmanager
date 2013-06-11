@@ -29,19 +29,19 @@
             </tr>
         </thead>
         <tbody>
-        {% for permission_on_lab in permissions %}
+        {% for permission_to_lms in permissions %}
             <tr>
-                <td>{{ permission_on_lab.laboratory.name }}</td>
-                <td>{{ permission_on_lab.local_identifier }}</td>
-                <td>{{ permission_on_lab.laboratory.rlms.rlms_version.rlms_type.name }}</td>
-                <td>{{ permission_on_lab.laboratory.rlms.name }}</td>
-                <td>{{ permission_on_lab.laboratory.rlms.location }}</td>
-                <td><i class="icon-{% if permission_on_lab.id in granted_permission_ids %}ok{% else %}remove{% endif %}"></i></td>
-                {% if permission_on_lab.id in granted_permission_ids %}
-                <td><button class="btn" name="action" value="revoke-{{ permission_on_lab.id }}">Revoke</button></td>
-                <td><a class="btn" href="{{ url_for('lms_admin_courses_permissions_edit', course_id = course.id, permission_on_lab_id = permission_on_lab.id) }}">Edit</a></td>
+                <td>{{ permission_to_lms.laboratory.name }}</td>
+                <td>{{ permission_to_lms.local_identifier }}</td>
+                <td>{{ permission_to_lms.laboratory.rlms.rlms_version.rlms_type.name }}</td>
+                <td>{{ permission_to_lms.laboratory.rlms.name }}</td>
+                <td>{{ permission_to_lms.laboratory.rlms.location }}</td>
+                <td><i class="icon-{% if permission_to_lms.id in granted_permission_ids %}ok{% else %}remove{% endif %}"></i></td>
+                {% if permission_to_lms.id in granted_permission_ids %}
+                <td><button class="btn" name="action" value="revoke-{{ permission_to_lms.id }}">Revoke</button></td>
+                <td><a class="btn" href="{{ url_for('lms_admin_courses_permissions_edit', course_id = course.id, permission_to_lms_id = permission_to_lms.id) }}">Edit</a></td>
                 {% else %}
-                <td><a class="btn" href="{{ url_for('lms_admin_courses_permissions_edit', course_id = course.id, permission_on_lab_id = permission_on_lab.id) }}">Grant</a></td>
+                <td><a class="btn" href="{{ url_for('lms_admin_courses_permissions_edit', course_id = course.id, permission_to_lms_id = permission_to_lms.id) }}">Grant</a></td>
                 <td></td>
                 {% endif %}
             </tr>

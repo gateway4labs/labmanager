@@ -1,6 +1,6 @@
 from flask import redirect, url_for
 
-from flask.ext.admin import Admin, BaseView, expose
+from flask.ext.admin import BaseView, expose
 
 class RedirectView(BaseView):
 

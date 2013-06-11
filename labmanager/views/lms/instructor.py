@@ -31,7 +31,7 @@ class L4lLmsInstructorModelView(LmsAuthManagerMixin, ModelView):
         if not self.is_accessible():
             return redirect(url_for('login_lms', next=request.url))
 
-        return super(L4lLmsModelView, self)._handle_view(name, **kwargs)
+        return super(L4lLmsInstructorModelView, self)._handle_view(name, **kwargs)
 
 class L4lLmsInstructorIndexView(LmsAuthManagerMixin, AdminIndexView):
 

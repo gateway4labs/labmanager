@@ -17,7 +17,7 @@ from flask.ext.admin import Admin, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
-from labmanager.models import LmsUser, Course
+from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms
 
 #################################################################
 # 
@@ -87,6 +87,22 @@ class LmsUsersPanel(L4lLmsModelView):
         model.password = sha.new(model.password).hexdigest()
 
 
+###############################################
+# 
+#   Laboratories
+# 
+
+class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
+
+    def __init__(self, session, **kwargs):
+        super(LmsInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(LmsInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
+        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        return query_obj
+
+
 #################################################
 # 
 #   Course management
@@ -116,6 +132,7 @@ def init_lms_admin(app, db_session):
 
     lms_admin_url = '/lms_admin'
     lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms-admin'), name = u"LMS admin", url = lms_admin_url, endpoint = lms_admin_url)
+    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'mylms/labs'))
     lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
     lms_admin.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'mylms/users'))
     lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mylms/logout'))

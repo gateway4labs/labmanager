@@ -7,7 +7,7 @@ The contents of this file will be rendered for each pending request.
   from
   <a href="{{ url_for( 'admin.show', model=request.course.lms.__class__.__name__, r_id=request.course.lms.id ) }}">{{ request.course.lms.name }}</a>
   is requesting access to
-  <a href="{{url_for( 'admin.show', model=request.permission_on_lab.laboratory.__class__.__name__, r_id=request.permission_on_lab.laboratory.id ) }}">{{ request.permission_on_lab.laboratory }}</a>
+  <a href="{{url_for( 'admin.show', model=request.permission_to_lms.laboratory.__class__.__name__, r_id=request.permission_to_lms.laboratory.id ) }}">{{ request.permission_to_lms.laboratory }}</a>
   <a style="color:#0F0" href="{{ url_for( 'admin.update', id=request.id, status='granted' ) }}"> Grant </a>
   <a style="color:#F00" href="{{ url_for( 'admin.update', id=request.id, status='denied'  ) }}"> Deny </a>
 </p>

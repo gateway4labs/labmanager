@@ -185,11 +185,11 @@ class RequestProxy(object):
         rv = self.client.get('/admin/permissions/course/new/', follow_redirects = True)
 
         selects_data         = _parse_selects(rv.data)
-        permission_on_lab_id = _find_in_select(selects_data, 'permission_on_lab', local_id)
+        permission_to_lms_id = _find_in_select(selects_data, 'permission_to_lms', local_id)
         course_id            = _find_in_select(selects_data, 'course', course_name)
         
         request_data = {
-            'permission_on_lab' : permission_on_lab_id, 'course' : course_id,
+            'permission_to_lms' : permission_to_lms_id, 'course' : course_id,
             'access'            : 'granted',            'configuration' : '',
         }
 
