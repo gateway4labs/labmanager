@@ -5,14 +5,14 @@ from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
-from flask import redirect, abort, url_for, request, session
+from flask import redirect, abort, session
 from flask.ext import wtf
-from flask.ext.login import current_user
 from flask.ext.admin import expose
 
 from labmanager.views.admin import L4lModelView, L4lAdminIndexView
 # LMS, Laboratory and Course declarations are needed for the 'show' view
 # so that sys.modules[__name__] can find it and create the Class object
+# TODO: clean up this part
 from labmanager.models import PermissionToCourse, LMS, Laboratory, Course
 from labmanager.models import LabManagerUser, LmsUser
 from labmanager.database import db_session as DBS

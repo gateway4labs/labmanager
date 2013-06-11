@@ -14,9 +14,9 @@
 from sets import Set
 from yaml import load as yload
 
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect
 
-from labmanager.models import LMS, LmsCredential, RLMS, Course
+from labmanager.models import LMS, LmsCredential, Course
 from labmanager.models import PermissionToCourse, PermissionToLms, Laboratory
 
 from labmanager.ims_lti import lti_blueprint as lti
@@ -27,7 +27,6 @@ config = yload(open('labmanager/config.yml'))
 @lti.route('/request_permission/', methods = ['POST'])
 def permission_request():
     data = {}
-    choice_data = []
 
     lms_id = int(request.form['lms_id'])
     context_id = request.form['context_id']
@@ -65,7 +64,7 @@ def start_ims():
     auth = LmsCredential.find_by_key(consumer_key)
 
     current_role = Set(request.form['roles'].split(','))
-    req_course_data = request.form.get('lis_result_sourcedid')
+    # req_course_data = request.form.get('lis_result_sourcedid')
 
     data = { 'user_agent' : request.user_agent,
              'origin_ip' : request.remote_addr,
@@ -121,7 +120,7 @@ def start_ims():
             response = render_template('lti/no_experiments_info.html', info=data)
 
     else:
-        data['role'] = split_roles[0]
+        data['role'] = current_role
         response = render_template('lti/unknown_role.html', info=data)
 
     return response
@@ -143,7 +142,6 @@ def launch_experiment():
         ## courses_configurations and request_payload
         ## author (from session?)
         ## referer
-        db_lms = auth.lms
         courses_configurations = []
         request_payload = {}
         lms_configuration = p_on_lab.configuration

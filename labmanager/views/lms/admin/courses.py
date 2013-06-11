@@ -1,18 +1,7 @@
-import sha
-from sys import modules
-from yaml import load as yload
-
-from wtforms.fields import PasswordField
-
-from flask import redirect, abort, url_for, request
-from flask.ext import wtf
 from flask.ext.login import current_user
-from flask.ext.admin import expose, AdminIndexView
 
 from labmanager.views.lms.admin import L4lLmsModelView
 from labmanager.models import Course
-from labmanager.database import db_session as DBS
-
 
 class LmsCoursesPanel(L4lLmsModelView):
 

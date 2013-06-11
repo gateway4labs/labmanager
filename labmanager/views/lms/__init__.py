@@ -15,10 +15,7 @@ import traceback
 #
 # Flask imports
 #
-from flask import render_template, request, g, redirect, url_for
-from flask.ext.login import current_user
-from flask.ext.admin import BaseView
-from flask.ext.admin.contrib.sqlamodel import ModelView
+from flask import render_template, request, g
 
 #
 # LabManager imports

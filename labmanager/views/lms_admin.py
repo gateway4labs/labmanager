@@ -22,6 +22,7 @@ from flask import render_template, request, session, redirect, url_for, Blueprin
 # 
 from labmanager.database import db_session
 from labmanager.views import retrieve_courses
+from labmanager.models import Course, LMS
 
 lms_admin = Blueprint('lms_admin', __name__)
  

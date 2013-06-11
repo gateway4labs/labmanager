@@ -354,7 +354,7 @@ class PermissionToLms(Base, SBBase):
 
 ########################################################
 # 
-#     Permission
+#     Permission To Course
 #
 # Defines that a Course has permission on a Laboratory.
 #

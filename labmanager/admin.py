@@ -1,4 +1,4 @@
-from flask import redirect, request, url_for
+from flask import redirect, url_for
 
 from flask.ext.admin import Admin, BaseView, expose
 

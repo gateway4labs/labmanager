@@ -1,6 +1,5 @@
 import sha
 
-from werkzeug.exceptions import Unauthorized
 from flask import request, g, Blueprint, Response
 
 from labmanager.database import db_session
