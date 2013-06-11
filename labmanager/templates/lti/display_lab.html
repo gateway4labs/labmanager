@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Lab Manager</title>
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="">
+            <div>
+                <legend class="">Access the laboratory <span style="font-style: italic; font-weight: bold">{{ local_identifier }}</span></legend>
+            </div>
+
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Laboratory</td>
+                        <td>{{ laboratory.name }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>RLMS</td>
+                        <td>{{ laboratory.rlms.kind }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>RLMS Location</td>
+                        <td>{{ laboratory.rlms.location }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <form method="POST" action="{{ url_for('lti.launch_experiment') }}">
+                <button type="submit" class="btn btn-primary">Click here to use the lab</button>
+            </form>
+        </div>
+    </div>
+</html>

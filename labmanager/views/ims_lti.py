@@ -11,25 +11,22 @@
   :license: BSD, see LICENSE for more details
 """
 
-from sets import Set
-from yaml import load as yload
+from flask import render_template, request, redirect, session
 
-from flask import render_template, request, redirect
-
-from labmanager.models import LMS, LmsCredential, Course
-from labmanager.models import PermissionToCourse, PermissionToLms, Laboratory, PermissionToLmsUser
+from labmanager.models import PermissionToLmsUser
 
 from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
-config = yload(open('labmanager/config.yml'))
-
 @lti.route("/", methods = ['POST'])
 def start_ims():
+#    import pprint
+#    pprint.pprint(request.form)
+
     consumer_key = request.form.get('oauth_consumer_key')
     permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
 
-    # current_role = Set(request.form['roles'].split(','))
+    # current_role = set(request.form['roles'].split(','))
     # 
     # We could do something with the role (e.g., defining "oh, you're an instructor, do you want to use who used the system?").
     # However, at this moment, we don't do anything.
@@ -41,31 +38,20 @@ def start_ims():
     #    ....
     # 
 
-    lms = permission_to_lms_user.lms_user.lms
+    laboratory       = permission_to_lms_user.permission_to_lms.laboratory
     local_identifier = permission_to_lms_user.permission_to_lms.local_identifier
-    laboratory = unicode(permission_to_lms_user.permission_to_lms.laboratory)
 
-    data = { 'user_agent' : request.user_agent,
-             'origin_ip' : request.remote_addr,
-             'lms' : lms.name,
-             'lms_id' : lms.id,
-             'context_label' : request.form.get('context_label'),
-             'context_id' : request.form.get('context_id'),
-             'access' : False,
-             'consumer_key': consumer_key
-             }
+    return render_template('lti/display_lab.html', laboratory = laboratory, local_identifier = local_identifier)
 
-    data['laboratory'] = laboratory
-    return render_template('lti/administrator_tool_setup.html', info=data)
-
-@lti.route("/experiment/", methods = ['POST'])
+@lti.route("/experiment/", methods = ['GET', 'POST'])
 def launch_experiment():
+    consumer_key = session.get('consumer')
+    if consumer_key is None:
+        return "consumer key not found"
 
-    import pprint
-    pprint.pprint(request.form)
-
-    consumer_key = request.form.get('oauth_consumer_key')
     permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
+    if permission_to_lms_user is None:
+        return "permission not found"
 
     p_to_lms = permission_to_lms_user.permission_to_lms
 
@@ -79,8 +65,8 @@ def launch_experiment():
     lms_configuration = p_to_lms.configuration
     db_laboratory     = p_to_lms.laboratory
     db_rlms           = db_laboratory.rlms
-    author = ""
-    referer = ""
+    author            = session.get('author_identifier', '(not in session)')
+    referer           = ""
 
     ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
@@ -90,7 +76,7 @@ def launch_experiment():
                                          lms_configuration,
                                          courses_configurations,
                                          request_payload,
-                                         str(request.user_agent),
+                                         unicode(request.user_agent),
                                          request.remote_addr,
                                          referer)
     return redirect(response)

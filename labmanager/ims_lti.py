@@ -30,6 +30,7 @@ def verify_credentials():
         if (tool_provider.valid_request(request) == False):
             abort(403)
 
+        session['author_identifier']  = request.form['user_id']
         session['consumer'] = consumer_key
         session['last_request'] = time()
 
