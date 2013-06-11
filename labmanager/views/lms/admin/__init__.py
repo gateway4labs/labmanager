@@ -9,7 +9,7 @@
 
 from flask import request, redirect, url_for, session
 
-from flask.ext.admin import AdminIndexView
+from flask.ext.admin import Admin, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
@@ -40,4 +40,19 @@ class L4lLmsAdminIndexView(LmsAuthManagerMixin, AdminIndexView):
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lLmsAdminIndexView, self)._handle_view(name, **kwargs)
+
+
+def init_lms_admin(app, db_session):
+    from labmanager.admin import RedirectView
+
+    from .main import LmsAdminPanel
+    from .user import LmsUsersPanel
+    from .courses import LmsCoursesPanel
+
+    lms_admin_url = '/lms_admin'
+    lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms-admin'), name = u"LMS admin", url = lms_admin_url, endpoint = lms_admin_url)
+    lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
+    lms_admin.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'mylms/users'))
+    lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mylms/logout'))
+    lms_admin.init_app(app)
 
