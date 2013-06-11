@@ -17,7 +17,7 @@ from flask.ext.admin import Admin, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
-from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms
+from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser
 
 #################################################################
 # 
@@ -87,12 +87,50 @@ class LmsUsersPanel(L4lLmsModelView):
         model.password = sha.new(model.password).hexdigest()
 
 
+def create_lms_user_filter(session):
+    def filter():
+        return session.query(LmsUser).filter_by(lms = current_user.lms)
+
+    return staticmethod(filter)
+
+def create_permission_to_lms_filter(session):
+    def filter():
+        return session.query(PermissionToLms).filter_by(lms = current_user.lms)
+
+    return staticmethod(filter)
+
+
+class PermissionToLmsUserPanel(L4lLmsModelView):
+
+    lms_user_filter           = None
+    permission_to_lms_filter = None
+
+    form_args = dict(
+        lms_user          = dict(query_factory = lambda : PermissionToLmsUserPanel.lms_user_filter()),
+        permission_to_lms = dict(query_factory = lambda : PermissionToLmsUserPanel.permission_to_lms_filter()),
+    )
+
+    def __init__(self, session, **kwargs):
+        super(PermissionToLmsUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+        PermissionToLmsUserPanel.lms_user_filter = create_lms_user_filter(self.session)
+        PermissionToLmsUserPanel.permission_to_lms_filter = create_permission_to_lms_filter(self.session)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(PermissionToLmsUserPanel, self).get_query(*args, **kwargs)
+        query_obj = query_obj.filter_by(lms_user = current_user)
+        return query_obj
+
+
 ###############################################
 # 
 #   Laboratories
 # 
 
 class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
+
+    can_delete = False
+    can_edit   = False
+    can_create = False
 
     def __init__(self, session, **kwargs):
         super(LmsInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -134,7 +172,8 @@ def init_lms_admin(app, db_session):
     lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms-admin'), name = u"LMS admin", url = lms_admin_url, endpoint = lms_admin_url)
     lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'mylms/labs'))
     lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
-    lms_admin.add_view(LmsUsersPanel(db_session,      name     = u"Users", endpoint = 'mylms/users'))
+    lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'mylms/users'))
+    lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'mylms/user_permissions'))
     lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mylms/logout'))
     lms_admin.init_app(app)
 

@@ -184,9 +184,12 @@ class LMS(Base, SBBase):
 #  
 
 class LmsCredential(Base, SBBase):
+
     __tablename__  = 'credentials'
+    __table_args__ = (UniqueConstraint('key', 'id'), )
+
     id = Column(Integer, primary_key = True)
-    key = Column(Unicode(50), nullable = False, unique=True)
+    key = Column(Unicode(50), nullable = False)
     kind = Column(Unicode(50), nullable = False)
     lms_id = Column(Integer, ForeignKey('lmss.id'), nullable = False)
     secret = Column(Unicode(50), nullable = False)
