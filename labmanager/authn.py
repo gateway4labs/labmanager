@@ -77,7 +77,8 @@ def login_lms():
     """Login screen for application"""
 
     # TODO: /lms_admin => url_for(... lms.index or something
-    next = request.args.get('next', '/lms_admin')
+    DEFAULT_NEXT = '/lms_admin'
+    next = request.args.get('next', DEFAULT_NEXT)
     lmss = LMS.all()
 
     if request.method == 'GET':
@@ -95,6 +96,10 @@ def login_lms():
                 session['loggeduser'] = username
                 session['last_request'] = time()
                 session['usertype'] = 'lms'
+                print next
+                if next == DEFAULT_NEXT:
+                    if user.access_level == 'instructor':
+                        next = '/lms_instructor'
                 return redirect(next)
             else:
                 flash(u'Could not log in.')

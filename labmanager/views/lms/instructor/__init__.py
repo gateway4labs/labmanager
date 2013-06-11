@@ -23,9 +23,9 @@ class LmsAuthManagerMixin(object):
         if not current_user.is_authenticated():
             return False
 
-        return session['usertype'] == 'lms' and current_user.access_level == 'admin'
+        return session['usertype'] == 'lms'
     
-class L4lLmsModelView(LmsAuthManagerMixin, ModelView):
+class L4lLmsInstructorModelView(LmsAuthManagerMixin, ModelView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
@@ -33,11 +33,11 @@ class L4lLmsModelView(LmsAuthManagerMixin, ModelView):
 
         return super(L4lLmsModelView, self)._handle_view(name, **kwargs)
 
-class L4lLmsAdminIndexView(LmsAuthManagerMixin, AdminIndexView):
+class L4lLmsInstructorIndexView(LmsAuthManagerMixin, AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
             return redirect(url_for('login_lms', next=request.url))
 
-        return super(L4lLmsAdminIndexView, self)._handle_view(name, **kwargs)
+        return super(L4lLmsInstructorIndexView, self)._handle_view(name, **kwargs)
 

@@ -1,5 +1,5 @@
 from . import L4lLmsAdminIndexView
 
-class LmsPanel(L4lLmsAdminIndexView):
+class LmsAdminPanel(L4lLmsAdminIndexView):
     pass
 
