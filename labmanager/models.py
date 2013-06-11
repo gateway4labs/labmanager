@@ -181,7 +181,9 @@ class LMS(Base, SBBase):
 #         LMS Credential
 # 
 #   Used by LMSs to authenticate in the system
-#  
+# 
+# TODO: To be removed (not useful for LTI anymore).
+# 
 
 class LmsCredential(Base, SBBase):
 
@@ -391,7 +393,6 @@ class PermissionToLmsUser(Base, SBBase):
         self.lms_user          = lms_user
         self.key               = key
         self.secret            = secret
-
 
 
 ########################################################
