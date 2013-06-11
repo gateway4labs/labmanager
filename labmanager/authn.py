@@ -46,8 +46,9 @@ def load_user(userid):
 def login_admin():
     """Login screen for application"""
 
+    next = request.args.get('next',url_for('admin.index'))
+
     if request.method == 'GET':
-        next = request.args.get('next',url_for('admin.index'))
         return render_template('login_admin.html', next=next)
 
     if request.method == 'POST' and 'username' in request.form:
@@ -63,10 +64,11 @@ def login_admin():
                 return redirect(next)
             else:
                 flash(u'Could not log in.')
-                return "Could not log in"
+                return render_template('login_admin.html', next=next)
         else:
             flash(u'Invalid username.')
-            return "Invalid username"
+            return render_template('login_admin.html', next=next)
+
     return "Error in create_session"
 
 
@@ -74,10 +76,11 @@ def login_admin():
 def login_lms():
     """Login screen for application"""
 
+    # TODO: /lms_admin => url_for(... lms.index or something
+    next = request.args.get('next', '/lms_admin')
+    lmss = LMS.all()
+
     if request.method == 'GET':
-        # TODO: admin.index => lms.index or something
-        next = request.args.get('next', '/lms_admin')
-        lmss = LMS.all()
         return render_template('login_lms.html', next=next, lmss=lmss)
 
     if request.method == 'POST' and 'username' in request.form:
@@ -92,15 +95,13 @@ def login_lms():
                 session['loggeduser'] = username
                 session['last_request'] = time()
                 session['usertype'] = 'lms'
-                # TODO: lms_admin.index or something
-                next = request.args.get('next', '/lms_admin')
                 return redirect(next)
             else:
                 flash(u'Could not log in.')
-                return "Could not log in"
+                return render_template('login_lms.html', next=next, lmss=lmss)
         else:
             flash(u'Invalid username.')
-            return "Invalid username"
+            return render_template('login_lms.html', next=next, lmss=lmss)
     return "Error in create_session"
 
 @app.route("/logout", methods=['GET'])

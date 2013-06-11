@@ -39,4 +39,4 @@ def init_db(drop = False):
     password = unicode(hashlib.new('sha', 'password').hexdigest())
     admin_user = LabManagerUser(u'admin', u'Administrator', password)
     db_session.add(admin_user)
-
+    db_session.commit()

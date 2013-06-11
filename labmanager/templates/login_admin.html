@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <title>LMS login</title>
+    <title>LabManager login</title>
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
@@ -70,11 +70,22 @@
                     </div>
                 </div>
 
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    <div class="alert alert-error">
+                    {% for message in messages %}
+                      <p>{{ message }}</p>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
                 <div class="control-group">        
                     <div class="controls">
                         <button type="submit" class="btn btn-success">Log in</button>
                     </div>
                 </div>
+                <a href="{{ url_for('index') }}" class="btn">Back</a>
           </form>
           </div>
          </div>

@@ -87,11 +87,24 @@
                     </div>
                 </div>
 
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    <div class="alert alert-error">
+                    {% for message in messages %}
+                      <p>{{ message }}</p>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
+
                 <div class="control-group">        
                     <div class="controls">
                         <button type="submit" class="btn btn-success">Log in</button>
                     </div>
                 </div>
+
+                <a href="{{ url_for('index') }}" class="btn">Back</a>
           </form>
         </div>
     </div>
