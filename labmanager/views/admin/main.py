@@ -20,36 +20,40 @@ from labmanager.database import db_session as DBS
 config = yload(open('labmanager/config.yml'))
 
 class AdminPanel(L4lAdminIndexView):
-    @expose('/')
-    def index(self):
-        pending_requests = PermissionToCourse.find_by_status(u'pending')
-        data = {
-            'requests' : pending_requests,
-            'current_user' : LabManagerUser.find(session.get('user_id'))
-        }
-        return self.render('l4l-admin/index.html', info=data)
-
-    @expose('/<model>/<int:r_id>/show')
-    def show(self, model ,r_id):
-        response = ""
-        try:
-            model_class = reduce(getattr, model.split("."), modules[__name__])
-            info = DBS.query(model_class).filter_by(id = r_id).first()
-            data = {}
-            for col in info.__table__.columns:
-                col = str(col)
-                col_name = col[col.find('.') + 1:]
-                data[col_name] = info.__dict__[col_name]
-
-            response = self.render('l4l-admin/models/show.html', info=data)
-        except AttributeError:
-            response = abort(404)
-        return response
-
-    @expose('/Permission/<int:id>/update/<status>')
-    def update(self, id, status):
-        PermissionToCourse.find(id).change_status(status)
-        return redirect('/admin') # redirect to index
+    pass
+# 
+# TODO: we might be able to remove this soon
+# 
+#     @expose('/')
+#     def index(self):
+#         pending_requests = PermissionToCourse.find_by_status(u'pending')
+#         data = {
+#             'requests' : pending_requests,
+#             'current_user' : LabManagerUser.find(session.get('user_id'))
+#         }
+#         return self.render('l4l-admin/index.html', info=data)
+# 
+#     @expose('/<model>/<int:r_id>/show')
+#     def show(self, model ,r_id):
+#         response = ""
+#         try:
+#             model_class = reduce(getattr, model.split("."), modules[__name__])
+#             info = DBS.query(model_class).filter_by(id = r_id).first()
+#             data = {}
+#             for col in info.__table__.columns:
+#                 col = str(col)
+#                 col_name = col[col.find('.') + 1:]
+#                 data[col_name] = info.__dict__[col_name]
+# 
+#             response = self.render('l4l-admin/models/show.html', info=data)
+#         except AttributeError:
+#             response = abort(404)
+#         return response
+# 
+#     @expose('/Permission/<int:id>/update/<status>')
+#     def update(self, id, status):
+#         PermissionToCourse.find(id).change_status(status)
+#         return redirect('/admin') # redirect to index
 
 class UsersPanel(L4lModelView):
 

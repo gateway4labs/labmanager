@@ -2,8 +2,8 @@
 
 import sha
 
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql
-from sqlalchemy.orm import relation, backref
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql, Table
+from sqlalchemy.orm import relation, backref, relationship
 
 from flask.ext.login import UserMixin
 
@@ -225,6 +225,10 @@ class LmsCredential(Base, SBBase):
 #   authenticate and change stuff at LMS level.
 #  
 
+users2courses_relation = Table('users2courses', Base.metadata,
+    Column('course_id',   Integer, ForeignKey('courses.id')),
+    Column('lms_user_id', Integer, ForeignKey('lmsusers.id'))
+)
 
 class LmsUser(Base, SBBase, UserMixin):
     __tablename__  = 'lmsusers'
@@ -240,6 +244,10 @@ class LmsUser(Base, SBBase, UserMixin):
     lms_id    = Column(Integer, ForeignKey('lmss.id'), nullable = False)
 
     lms       = relation('LMS', backref = backref('users', order_by=id, cascade = 'all,delete'))
+
+    courses = relationship("Course",
+                    secondary=users2courses_relation,
+                    backref="users")
 
     def __init__(self, login = None, full_name = None, lms = None, access_level = None):
         self.login        = login

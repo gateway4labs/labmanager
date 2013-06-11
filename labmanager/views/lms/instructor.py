@@ -49,6 +49,14 @@ class L4lLmsInstructorIndexView(LmsAuthManagerMixin, AdminIndexView):
 class LmsInstructorPanel(L4lLmsInstructorIndexView):
     pass
 
+###############################################################
+#
+#              Courses
+#
+
+class CourseModelView(L4lLmsInstructorModelView):
+    pass
+
 #####################################################################
 # 
 #              Initialization
