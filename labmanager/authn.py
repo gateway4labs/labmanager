@@ -75,9 +75,7 @@ def login_admin():
 @app.route('/login/lms/', methods=['GET', 'POST'])
 def login_lms():
     """Login screen for application"""
-
-    # TODO: /lms_admin => url_for(... lms.index or something
-    DEFAULT_NEXT = '/lms_admin'
+    DEFAULT_NEXT = url_for('lms_admin.index')
     next = request.args.get('next', DEFAULT_NEXT)
     lmss = LMS.all()
 
@@ -96,10 +94,9 @@ def login_lms():
                 session['loggeduser'] = username
                 session['last_request'] = time()
                 session['usertype'] = 'lms'
-                print next
                 if next == DEFAULT_NEXT:
                     if user.access_level == 'instructor':
-                        next = '/lms_instructor'
+                        next = url_for('lms_instructor.index')
                 return redirect(next)
             else:
                 flash(u'Could not log in.')

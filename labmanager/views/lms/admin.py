@@ -204,11 +204,11 @@ def init_lms_admin(app, db_session):
     from labmanager.admin import RedirectView
 
     lms_admin_url = '/lms_admin'
-    lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms-admin'), name = u"LMS admin", url = lms_admin_url, endpoint = lms_admin_url)
-    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'mylms/labs'))
-#    lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'mylms/courses'))
-    lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'mylms/users'))
-    lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'mylms/user_permissions'))
-    lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mylms/logout'))
+    lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms_admin'), name = u"LMS admin", url = lms_admin_url, endpoint = 'lms-admin')
+    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'lms_admin_labs', url = 'labs'))
+#    lms_admin.add_view(LmsCoursesPanel(db_session,    name     = u"Courses", endpoint = 'lms_admin_courses', url = 'courses'))
+    lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'lms_admin_users', url = 'users'))
+    lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
+    lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms_admin_logout', url = 'logout'))
     lms_admin.init_app(app)
 

@@ -77,8 +77,8 @@ def init_instructor_admin(app, db_session):
     from labmanager.admin import RedirectView
 
     lms_instructor_url = '/lms_instructor'
-    lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms-instructor'), name = u"LMS instructor", url = lms_instructor_url, endpoint = lms_instructor_url)
-    lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = u"Permissions", endpoint = 'user/permissions'))
-    lms_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'mycourses/logout'))
+    lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms_instructor'), name = u"LMS instructor", url = lms_instructor_url, endpoint = 'lms-instructor')
+    lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = u"Permissions", endpoint = 'lms_instructor_permissions', url = 'permissions'))
+    lms_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms_instructor_logout', url = 'logout'))
     lms_instructor.init_app(app)
 

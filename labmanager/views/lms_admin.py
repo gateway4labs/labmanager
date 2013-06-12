@@ -24,7 +24,7 @@ from labmanager.database import db_session
 from labmanager.views import retrieve_courses
 from labmanager.models import Course, LMS
 
-lms_admin = Blueprint('lms_admin', __name__)
+lms_admin = Blueprint('lms_admin2', __name__)
  
 # 
 # TODO: All this must disappear. However, some of this code might be reused.
