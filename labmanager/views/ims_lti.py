@@ -7,18 +7,66 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 """
-  :copyright: 2012 Sergio Botero
+  :copyright: 2012 Sergio Botero, Pablo Orduña
   :license: BSD, see LICENSE for more details
 """
 
-from flask import render_template, request, redirect, session
+from time import time
+from ims_lti_py import ToolProvider
+
+from flask import request, abort, Blueprint, session, Response, render_template, redirect
 
 from labmanager.models import PermissionToLmsUser
-
-from labmanager.ims_lti import lti_blueprint as lti
 from labmanager.rlms import get_manager_class
 
-@lti.route("/", methods = ['GET', 'POST'])
+lti_blueprint = Blueprint('lti', __name__)
+
+@lti_blueprint.before_request
+def verify_credentials():
+    if 'oauth_consumer_key' in request.form:
+        consumer_key = request.form['oauth_consumer_key']
+        permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
+
+        # TODO: check for nonce
+        # TODO: check for old requests
+
+        if permission_to_lms_user is None:
+            response = Response(render_template('lti/errors.html', message = "Invalid consumer key. Please check it again."))
+            # response.status_code = 412
+            return response
+
+        secret = permission_to_lms_user.secret
+        tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
+
+        try:
+            return_value = tool_provider.valid_request(request)
+        except:
+            response = Response(render_template('lti/errors.html', message = "Invalid secret: could not validate request."))
+            # response.status_code = 403
+            return response
+        else:
+            if return_value == False:
+                response = Response(render_template('lti/errors.html', message = "Request checked and failed. Please check that the 'secret' is correct."))
+                # response.status_code = 403
+                return response
+
+        session['author_identifier']  = request.form['user_id']
+        session['consumer'] = consumer_key
+        session['last_request'] = time()
+
+        return
+
+    elif 'consumer' in session:
+        if float(session['last_request']) - time() < 60 * 60 * 5: # Five Hours
+            session['last_request'] = time()
+            return
+
+    else:
+        response = Response(render_template('lti/errors.html', message = "Session not initialized. Are you a LMS?"))
+        # response.status_code = 403
+        return response
+
+@lti_blueprint.route("/", methods = ['GET', 'POST'])
 def start_ims():
     consumer_key = session.get('consumer')
     permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
@@ -40,7 +88,7 @@ def start_ims():
 
     return render_template('lti/display_lab.html', laboratory = laboratory, local_identifier = local_identifier)
 
-@lti.route("/experiment/", methods = ['GET', 'POST'])
+@lti_blueprint.route("/experiment/", methods = ['GET', 'POST'])
 def launch_experiment():
     consumer_key = session.get('consumer')
     if consumer_key is None:

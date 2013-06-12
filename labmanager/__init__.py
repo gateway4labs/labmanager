@@ -15,7 +15,7 @@ import os, sys
 # - Labmanager blueprint (labmanager management)
 # 
 from labmanager.views import lms_admin, load
-from labmanager.ims_lti import lti_blueprint
+from labmanager.views.ims_lti import lti_blueprint
 from labmanager.scorm_package import scorm_blueprint
 
 # 
