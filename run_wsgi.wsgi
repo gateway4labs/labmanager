@@ -8,8 +8,10 @@ sys.stdout = sys.stderr
 LABMANAGER_DIR = os.path.dirname(__file__)
 
 sys.path.insert(0, LABMANAGER_DIR)
+os.chdir(LABMANAGER_DIR)
 
 import config
 
-from labmanager import app as application
+from labmanager import app as application, bootstrap
+bootstrap()
 application.config.from_object('config')
