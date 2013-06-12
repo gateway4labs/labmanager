@@ -14,7 +14,7 @@
 from time import time
 from ims_lti_py import ToolProvider
 
-from flask import request, abort, Blueprint, session, Response, render_template, redirect
+from flask import request, Blueprint, session, Response, render_template, redirect
 
 from labmanager.models import PermissionToLmsUser
 from labmanager.rlms import get_manager_class
