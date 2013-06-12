@@ -1,20 +1,225 @@
 # -*-*- encoding: utf-8 -*-*-
+
 import json
 import urlparse
+import threading
 
+from hashlib import new as new_hash
+from sys import modules
 from yaml import load as yload
 
-from flask import request, abort, Markup, url_for, Response
+
+from wtforms.fields import PasswordField
+
+from flask import request, redirect, url_for, session, Markup, abort, Response
+
 from flask.ext import wtf
-from flask.ext.admin import expose
 
-from labmanager.views.admin import L4lModelView
+from flask.ext.login import current_user
 
-from labmanager.scorm import get_scorm_object
+from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
+from flask.ext.admin.model import InlineFormAdmin
+from flask.ext.admin.contrib.sqlamodel import ModelView
+
+
+# LMS, Laboratory and Course declarations are needed for the 'show' view
+# so that sys.modules[__name__] can find it and create the Class object
+# TODO: clean up this part
+from labmanager.models import Course, LabManagerUser, LmsUser
+# from labmanager.database import db_session as DBS
+
+
+from labmanager.scorm import get_scorm_object, get_authentication_scorm
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
+from labmanager.models import LmsCredential, LMS, Course
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
+
 config = yload(open('labmanager/config.yml'))
+
+#####################################################################
+# 
+# 
+#                      Parent views
+# 
+# 
+
+
+class L4lModelView(ModelView):
+    def is_accessible(self):
+        if not current_user.is_authenticated():
+            return False
+
+        return session['usertype'] == 'labmanager'
+    
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login_admin', next=request.url))
+
+        return super(L4lModelView, self)._handle_view(name, **kwargs)
+
+class L4lBaseView(BaseView):
+    def is_accessible(self):
+        if not current_user.is_authenticated():
+            return False
+        
+        return session['usertype'] == 'labmanager'
+    
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login_admin', next=request.url))
+
+        return super(L4lBaseView, self)._handle_view(name, **kwargs)
+
+class L4lAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        if not current_user.is_authenticated():
+            return False
+        
+        return session['usertype'] == 'labmanager'
+    
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login_admin', next=request.url))
+
+        return super(L4lAdminIndexView, self)._handle_view(name, **kwargs)
+
+
+##############################################################
+# 
+#     Main views
+# 
+
+class AdminPanel(L4lAdminIndexView):
+    pass
+# 
+# TODO: we might be able to remove this soon
+# 
+#     @expose('/')
+#     def index(self):
+#         pending_requests = PermissionToCourse.find_by_status(u'pending')
+#         data = {
+#             'requests' : pending_requests,
+#             'current_user' : LabManagerUser.find(session.get('user_id'))
+#         }
+#         return self.render('l4l-admin/index.html', info=data)
+# 
+#     @expose('/<model>/<int:r_id>/show')
+#     def show(self, model ,r_id):
+#         response = ""
+#         try:
+#             model_class = reduce(getattr, model.split("."), modules[__name__])
+#             info = DBS.query(model_class).filter_by(id = r_id).first()
+#             data = {}
+#             for col in info.__table__.columns:
+#                 col = str(col)
+#                 col_name = col[col.find('.') + 1:]
+#                 data[col_name] = info.__dict__[col_name]
+# 
+#             response = self.render('l4l-admin/models/show.html', info=data)
+#         except AttributeError:
+#             response = abort(404)
+#         return response
+# 
+#     @expose('/Permission/<int:id>/update/<status>')
+#     def update(self, id, status):
+#         PermissionToCourse.find(id).change_status(status)
+#         return redirect('/admin') # redirect to index
+
+class UsersPanel(L4lModelView):
+
+    column_list = ('login', 'name')
+
+    def __init__(self, session, **kwargs):
+        super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
+
+    form_columns = ('name', 'login', 'password')
+    form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
+
+    def on_model_change(self, form, model):
+        model.password = new_hash("sha", model.password).hexdigest()
+
+class LmsUsersPanel(L4lModelView):
+
+    column_list = ('lms', 'login', 'full_name', 'access_level')
+
+    def __init__(self, session, **kwargs):
+        super(LmsUsersPanel, self).__init__(LmsUser, session, **kwargs)
+
+    form_columns = ('full_name', 'login', 'password', 'access_level', 'lms')
+    sel_choices = [(level, level.title()) for level in config['user_access_level']]
+    form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
+    form_args = dict( access_level=dict( choices=sel_choices ) )
+
+    def on_model_change(self, form, model):
+        # TODO: don't update password always
+        model.password = new_hash("sha", model.password).hexdigest()
+
+
+
+##############################################################
+# 
+#    LMS related views
+# 
+
+class LmsCredentialForm(InlineFormAdmin):
+    form_columns = ('id','kind', 'key', 'secret')
+    excluded_form_fields = ('id',)
+
+    def postprocess_form(self, form):
+        sel_choices =  [ (x , x.title()) for x in config['authentication_types']]
+        form.kind = wtf.SelectField(u'Kind', choices=sel_choices)
+        return form
+
+def download(c, lms, p):
+    for auth in lms.authentications:
+        if auth.kind == 'basic':
+            return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lms.id)))
+    return 'N/A'
+
+class LMSPanel(L4lModelView):
+
+    inline_models = (LmsCredentialForm(LmsCredential),)
+
+    column_list = ('name', 'url', 'download')
+    column_formatters = dict( download = download )
+
+
+    def __init__(self, session, **kwargs):
+        super(LMSPanel, self).__init__(LMS, session, **kwargs)
+        self.local_data = threading.local()
+
+    def edit_form(self, obj = None):
+        form = super(LMSPanel, self).edit_form(obj)
+        self.local_data.authentications = {}
+        if obj is not None:
+            for auth in obj.authentications:
+                self.local_data.authentications[auth.id] = auth.secret
+        return form
+
+    def on_model_change(self, form, model):
+        old_authentications = getattr(self.local_data, 'authentications', {})
+
+        for authentication in model.authentications:
+            old_secret = old_authentications.get(authentication.id, None)
+            authentication.update_password(old_secret)
+
+    @expose('/<id>/scorm_authentication.zip')
+    def scorm_authentication(self, id):
+        lms = self.session.query(LMS).filter_by(id = id).one()
+        return get_authentication_scorm(lms.url)
+            
+
+class CoursePanel(L4lModelView):
+    def __init__(self, session, **kwargs):
+        super(CoursePanel, self).__init__(Course, session, **kwargs)
+
+
+##########################################################
+# 
+# 
+#                   RLMS views
+# 
 
 class DynamicSelectWidget(wtf.widgets.Select):
     def __call__(self, *args, **kwargs):
@@ -248,4 +453,33 @@ class PermissionPanel(L4lModelView):
 
     def __init__(self, session, **kwargs):
         super(PermissionPanel, self).__init__(PermissionToCourse, session, **kwargs)
+
+
+##########################################################
+# 
+#                     Initialization
+# 
+
+def init_admin(app, db_session):
+    from labmanager.admin import RedirectView
+
+    admin_url = '/admin'
+
+    admin = Admin(index_view = AdminPanel(url=admin_url), name = u"Lab Manager", url = admin_url, endpoint = admin_url)
+
+    admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
+    admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"Permissions",    endpoint = 'lms/permissions'))
+    admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"Users",        endpoint = 'lms/users'))
+#    admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
+#    admin.add_view(PermissionPanel(db_session,             category = u"Permissions", name = u"Course permissions", endpoint = 'permissions/course'))
+
+    admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
+    admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
+
+    admin.add_view(UsersPanel(db_session,      category = u"Users", name = u"Labmanager Users", endpoint = 'users/labmanager'))
+
+
+    admin.add_view(RedirectView('logout',      name = u"Log out", endpoint = 'admin/logout'))
+
+    admin.init_app(app)
 
