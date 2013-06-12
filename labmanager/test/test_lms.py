@@ -22,8 +22,7 @@ import labmanager as server
 server.bootstrap()
 
 from labmanager.sample_data import add_sample_users
-from labmanager.views.admin.rlms import RLMSPanel
-from labmanager.views.admin.lms import LMSPanel
+from labmanager.views.admin import RLMSPanel, LMSPanel
 
 ADMIN    = 'admin'
 PASSWORD = 'password'
@@ -169,9 +168,8 @@ class RequestProxy(object):
         return lab_url
 
     def add_permission_to_lms(self, lms_name = LMS_NAME, lab_name = LAB_NAME, local_id = LOCAL_ID):
-        rv = self.client.get('/admin/permissions/lms/new/', follow_redirects = True)
+        rv = self.client.get('/admin/lms/permissions/new/', follow_redirects = True)
         data = _parse_selects(rv.data)
-
         lab_id = _find_in_select(data, 'laboratory', lab_name)
         lms_id = _find_in_select(data, 'lms', lms_name)
 
@@ -185,6 +183,7 @@ class RequestProxy(object):
         rv = self.client.get('/admin/permissions/course/new/', follow_redirects = True)
 
         selects_data         = _parse_selects(rv.data)
+        print selects_data
         permission_to_lms_id = _find_in_select(selects_data, 'permission_to_lms', local_id)
         course_id            = _find_in_select(selects_data, 'course', course_name)
         
@@ -209,8 +208,8 @@ class LabmanagerTestCase(unittest.TestCase):
         self.headers = Headers([ ['AUTHORIZATION', 'BASIC ' + ('%s:%s' % (LMS_LOGIN, LMS_PASSWORD)).encode('base64')] ])
 
 
-    def login(self, username = 'admin', password = 'password'):
-        return self.client.post('/login', data=dict(
+    def login_admin(self, username = 'admin', password = 'password'):
+        return self.client.post('/login/admin/', data=dict(
             username=username,
             password=password
         ), follow_redirects=True)
@@ -265,25 +264,25 @@ class LabmanagerTestCase(unittest.TestCase):
         assert local_id in rv.data
 
     def test_add_lms(self):
-        self.login()
+        self.login_admin()
         self.proxy.add_lms()
         self._check_lms()
         self.logout()
 
     def test_add_rlms(self):
-        self.login()
+        self.login_admin()
         self.proxy.add_rlms()
         self._check_rlms()
         self.logout()
 
     def test_add_lab(self):
-        self.login()
+        self.login_admin()
         self.proxy.add_rlms()
         lab_url = self.proxy.add_lab()
         self._check_labs_in_rlms(lab_url)
     
     def test_add_permission_to_lms(self):
-        self.login()
+        self.login_admin()
         self.proxy.add_rlms()
         self.proxy.add_lab()
         self.proxy.add_lms()
@@ -291,13 +290,13 @@ class LabmanagerTestCase(unittest.TestCase):
         self._check_local_id_in_lms_permissions()
 
     def test_add_course(self):
-        self.login()
+        self.login_admin()
         self.proxy.add_lms()
         self.proxy.add_course()
         self._check_course()
 
     def test_add_permission_to_course(self):
-        self.login()
+        self.login_admin()
         self.proxy.add_rlms()
         self.proxy.add_lab()
         self.proxy.add_lms()
@@ -310,7 +309,7 @@ class LabmanagerTestCase(unittest.TestCase):
     # testing functions
     def test_lms_request(self):
         # Log in
-        self.login()
+        self.login_admin()
 
         # 1. Add the RLMS
         self.proxy.add_rlms()
