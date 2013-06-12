@@ -65,7 +65,7 @@ def bootstrap():
     load()
     register_blueprints()
     load_rlms_modules()
-    print app.url_map
+    # print app.url_map
 
 def run():
     bootstrap()
