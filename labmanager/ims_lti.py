@@ -48,4 +48,7 @@ def verify_credentials():
             return
 
     else:
-        abort(403)
+        response = Response(render_template('lti/errors.html', message = "Session not initialized. Are you a LMS?"))
+        # response.status_code = 403
+        return response
+
