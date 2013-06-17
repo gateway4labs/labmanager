@@ -14,12 +14,22 @@
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
 
     <script type="text/javascript">
+ 
+ 
+$(function() {
+    $('#web_browser').attr('value', navigator.userAgent);
+});
+
+
 function perform_post(){
- $(function() {
-   var payload = {
+    var local_identifier = $('#experiment_select').attr('value');
+    var payload = {
         'action'     : 'reserve',
-        'experiment' : 'cloudbased'
-   };
+        'experiment' : local_identifier
+    };
+
+    var browser = $('#web_browser').attr('value');
+    // TODO: with the rest
 
    var dat = JSON.stringify({
         "courses" : {"2" : "s", "3" : "t", "1" : "s"},
@@ -28,7 +38,7 @@ function perform_post(){
         "user-id" : "jdoe",
         "full-name" : "John Doe",
         "origin-ip" : "123.123.123.123",
-        "user-agent" : navigator.userAgent,
+        "user-agent" : browser,
         "referer"    : "http://www.google.com/"
     });
    $.ajax( {
@@ -39,11 +49,83 @@ function perform_post(){
     } ).done(function (data) {
         document.getElementsByTagName('body')[0].innerHTML = data;
     });
- });
 }
 </script>
 </head>
 <body>
-    <span onclick="javascript:perform_post();">Click me</span>
+    <div class="container">
+        <div class="hero-unit" style="text-align: center">
+            <h1>HTTP interface testing tool</h1>
+            <p style="margin-top: 20px">This tool is only intended for system administrators
+            for testing the internal requests that are going to be
+            performed.</p>
+        </div>
+
+        <div class="row">
+            <div class="offset2">
+
+                <div class="form-horizontal">
+                    <div id="legend">
+                          <legend class="">Testing tool</legend>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="experiment_select">Experiment</label>
+                        <div class="controls">
+                            <select id="experiment_select" name="experiment">
+                                {% for local_identifier in local_identifiers %}
+                                    <option value="{{ local_identifier }}">{{ local_identifier }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group">        
+                        <label class="control-label" for="username"> Username </label>
+                        <div class="controls">
+                            <input type="text" name="username" placeholder="Username" id="username" value="jdoe">
+                        </div>
+                    </div>
+
+                    <div class="control-group">        
+                        <label class="control-label" for="full_name"> Full name </label>
+                        <div class="controls">
+                            <input type="text" name="full_name" placeholder="Full name" id="full_name" value="John Doe">
+                        </div>
+                    </div>
+
+                    <div class="control-group">        
+                        <label class="control-label" for="web_browser"> Web browser </label>
+                        <div class="controls">
+                            <input type="text" name="web_browser" placeholder="Web browser" id="web_browser">
+                        </div>
+                    </div>
+
+                    <div class="control-group">        
+                        <label class="control-label" for="remote_addr"> Remote address </label>
+                        <div class="controls">
+                            <input type="text" name="remote_addr" placeholder="Remote address" id="remote_addr" value="{{ remote_addr }}">
+                        </div>
+                    </div>
+
+                    <div class="control-group">        
+                        <label class="control-label" for="referrer"> Referrer </label>
+                        <div class="controls">
+                            <input type="text" name="referrer" placeholder="Referrer" id="referrer" value="http://www.google.com/">
+                        </div>
+                    </div>
+
+
+                    <div class="control-group">        
+                        <div class="controls">
+                            <button onclick="javascript:perform_post();" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('index') }}" class="btn">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

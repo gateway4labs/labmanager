@@ -55,13 +55,17 @@ def requests():
     """SCORM packages will perform requests to this method, which will
     interact with the permitted laboratories"""
     
+    db_lms = db_session.query(LMS).filter_by(name = g.lms).first()
+
     if request.method == 'GET':
-        return render_template("http/requests.html")
+        local_identifiers = [ permission.local_identifier for permission in  db_lms.lab_permissions ]
+        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr)
     
     from labmanager.views import get_json
     json_data = get_json()
 
-    if json_data is None: return messages_codes['ERROR_json']
+    if json_data is None:
+        return messages_codes['ERROR_json']
 
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
@@ -91,7 +95,6 @@ def requests():
 
 
     # reserving...
-    db_lms = db_session.query(LMS).filter_by(name = g.lms).first()
     permission_to_lms = db_session.query(PermissionToLms).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
