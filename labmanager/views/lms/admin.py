@@ -23,7 +23,7 @@ from flask.ext.login import current_user
 
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser
 
-config = yload(open('labmanager/config.yml'))
+config = yload(open('labmanager/config/config.yml'))
 
 #################################################################
 # 

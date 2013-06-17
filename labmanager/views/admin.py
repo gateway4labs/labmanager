@@ -34,7 +34,7 @@ from labmanager.models import LmsCredential, LMS, Course
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 
 
-config = yload(open('labmanager/config.yml'))
+config = yload(open('labmanager/config/config.yml'))
 
 #####################################################################
 # 
