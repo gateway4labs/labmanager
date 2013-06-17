@@ -2,7 +2,7 @@ import sha
 
 from flask import request, g, Blueprint, Response
 
-from labmanager.database import db_session
+from labmanager.db import db_session
 from labmanager.models import LmsCredential
 
 scorm_blueprint = Blueprint('basic_auth', __name__)

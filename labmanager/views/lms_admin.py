@@ -20,7 +20,7 @@ from flask import render_template, request, session, redirect, url_for, Blueprin
 # 
 # LabManager imports
 # 
-from labmanager.database import db_session
+from labmanager.db import db_session
 from labmanager.views import retrieve_courses
 from labmanager.models import Course, LMS
 

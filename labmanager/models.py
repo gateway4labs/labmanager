@@ -7,7 +7,7 @@ from sqlalchemy.orm import relation, backref, relationship
 
 from flask.ext.login import UserMixin
 
-from labmanager.database import Base, db_session as DBS
+from labmanager.db import Base, db_session as DBS
 
 class SBBase(object):
     @classmethod

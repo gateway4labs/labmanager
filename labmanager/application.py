@@ -16,7 +16,7 @@ import os
 
 from flask import Flask, render_template, redirect, url_for
 
-from labmanager.database import db_session
+from labmanager.db import db_session
 
 app = Flask(__name__)
 app.config.from_object('config')

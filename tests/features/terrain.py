@@ -9,7 +9,7 @@ os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
 os.environ['PORT']    = os.environ.get('PORT', '5001')
 
 import labmanager
-from labmanager.database import db_session, init_db
+from labmanager.db import db_session, init_db
 
 @before.all
 def load_application():

@@ -20,7 +20,7 @@ from flask import render_template, request, g
 #
 # LabManager imports
 #
-from labmanager.database import db_session
+from labmanager.db import db_session
 from labmanager.models   import LMS, PermissionToLms
 from labmanager.rlms     import get_manager_class
 from labmanager.application import app

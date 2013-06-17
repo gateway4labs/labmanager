@@ -36,7 +36,7 @@ if heroku is None:
     ROOT_USERNAME = None
     ROOT_PASSWORD = None
 
-from labmanager.database import init_db, db_session
+from labmanager.db import init_db, db_session
 from labmanager.sample_data import add_sample_users
 
 

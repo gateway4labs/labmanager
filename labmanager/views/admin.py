@@ -25,7 +25,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 # so that sys.modules[__name__] can find it and create the Class object
 # TODO: clean up this part
 from labmanager.models import LabManagerUser, LmsUser
-# from labmanager.database import db_session as DBS
+# from labmanager.db import db_session as DBS
 
 
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
