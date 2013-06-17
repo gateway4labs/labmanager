@@ -1,10 +1,6 @@
-# -*-*- encoding: utf-8 -*-*-
 # 
-# lms4labs is free software: you can redistribute it and/or modify
-# it under the terms of the BSD 2-Clause License
-# lms4labs is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# TODO: All this must disappear. However, some of this code might be reused.
+# 
 
 
 #
@@ -26,9 +22,6 @@ from labmanager.models import Course, LMS
 
 lms_admin = Blueprint('lms_admin2', __name__)
  
-# 
-# TODO: All this must disappear. However, some of this code might be reused.
-# 
 def requires_lms_admin_session(f):
     @wraps(f)
     def decorated(*args, **kwargs):
