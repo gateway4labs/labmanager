@@ -32,6 +32,7 @@ from labmanager.scorm import get_scorm_object, get_authentication_scorm
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
 from labmanager.models import LmsCredential, LMS, Course
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
+from labmanager.views import RedirectView
 
 
 config = yload(open('labmanager/config/config.yml'))
@@ -429,8 +430,6 @@ class PermissionPanel(L4lModelView):
 # 
 
 def init_admin(app, db_session):
-    from labmanager.admin import RedirectView
-
     admin_url = '/admin'
 
     admin = Admin(index_view = AdminPanel(url=admin_url), name = u"Lab Manager", url = admin_url, endpoint = admin_url)

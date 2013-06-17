@@ -22,6 +22,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser
+from labmanager.views import RedirectView
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -201,8 +202,6 @@ class LmsCoursesPanel(L4lLmsModelView):
 #    Initialization
 # 
 def init_lms_admin(app, db_session):
-    from labmanager.admin import RedirectView
-
     lms_admin_url = '/lms_admin'
     lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms_admin'), name = u"LMS admin", url = lms_admin_url, endpoint = 'lms-admin')
     lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'lms_admin_labs', url = 'labs'))

@@ -28,8 +28,15 @@ else:
 # 
 # Initialize administration panels
 # 
-from labmanager.admin import init_admin
+from .views.admin import init_admin as init_admin
 init_admin(app, db_session)
+
+from .views.lms.admin import init_lms_admin
+init_lms_admin(app, db_session)
+
+from .views.lms.instructor import init_instructor_admin
+init_instructor_admin(app, db_session)
+
 
 # 
 # Initialize login subsystem

@@ -13,6 +13,8 @@ from flask.ext.admin import Admin, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
+from labmanager.views import RedirectView
+
 #################################################################
 # 
 #            Base class
@@ -74,8 +76,6 @@ class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
 # 
 
 def init_instructor_admin(app, db_session):
-    from labmanager.admin import RedirectView
-
     lms_instructor_url = '/lms_instructor'
     lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms_instructor'), name = u"LMS instructor", url = lms_instructor_url, endpoint = 'lms-instructor')
     lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = u"Permissions", endpoint = 'lms_instructor_permissions', url = 'permissions'))
