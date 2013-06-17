@@ -5,7 +5,6 @@ SQLAlchemy<0.7.100
 pymySQL
 pymysql_sa
 pyflakes<0.6
-cherrypy<3.3
 ims-lti-py<0.6
 Flask-Admin<1.1
 flask-login<0.2
