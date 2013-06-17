@@ -27,12 +27,11 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import LabManagerUser, LmsUser
 # from labmanager.db import db_session as DBS
 
-
-from labmanager.scorm import get_scorm_object, get_authentication_scorm
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
 from labmanager.models import LmsCredential, LMS, Course
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
+from labmanager.views.scorm import get_scorm_object, get_authentication_scorm
 
 
 config = yload(open('labmanager/config/config.yml'))

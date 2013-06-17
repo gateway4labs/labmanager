@@ -16,7 +16,7 @@ import os, sys
 # 
 from labmanager.views import lms_admin, load
 from labmanager.views.ims_lti import lti_blueprint
-from labmanager.scorm_package import scorm_blueprint
+from labmanager.views.scorm import scorm_blueprint
 
 # 
 # Import the Flask global application and the configuration
