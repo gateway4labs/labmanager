@@ -1,0 +1,49 @@
+<html>
+
+<head>
+
+    <title>Testing tool</title>
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
+
+    <script type="text/javascript" src="{{ url_for('static', filename='json2.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
+
+    <script type="text/javascript">
+function perform_post(){
+ $(function() {
+   var payload = {
+        'action'     : 'reserve',
+        'experiment' : 'cloudbased'
+   };
+
+   var dat = JSON.stringify({
+        "courses" : {"2" : "s", "3" : "t", "1" : "s"},
+        "request-payload" : JSON.stringify(payload),
+        "is-admin" : true,
+        "user-id" : "jdoe",
+        "full-name" : "John Doe",
+        "origin-ip" : "123.123.123.123",
+        "user-agent" : navigator.userAgent,
+        "referer"    : "http://www.google.com/"
+    });
+   $.ajax( {
+        "url"  : "{{ request.url }}",
+        "data" : dat,
+        "type" : "POST",
+        "contentType" : "application/json",
+    } ).done(function (data) {
+        document.getElementsByTagName('body')[0].innerHTML = data;
+    });
+ });
+}
+</script>
+</head>
+<body>
+    <span onclick="javascript:perform_post();">Click me</span>
+</body>
+</html>

@@ -25,6 +25,19 @@ if app.config['DEBUG']:
 else:
     app.secret_key = os.urandom(32)
 
+@app.errorhandler(404)
+def not_found(e):
+    return "404 not found", 404
+
+@app.errorhandler(403)
+def forbidden(e):
+    return "403 forbidden", 403
+
+@app.errorhandler(412)
+def precondition_failed(e):
+    return "412 precondition failed", 412
+
+
 # 
 # Initialize administration panels
 # 

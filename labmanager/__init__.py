@@ -9,29 +9,19 @@
 import os, sys
 
 # 
-# Blueprints (application modules). The following are present:
-# - SCORM blueprint (user requests through LMS using SCORM)
-# - LTI blueprint (user requests through LMS using LTI)
-# - Labmanager blueprint (labmanager management)
-# 
-from labmanager.views import load
-from labmanager.views.ims_lti import lti_blueprint
-from labmanager.views.scorm import scorm_blueprint
-
-# 
 # Import the Flask global application and the configuration
-# It must be imported after the views due to Python circular 
-# imports
 # 
 from application import app
 import config as _config
 
 # 
-# Initialize the login system
+# Blueprints (application modules). The following are present:
+# - Basic HTTP blueprint (user requests through LMS using SCORM)
+# - LTI blueprint (user requests through LMS using LTI)
 # 
-# from labmanager.views.login import init_login
-# init_login(app)
-
+from labmanager.views import load as load_views
+from labmanager.views.ims_lti import lti_blueprint
+from labmanager.views.basic_http import basic_http_blueprint
 
 def load_rlms_modules():
     """
@@ -57,11 +47,11 @@ def register_blueprints():
     # 
     # Register the blueprints in the application
     # 
-    app.register_blueprint(scorm_blueprint, url_prefix='/labmanager')
+    app.register_blueprint(basic_http_blueprint, url_prefix='/labmanager')
     app.register_blueprint(lti_blueprint, url_prefix='/lti')
 
 def bootstrap():
-    load()
+    load_views()
     register_blueprints()
     load_rlms_modules()
     # print app.url_map

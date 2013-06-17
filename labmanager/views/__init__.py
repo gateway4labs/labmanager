@@ -33,12 +33,6 @@ class RedirectView(BaseView):
     def index(self):
         return redirect(url_for(self.redirection_url))
 
-# 
-# LabManager imports (use after RedirectView)
-# 
-
-from labmanager.application import app
-
 def get_json():
     if request.json is not None:
         return request.json
@@ -90,18 +84,6 @@ def retrieve_courses(url, user, password):
 # 
 # 
 # 
-
-@app.errorhandler(404)
-def not_found(e):
-    return "404 not found", 404
-
-@app.errorhandler(403)
-def forbidden(e):
-    return "403 forbidden", 403
-
-@app.errorhandler(412)
-def precondition_failed(e):
-    return "412 precondition failed", 412
 
 def load():
     import labmanager.views.ims_lti
