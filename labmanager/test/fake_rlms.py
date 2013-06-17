@@ -7,8 +7,7 @@ import sys
 import json
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
-from labmanager.data import Laboratory
-from labmanager.rlms import register
+from labmanager.rlms import register, Laboratory
 from labmanager.rlms.base import BaseRLMS, BaseFormCreator
 
 def get_module(version):
