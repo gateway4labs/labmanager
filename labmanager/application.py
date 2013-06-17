@@ -41,7 +41,7 @@ init_instructor_admin(app, db_session)
 # 
 # Initialize login subsystem
 # 
-from . import authn
+from .views import authn
 assert authn is not None # Avoid warnings
 
 @app.route('/favicon.ico')

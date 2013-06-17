@@ -13,8 +13,8 @@ from flask import render_template, request, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
 
 
-from .application import app
-from .models import LabManagerUser, LmsUser, LMS
+from ..application import app
+from ..models import LabManagerUser, LmsUser, LMS
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
