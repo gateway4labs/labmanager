@@ -1,6 +1,6 @@
 # -*-*- encoding: utf-8 -*-*-
 
-import sha
+import hashlib
 
 from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql, Table
 from sqlalchemy.orm import relation, backref, relationship
@@ -216,7 +216,7 @@ class LmsCredential(Base, SBBase):
 
     def update_password(self, old_secret):
         if self.secret != old_secret:
-            self.secret = sha.new(self.secret).hexdigest()
+            self.secret = hashlib.new('sha', self.secret).hexdigest()
 
 
 ##################################################

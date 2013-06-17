@@ -8,6 +8,22 @@
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
 
+    <style>
+        .boxsizingBorder {
+            -webkit-box-sizing: border-box;
+               -moz-box-sizing: border-box;
+                    box-sizing: border-box;
+        }
+
+        textarea
+        {
+            border:1px solid #999999;
+            width:100%;
+            margin:5px 0;
+            padding:3px;
+        }
+    </style>
+
     <script type="text/javascript" src="{{ url_for('static', filename='json2.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js') }}"></script>
 
@@ -21,33 +37,46 @@ $(function() {
 });
 
 
-function perform_post(){
+function serialize_request() {
     var local_identifier = $('#experiment_select').attr('value');
     var payload = {
         'action'     : 'reserve',
         'experiment' : local_identifier
     };
 
-    var browser = $('#web_browser').attr('value');
-    // TODO: with the rest
+    var browser     = $('#web_browser').attr('value');
+    var remote_addr = $('#remote_addr').attr('value');
+    var full_name   = $('#full_name').attr('value');
+    var username    = $('#username').attr('value');
+    var referrer    = $('#referrer').attr('value');
 
-   var dat = JSON.stringify({
+    var dat = JSON.stringify({
         "courses" : {"2" : "s", "3" : "t", "1" : "s"},
         "request-payload" : JSON.stringify(payload),
-        "is-admin" : true,
-        "user-id" : "jdoe",
-        "full-name" : "John Doe",
-        "origin-ip" : "123.123.123.123",
-        "user-agent" : browser,
-        "referer"    : "http://www.google.com/"
-    });
-   $.ajax( {
+        "is-admin"        : true,
+        "user-id"         : username,
+        "full-name"       : full_name,
+        "origin-ip"       : remote_addr,
+        "user-agent"      : browser,
+        "referer"         : referrer
+    }, undefined, 2);
+
+    $('#request_content').val(dat);
+}
+
+function perform_request() {
+    var dat = $('#request_content').val();
+    if (dat == "") {
+        serialize_request();
+        dat = $('#request_content').val();
+    }
+    $.ajax({
         "url"  : "{{ request.url }}",
         "data" : dat,
         "type" : "POST",
         "contentType" : "application/json",
-    } ).done(function (data) {
-        document.getElementsByTagName('body')[0].innerHTML = data;
+    }).done(function (data) {
+        $('#response_content').val(data);
     });
 }
 </script>
@@ -62,7 +91,7 @@ function perform_post(){
         </div>
 
         <div class="row">
-            <div class="offset2">
+            <div class="offset2 span4">
 
                 <div class="form-horizontal">
                     <div id="legend">
@@ -118,12 +147,34 @@ function perform_post(){
 
                     <div class="control-group">        
                         <div class="controls">
-                            <button onclick="javascript:perform_post();" class="btn btn-success">Submit</button>
+                            <button onclick="javascript:serialize_request();" class="btn btn-success">Serialize request</button>
                         </div>
                     </div>
 
                     <a href="{{ url_for('index') }}" class="btn">Back</a>
                 </div>
+            </div>
+
+            <div class="span4">
+                <div id="legend">
+                    <legend class="">Serialized request</legend>
+                </div>
+
+                <textarea cols="100" readonly="readonly" rows="20" id="request_content"></textarea>
+                <div class="control-group">        
+                    <div class="controls">
+                        <button onclick="javascript:perform_request();" class="btn btn-success">Perform request</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span8 offset2">
+                <div id="legend">
+                    <legend class="">Serialized response</legend>
+                </div>
+
+                <textarea width="100%" readonly="readonly" id="response_content"></textarea>
             </div>
         </div>
     </div>

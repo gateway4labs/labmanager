@@ -1,6 +1,6 @@
 # -*-*- encoding: utf-8 -*-*-
 import os
-import sha
+import hashlib
 import sys
 import json
 import unittest
@@ -239,7 +239,7 @@ class LabmanagerTestCase(unittest.TestCase):
         for key, value in inline_forms[0]:
             if key.endswith('-secret'):
                 password = value
-        self.assertEquals(password, sha.new(lms_password).hexdigest())
+        self.assertEquals(password, hashlib.new('sha', lms_password).hexdigest())
 
     def _check_course(self, name = COURSE_NAME):
         rv = self.client.get('/admin/lms/courses/')

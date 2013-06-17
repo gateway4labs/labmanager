@@ -7,7 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-import sha
+import hashlib
 import uuid
 
 from flask.ext import wtf
@@ -94,7 +94,7 @@ class LmsUsersPanel(L4lLmsModelView):
     def on_model_change(self, form, model):
         # TODO: don't update password always
         model.lms   = current_user.lms
-        model.password = sha.new(model.password).hexdigest()
+        model.password = hashlib.new('sha',model.password).hexdigest()
 
 
 def create_lms_user_filter(session):

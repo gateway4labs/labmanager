@@ -1,7 +1,7 @@
 import json
 import cgi
 import traceback
-import sha
+import hashlib
 
 # 
 # Flask imports
@@ -42,8 +42,9 @@ def requires_lms_auth():
         username = auth.username
         password = auth.password
 
-    hash_password = sha.new(password).hexdigest()
+    hash_password = hashlib.new('sha', password).hexdigest()
     # TODO: check if there could be a conflict between two LMSs with same key??
+    print username, hash_password
     credential = db_session.query(LmsCredential).filter_by(key = username, secret = hash_password).first()
     if credential is None:
         return UNAUTHORIZED
