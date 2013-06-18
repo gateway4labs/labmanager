@@ -176,7 +176,11 @@ class LMSPanel(L4lModelView):
     @expose('/<id>/scorm_authentication.zip')
     def scorm_authentication(self, id):
         lms = self.session.query(LMS).filter_by(id = id).one()
-        return get_authentication_scorm(lms.url)
+        if lms.basic_http_authentications:
+            url = lms.basic_http_authentications[0].lms_url or ''
+        else:
+            url = ''
+        return get_authentication_scorm(url)
             
 
 class CoursePanel(L4lModelView):
@@ -400,7 +404,12 @@ class PermissionToLmsPanel(L4lModelView):
         
         db_lms = permission.lms 
 
-        lms_path = urlparse.urlparse(db_lms.url).path or '/'
+        if db_lms.basic_http_authentications:
+            url = db_lms.basic_http_authentications[0].lms_url or ''
+        else:
+            url = ''
+
+        lms_path = urlparse.urlparse(url).path or '/'
         extension = '/'
         if 'lms4labs/' in lms_path:
             extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
