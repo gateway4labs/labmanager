@@ -38,20 +38,34 @@ $(function() {
 
 
 function serialize_request() {
-    var local_identifier = $('#experiment_select').attr('value');
+    var local_identifier = $('#experiment_select').val();
     var payload = {
         'action'     : 'reserve',
         'experiment' : local_identifier
     };
 
-    var browser     = $('#web_browser').attr('value');
-    var remote_addr = $('#remote_addr').attr('value');
-    var full_name   = $('#full_name').attr('value');
-    var username    = $('#username').attr('value');
-    var referrer    = $('#referrer').attr('value');
+    var browser     = $('#web_browser').val();
+    var remote_addr = $('#remote_addr').val();
+    var full_name   = $('#full_name').val();
+    var username    = $('#username').val();
+    var referrer    = $('#referrer').val();
+    var courses_instructor = $('#courses_instructor_select').val();
+    var courses_learner = $('#courses_learner_select').val();
+
+    var courses = {
+    };
+
+    $(courses_learner).each(function(pos, elem) {
+        courses[elem] = "s";
+    });
+
+
+    $(courses_instructor).each(function(pos, elem) {
+        courses[elem] = "t";
+    });
 
     var dat = JSON.stringify({
-        "courses" : {"2" : "s", "3" : "t", "1" : "s"},
+        "courses"         : courses,
         "request-payload" : JSON.stringify(payload),
         "is-admin"        : true,
         "user-id"         : username,
@@ -62,6 +76,10 @@ function serialize_request() {
     }, undefined, 2);
 
     $('#request_content').val(dat);
+}
+
+function clearSelection(identifier) {
+    $("#" + identifier + " option:selected").removeAttr("selected");
 }
 
 function perform_request() {
@@ -141,6 +159,28 @@ function perform_request() {
                         <label class="control-label" for="referrer"> Referrer </label>
                         <div class="controls">
                             <input type="text" name="referrer" placeholder="Referrer" id="referrer" value="http://www.google.com/">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="courses_instructor"> Courses - instructor <br/><br/><button class="btn" onclick="javascript:clearSelection('courses_instructor_select');">Clear</button></label>
+                        <div class="controls">
+                            <select id="courses_instructor_select" name="courses_instructor" multiple="multiple">
+                                {% for course in courses %}
+                                    <option value="{{ course.context_id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="courses_learner"> Courses - learner <br/><br/><button class="btn" onclick="javascript:clearSelection('courses_learner_select');">Clear</button> </label> 
+                        <div class="controls">
+                            <select id="courses_learner_select" name="courses_learner" multiple="multiple">
+                                {% for course in courses %}
+                                    <option selected="selected"  value="{{ course.context_id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
 

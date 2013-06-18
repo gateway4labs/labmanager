@@ -60,7 +60,7 @@ def requests():
 
     if request.method == 'GET':
         local_identifiers = [ permission.local_identifier for permission in  db_lms.lab_permissions ]
-        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr)
+        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr, courses = db_lms.courses)
     
     from labmanager.views import get_json
     json_data = get_json()
