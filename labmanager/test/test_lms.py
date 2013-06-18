@@ -189,7 +189,7 @@ class RequestProxy(object):
         
         request_data = {
             'permission_to_lms' : permission_to_lms_id, 'course' : course_id,
-            'access'            : 'granted',            'configuration' : '',
+            'configuration' : '',
         }
 
         self.client.post('/admin/permissions/course/new/', data = request_data, follow_redirects = True)

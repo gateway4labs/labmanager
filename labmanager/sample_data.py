@@ -161,7 +161,7 @@ def add_sample_users():
     db_session.add(course1)
     db_session.add(course2)
 
-    permission_to_course = PermissionToCourse(context = course2, permission_to_lms = permission_to_lms3)
+    permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms3)
     db_session.add(permission_to_course)
 
     db_session.commit()

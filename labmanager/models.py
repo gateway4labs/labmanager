@@ -303,19 +303,6 @@ class Course(Base, SBBase):
     def __unicode__(self):
         return "%s on %s" % (self.name, self.lms)
 
-    @classmethod
-    def find_by_lms_and_context(self, lms, context):
-        return DBS.query(self).filter(sql.and_(self.lms == lms,
-                                               self.context_id == context)).first()
-
-    @classmethod
-    def find_or_create(self, lms, context, name=None):
-        instance = self.find_by_lms_and_context(lms, context)
-        if instance:
-            return instance
-        else:
-            return self.new(name = name, lms = lms, context_id = context)
-
 
 ######################################################################################
 # 
@@ -357,14 +344,6 @@ class PermissionToLms(Base, SBBase):
 
     def __unicode__(self):
         return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lms.name)
-
-    @classmethod
-    def find_all_for_lms(self, lms):
-        return DBS.query(self).filter(self.lms == lms).all()
-
-    @classmethod
-    def find_for_lms_on_lab(self, lms, lab):
-        return DBS.query(self).filter(sql.and_(self.lms == lms, self.laboratory == lab)).first()
 
 
 ########################################################
@@ -413,7 +392,6 @@ class PermissionToCourse(Base, SBBase):
 
     id = Column(Integer, primary_key = True)
 
-    access = Column(Unicode(50), nullable = False)
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
     permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
@@ -423,56 +401,18 @@ class PermissionToCourse(Base, SBBase):
     permission_to_lms = relation('PermissionToLms', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
 
-    # TODO: context or course: select one
-    def __init__(self, context = None, permission_to_lms = None,
-                 configuration = None, access = u"pending"):
-        self.course            = context
+    def __init__(self, course = None, permission_to_lms = None,
+                 configuration = None):
+        self.course            = course
         self.configuration     = configuration
         self.permission_to_lms = permission_to_lms
-        self.access            = access
 
     def __repr__(self):
-        return "PermissionToCourse %r: %r %r>" % (self.id,
-                                           self.permission_to_lms.laboratory_id,
-                                           self.access)
+        return "PermissionToCourse(course=%r, configuration=%r, permission_to_lms=%r)" % (self.course, self.configuration, self.permission_to_lms)
 
     def __unicode__(self):
-        return u"%s from %s on %s (%s)" % (self.course.name,
+        return u"%s from %s on %s" % (self.course.name,
                                            self.course.lms.name,
-                                           self.laboratory.name,
-                                           self.access)
-
-    def change_status(self, new_status):
-        self.access = new_status
-        DBS.commit()
-
-    def has_access(self):
-        if (self.access == u'granted'):
-            return True
-        return False
-
-    @classmethod
-    def find_by_status(self, status):
-        return DBS.query(self).filter(self.access == status).all()
-
-    @classmethod
-    def find_all_for_context(self, context):
-        return DBS.query(self).filter(self.course == context).all()
-
-    @classmethod
-    def get_for_lab_and_context(self, p_on_lab, context):
-        instance = DBS.query(self).filter(sql.and_(self.course == context,
-                                                   self.permission_to_lms == p_on_lab)
-                                          ).first()
-        return instance
-
-    @classmethod
-    def find_or_create(self, context, p_on_lab):
-        instance = self.get_for_lab_and_context(p_on_lab, context)
-        if instance:
-            return instance
-        else:
-            return self.new(context = context, permission_to_lms = p_on_lab)
-
+                                           self.permission_to_lms)
 
 

@@ -9,8 +9,7 @@ def create_admin(username, password):
     password = unicode(hashlib.new('sha', password).hexdigest())
     admin =  models.LabManagerUser.new(login = username,
         name = 'Administrator',
-        password = password,
-        access_level ='admin')
+        password = password)
 
 def create_lms(name=u'LMS Name', url=u'http://example.com'):
     return models.LMS.new(name=name, url=url)
