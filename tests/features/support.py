@@ -15,9 +15,9 @@ def create_admin(username, password):
 def create_lms(name=u'LMS Name', url=u'http://example.com'):
     return models.LMS.new(name=name, url=url)
 
-def add_oauth_to_lms(lms, shared=u'shared', secret=u'secret'):
+def add_oauth_to_lms(lms, lms_login=u'shared', password=u'secret'):
     return \
-    models.Credential.new(key=shared, secret=secret, lms=lms, kind=u'OAuth1.0')
+    models.Credential.new(lms_login=lms_login, password=password, lms=lms)
 
 def fill_in_lms_fields(step, name, url):
     step.given('I click "LMS Management"')
@@ -27,5 +27,5 @@ def fill_in_lms_fields(step, name, url):
     step.given('I fill in "url" with "%s"' % url)
     step.given('I click "Add Authentications"')
     # print world.browser.page_source
-    step.given('I fill in "authentications-0-key" with "shared"')
-    step.given('I fill in "authentications-0-secret" with "secret"')
+    step.given('I fill in "authentications-0-lms_login" with "shared"')
+    step.given('I fill in "authentications-0-password" with "secret"')

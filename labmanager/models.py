@@ -188,35 +188,33 @@ class LMS(Base, SBBase):
 class LmsCredential(Base, SBBase):
 
     __tablename__  = 'credentials'
-    __table_args__ = (UniqueConstraint('key', 'id'), )
+    __table_args__ = (UniqueConstraint('lms_login'), )
 
-    id = Column(Integer, primary_key = True)
-    key = Column(Unicode(50), nullable = False)
-    kind = Column(Unicode(50), nullable = False)
-    lms_id = Column(Integer, ForeignKey('lmss.id'), nullable = False)
-    secret = Column(Unicode(50), nullable = False)
+    id        = Column(Integer, primary_key = True)
+    lms_login = Column(Unicode(50), nullable = False)
+    lms_id    = Column(Integer, ForeignKey('lmss.id'), nullable = False)
+    password  = Column(Unicode(50), nullable = False)
 
     lms = relation('LMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
 
-    def __init__(self, key = None, secret = None, kind = None, lms = None):
-        self.key = key
-        self.secret = secret
-        self.kind = kind
-        self.lms = lms
+    def __init__(self, lms_login = None, password = None, lms = None):
+        self.lms_login = lms_login
+        self.password  = password
+        self.lms       = lms
 
     def __repr__(self):
-        return "LmsCredential(key=%r, secret=%r, kind=%r, lms=%r)" % ( self.key, self.secret, self.kind, self.lms)
+        return "LmsCredential(lms_login=%r, password=%r, lms=%r)" % ( self.lms_login, self.password, self.lms)
 
     def __unicode__(self):
-        return "%s auth for %s" %(self.kind, self.lms.name)
+        return "Auth for %s" %(self.lms.name)
 
     @classmethod
     def find_by_key(self, r_key):
         return DBS.query(self).filter( self.key == r_key ).first()
 
-    def update_password(self, old_secret):
-        if self.secret != old_secret:
-            self.secret = hashlib.new('sha', self.secret).hexdigest()
+    def update_password(self, old_password):
+        if self.password != old_password:
+            self.password = hashlib.new('sha', self.password).hexdigest()
 
 
 ##################################################

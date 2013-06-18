@@ -45,7 +45,7 @@ def requires_lms_auth():
     hash_password = hashlib.new('sha', password).hexdigest()
     # TODO: check if there could be a conflict between two LMSs with same key??
     print username, hash_password
-    credential = db_session.query(LmsCredential).filter_by(key = username, secret = hash_password).first()
+    credential = db_session.query(LmsCredential).filter_by(lms_login = username, password = hash_password).first()
     if credential is None:
         return UNAUTHORIZED
     g.lms = credential.lms.name

@@ -145,7 +145,7 @@ def add_sample_users():
                      url = u"https://www.innova.uned.es/")
     db_session.add(lms3)
 
-    credential = LmsCredential(key = 'uned', secret = password, kind = 'basic', lms = lms3)
+    credential = LmsCredential(lms_login = 'uned', password = password, lms = lms3)
     db_session.add(credential)
 
     lms_admin3   = LmsUser(login="admin", full_name="Administrator", lms = lms3, access_level = 'admin')

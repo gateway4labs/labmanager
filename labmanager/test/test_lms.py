@@ -124,11 +124,11 @@ class RequestProxy(object):
 
     def add_lms(self, name = LMS_NAME, lms_login = LMS_LOGIN, url = LMS_URL, authentications = None):
         if authentications is None:
-            authentications = [ dict(key = lms_login, secret = LMS_PASSWORD, kind = 'basic') ]
+            authentications = [ dict(lms_login = lms_login, password = LMS_PASSWORD) ]
         
         data = dict(name = name, url = url)
         for pos, auth_config in enumerate(authentications):
-            for key in 'key', 'secret', 'kind':
+            for key in 'lms_login', 'password':
                 data['authentications-%s-%s' % (pos, key)] = auth_config[key]
             data['authentications-%s-id' % pos] = ''
 
@@ -237,7 +237,7 @@ class LabmanagerTestCase(unittest.TestCase):
 
         password = None
         for key, value in inline_forms[0]:
-            if key.endswith('-secret'):
+            if key.endswith('-password'):
                 password = value
         self.assertEquals(password, hashlib.new('sha', lms_password).hexdigest())
 

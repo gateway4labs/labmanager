@@ -131,17 +131,12 @@ class LmsUsersPanel(L4lModelView):
 # 
 
 class LmsCredentialForm(InlineFormAdmin):
-    form_columns = ('id','kind', 'key', 'secret')
+    form_columns = ('id', 'lms_login', 'password')
     excluded_form_fields = ('id',)
 
-    def postprocess_form(self, form):
-        sel_choices =  [ (x , x.title()) for x in config['authentication_types']]
-        form.kind = wtf.SelectField(u'Kind', choices=sel_choices)
-        return form
 
 def download(v, c, lms, p):
-    for auth in lms.authentications:
-        if auth.kind == 'basic':
+    if len(lms.authentications) > 0:
             return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lms.id)))
     return 'N/A'
 
@@ -162,15 +157,15 @@ class LMSPanel(L4lModelView):
         self.local_data.authentications = {}
         if obj is not None:
             for auth in obj.authentications:
-                self.local_data.authentications[auth.id] = auth.secret
+                self.local_data.authentications[auth.id] = auth.password
         return form
 
     def on_model_change(self, form, model):
         old_authentications = getattr(self.local_data, 'authentications', {})
 
         for authentication in model.authentications:
-            old_secret = old_authentications.get(authentication.id, None)
-            authentication.update_password(old_secret)
+            old_password = old_authentications.get(authentication.id, None)
+            authentication.update_password(old_password)
 
     @expose('/<id>/scorm_authentication.zip')
     def scorm_authentication(self, id):
