@@ -364,9 +364,8 @@ class LaboratoryPanel(L4lModelView):
 
 def scorm_formatter(v, c, permission, p):
     
-    for auth in permission.lms.authentications:
-        if auth.kind == 'basic':
-            return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lms_id = permission.lms.id,  local_id = permission.local_identifier)))
+    if permission.lms.authentications:
+        return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lms_id = permission.lms.id,  local_id = permission.local_identifier)))
 
     return 'N/A'
 
@@ -429,11 +428,11 @@ def init_admin(app, db_session):
     admin = Admin(index_view = AdminPanel(url=admin_url), name = u"Lab Manager", url = admin_url, endpoint = admin_url)
 
     admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
-    admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"Permissions",    endpoint = 'lms/permissions'))
-    admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"Users",        endpoint = 'lms/users'))
+    admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"LMS Permissions",    endpoint = 'lms/permissions'))
+    admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS Users",        endpoint = 'lms/users'))
     # The following two, only for HTTP-based:
     admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
-    admin.add_view(PermissionPanel(db_session,             category = u"Permissions", name = u"Course permissions", endpoint = 'permissions/course'))
+    admin.add_view(PermissionPanel(db_session, category = u"LMS Management", name = u"Course permissions", endpoint = 'permissions/course'))
 
     admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
     admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
