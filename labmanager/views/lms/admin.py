@@ -9,20 +9,21 @@
 
 import hashlib
 import uuid
+import traceback
 
-from flask.ext import wtf
 from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
 from flask import request, redirect, url_for, session
 
-from flask.ext.admin import Admin, AdminIndexView, expose
+from flask.ext import wtf
+from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser
-from labmanager.views import RedirectView
+from labmanager.views import RedirectView, retrieve_courses
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -54,9 +55,16 @@ class L4lLmsAdminIndexView(LmsAuthManagerMixin, AdminIndexView):
 
         return super(L4lLmsAdminIndexView, self)._handle_view(name, **kwargs)
 
-    @expose()
-    def index(self):
-        return self.render("lms_admin/index.html")
+class L4lLmsView(LmsAuthManagerMixin, BaseView):
+    def __init__(self, session, **kwargs):
+        self.session = session
+        super(L4lLmsView, self).__init__(**kwargs)
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login_lms', next=request.url))
+
+        return super(L4lLmsView, self)._handle_view(name, **kwargs)
 
 
 ##############################################
@@ -66,8 +74,9 @@ class L4lLmsAdminIndexView(LmsAuthManagerMixin, AdminIndexView):
 
 
 class LmsAdminPanel(L4lLmsAdminIndexView):
-    pass
-
+    @expose()
+    def index(self):
+        return self.render("lms_admin/index.html")
 
 
 ###############################################
@@ -221,6 +230,68 @@ class LmsCoursesPanel(L4lLmsModelView):
         query_obj = query_obj.filter_by(lms = current_user.lms)
         return query_obj
 
+class LmsCourseDiscoveryPanel(L4lLmsView):
+    @expose()
+    def index(self):
+        basic_http_authentications = current_user.lms.basic_http_authentications
+        if not basic_http_authentications:
+            message = "No authentication is configured in your LMS. If you are not using the Basic HTTP system (e.g., you're using LTI), don't worry. Otherwise, contact the Labmanager administrator."
+            return self.render("lms_admin/discover-errors.html", message = message)
+
+        basic_http_authentication = basic_http_authentications[0]
+
+
+        q     = request.args.get('q','')
+        try:
+            start = int(request.args.get('start','0'))
+        except:
+            start = 0
+
+        user     = basic_http_authentication.labmanager_login
+        password = basic_http_authentication.labmanager_password
+        url = "%s?q=%s&start=%s" % (basic_http_authentication.lms_url, q, start)
+
+        VISIBLE_PAGES = 10
+        results = retrieve_courses(url, user, password)
+        if isinstance(results, basestring):
+            return "Invalid JSON provided or could not connect to the LMS. Look at the logs for more information"
+
+        try:
+            courses_data = results['courses']
+            courses = [ (course['id'], course['name']) for course in courses_data ]
+            course_dict = dict(courses)
+            number   = int(results['number'])
+            per_page = int(results['per-page'])
+            number_of_pages = ((number - 1) / per_page ) + 1
+            current_page    = ((start - 1)  / per_page ) + 1
+
+            THEORICAL_BEFORE_PAGES = VISIBLE_PAGES / 2
+            if current_page < THEORICAL_BEFORE_PAGES:
+                BEFORE_PAGES = current_page
+                AFTER_PAGES  = VISIBLE_PAGES - current_page
+            else:
+                BEFORE_PAGES = THEORICAL_BEFORE_PAGES
+                AFTER_PAGES  = BEFORE_PAGES
+
+            min_page = (start/VISIBLE_PAGES - BEFORE_PAGES)
+            max_page = (start/VISIBLE_PAGES + AFTER_PAGES)
+            if max_page >= number_of_pages:
+                max_page = number_of_pages
+            if min_page <= -1:
+                min_page = 0
+            current_pages   = range(min_page, max_page)
+        except:
+            traceback.print_exc()
+            return "Malformed data retrieved. Look at the logs for more information"
+
+        existing_courses = self.session.query(Course).filter(Course.course_id.in_(course_dict.keys()), Course.lms == current_user.lms).all()
+        existing_course_ids = [ existing_course.course_id for existing_course in existing_courses ]
+        #    print course_dict
+
+        print existing_courses
+        print courses
+            
+        return self.render("lms_admin/discover.html")
 
 
 ############################################## 
@@ -232,6 +303,7 @@ def init_lms_admin(app, db_session):
     lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms_admin'), name = u"LMS admin", url = lms_admin_url, endpoint = 'lms-admin')
     lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'lms_admin_labs', url = 'labs'))
     lms_admin.add_view(LmsCoursesPanel(db_session,    category = u"Courses", name     = u"Courses", endpoint = 'lms_admin_courses', url = 'courses'))
+    lms_admin.add_view(LmsCourseDiscoveryPanel(db_session,    category = u"Courses", name     = u"Discover", endpoint = 'lms_admin_course_discover', url = 'courses/discover'))
     lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'lms_admin_users', url = 'users'))
     lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
     lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms_admin_logout', url = 'logout'))

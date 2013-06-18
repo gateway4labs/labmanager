@@ -43,17 +43,16 @@ class L4lLmsInstructorIndexView(LmsAuthManagerMixin, AdminIndexView):
 
         return super(L4lLmsInstructorIndexView, self)._handle_view(name, **kwargs)
 
-    @expose()
-    def index(self):
-        return self.render("lms_admin/instructors.html")
-
 ###############################################################
 #
 #              Index
 # 
 
 class LmsInstructorPanel(L4lLmsInstructorIndexView):
-    pass
+    @expose()
+    def index(self):
+        return self.render("lms_admin/instructors.html")
+
 
 ###############################################################
 #

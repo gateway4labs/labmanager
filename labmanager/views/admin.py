@@ -84,10 +84,6 @@ class L4lAdminIndexView(AdminIndexView):
 
         return super(L4lAdminIndexView, self)._handle_view(name, **kwargs)
 
-    @expose()
-    def index(self):
-        return self.render("labmanager_admin/index.html")
-
 
 ##############################################################
 # 
@@ -95,8 +91,9 @@ class L4lAdminIndexView(AdminIndexView):
 # 
 
 class AdminPanel(L4lAdminIndexView):
-    pass
-
+    @expose()
+    def index(self):
+        return self.render("labmanager_admin/index.html")
 
 
 class UsersPanel(L4lModelView):
