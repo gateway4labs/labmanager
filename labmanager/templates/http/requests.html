@@ -49,6 +49,7 @@ function serialize_request() {
     var full_name   = $('#full_name').val();
     var username    = $('#username').val();
     var referrer    = $('#referrer').val();
+    var is_admin    = $('#admin_checkbox').attr('checked') == 'checked';
     var courses_instructor = $('#courses_instructor_select').val();
     var courses_learner = $('#courses_learner_select').val();
 
@@ -67,7 +68,7 @@ function serialize_request() {
     var dat = JSON.stringify({
         "courses"         : courses,
         "request-payload" : JSON.stringify(payload),
-        "is-admin"        : true,
+        "is-admin"        : is_admin,
         "user-id"         : username,
         "full-name"       : full_name,
         "origin-ip"       : remote_addr,
@@ -83,11 +84,9 @@ function clearSelection(identifier) {
 }
 
 function perform_request() {
-    var dat = $('#request_content').val();
-    if (dat == "") {
-        serialize_request();
-        dat = $('#request_content').val();
-    }
+    serialize_request();
+    dat = $('#request_content').val();
+
     $.ajax({
         "url"  : "{{ request.url }}",
         "data" : dat,
@@ -185,8 +184,11 @@ function perform_request() {
                     </div>
 
 
-                    <div class="control-group">        
+                    <div class="control-group">
                         <div class="controls">
+                            <label class="checkbox">
+                                <input type="checkbox" id="admin_checkbox">Is admin?</input>
+                            </label>
                             <button onclick="javascript:serialize_request();" class="btn btn-success">Serialize request</button>
                         </div>
                     </div>

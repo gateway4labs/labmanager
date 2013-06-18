@@ -88,7 +88,7 @@ def requests():
         if action == 'reserve':
             experiment_identifier = request_payload['experiment']
         else:
-            # TODO: other operations: for teachers, etc.
+            # TODO: other operations: for instructors, booking, etc.
             return messages_codes['ERROR_unsupported']
     except KeyError:
         traceback.print_exc()
@@ -97,9 +97,11 @@ def requests():
 
     # reserving...
     permission_to_lms = db_session.query(PermissionToLms).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
+
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
     reservation_url = ""
+
     if permission_to_lms is None:
         error_msg = messages_codes['ERROR_permission']
     else:
@@ -113,11 +115,13 @@ def requests():
             error_msg = messages_codes['ERROR_enrolled']
         else:
             lms_configuration = permission_to_lms.configuration
-            db_laboratory   = permission_to_lms.laboratory
-            db_rlms         = db_laboratory.rlms
-            rlms_version    = db_rlms.version
-            rlms_kind       = db_rlms.kind
+            db_laboratory     = permission_to_lms.laboratory
+            db_rlms           = db_laboratory.rlms
+            rlms_version      = db_rlms.version
+            rlms_kind         = db_rlms.kind
 
+            # 
+            # Load the plug-in for the current RLMS, and instanciate it
             ManagerClass = get_manager_class(rlms_kind, rlms_version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             
@@ -136,7 +140,7 @@ def requests():
                                                         reservation_url,
                                                         reservation_url)
 
-    if app.config.get('DEBUGGING_REQUESTS', True):
+    if app.config.get('DEBUGGING_REQUESTS', False):
         rendering_data = {
             'name'        : cgi.escape(complete_name),
             'author'      : cgi.escape(author),
@@ -149,11 +153,10 @@ def requests():
             'good_msg'    : good_msg or 'no good message',
             }
         return render_template('debug.html', data=rendering_data)
-    else:
-        if error_msg is None:
-            return reservation_url
-        else:
-            return messages_codes['ERROR_'] % error_msg
+    
+    if error_msg:
+        return error_msg
 
+    return reservation_url
 
 
