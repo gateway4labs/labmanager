@@ -27,5 +27,5 @@ def fill_in_lms_fields(step, name, url):
     step.given('I fill in "url" with "%s"' % url)
     step.given('I click "Add Authentications"')
     # print world.browser.page_source
-    step.given('I fill in "authentications-0-lms_login" with "shared"')
-    step.given('I fill in "authentications-0-password" with "secret"')
+    step.given('I fill in "basic_http_authentications-0-lms_login" with "shared"')
+    step.given('I fill in "basic_http_authentications-0-lms_password" with "secret"')

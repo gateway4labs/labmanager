@@ -10,7 +10,7 @@ from flask import Response, render_template, request, g, Blueprint
 
 # Labmanager imports
 from labmanager.db import db_session
-from labmanager.models import LmsCredential
+from labmanager.models import BasicHttpCredentials
 from labmanager.models   import LMS, PermissionToLms
 from labmanager.rlms     import get_manager_class
 from labmanager.application import app
@@ -45,7 +45,7 @@ def requires_lms_auth():
     hash_password = hashlib.new('sha', password).hexdigest()
     # TODO: check if there could be a conflict between two LMSs with same key??
     print username, hash_password
-    credential = db_session.query(LmsCredential).filter_by(lms_login = username, password = hash_password).first()
+    credential = db_session.query(BasicHttpCredentials).filter_by(lms_login = username, lms_password = hash_password).first()
     if credential is None:
         return UNAUTHORIZED
     g.lms = credential.lms.name

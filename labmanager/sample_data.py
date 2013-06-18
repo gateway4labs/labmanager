@@ -11,7 +11,7 @@ import hashlib
 
 from .db import db_session, init_db
 from .models import LmsUser, PermissionToLms, Laboratory, PermissionToLmsUser
-from .models import LMS, RLMS, PermissionToCourse, LmsCredential, Course
+from .models import LMS, RLMS, PermissionToCourse, BasicHttpCredentials, Course
 
 def add_sample_users():
 
@@ -145,7 +145,7 @@ def add_sample_users():
                      url = u"https://www.innova.uned.es/")
     db_session.add(lms3)
 
-    credential = LmsCredential(lms_login = 'uned', password = password, lms = lms3)
+    credential = BasicHttpCredentials(lms_login = 'uned', lms_password = password, lms = lms3, lms_url = 'http://www.innova.uned.es/foo/bar/lms4labs.tcl', labmanager_login = 'labmanager', labmanager_password = 'password')
     db_session.add(credential)
 
     lms_admin3   = LmsUser(login="admin", full_name="Administrator", lms = lms3, access_level = 'admin')

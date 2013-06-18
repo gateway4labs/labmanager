@@ -122,15 +122,15 @@ class RequestProxy(object):
         self.client = client
         self.app    = app
 
-    def add_lms(self, name = LMS_NAME, lms_login = LMS_LOGIN, url = LMS_URL, authentications = None):
-        if authentications is None:
-            authentications = [ dict(lms_login = lms_login, password = LMS_PASSWORD) ]
+    def add_lms(self, name = LMS_NAME, lms_login = LMS_LOGIN, url = LMS_URL, basic_http_authentications = None):
+        if basic_http_authentications is None:
+            basic_http_authentications = [ dict(lms_login = lms_login, password = LMS_PASSWORD) ]
         
         data = dict(name = name, url = url)
-        for pos, auth_config in enumerate(authentications):
+        for pos, auth_config in enumerate(basic_http_authentications):
             for key in 'lms_login', 'password':
-                data['authentications-%s-%s' % (pos, key)] = auth_config[key]
-            data['authentications-%s-id' % pos] = ''
+                data['basic_http_authentications-%s-%s' % (pos, key)] = auth_config[key]
+            data['basic_http_authentications-%s-id' % pos] = ''
 
         self.client.post('/admin/lms/lms/new/', data=data, follow_redirects = True)
 
@@ -232,7 +232,7 @@ class LabmanagerTestCase(unittest.TestCase):
             self.fail("LMS theorically added, but not found in the list")
         
         rv = self.client.get(edit_url)
-        inline_forms = _parse_inline_forms(rv.data, 'authentications')
+        inline_forms = _parse_inline_forms(rv.data, 'basic_http_authentications')
         self.assertEquals(1, len(inline_forms))
 
         password = None

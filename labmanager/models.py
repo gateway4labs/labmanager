@@ -42,9 +42,9 @@ class SBBase(object):
 #     - Laboratory
 # 
 #   + LMS
-#     - LmsCredentials
 #     - Course
 #     - LmsUser
+#     - BasicHttpCredentials
 #
 #   + LabManagerUser
 # 
@@ -178,43 +178,48 @@ class LMS(Base, SBBase):
 
 ##################################################
 # 
-#         LMS Credential
+#         LMS Basic HTTP Credentials
 # 
 #   Used by LMSs to authenticate in the system
 # 
-# TODO: To be removed (not useful for LTI anymore).
-# 
 
-class LmsCredential(Base, SBBase):
+class BasicHttpCredentials(Base, SBBase):
 
-    __tablename__  = 'credentials'
-    __table_args__ = (UniqueConstraint('lms_login'), )
+    __tablename__  = 'basic_http_credentials'
+    __table_args__ = (UniqueConstraint('lms_login'), UniqueConstraint('lms_id'))
 
     id        = Column(Integer, primary_key = True)
-    lms_login = Column(Unicode(50), nullable = False)
-    lms_id    = Column(Integer, ForeignKey('lmss.id'), nullable = False)
-    password  = Column(Unicode(50), nullable = False)
+    lms_id        = Column(Integer, ForeignKey('lmss.id'), nullable = False)
 
-    lms = relation('LMS', backref=backref('authentications', order_by=id, cascade='all, delete'))
+    # Arguments for the LMS to connect the LabManager
+    lms_login     = Column(Unicode(50), nullable = False)
+    lms_password  = Column(Unicode(50), nullable = False)
 
-    def __init__(self, lms_login = None, password = None, lms = None):
-        self.lms_login = lms_login
-        self.password  = password
-        self.lms       = lms
+    # Arguments for the LabManager to connect the LMS. Might be null
+    lms_url       = Column(Unicode(300), nullable = True)
+    labmanager_login    = Column(Unicode(50), nullable = True)
+    labmanager_password = Column(Unicode(50), nullable = True)
+
+    lms = relation('LMS', backref=backref('basic_http_authentications', order_by=id, cascade='all, delete'))
+
+    def __init__(self, lms_login = None, lms_password = None, lms = None, lms_url = None, labmanager_login = None, labmanager_password = None):
+        self.lms                 = lms
+        self.lms_login           = lms_login
+        self.lms_password        = lms_password
+        self.lms_url             = lms_url
+        self.labmanager_login    = labmanager_login
+        self.labmanager_password = labmanager_password
+
 
     def __repr__(self):
-        return "LmsCredential(lms_login=%r, password=%r, lms=%r)" % ( self.lms_login, self.password, self.lms)
+        return "BasicHttpCredentials(lms_login=%r, lms_password=%r, lms=%r, lms_url=%r, labmanager_login=%r, labmanager_password=%r)" % ( self.lms_login, self.password, self.lms, self.lms_url, self.labmanager_login, self.labmanager_password)
 
     def __unicode__(self):
-        return "Auth for %s" %(self.lms.name)
-
-    @classmethod
-    def find_by_key(self, r_key):
-        return DBS.query(self).filter( self.key == r_key ).first()
+        return "Basic HTTP auth for %s" %(self.lms.name)
 
     def update_password(self, old_password):
-        if self.password != old_password:
-            self.password = hashlib.new('sha', self.password).hexdigest()
+        if self.lms_password != old_password:
+            self.lms_password = hashlib.new('sha', self.lms_password).hexdigest()
 
 
 ##################################################

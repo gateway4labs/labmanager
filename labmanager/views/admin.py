@@ -28,7 +28,7 @@ from labmanager.models import LabManagerUser, LmsUser
 # from labmanager.db import db_session as DBS
 
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
-from labmanager.models import LmsCredential, LMS, Course
+from labmanager.models import BasicHttpCredentials, LMS, Course, PermissionToLmsUser
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
@@ -124,25 +124,31 @@ class LmsUsersPanel(L4lModelView):
         model.password = new_hash("sha", model.password).hexdigest()
 
 
+class PermissionToLmsUsersPanel(L4lModelView):
+
+    def __init__(self, session, **kwargs):
+        super(PermissionToLmsUsersPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+
+
 
 ##############################################################
 # 
 #    LMS related views
 # 
 
-class LmsCredentialForm(InlineFormAdmin):
-    form_columns = ('id', 'lms_login', 'password')
+class BasicHttpCredentialsForm(InlineFormAdmin):
+    form_columns = ('id', 'lms_login', 'lms_password', 'lms_url', 'labmanager_login', 'labmanager_password')
     excluded_form_fields = ('id',)
 
 
 def download(v, c, lms, p):
-    if len(lms.authentications) > 0:
+    if len(lms.basic_http_authentications) > 0:
             return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lms.id)))
     return 'N/A'
 
 class LMSPanel(L4lModelView):
 
-    inline_models = (LmsCredentialForm(LmsCredential),)
+    inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials),)
 
     column_list = ('name', 'url', 'download')
     column_formatters = dict( download = download )
@@ -154,17 +160,17 @@ class LMSPanel(L4lModelView):
 
     def edit_form(self, obj = None):
         form = super(LMSPanel, self).edit_form(obj)
-        self.local_data.authentications = {}
+        self.local_data.basic_http_authentications = {}
         if obj is not None:
-            for auth in obj.authentications:
-                self.local_data.authentications[auth.id] = auth.password
+            for auth in obj.basic_http_authentications:
+                self.local_data.basic_http_authentications[auth.id] = auth.lms_password
         return form
 
     def on_model_change(self, form, model):
-        old_authentications = getattr(self.local_data, 'authentications', {})
+        old_basic_http_authentications = getattr(self.local_data, 'basic_http_authentications', {})
 
-        for authentication in model.authentications:
-            old_password = old_authentications.get(authentication.id, None)
+        for authentication in model.basic_http_authentications:
+            old_password = old_basic_http_authentications.get(authentication.id, None)
             authentication.update_password(old_password)
 
     @expose('/<id>/scorm_authentication.zip')
@@ -364,7 +370,7 @@ class LaboratoryPanel(L4lModelView):
 
 def scorm_formatter(v, c, permission, p):
     
-    if permission.lms.authentications:
+    if permission.lms.basic_http_authentications:
         return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lms_id = permission.lms.id,  local_id = permission.local_identifier)))
 
     return 'N/A'
@@ -430,6 +436,7 @@ def init_admin(app, db_session):
     admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
     admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"LMS Permissions",    endpoint = 'lms/permissions'))
     admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS Users",        endpoint = 'lms/users'))
+    admin.add_view(PermissionToLmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS User permissions",        endpoint = 'lms/users/permissions'))
     # The following two, only for HTTP-based:
     admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
     admin.add_view(PermissionPanel(db_session, category = u"LMS Management", name = u"Course permissions", endpoint = 'permissions/course'))
