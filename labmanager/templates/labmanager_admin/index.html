@@ -1,0 +1,27 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<h1>LabManager Admin Dashboard</h1>
+
+<div class="row">
+    <div class="span8">
+        <p>Hi {{ current_user.name }}!</p>
+
+        <p>This is the Lab Manager administration tool. Here you can:</p>
+        <ul>
+            <li>Create, modify or remove users of this Lab Manager.</li>
+            <li>Create, modify or remove remote laboratory management systems and laboratories associated to them.</li>
+            <li>Create, modify or remove LMSs, assigning permissions on them, and creating admin users on them (so they can manage these permissions).</li>
+        </ul>
+        <p>The typical cycle is:</p>
+        <ol>
+            <li>Go to the RLMS management and configure a RLMS.</li>
+            <li>Register some of its labs.</li>
+            <li>Create a LMS</li>
+            <li>Grant permissions on that LMS (which labs can be accessed by them)</li>
+            <li>Create an admin user for this LMS, and tell them their credentials by e-mail.</li>
+        </ol>
+        <p>Then, if they're using LTI, the LMS admin user can create instructors, and give them permissions on the laboratories. Or, if they are using the Basic HTTP system, then they can add courses and grant permissions on those courses.</p>
+    </div>
+</div>
+
+{% endblock %}

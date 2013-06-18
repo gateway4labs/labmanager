@@ -71,6 +71,7 @@ class L4lBaseView(BaseView):
         return super(L4lBaseView, self)._handle_view(name, **kwargs)
 
 class L4lAdminIndexView(AdminIndexView):
+
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
@@ -82,6 +83,10 @@ class L4lAdminIndexView(AdminIndexView):
             return redirect(url_for('login_admin', next=request.url))
 
         return super(L4lAdminIndexView, self)._handle_view(name, **kwargs)
+
+    @expose()
+    def index(self):
+        return self.render("labmanager_admin/index.html")
 
 
 ##############################################################
