@@ -9,7 +9,7 @@
 
 from flask import request, redirect, url_for, session
 
-from flask.ext.admin import Admin, AdminIndexView
+from flask.ext.admin import Admin, AdminIndexView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
@@ -42,6 +42,10 @@ class L4lLmsInstructorIndexView(LmsAuthManagerMixin, AdminIndexView):
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lLmsInstructorIndexView, self)._handle_view(name, **kwargs)
+
+    @expose()
+    def index(self):
+        return self.render("lms_admin/instructors.html")
 
 ###############################################################
 #
