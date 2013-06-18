@@ -70,6 +70,12 @@ class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
         query_obj = query_obj.filter_by(lms_user = current_user)
         return query_obj
 
+    def get_count_query(self, *args, **kwargs):
+        query_obj = super(PermissionToLmsUserPanel, self).get_count_query(*args, **kwargs)
+        query_obj = query_obj.filter_by(lms_user = current_user)
+        return query_obj
+
+
 #####################################################################
 # 
 #              Initialization
