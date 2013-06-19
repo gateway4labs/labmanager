@@ -22,6 +22,8 @@ app = Flask(__name__)
 app.config.from_object('config')
 if app.config['DEBUG']:
     app.secret_key = 'secret'
+    import labmanager.views.fake_lms as fake_lms
+    assert fake_lms is not None # Avoid flakes warning
 else:
     app.secret_key = os.urandom(32)
 

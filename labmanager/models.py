@@ -283,6 +283,7 @@ class LmsUser(Base, SBBase, UserMixin):
 class Course(Base, SBBase):
 
     __tablename__ = 'courses'
+    __table_args__ = (UniqueConstraint('lms_id','context_id'), )
 
     id = Column(Integer, primary_key = True)
 

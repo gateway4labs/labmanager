@@ -3,9 +3,71 @@
 <h1>Discover courses</h1>
 
 <div class="row">
-    <div class="span8">
-        <p>Discovering...</p>
+
+    <form action="{{ url_for('.index', q = q, start = start) }}" method="POST">
+
+        {% if courses|length > 0 %}
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Course id</th>
+                    <th>Course name</th>
+                    <th>Registered</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course_id, course_name in courses %}
+                    <tr>
+                        <td>{{ course_id }}</td>
+                        <td>{{ course_name }}</td>
+                        {% if course_id in existing_course_ids %}
+                            <td><i class="icon-ok"></i></td>
+                        {% else %}
+                            <td><i class="icon-remove"></i></td>
+                        {% endif %}
+                        <td><input type="checkbox" name="course-{{ course_id }}"></input></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else  %}
+        <div class="alert">
+            No course found
+        </div>
+        {% endif %}
+
+        <div class="form-actions" align="center">
+            <button class="btn btn-primary" name="action" type="submit" value="add">Add</button>
+            {% if courses|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
+        </div>
+    </form>
+
+    {% if courses|length > 0 %}
+    <div class="pagination">
+        <ul>
+            {% if current_page == 0 %}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+            {% else %}
+                <li><a href="{{ url_for('.index', q = q, start = 0) }}">&laquo;</a></li>
+            {% endif %}
+
+            {% for current in current_pages %}
+                {% if current_page == current %}
+                    <li class="disabled"><a href="#">{{ current }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('.index', q = q, start = per_page * current) }}">{{ current }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page == max_position_page %}
+                <li class="disabled"><a href="#">&raquo;</a></li>
+            {% else %}
+                <li><a href="{{ url_for('.index', q = q, start = max_position ) }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
     </div>
+    {% endif %}
 </div>
 
 {% endblock %}

@@ -22,7 +22,7 @@ from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
-from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser
+from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
 
 config = yload(open('labmanager/config/config.yml'))
@@ -231,7 +231,8 @@ class LmsCoursesPanel(L4lLmsModelView):
         return query_obj
 
 class LmsCourseDiscoveryPanel(L4lLmsView):
-    @expose()
+
+    @expose(methods=["POST", "GET"])
     def index(self):
         basic_http_authentications = current_user.lms.basic_http_authentications
         if not basic_http_authentications:
@@ -239,7 +240,6 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
             return self.render("lms_admin/discover-errors.html", message = message)
 
         basic_http_authentication = basic_http_authentications[0]
-
 
         q     = request.args.get('q','')
         try:
@@ -254,7 +254,8 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
         VISIBLE_PAGES = 10
         results = retrieve_courses(url, user, password)
         if isinstance(results, basestring):
-            return "Invalid JSON provided or could not connect to the LMS. Look at the logs for more information"
+            message = "Invalid JSON provided or could not connect to the LMS. Look at the logs for more information"
+            return self.render("lms_admin/discover-errors.html", message = message)
 
         try:
             courses_data = results['courses']
@@ -282,17 +283,63 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
             current_pages   = range(min_page, max_page)
         except:
             traceback.print_exc()
-            return "Malformed data retrieved. Look at the logs for more information"
+            message = "Malformed data retrieved. Look at the logs for more information"
+            return self.render('lms_admin/discover-errors.html', message = message)
 
-        existing_courses = self.session.query(Course).filter(Course.course_id.in_(course_dict.keys()), Course.lms == current_user.lms).all()
-        existing_course_ids = [ existing_course.course_id for existing_course in existing_courses ]
-        #    print course_dict
+        if request.method == 'POST':
+            courses_to_manage = []
+            for key in request.form:
+                if key.startswith('course-'):
+                    courses_to_manage.append(key[len('course-'):])
 
-        print existing_courses
-        print courses
-            
-        return self.render("lms_admin/discover.html")
+            existing_courses = self.session.query(Course).filter(Course.context_id.in_(courses_to_manage), Course.lms == current_user.lms).all()
+            existing_course_ids = [ existing_course.context_id for existing_course in existing_courses ]
 
+            if request.form['action'] == 'add':
+                for course_to_manage in courses_to_manage:
+                    print course_to_manage not in existing_course_ids and course_to_manage in course_dict
+                    if course_to_manage not in existing_course_ids and course_to_manage in course_dict:
+                        new_course = Course(name = course_dict[course_to_manage], lms = current_user.lms, context_id = course_to_manage)
+                        self.session.add(new_course)
+            elif request.form['action'] == 'delete':
+                for course_to_manage in courses_to_manage:
+                    if course_to_manage in existing_course_ids:
+                        existing_course = self.session.query(Course).filter(Course.context_id == course_to_manage, Course.lms == current_user.lms).first()
+                        if existing_course:
+                            self.session.delete(existing_course)
+                        
+            else:
+                return self.render('lms_admin/discover-errors.html', message = "Invalid action found (add or delete expected)")
+
+            self.session.commit()
+
+
+
+        existing_courses = self.session.query(Course).filter(Course.context_id.in_(course_dict.keys()), Course.lms == current_user.lms).all()
+        existing_course_ids = [ existing_course.context_id for existing_course in existing_courses ]
+
+        return self.render("lms_admin/discover.html", current_page = current_page, current_pages = current_pages, max_page = max_page, q = q, start = start, courses = courses, per_page = per_page, max_position = number - VISIBLE_PAGES, max_position_page = (number - VISIBLE_PAGES) / VISIBLE_PAGES, existing_course_ids = existing_course_ids )
+
+class LmsPermissionToCoursesPanel(L4lLmsModelView):
+
+    form_args = dict(
+        permission_to_lms = dict(query_factory = lambda : LmsPermissionToCoursesPanel.permission_to_lms_filter()),
+    )
+
+
+    def __init__(self, session, **kwargs):
+        super(LmsPermissionToCoursesPanel, self).__init__(PermissionToCourse, session, **kwargs)
+        LmsPermissionToCoursesPanel.permission_to_lms_filter = create_permission_to_lms_filter(self.session)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(LmsPermissionToCoursesPanel, self).get_query(*args, **kwargs)
+        query_obj = query_obj.join(Course).filter_by(lms = current_user.lms)
+        return query_obj
+
+    def get_count_query(self, *args, **kwargs):
+        query_obj = super(LmsPermissionToCoursesPanel, self).get_count_query(*args, **kwargs)
+        query_obj = query_obj.join(Course).filter_by(lms = current_user.lms)
+        return query_obj
 
 ############################################## 
 # 
@@ -304,6 +351,7 @@ def init_lms_admin(app, db_session):
     lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'lms_admin_labs', url = 'labs'))
     lms_admin.add_view(LmsCoursesPanel(db_session,    category = u"Courses", name     = u"Courses", endpoint = 'lms_admin_courses', url = 'courses'))
     lms_admin.add_view(LmsCourseDiscoveryPanel(db_session,    category = u"Courses", name     = u"Discover", endpoint = 'lms_admin_course_discover', url = 'courses/discover'))
+    lms_admin.add_view(LmsPermissionToCoursesPanel(db_session,    category = u"Courses", name     = u"Permissions", endpoint = 'lms_admin_course_permissions', url = 'courses/permissions'))
     lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'lms_admin_users', url = 'users'))
     lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
     lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms_admin_logout', url = 'logout'))

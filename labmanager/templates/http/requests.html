@@ -86,6 +86,7 @@ function clearSelection(identifier) {
 function perform_request() {
     serialize_request();
     dat = $('#request_content').val();
+    $('#response_content').val("");
 
     $.ajax({
         "url"  : "{{ request.url }}",
