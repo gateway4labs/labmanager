@@ -10,18 +10,20 @@
 import hashlib
 import uuid
 import traceback
+import urlparse
 
 from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
-from flask import request, redirect, url_for, session
+from flask import request, redirect, url_for, session, Markup, Response
 
 from flask.ext import wtf
 from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
+from labmanager.scorm import get_scorm_object
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
 
@@ -186,11 +188,32 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
 #   Laboratories
 # 
 
+def local_id_formatter(v, c, laboratory, p):
+    for permission in laboratory.lab_permissions:
+        if permission.lms == current_user.lms:
+            return permission.local_identifier
+    return 'N/A'
+
+def scorm_formatter(v, c, laboratory, p):
+
+    if current_user.lms.basic_http_authentications:
+        for permission in laboratory.lab_permissions:
+            if permission.lms == current_user.lms:
+                local_id = permission.local_identifier
+
+                return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', local_id = local_id)))
+
+    return 'N/A'
+
 class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
 
     can_delete = False
     can_edit   = False
     can_create = False
+
+    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'SCORM')
+
+    column_formatters = dict( SCORM = scorm_formatter, local_identifier = local_id_formatter )
 
     def __init__(self, session, **kwargs):
         super(LmsInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -205,6 +228,23 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
 
+    @expose('/scorm/scorm_<local_id>.zip')
+    def get_scorm(self, local_id):
+        db_lms = current_user.lms 
+
+        if db_lms.basic_http_authentications:
+            url = db_lms.basic_http_authentications[0].lms_url or ''
+        else:
+            url = ''
+
+        lms_path = urlparse.urlparse(url).path or '/'
+        extension = '/'
+        if 'lms4labs/' in lms_path:
+            extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
+            lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
+
+        contents = get_scorm_object(False, local_id, lms_path, extension)
+        return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})
 
 #################################################
 # 
