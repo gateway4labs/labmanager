@@ -139,6 +139,11 @@ class PermissionToLmsUsersPanel(L4lModelView):
 # 
 
 class BasicHttpCredentialsForm(InlineFormAdmin):
+    column_descriptions = dict(
+            lms_login = 'Login of the LMS when contacting the LabManager',
+        )
+
+    form_overrides = dict(lms_password=PasswordField, labmanager_password=PasswordField)
     form_columns = ('id', 'lms_login', 'lms_password', 'lms_url', 'labmanager_login', 'labmanager_password')
     excluded_form_fields = ('id',)
 
@@ -364,7 +369,7 @@ class RLMSPanel(L4lModelView):
 
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
-        return self.render('l4l-admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
+        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
 class LaboratoryPanel(L4lModelView):
 
@@ -440,10 +445,10 @@ def init_admin(app, db_session):
     admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
     admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"LMS Permissions",    endpoint = 'lms/permissions'))
     admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS Users",        endpoint = 'lms/users'))
-    admin.add_view(PermissionToLmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS User permissions",        endpoint = 'lms/users/permissions'))
+    # admin.add_view(PermissionToLmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS User permissions",        endpoint = 'lms/users/permissions'))
     # The following two, only for HTTP-based:
-    admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
-    admin.add_view(PermissionPanel(db_session, category = u"LMS Management", name = u"Course permissions", endpoint = 'permissions/course'))
+    # admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
+    # admin.add_view(PermissionPanel(db_session, category = u"LMS Management", name = u"Course permissions", endpoint = 'permissions/course'))
 
     admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
     admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
