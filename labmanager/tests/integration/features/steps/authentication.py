@@ -19,7 +19,7 @@ def given_an_admin_user_with_group1(step, username_password):
 @step(u'I login with "([^"]*)"')
 def when_i_login_with_group1(step, username_password):
     username, password = username_password.split(":")
-    world.browser.get('http://localhost:5001/login')
+    world.browser.get('http://localhost:5001/login/admin/')
     # print world.browser.page_source
     step.given('I fill in "username" with "%s"' % username)
     step.given('I fill in "password" with "%s"' % password)
@@ -28,8 +28,7 @@ def when_i_login_with_group1(step, username_password):
 @step(u'I should be logged in')
 def then_i_should_be_logged_in(step):
     print world.browser.page_source
-    step.given('I should see "You are logged in as"')
-    step.given('I should see "LabManager Admin Dashboard"')
+    step.given('I should see "Dashboard"')
 
 @step(u'there are no admins')
 def given_there_are_no_admins(step):
@@ -37,4 +36,4 @@ def given_there_are_no_admins(step):
 
 @step(u'I should not be logged in')
 def then_i_should_not_be_logged_in(step):
-    step.given('I should not see "You are logged in as"')
+    step.given('I should not see "Dashboard"')
