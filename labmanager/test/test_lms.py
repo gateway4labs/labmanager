@@ -151,10 +151,8 @@ class RequestProxy(object):
     def add_course(self, lms_name = LMS_NAME, course_name = COURSE_NAME, context_id = CONTEXT_ID):
         rv = self.client.get('/lms_admin/courses/new/', follow_redirects = True)
         data = _parse_selects(rv.data)
-
-        lms_id = _find_in_select(data, 'lms', lms_name)
-
-        request_data = dict( lms = lms_id,  name = course_name, context_id = context_id)
+        
+        request_data = dict( name = course_name, context_id = context_id)
         self.client.post('/lms_admin/courses/new/', data = request_data, follow_redirects = True)
 
     def add_rlms(self, kind = RLMS_KIND, location = RLMS_LOCATION, url = RLMS_URL):
@@ -271,7 +269,7 @@ class LabmanagerTestCase(unittest.TestCase):
         self.assertEquals(password, hashlib.new('sha', lms_password).hexdigest())
 
     def _check_course(self, name = COURSE_NAME):
-        rv = self.client.get('/admin/lms/courses/')
+        rv = self.client.get('/lms_admin/courses/')
         assert name in rv.data
 
     def _check_rlms(self, location = RLMS_LOCATION, url = RLMS_URL):

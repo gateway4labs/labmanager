@@ -270,6 +270,9 @@ class LmsCoursesPanel(L4lLmsModelView):
         query_obj = query_obj.filter_by(lms = current_user.lms)
         return query_obj
 
+    def on_model_change(self, form, model):
+        model.lms   = current_user.lms
+
 class LmsCourseDiscoveryPanel(L4lLmsView):
 
     @expose(methods=["POST", "GET"])
