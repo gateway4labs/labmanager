@@ -137,14 +137,25 @@ class RequestProxy(object):
 
         self.client.post('/admin/lms/lms/new/', data=data, follow_redirects = True)
 
+    def add_lms_user(self, lms_name = LMS_NAME, lms_user_login = LMS_USER_LOGIN, lms_user_password = LMS_USER_PASSWORD, full_name = LMS_USER_FULL_NAME):
+        rv = self.client.get('/admin/lms/users/new/', follow_redirects = True)
+
+        data = _parse_selects(rv.data)
+
+        lms_id = _find_in_select(data, 'lms', lms_name)
+
+        request_data = dict( lms = lms_id, login = lms_user_login, password = lms_user_password, full_name = full_name, access_level = 'admin')
+        rv = self.client.post('/admin/lms/users/new/', data = request_data, follow_redirects = True)
+
+
     def add_course(self, lms_name = LMS_NAME, course_name = COURSE_NAME, context_id = CONTEXT_ID):
-        rv = self.client.get('/admin/lms/courses/new/', follow_redirects = True)
+        rv = self.client.get('/lms_admin/courses/new/', follow_redirects = True)
         data = _parse_selects(rv.data)
 
         lms_id = _find_in_select(data, 'lms', lms_name)
 
         request_data = dict( lms = lms_id,  name = course_name, context_id = context_id)
-        self.client.post('/admin/lms/courses/new/', data = request_data, follow_redirects = True)
+        self.client.post('/lms_admin/courses/new/', data = request_data, follow_redirects = True)
 
     def add_rlms(self, kind = RLMS_KIND, location = RLMS_LOCATION, url = RLMS_URL):
         data = dict(kind = kind, location = location, url = url)
@@ -310,6 +321,7 @@ class LabmanagerTestCase(unittest.TestCase):
     def test_add_course(self):
         self.login_admin()
         self.proxy.add_lms()
+        self.proxy.add_lms_user()
 
         self.login_lms()
         self.proxy.add_course()
@@ -320,6 +332,7 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_rlms()
         self.proxy.add_lab()
         self.proxy.add_lms()
+        self.proxy.add_lms_user()
 
         self.login_lms()
         self.proxy.add_course()
@@ -344,6 +357,12 @@ class LabmanagerTestCase(unittest.TestCase):
     
         # 4. Add a permission to that LMS
         self.proxy.add_permission_to_lms()
+
+        # ...
+        self.proxy.add_lms_user()
+        
+        # ...
+        self.login_lms()
 
         # 5. Add a course
         self.proxy.add_course()
