@@ -29,10 +29,13 @@ PASSWORD = 'password'
 
 LOCAL_ID = 'localid'
 
-LMS_NAME     = 'Testing LMS'
-LMS_URL      = 'http://localhost:31337/'
-LMS_LOGIN    = 'mylms'
-LMS_PASSWORD = 'lms_password'
+LMS_NAME           = 'Testing LMS'
+LMS_URL            = 'http://localhost:31337/'
+LMS_LOGIN          = 'mylms'
+LMS_PASSWORD       = 'lms_password'
+LMS_USER_LOGIN     = 'lms_username'
+LMS_USER_PASSWORD  = 'lms_user_password'
+LMS_USER_FULL_NAME = 'Mr. Administrator'
 
 COURSE_NAME = 'My course'
 CONTEXT_ID  = 'context-id'
@@ -124,11 +127,11 @@ class RequestProxy(object):
 
     def add_lms(self, name = LMS_NAME, lms_login = LMS_LOGIN, url = LMS_URL, basic_http_authentications = None):
         if basic_http_authentications is None:
-            basic_http_authentications = [ dict(lms_login = lms_login, password = LMS_PASSWORD) ]
+            basic_http_authentications = [ dict(lms_login = lms_login, lms_password = LMS_PASSWORD) ]
         
         data = dict(name = name, url = url)
         for pos, auth_config in enumerate(basic_http_authentications):
-            for key in 'lms_login', 'password':
+            for key in 'lms_login', 'lms_password':
                 data['basic_http_authentications-%s-%s' % (pos, key)] = auth_config[key]
             data['basic_http_authentications-%s-id' % pos] = ''
 
@@ -177,10 +180,10 @@ class RequestProxy(object):
             'laboratory'       : lab_id, 'lms'              : lms_id,
             'configuration'    : '',     'local_identifier' : local_id,
         }
-        self.client.post('/admin/permissions/lms/new/', data = request_data, follow_redirects = True)
+        self.client.post('/admin/lms/permissions/new/', data = request_data, follow_redirects = True)
 
     def add_permission_to_course(self, local_id = LOCAL_ID, course_name = COURSE_NAME):
-        rv = self.client.get('/admin/permissions/course/new/', follow_redirects = True)
+        rv = self.client.get('/lms_admin/courses/permissions/new/', follow_redirects = True)
 
         selects_data         = _parse_selects(rv.data)
         print selects_data
@@ -192,7 +195,7 @@ class RequestProxy(object):
             'configuration' : '',
         }
 
-        self.client.post('/admin/permissions/course/new/', data = request_data, follow_redirects = True)
+        self.client.post('/lms_admin/courses/permissions/new/', data = request_data, follow_redirects = True)
         
 
 class LabmanagerTestCase(unittest.TestCase):
@@ -209,9 +212,24 @@ class LabmanagerTestCase(unittest.TestCase):
 
 
     def login_admin(self, username = 'admin', password = 'password'):
+        self.logout()
         return self.client.post('/login/admin/', data=dict(
             username=username,
             password=password
+        ), follow_redirects=True)
+
+    def login_lms(self, lms = LMS_NAME, username = LMS_USER_LOGIN, password = LMS_USER_PASSWORD):
+        self.logout()
+        
+        rv = self.client.get('/login/lms/')
+
+        data = _parse_selects(rv.data)
+        lms_id = _find_in_select(data, 'lms', lms)
+
+        return self.client.post('/login/lms/', data=dict(
+            username=username,
+            password=password,
+            lms=lms_id,
         ), follow_redirects=True)
 
     def logout(self):
@@ -237,7 +255,7 @@ class LabmanagerTestCase(unittest.TestCase):
 
         password = None
         for key, value in inline_forms[0]:
-            if key.endswith('-password'):
+            if key.endswith('-lms_password'):
                 password = value
         self.assertEquals(password, hashlib.new('sha', lms_password).hexdigest())
 
@@ -256,11 +274,11 @@ class LabmanagerTestCase(unittest.TestCase):
         assert lab_id in rv.data
 
     def _check_local_id_in_lms_permissions(self, local_id = LOCAL_ID):
-        rv = self.client.get('/admin/permissions/lms/')
+        rv = self.client.get('/admin/lms/permissions/')
         assert local_id in rv.data
 
     def _check_local_id_in_course_permissions(self, local_id = LOCAL_ID):
-        rv = self.client.get('/admin/permissions/course/')
+        rv = self.client.get('/lms_admin/courses/permissions/')
         assert local_id in rv.data
 
     def test_add_lms(self):
@@ -292,6 +310,8 @@ class LabmanagerTestCase(unittest.TestCase):
     def test_add_course(self):
         self.login_admin()
         self.proxy.add_lms()
+
+        self.login_lms()
         self.proxy.add_course()
         self._check_course()
 
@@ -300,6 +320,8 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_rlms()
         self.proxy.add_lab()
         self.proxy.add_lms()
+
+        self.login_lms()
         self.proxy.add_course()
         self.proxy.add_permission_to_lms()
         self.proxy.add_permission_to_course()

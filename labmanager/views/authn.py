@@ -83,8 +83,6 @@ def login_lms():
         return render_template('login_lms.html', next=next, lmss=lmss)
 
     if request.method == 'POST' and 'username' in request.form:
-        print "Checking..."
-
         username = request.form['username']
         hashed = new_hash("sha", request.form['password']).hexdigest()
         lms_id = request.form['lms']
