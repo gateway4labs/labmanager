@@ -195,7 +195,6 @@ class RequestProxy(object):
         rv = self.client.get('/lms_admin/courses/permissions/new/', follow_redirects = True)
 
         selects_data         = _parse_selects(rv.data)
-        print selects_data
         permission_to_lms_id = _find_in_select(selects_data, 'permission_to_lms', local_id)
         course_id            = _find_in_select(selects_data, 'course', course_name)
         
@@ -330,11 +329,11 @@ class LabmanagerTestCase(unittest.TestCase):
         self.proxy.add_rlms()
         self.proxy.add_lab()
         self.proxy.add_lms()
+        self.proxy.add_permission_to_lms()
         self.proxy.add_lms_user()
 
         self.login_lms()
         self.proxy.add_course()
-        self.proxy.add_permission_to_lms()
         self.proxy.add_permission_to_course()
         self._check_local_id_in_course_permissions()
        
