@@ -43,3 +43,5 @@ nosetests.xml
 
 #Mr Developer
 .mr.developer.cfg
+
+test_db.sqlite3

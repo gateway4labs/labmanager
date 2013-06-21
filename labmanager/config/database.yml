@@ -8,7 +8,7 @@ development:
 
 test:
   engine: sqlite
-  dbname: "tests/test_db.sqlite3"
+  dbname: "test_db.sqlite3"
 
 production:
   driver: pg8000

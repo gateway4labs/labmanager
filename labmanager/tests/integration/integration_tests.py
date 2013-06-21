@@ -11,8 +11,12 @@ if __name__ == '__main__':
     server_process = subprocess.Popen("%s run.py" % sys.executable, shell = True)
     # time.sleep(1)
     try:
-        os.system("python labmanager/test/test_lms.py")
-        os.system('lettuce tests/features')
+        os.system('python labmanager/tests/unit/test_lms.py')
+        os.system('lettuce labmanager/tests/integration/features')
     finally:
-        server_process.kill()
+        server_process.terminate()
+        try:
+            server_process.kill()
+        except:
+            pass
         server_process.wait()

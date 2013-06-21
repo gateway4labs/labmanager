@@ -15,7 +15,7 @@ sys.path.append('.')
 os.environ['DATABASE_URL'] = os.environ.get('DATABASE_URL', 'sqlite:///:memory:')
 os.environ['LAB_ENV'] = os.environ.get('LAB_ENV', 'test')
 
-from labmanager.test.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDRESS
+from labmanager.tests.unit.fake_rlms import register_fake, LAB_NAME, LAB_ID, FAKE_ADDRESS
 register_fake()
 
 import labmanager as server
