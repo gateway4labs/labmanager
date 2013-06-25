@@ -1,0 +1,122 @@
+import json
+import urllib2
+import threading
+
+from flask import Blueprint, request, redirect
+
+from labmanager.db import db_session
+from labmanager.models import LMS, PermissionToLms
+from labmanager.rlms import get_manager_class
+
+SHINDIG = threading.local()
+
+def url_shindig(url):
+    if SHINDIG.url.endswith('/'):
+        base_url = SHINDIG.url[:len(SHINDIG.url) - 1]
+    else:
+        base_url = SHINDIG.url
+    return '%s%s' % (base_url, url)
+
+def get_parent_spaces(space_id, spaces):
+    try:
+        json_contents = urllib2.urlopen(url_shindig('/rest/spaces/%s' % space_id)).read()
+        contents = json.loads(json_contents)
+    except:
+        # Invalid permission or whatever
+        return
+
+    parent_type = contents['entry'].get('parentType','')
+    if parent_type != '@space':
+        return
+
+    parent_id = contents['entry'].get('parentId', '')
+    if parent_id not in spaces:
+        spaces.append(parent_id)
+        get_parent_spaces(parent_id, spaces)
+
+
+opensocial_blueprint = Blueprint('opensocial', __name__)
+
+@opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
+def widget_xml(institution_id, lab_name):
+    # TODO: use the widget
+    return render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name)
+
+
+@opensocial_blueprint.route("/reservations/<institution_id>/<lab_name>/")
+def reserve(institution_id, lab_name):
+    st = request.args.get('st') or ''
+
+    institution = db_session.query(LMS).filter_by(name = institution_id).first()
+    if institution is None or len(institution.shindig_credentials) < 1:
+        return "This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"
+
+    SHINDIG.url = institution.shindig_credentials[0].shindig_url
+
+    # Obtain user data
+    current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
+    current_user_data = json.loads(current_user_str)
+
+    # name    = current_user_data['entry'].get('displayName') or 'anonymous'
+    user_id = current_user_data['entry'].get('id') or 'no-id'
+
+    # Obtain current application data (especially, on which space is the user running it)
+    current_app_str  = urllib2.urlopen(url_shindig('/rest/apps/@self?st=%s' % st)).read()
+    current_app_data = json.loads(current_app_str)
+
+    space_id = current_app_data['entry'].get('parentId') or 'null parent'
+    parent_type = current_app_data['entry'].get('parentType')
+    if parent_type != '@space':
+        raise Exception("Invalid parent: it should be a space, and it is a %s" % parent_type)
+
+    # Obtain the list of parent spaces of that space
+    spaces = [space_id]
+    get_parent_spaces(space_id, spaces)
+
+    # Now: check for that institution if there is a permission identified by that lab_name,
+    # and check which courses (spaces in OpenSocial) have that permission.
+
+    permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
+    if permission is None:
+        return "Your PLE is valid, but don't have permissions for the requested laboratory."
+
+    courses_configurations = []
+    for course_permission in permission.course_permissions:
+        if course_permission.course.context_id in spaces:
+            # Let the server choose among the best possible configuration
+            courses_configurations.append(course_permission.configuration)
+
+    if len(courses_configurations) == 0:
+        return "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions"
+
+    ple_configuration = permission.configuration
+    db_laboratory     = permission.laboratory
+    db_rlms           = db_laboratory.rlms
+    rlms_version      = db_rlms.version
+    rlms_kind         = db_rlms.kind
+
+    request_payload = {} # This could be populated in the HTML. Pending.
+    user_agent = unicode(request.user_agent)
+    origin_ip  = request.remote_addr
+    referer    = request.referrer
+
+    # 
+    # Load the plug-in for the current RLMS, and instanciate it
+    ManagerClass = get_manager_class(rlms_kind, rlms_version)
+    remote_laboratory = ManagerClass(db_rlms.configuration)
+    
+    # XXX TODO: a dictionary should be passed here so as to enable changing details among versions
+    reservation_url = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+                                                username                  = user_id,
+                                                general_configuration_str = ple_configuration,
+                                                particular_configurations = courses_configurations,
+                                                request_payload           = request_payload,
+                                                user_agent                = user_agent,
+                                                origin_ip                 = origin_ip,
+                                                referer                   = referer)
+
+    # TODO: instead of a redirect, it should provide certain data, and use this data to keep the reservation
+    # with the master/slave system.
+    return redirect(reservation_url)
+
+

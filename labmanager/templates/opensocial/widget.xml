@@ -1,0 +1,32 @@
+<Module>
+ <ModulePrefs title="Hello World!">
+ <Require feature="opensocial-0.9" />
+ <Require feature="osapi" />
+ <Require feature="pubsub" />
+ <Require feature="dynamic-height" />
+ </ModulePrefs>
+ <Content type="html" view="home,canvas">
+ <![CDATA[
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
+
+<script type="text/javaScript">
+
+    function init() {
+        // Adjust height
+        gadgets.window.adjustHeight();
+    }
+
+    function reserve() {
+        var container = document.getElementById('container');
+        var url = "{{ url_for('.reserve', institution_id = institution_id, lab_name = lab_name) }}";
+        container.innerHtml = "<iframe src='" + url + "' width='100%' height='100%'></iframe>";
+    }
+
+    gadgets.util.registerOnLoadHandler(init);
+</script>
+ <div id="container">
+    <button class="btn btn-primary" onclick="reserve();">Reserve</button>
+ </div>
+ ]]>
+</Content>
+</Module>

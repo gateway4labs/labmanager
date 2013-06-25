@@ -11,7 +11,7 @@ import hashlib
 
 from .db import db_session, init_db
 from .models import LmsUser, PermissionToLms, Laboratory, PermissionToLmsUser
-from .models import LMS, RLMS, PermissionToCourse, BasicHttpCredentials, Course
+from .models import LMS, RLMS, PermissionToCourse, BasicHttpCredentials, ShindigCredentials, Course
 
 def add_sample_users():
 
@@ -162,6 +162,60 @@ def add_sample_users():
     db_session.add(course2)
 
     permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms3)
+    db_session.add(permission_to_course)
+
+    #######################################################
+    #     
+    #     LMS 4: Using Shindig, school 1
+    #    
+
+    lms4 = LMS(name = u"School 1 at Graasp", url = u"http://graasp.epfl.ch/")
+    db_session.add(lms4)
+
+    credential = ShindigCredentials(lms = lms4, shindig_url = 'http://shindig.epfl.ch')
+    db_session.add(credential)
+
+    lms_admin4   = LmsUser(login="admin", full_name="Administrator", lms = lms4, access_level = 'admin')
+    lms_admin4.password = password
+
+    db_session.add(lms_admin4)
+
+    permission_to_lms4 = PermissionToLms(lms = lms4, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lms4)
+
+    course1 = Course(name = "Physics course", lms = lms4, context_id = "1234")
+    course2 = Course(name = "Robots course", lms = lms4, context_id = "1235")
+    db_session.add(course1)
+    db_session.add(course2)
+
+    permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms4)
+    db_session.add(permission_to_course)
+
+    #######################################################
+    #     
+    #     LMS 5: Using Shindig, school 2
+    #    
+
+    lms5 = LMS(name = u"School 2 at Graasp", url = u"http://graasp.epfl.ch/")
+    db_session.add(lms5)
+
+    credential = ShindigCredentials(lms = lms5, shindig_url = 'http://shindig.epfl.ch')
+    db_session.add(credential)
+
+    lms_admin5  = LmsUser(login="admin", full_name="Administrator", lms = lms5, access_level = 'admin')
+    lms_admin5.password = password
+
+    db_session.add(lms_admin5)
+
+    permission_to_lms5 = PermissionToLms(lms = lms5, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lms5)
+
+    course1 = Course(name = "Other physics course", lms = lms5, context_id = "1236")
+    course2 = Course(name = "Other robots course", lms = lms5, context_id = "1237")
+    db_session.add(course1)
+    db_session.add(course2)
+
+    permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms5)
     db_session.add(permission_to_course)
 
     db_session.commit()

@@ -221,6 +221,37 @@ class BasicHttpCredentials(Base, SBBase):
         if self.lms_password != old_password:
             self.lms_password = hashlib.new('sha', self.lms_password).hexdigest()
 
+##################################################
+# 
+#         LMS Basic HTTP Credentials
+# 
+#   Used by LMSs to authenticate in the system
+# 
+
+class ShindigCredentials(Base, SBBase):
+
+    __tablename__  = 'shindig_credentials'
+    __table_args__ = (UniqueConstraint('lms_id'),)
+
+    id        = Column(Integer, primary_key = True)
+    lms_id        = Column(Integer, ForeignKey('lmss.id'), nullable = False)
+
+    # The URL of the Shindig server. Example: http://shindig.epfl.ch (no trailing slash)
+    shindig_url   = Column(Unicode(50), nullable = False)
+
+    lms = relation('LMS', backref=backref('shindig_credentials', order_by=id, cascade='all, delete'))
+
+    def __init__(self, lms = None, shindig_url = None):
+        self.lms         = lms
+        self.shindig_url = shindig_url
+
+
+    def __repr__(self):
+        return "ShindigCredentials(lms=%r, shindig_url=%r)" % ( self.lms, self.shindig_url )
+
+    def __unicode__(self):
+        return "ShindigCredentials for %s" % (self.lms.name)
+
 
 ##################################################
 # 

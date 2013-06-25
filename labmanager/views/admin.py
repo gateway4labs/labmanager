@@ -28,7 +28,7 @@ from labmanager.models import LabManagerUser, LmsUser
 # from labmanager.db import db_session as DBS
 
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
-from labmanager.models import BasicHttpCredentials, LMS, Course, PermissionToLmsUser
+from labmanager.models import BasicHttpCredentials, LMS, Course, PermissionToLmsUser, ShindigCredentials
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
@@ -155,7 +155,7 @@ def download(v, c, lms, p):
 
 class LMSPanel(L4lModelView):
 
-    inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials),)
+    inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
 
     column_list = ('name', 'url', 'download')
     column_formatters = dict( download = download )
