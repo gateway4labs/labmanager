@@ -18,8 +18,9 @@
 
     function reserve() {
         var container = document.getElementById('container');
-        var url = "{{ url_for('.reserve', institution_id = institution_id, lab_name = lab_name) }}";
-        container.innerHtml = "<iframe src='" + url + "' width='100%' height='100%'></iframe>";
+        var token = shindig.auth.getSecurityToken();
+        var url = "{{ url_for('.reserve', institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=" + token;
+        container.innerHTML = "<iframe src='" + url + "' width='100%' height='600px' onload='gadgets.window.adjustHeight();' frameborder='0'></iframe>";
     }
 
     gadgets.util.registerOnLoadHandler(init);

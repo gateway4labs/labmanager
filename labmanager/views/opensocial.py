@@ -2,7 +2,7 @@ import json
 import urllib2
 import threading
 
-from flask import Blueprint, request, redirect
+from flask import Blueprint, request, redirect, render_template
 
 from labmanager.db import db_session
 from labmanager.models import LMS, PermissionToLms
@@ -38,7 +38,7 @@ def get_parent_spaces(space_id, spaces):
 opensocial_blueprint = Blueprint('opensocial', __name__)
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
-def widget_xml(institution_id, lab_name):
+def widget_xml(institution_id, lab_name, widget_name):
     # TODO: use the widget
     return render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name)
 
@@ -87,7 +87,7 @@ def reserve(institution_id, lab_name):
             courses_configurations.append(course_permission.configuration)
 
     if len(courses_configurations) == 0:
-        return "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions"
+        return "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces
 
     ple_configuration = permission.configuration
     db_laboratory     = permission.laboratory
