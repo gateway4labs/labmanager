@@ -1,4 +1,3 @@
-beautifulsoup4==4.1.3
 distribute==0.6.45
 Flask==0.9
 Flask-Admin==1.0.6
@@ -6,16 +5,10 @@ Flask-Login==0.2.2
 Flask-SQLAlchemy==0.16
 Flask-WTF==0.8.3
 ims-lti-py==0.5
-lettuce==0.2.17
-lettuce-webdriver==0.3
-nose==1.3.0
 oauth2==1.5.211
-paramiko==1.10.1
-pyflakes==0.5.0
 PyMySQL==0.5
 pymysql-sa==1.0
 PyYAML==3.10
-selenium==2.33.0
 SQLAlchemy==0.7.10
 
 git+https://github.com/lms4labs/rlms_unr.git
