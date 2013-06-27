@@ -10,12 +10,14 @@ import os
 import sys
 
 import getpass
+import traceback
 from optparse import OptionParser
 
 try:
     import config
 except ImportError:
     print >> sys.stderr, "Missing config.py. Copy config.py.dist into config.py"
+    traceback.print_exc()
     sys.exit(-1)
 
 from config import env_config, SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
