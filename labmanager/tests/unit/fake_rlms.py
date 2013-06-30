@@ -58,7 +58,7 @@ class RLMS(BaseRLMS):
     def get_laboratories(self):
         return [ Laboratory(LAB_NAME, LAB_ID) ]
 
-    def reserve(self, **kwargs):
+    def reserve(self, *args, **kwargs):
         obtained_kwargs = self.configuration.copy()
         obtained_kwargs.update(kwargs)
         return {
