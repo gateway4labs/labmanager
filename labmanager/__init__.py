@@ -61,10 +61,14 @@ def register_blueprints():
     app.register_blueprint(lti_blueprint, url_prefix='/lti')
     app.register_blueprint(opensocial_blueprint, url_prefix='/opensocial')
 
+    from labmanager.rlms.base import _BLUEPRINTS
+    for url, blueprint in _BLUEPRINTS.items():
+        app.register_blueprint(blueprint, url_prefix='/rlms' + url)
+
 def bootstrap():
     load_views()
-    register_blueprints()
     load_rlms_modules()
+    register_blueprints()
     # print app.url_map
 
 def run():

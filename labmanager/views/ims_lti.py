@@ -116,8 +116,11 @@ def launch_experiment():
                                          lms_configuration,
                                          courses_configurations,
                                          request_payload,
-                                         unicode(request.user_agent),
-                                         request.remote_addr,
-                                         referer)
-    return redirect(response)
+                                         { 
+                                            'user_agent' : unicode(request.user_agent),
+                                            'from_ip'    : request.remote_addr,
+                                            'referer'    : referer,
+                                        })
+    load_url = response['load_url']
+    return redirect(load_url)
 

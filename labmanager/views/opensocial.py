@@ -105,18 +105,20 @@ def reserve(institution_id, lab_name):
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
     
-    # XXX TODO: a dictionary should be passed here so as to enable changing details among versions
-    reservation_url = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+    response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
                                                 general_configuration_str = ple_configuration,
                                                 particular_configurations = courses_configurations,
                                                 request_payload           = request_payload,
-                                                user_agent                = user_agent,
-                                                origin_ip                 = origin_ip,
-                                                referer                   = referer)
+                                                {
+                                                    'user_agent' : user_agent,
+                                                    'from_ip'    : origin_ip,
+                                                    'referer'    : referer
+                                                })
 
     # TODO: instead of a redirect, it should provide certain data, and use this data to keep the reservation
     # with the master/slave system.
+    reservation_url = response['load_url']
     return redirect(reservation_url)
 
 

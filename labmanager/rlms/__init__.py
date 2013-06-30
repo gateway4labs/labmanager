@@ -8,6 +8,8 @@
 
 import sys
 
+from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
+
 # 
 # Add the proper managers by pointing to a module
 # 

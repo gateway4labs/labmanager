@@ -126,14 +126,17 @@ def requests():
             remote_laboratory = ManagerClass(db_rlms.configuration)
             
             # XXX TODO: a dictionary should be passed here so as to enable changing details among versions
-            reservation_url = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+            response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                         username                  = author,
                                                         general_configuration_str = lms_configuration,
                                                         particular_configurations = courses_configurations,
                                                         request_payload           = request_payload,
-                                                        user_agent                = user_agent,
-                                                        origin_ip                 = origin_ip,
-                                                        referer                   = referer)
+                                                        {
+                                                            'user_agent' : user_agent,
+                                                            'from_ip'    : origin_ip,
+                                                            'referer'    : referer,
+                                                        })
+            reservation_url = response['load_url']
             good_msg = messages_codes['MSG_asigned'] % (db_rlms.kind,
                                                         db_rlms.version,
                                                         db_rlms.url,
