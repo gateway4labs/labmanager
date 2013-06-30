@@ -131,7 +131,7 @@ def requests():
                                                         general_configuration_str = lms_configuration,
                                                         particular_configurations = courses_configurations,
                                                         request_payload           = request_payload,
-                                                        {
+                                                        user_properties           = {
                                                             'user_agent' : user_agent,
                                                             'from_ip'    : origin_ip,
                                                             'referer'    : referer,

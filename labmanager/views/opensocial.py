@@ -110,7 +110,7 @@ def reserve(institution_id, lab_name):
                                                 general_configuration_str = ple_configuration,
                                                 particular_configurations = courses_configurations,
                                                 request_payload           = request_payload,
-                                                {
+                                                user_properties           = {
                                                     'user_agent' : user_agent,
                                                     'from_ip'    : origin_ip,
                                                     'referer'    : referer
