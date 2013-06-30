@@ -8,7 +8,7 @@ import json
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.rlms import register, Laboratory
-from labmanager.rlms.base import BaseRLMS, BaseFormCreator
+from labmanager.rlms.base import BaseRLMS, BaseFormCreator, Versions, Capabilities
 
 def get_module(version):
     return sys.modules[__name__]
@@ -46,6 +46,12 @@ class RLMS(BaseRLMS):
     def __init__(self, configuration):
         self.configuration = json.loads(configuration)
 
+    def get_version(self):
+        return Versions.VERSION_1
+
+    def get_capabilities(self):
+        return []
+
     def test(self):
         return None
 
@@ -55,7 +61,10 @@ class RLMS(BaseRLMS):
     def reserve(self, **kwargs):
         obtained_kwargs = self.configuration.copy()
         obtained_kwargs.update(kwargs)
-        return FAKE_ADDRESS + json.dumps(obtained_kwargs)
+        return {
+            'reservation_id' : 'id',
+            'load_url'       : FAKE_ADDRESS + json.dumps(obtained_kwargs),
+        }
 
 def register_fake():
     register("FakeRLMS", ['1.0'], __name__)
