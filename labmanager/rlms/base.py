@@ -7,7 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 """
-A RLMS plug-in is composed of a module or package, called l4l_rlms_FOO, which
+A RLMS plug-in is composed of a module or package, called g4l_rlms_FOO, which
 will have a function called get_module(version):
 
    def get_module(version):

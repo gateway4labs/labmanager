@@ -14,14 +14,14 @@ Doing:
 
 Will internally do:
 
-  from l4l_rlms_weblabdeusto import foo
+  from g4l_rlms_weblabdeusto import foo
 
 We use the flask.exthook to do this.
 """
 
 def setup():
     from flask.exthook import ExtensionImporter
-    importer = ExtensionImporter(['l4l_rlms_%s'], __name__)
+    importer = ExtensionImporter(['g4l_rlms_%s'], __name__)
     importer.install()
 
 
