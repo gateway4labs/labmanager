@@ -43,8 +43,8 @@ def widget_xml(institution_id, lab_name, widget_name):
     return render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name)
 
 
-@opensocial_blueprint.route("/reservations/<institution_id>/<lab_name>/")
-def reserve(institution_id, lab_name):
+@opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/<widget_name>/")
+def reserve(institution_id, lab_name, widget_name):
     st = request.args.get('st') or ''
 
     institution = db_session.query(LMS).filter_by(name = institution_id).first()
@@ -115,10 +115,29 @@ def reserve(institution_id, lab_name):
                                                     'from_ip'    : origin_ip,
                                                     'referer'    : referer
                                                 })
-
-    # TODO: instead of a redirect, it should provide certain data, and use this data to keep the reservation
-    # with the master/slave system.
-    reservation_url = response['load_url']
-    return redirect(reservation_url)
+    return response['reservation_id']
 
 
+@opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<reservation_id>/<widget_name>/")
+def open_widget(institution_id, lab_name, reservation_id, widget_name):
+
+    institution = db_session.query(LMS).filter_by(name = institution_id).first()
+    if institution is None or len(institution.shindig_credentials) == 0:
+        return "Institution not found or it does not support Shindig"
+
+    permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
+    db_laboratory     = permission.laboratory
+    db_rlms           = db_laboratory.rlms
+    rlms_version      = db_rlms.version
+    rlms_kind         = db_rlms.kind
+
+    ManagerClass = get_manager_class(rlms_kind, rlms_version)
+    remote_laboratory = ManagerClass(db_rlms.configuration)
+
+    response = remote_laboratory.load_widget(reservation_id, widget_name)
+    widget_contents_url = response['url']
+    return redirect(widget_contents_url)
+
+@opensocial_blueprint.route("/smartgateway.js")
+def smartgateway():
+    return render_template("opensocial/smartgateway.js")

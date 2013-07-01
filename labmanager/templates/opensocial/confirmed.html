@@ -1,0 +1,16 @@
+<html>
+<head>
+    <script>
+        function init() {
+            var data = {
+                'reservation-id' : '{{ reservation_id }}',
+                'url'            : '{{ url }}'
+            };
+            window.parent.postMessage("reserved::" + JSON.stringify(data), "http://shindig.epfl.ch");
+        }
+    </script>
+</head>
+<body onload="init();">
+Confirmed. Click <a href="{{ url }}" target="_blank">here</a>.
+</body>
+</html>
