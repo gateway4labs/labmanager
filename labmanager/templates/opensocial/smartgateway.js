@@ -167,7 +167,7 @@ function SmartGateway(container) {
             trace("Loading... " + url);
 
             // and perform the reservation itself
-            me._container.html("<iframe src='" + url + "' width='100%' height='100%'></iframe>");
+            me._container.html("<iframe src='" + url + "' width='100%' onload='gadgets.window.adjustHeight();'></iframe>");
         }
     }
 

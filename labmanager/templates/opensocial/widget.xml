@@ -1,5 +1,5 @@
 <Module>
- <ModulePrefs title="Hello World!">
+ <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
  <Require feature="opensocial-0.9" />
  <Require feature="osapi" />
  <Require feature="pubsub" />
@@ -19,36 +19,42 @@
     
     var sg;
 
-    function init() {
-        // Adjust height
+    function adjustIframeHeight() {
+//        $("#final_widget_iframe").removeAttr("height");
         gadgets.window.adjustHeight();
+    }
 
+    function init() {
         // Create SmartGateway
+        trace("Initializing SmartGateway...");
         sg = new SmartGateway($('#container'));
-
+        trace("SmartGateway initialized.");
         // Register a callback: whenever a widget has a reservationId, this method is called 
         sg.registerOnLoad( function(reservationId) {
             
             var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId;
 
+            $("#container").html("");
             // Now show it
-            var contents = "<iframe src='" + url + "' width='100%' height='100%' onload='gadgets.window.adjustHeight();'>";
+            var contents = $("<iframe id='final_widget_iframe' src='" + url + "' height='500px' width='100%'>");
             trace("I'm going to set as innerHTML: " + contents);
-            container.innerHTML = contents; 
+            $("#container").append(contents); 
+            gadgets.window.adjustHeight();
 
             // We set three timeouts to make sure the apps are loaded to do proper resizing
             // if it take long time, it will be resized when mouse is moved above the app
-            // 1 seconds
-            setTimeout(gadgets.window.adjustHeight,1000);
+            // setTimeout(adjustIframeHeight,1000);
             // 3 seconds
-            setTimeout(gadgets.window.adjustHeight,3000);
+            setTimeout(adjustIframeHeight,3000);
             // 10 seconds
-            setTimeout(gadgets.window.adjustHeight,10000);
+            setTimeout(adjustIframeHeight,10000);
         });
-
+        trace("Callback registered.");
     }
 
+    trace("Registering...");
     gadgets.util.registerOnLoadHandler(init);
+    trace("Registered.");
 </script>
  <div id="container">Loading...</div>
  ]]>
