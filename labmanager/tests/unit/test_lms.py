@@ -42,7 +42,7 @@ CONTEXT_ID  = 'context-id'
 
 RLMS_KIND     = 'FakeRLMS<>1.0'
 RLMS_LOCATION = 'Bilbao'
-RLMS_URL      = 'http://github.com/lms4labs/labmanager/'
+RLMS_URL      = 'http://github.com/gateway4labs/labmanager/'
 
 SELECTION_COLUMNS = 2 # Number of columns used by flask-admin for selection, deleting or editing
 

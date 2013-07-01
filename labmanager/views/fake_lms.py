@@ -4,7 +4,7 @@ from flask import request, Response
 
 from labmanager.application import app
 
-@app.route("/fake_list_courses/lms4labs/list", methods = ['GET','POST'])
+@app.route("/fake_list_courses/gateway4labs/list", methods = ['GET','POST'])
 def fake_list_courses():
     # return """{"start":"2","number":3,"per-page":2,"courses":[{"id":"4","name":"example3"}]}"""
     auth = request.authorization

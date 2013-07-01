@@ -30,7 +30,7 @@ request_data = {
    "request-payload" : json.dumps(payload)
 }
 
-url = base_url + '/lms4labs/labmanager/requests/'
+url = base_url + '/gateway4labs/labmanager/requests/'
 req = urllib2.Request(url, '')
 req.add_header('Content-type','application/json')
 

@@ -1,8 +1,8 @@
 # -*-*- encoding: utf-8 -*-*-
 #
-# lms4labs is free software: you can redistribute it and/or modify
+# gateway4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
-# lms4labs is distributed in the hope that it will be useful,
+# gateway4labs is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -145,7 +145,7 @@ def add_sample_users():
                      url = u"https://www.innova.uned.es/")
     db_session.add(lms3)
 
-    credential = BasicHttpCredentials(lms_login = 'uned', lms_password = password, lms = lms3, lms_url = 'http://localhost:5000/fake_list_courses/lms4labs/list', labmanager_login = 'labmanager', labmanager_password = 'password')
+    credential = BasicHttpCredentials(lms_login = 'uned', lms_password = password, lms = lms3, lms_url = 'http://localhost:5000/fake_list_courses/gateway4labs/list', labmanager_login = 'labmanager', labmanager_password = 'password')
     db_session.add(credential)
 
     lms_admin3   = LmsUser(login="admin", full_name="Administrator", lms = lms3, access_level = 'admin')

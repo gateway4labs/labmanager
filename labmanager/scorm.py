@@ -10,7 +10,7 @@ import zipfile
 from flask import Response, render_template, flash
 
 
-def get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path = '/', lms_extension = '/', html_body = '''<div id="lms4labs_root" />\n'''):
+def get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path = '/', lms_extension = '/', html_body = '''<div id="gateway4labs_root" />\n'''):
     import labmanager
     # TODO: better way
     base_dir = os.path.dirname(labmanager.__file__)
@@ -43,9 +43,9 @@ def get_scorm_object(authenticate = True, laboratory_identifier = '', lms_path =
 def get_authentication_scorm(lms_url):
     lms_path = urlparse.urlparse(lms_url).path or '/'
     extension = '/'
-    if 'lms4labs/' in lms_path:
-        extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
-        lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
+    if 'gateway4labs/' in lms_path:
+        extension = lms_path[lms_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
+        lms_path  = lms_path[:lms_path.rfind('gateway4labs/')]
 
     content = get_scorm_object(True, lms_path=lms_path, lms_extension=extension)
     return Response(content, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=authenticate_scorm.zip'})

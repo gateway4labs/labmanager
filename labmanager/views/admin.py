@@ -418,9 +418,9 @@ class PermissionToLmsPanel(L4lModelView):
 
         lms_path = urlparse.urlparse(url).path or '/'
         extension = '/'
-        if 'lms4labs/' in lms_path:
-            extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
-            lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
+        if 'gateway4labs/' in lms_path:
+            extension = lms_path[lms_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
+            lms_path  = lms_path[:lms_path.rfind('gateway4labs/')]
 
         contents = get_scorm_object(False, local_id, lms_path, extension)
         return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})

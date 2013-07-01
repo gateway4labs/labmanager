@@ -1,8 +1,8 @@
 # -*-*- encoding: utf-8 -*-*-
 #
-# lms4labs is free software: you can redistribute it and/or modify
+# gateway4labs is free software: you can redistribute it and/or modify
 # it under the terms of the BSD 2-Clause License
-# lms4labs is distributed in the hope that it will be useful,
+# gateway4labs is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -239,9 +239,9 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
 
         lms_path = urlparse.urlparse(url).path or '/'
         extension = '/'
-        if 'lms4labs/' in lms_path:
-            extension = lms_path[lms_path.rfind('lms4labs/lms/list') + len('lms4labs/lms/list'):]
-            lms_path  = lms_path[:lms_path.rfind('lms4labs/')]
+        if 'gateway4labs/' in lms_path:
+            extension = lms_path[lms_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
+            lms_path  = lms_path[:lms_path.rfind('gateway4labs/')]
 
         contents = get_scorm_object(False, local_id, lms_path, extension)
         return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})

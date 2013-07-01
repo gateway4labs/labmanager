@@ -24,13 +24,13 @@ function getXmlHttpObject() {
 	return xmlhttp;
 }
 
-var DEFAULT_ROOT_ELEMENT = 'lms4labs_root';
-var lms4labs_paths = {
-    'requests'     : 'lms4labs/lms/forward',
-    'authenticate' : 'lms4labs/lms/authenticate'
+var DEFAULT_ROOT_ELEMENT = 'gateway4labs_root';
+var gateway4labs_paths = {
+    'requests'     : 'gateway4labs/lms/forward',
+    'authenticate' : 'gateway4labs/lms/authenticate'
 };
 
-var lms4labs_templates = {
+var gateway4labs_templates = {
     'reserve-success' : "<div align=\"center\" class=\"well alert alert-success\"><h2>Experiment reserved</h2> <br/> <a class=\"btn\" href=\"%(URL)s\" target=\"_blank\">Run experiment</a></div>",
     'authenticate-success' : "<div align=\"center\" class=\"well alert alert-success\"><h2>Authenticated</h2> <br/> <a class=\"btn\" href=\"%(URL)s\" target=\"_blank\">Open LMS Manager</a></div>",
     'error'   : "<div align=\"center\" class=\"well alert\"><h2>Error</h2><br/><p>%(TEXT)s</p></div>",
@@ -56,14 +56,14 @@ function Laboratory(baseurl, extension, elementName) {
 
     var root = document.getElementById(this.elementName);
     if(root == null) {
-        alert("lms4labs.js misconfigured. Either create a " + DEFAULT_ROOT_ELEMENT + " value or pass an argument");
+        alert("gateway4labs.js misconfigured. Either create a " + DEFAULT_ROOT_ELEMENT + " value or pass an argument");
         return;
     }
 
     this.handleError = function(xmlhttp, response, url) {
         if (xmlhttp.status == 404) {
             if(onerror == undefined) {
-                return lms4labs_templates['error'].replace('%(TEXT)s', "Page <a href=\"" + url + "\">" + url + "</a> does not exist");
+                return gateway4labs_templates['error'].replace('%(TEXT)s', "Page <a href=\"" + url + "\">" + url + "</a> does not exist");
             } else {
                 onerror(xmlhttp.responseText, root);
                 return null;
@@ -71,7 +71,7 @@ function Laboratory(baseurl, extension, elementName) {
         } else if (response.indexOf('error:') == 0) {
             if(onerror == undefined) {
                 var errorMessage = response.substring('error:'.length);
-                return lms4labs_templates['error'].replace('%(TEXT)s', errorMessage);
+                return gateway4labs_templates['error'].replace('%(TEXT)s', errorMessage);
             } else {
                 onerror(xmlhttp.responseText, root);
                 return null;
@@ -79,7 +79,7 @@ function Laboratory(baseurl, extension, elementName) {
         } else {
             if(onerror == undefined) {
                 var errorMessage = xmlhttp.responseText;
-                return lms4labs_templates['unknown-error'].replace('%(TEXT)s', errorMessage);
+                return gateway4labs_templates['unknown-error'].replace('%(TEXT)s', errorMessage);
             } else {
                 onerror(xmlhttp.responseText, root);
                 return null;
@@ -98,7 +98,7 @@ function Laboratory(baseurl, extension, elementName) {
 
                 var htmlCode = null;
                 if (response.indexOf('http') == 0) {
-                    htmlCode = lms4labs_templates['reserve-success'].replace('%(URL)s', response);
+                    htmlCode = gateway4labs_templates['reserve-success'].replace('%(URL)s', response);
                 } else {
                     htmlCode = lab.handleError(xmlhttp, response, url);
                 }
@@ -109,7 +109,7 @@ function Laboratory(baseurl, extension, elementName) {
 
         var requestPayload = "{ \"action\" : \"reserve\", \"experiment\" : \"" + laboratoryId.replace(/\"/g, '\\"') + "\" }";
 
-        var url = this.baseurl + lms4labs_paths['requests'] + this.extension;
+        var url = this.baseurl + gateway4labs_paths['requests'] + this.extension;
 
         xmlhttp.open("POST", url, true);
         xmlhttp.setRequestHeader('Content-Type', 'application/json');
@@ -126,7 +126,7 @@ function Laboratory(baseurl, extension, elementName) {
 
                 var htmlCode = null;
                 if (response.indexOf('http') == 0) {
-                    htmlCode = lms4labs_templates['authenticate-success'].replace('%(URL)s', response);
+                    htmlCode = gateway4labs_templates['authenticate-success'].replace('%(URL)s', response);
                 } else {
                     htmlCode = lab.handleError(xmlhttp, response, url);
                 }
@@ -135,7 +135,7 @@ function Laboratory(baseurl, extension, elementName) {
             }
         };
 
-        var url = this.baseurl + lms4labs_paths['authenticate'] + this.extension;
+        var url = this.baseurl + gateway4labs_paths['authenticate'] + this.extension;
         xmlhttp.open("GET", url, true);
         xmlhttp.send(null);
     };
