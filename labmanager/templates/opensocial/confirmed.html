@@ -4,9 +4,8 @@
         function init() {
             var data = {
                 'reservation-id' : '{{ reservation_id }}',
-                'url'            : '{{ url }}'
             };
-            window.parent.postMessage("reserved::" + JSON.stringify(data), "http://shindig.epfl.ch");
+            window.parent.postMessage("reserved::" + JSON.stringify(data), '{{ shindig_url }}');
         }
     </script>
 </head>

@@ -39,12 +39,11 @@ opensocial_blueprint = Blueprint('opensocial', __name__)
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
-    # TODO: use the widget
-    return render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name)
+    return render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name)
 
 
-@opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/<widget_name>/")
-def reserve(institution_id, lab_name, widget_name):
+@opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/")
+def reserve(institution_id, lab_name):
     st = request.args.get('st') or ''
 
     institution = db_session.query(LMS).filter_by(name = institution_id).first()
@@ -67,7 +66,7 @@ def reserve(institution_id, lab_name, widget_name):
     space_id = current_app_data['entry'].get('parentId') or 'null parent'
     parent_type = current_app_data['entry'].get('parentType')
     if parent_type != '@space':
-        raise Exception("Invalid parent: it should be a space, and it is a %s" % parent_type)
+        return render_template("opensocial/errors.html", message =  "Invalid parent: it should be a space, and it is a %s" % parent_type)
 
     # Obtain the list of parent spaces of that space
     spaces = [space_id]
@@ -78,7 +77,7 @@ def reserve(institution_id, lab_name, widget_name):
 
     permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
     if permission is None:
-        return "Your PLE is valid, but don't have permissions for the requested laboratory."
+        return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
 
     courses_configurations = []
     for course_permission in permission.course_permissions:
@@ -87,7 +86,7 @@ def reserve(institution_id, lab_name, widget_name):
             courses_configurations.append(course_permission.configuration)
 
     if len(courses_configurations) == 0:
-        return "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces
+        return render_template("opensocial/errors.html", message = "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces)
 
     ple_configuration = permission.configuration
     db_laboratory     = permission.laboratory
@@ -115,11 +114,12 @@ def reserve(institution_id, lab_name, widget_name):
                                                     'from_ip'    : origin_ip,
                                                     'referer'    : referer
                                                 })
-    return response['reservation_id']
+    return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
 
 
-@opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<reservation_id>/<widget_name>/")
-def open_widget(institution_id, lab_name, reservation_id, widget_name):
+@opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
+def open_widget(institution_id, lab_name, widget_name):
+    reservation_id = request.args.get('reservation-id') or ''
 
     institution = db_session.query(LMS).filter_by(name = institution_id).first()
     if institution is None or len(institution.shindig_credentials) == 0:
@@ -138,6 +138,8 @@ def open_widget(institution_id, lab_name, reservation_id, widget_name):
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
 
-@opensocial_blueprint.route("/smartgateway.js")
-def smartgateway():
-    return render_template("opensocial/smartgateway.js")
+@opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
+def smartgateway(institution_id, lab_name):
+    return render_template("opensocial/smartgateway.js", institution_id = institution_id, lab_name = lab_name)
+
+

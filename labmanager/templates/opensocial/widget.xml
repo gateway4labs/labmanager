@@ -9,25 +9,39 @@
  <![CDATA[
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
 
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
+    <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+    <script type="text/javascript" src="{{ url_for('.smartgateway', institution_id = institution_id, lab_name = lab_name, _external = True) }}"></script>
+
+
+
 <script type="text/javaScript">
+    
+    var sg;
 
     function init() {
         // Adjust height
         gadgets.window.adjustHeight();
-    }
 
-    function reserve() {
-        var container = document.getElementById('container');
-        var token = shindig.auth.getSecurityToken();
-        var url = "{{ url_for('.reserve', institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=" + token;
-        container.innerHTML = "<iframe src='" + url + "' width='100%' height='600px' onload='gadgets.window.adjustHeight();' frameborder='0'></iframe>";
+        // Create SmartGateway
+        sg = new SmartGateway($('#container'));
+
+        // Register a callback: whenever a widget has a reservationId, this method is called 
+        sg.registerOnLoad( function(reservationId) {
+            
+            var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name) }}?reservation_id=' + reservationId;
+
+            // Now show it
+            var contents = "<iframe src='" + url + "' width='100%' height='100%' onload='gadgets.window.adjustHeight();'>";
+            trace("I'm going to set as innerHTML: " + contents);
+            container.innerHTML = contents; 
+        });
+
     }
 
     gadgets.util.registerOnLoadHandler(init);
 </script>
- <div id="container">
-    <button class="btn btn-primary" onclick="reserve();">Reserve</button>
- </div>
+ <div id="container">Loading...</div>
  ]]>
 </Content>
 </Module>
