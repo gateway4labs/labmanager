@@ -12,6 +12,7 @@ function SmartGateway(container) {
     this._container = container;
 
     this._loadCallback = null;
+    this._reservation_id = null;
 
     // Constructor
     this._init = function() {
@@ -19,12 +20,23 @@ function SmartGateway(container) {
         // When an inter-iframes message is received, call _processMessages
         window.addEventListener('message', me._processMessages, false);
 
-        trace("Submitted " + me._identifier + "; now configuring timer: " + new Date().getTime());
-
         // Receive messages by other widgets and call the method _onEvent
         gadgets.openapp.connect(me._onEvent);
 
         me._buildUI();
+
+        // If you move a widget, it automatically reloads its contents.
+        // Therefore, we will ask the rest of the widgets in the space
+        // whether there is an active reservation or not. If there is,
+        // we will call the callback.
+        gadgets.openapp.publish({
+            event: "select",
+            type: "json",
+            message: {
+                'labmanager-msg'             : 'labmanager::someone-there'
+            }
+        });
+
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -40,17 +52,22 @@ function SmartGateway(container) {
         $button.click( me.startReservation );
         var $div = $("<div></div>");
         $div.css({
-            'text-align' : 'center',
-            'width'      : '100%',
-            'margin-top' : '5px'
+            'text-align'    : 'center',
+            'width'         : '100%',
+            'margin-top'    : '5px',
+            'margin-bottom' : '5px'
         });
         $div.append($button);
 
         me._container.append($div);
+
+        gadgets.window.adjustHeight();
     }
 
-    this._onWaitReservationEvent = function() {
-        $('#reserve-button').attr('disabled', 'disabled');
+    this._onWaitReservationEvent = function(envelope, message) {
+        if (message['labmanager-src'] != me._identifier) { 
+            $('#reserve-button').attr('disabled', 'disabled');
+        }
     }
 
     // 
@@ -61,9 +78,13 @@ function SmartGateway(container) {
 
             me._onActivateEvent(envelope, message);
 
-        } else if(message["labmanager-msg"] == 'labmanager::wait_reservation') {
+        } else if (message["labmanager-msg"] == 'labmanager::wait_reservation') {
 
             me._onWaitReservationEvent(envelope, message);
+
+        } else if (message["labmanager-msg"] == 'labmanager::someone-there') {
+
+            me._onSomeoneThere(envelope, message);
 
         }
         return true;
@@ -79,8 +100,23 @@ function SmartGateway(container) {
     // 
 
     this._onActivateEvent = function(envelope, message) {
-        if (message["labmanager-msg"] == 'labmanager::activate') {
-            me._loadCallback(message['labmanager-reservation-id']);
+        if ( me._reservation_id == null ) {
+            me._reservation_id = message['labmanager-reservation-id'];
+            me._loadCallback(me._reservation_id);
+        }
+    }
+
+
+    this._onSomeoneThere = function(envelope, message) {
+        if ( me._reservation_id != null ) {
+            gadgets.openapp.publish({
+                event: "select",
+                type: "json",
+                message: {
+                    'labmanager-msg'             : 'labmanager::activate',
+                    'labmanager-reservation-id'  : me._reservation_id,
+                }
+            });
         }
     }
 
@@ -103,12 +139,13 @@ function SmartGateway(container) {
                     'labmanager-reservation-id'  : reservation_id,
                 }
             });
-
+                
+            me._reservation_id = reservation_id;
             me._loadCallback(reservation_id);
         }
     }
 
-    this.startReservation() {
+    this.startReservation = function() {
         // This method is called when the user clicks on the button.
         // Don't do anything if the button was disabled.
         if ($('#reserve-button').attr('disabled') != 'disabled') {
@@ -118,16 +155,19 @@ function SmartGateway(container) {
                 event: "select",
                 type: "json",
                 message: {
-                    'labmanager-msg'             : 'labmanager::wait_reservation'
+                    'labmanager-msg'             : 'labmanager::wait_reservation',
+                    'labmanager-src'             : me._identifier
                 }
             });
 
             // Then, take the token
             var token = shindig.auth.getSecurityToken();
-            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name) }}?st=' + token;
+            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token;
+
+            trace("Loading... " + url);
 
             // and perform the reservation itself
-            $("container").html("<iframe src='" + url + "' width='100%' height='100%'></iframe>");
+            me._container.html("<iframe src='" + url + "' width='100%' height='100%'></iframe>");
         }
     }
 

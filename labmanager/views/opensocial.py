@@ -42,6 +42,12 @@ def widget_xml(institution_id, lab_name, widget_name):
     return render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name)
 
 
+@opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
+def smartgateway(institution_id, lab_name):
+    return render_template("opensocial/smartgateway.js", institution_id = institution_id, lab_name = lab_name)
+
+
+
 @opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/")
 def reserve(institution_id, lab_name):
     st = request.args.get('st') or ''
@@ -119,7 +125,7 @@ def reserve(institution_id, lab_name):
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
-    reservation_id = request.args.get('reservation-id') or ''
+    reservation_id = request.args.get('reservation_id') or 'reservation-id-not-found'
 
     institution = db_session.query(LMS).filter_by(name = institution_id).first()
     if institution is None or len(institution.shindig_credentials) == 0:
@@ -137,9 +143,5 @@ def open_widget(institution_id, lab_name, widget_name):
     response = remote_laboratory.load_widget(reservation_id, widget_name)
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
-
-@opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
-def smartgateway(institution_id, lab_name):
-    return render_template("opensocial/smartgateway.js", institution_id = institution_id, lab_name = lab_name)
 
 
