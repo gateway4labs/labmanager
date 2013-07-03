@@ -1,6 +1,6 @@
 development:
   engine: mysql
-  pymsql: True
+  pymysql: True
   dbname: labmanager
   username: labmanager
   password: labmanager
@@ -13,7 +13,7 @@ test:
 production:
   driver: pg8000
   engine: postgresql
-  pymsql: false
+  pymysql: false
   dbname: some-db-name
   username: labmanager
   password: labmanager

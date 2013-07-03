@@ -8,7 +8,7 @@ env_config = yaml.load(open('labmanager/config/database.yml'))[LAB_ENV]
 RLMS = ['weblabdeusto','unr']
 
 SQLALCHEMY_ENGINE_STR = os.environ.get('DATABASE_URL', None)
-USE_PYMYSQL = env_config.get('pymsql', False)
+USE_PYMYSQL = env_config.get('pymysql', True)
 
 if SQLALCHEMY_ENGINE_STR is None:
     if env_config['engine'] == 'mysql':
