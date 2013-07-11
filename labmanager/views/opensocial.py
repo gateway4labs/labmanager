@@ -144,4 +144,7 @@ def open_widget(institution_id, lab_name, widget_name):
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
 
-
+@opensocial_blueprint.route("/register/", methods = ['GET', 'POST'])
+def register():
+    # TODO: work with the form, etc. here
+    return "Registration form"
