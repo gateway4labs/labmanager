@@ -30,6 +30,7 @@ from labmanager.scorm import get_scorm_object
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
 from labmanager.db import db_session
+from labmanager.rlms import get_manager_class
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -146,6 +147,9 @@ def local_id_formatter(v, c, laboratory, p):
             return permission.local_identifier
     return 'N/A'
 
+def list_widgets_formatter(v, c, laboratory, p):
+    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+
 
 class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
@@ -153,9 +157,9 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier')
+    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets')
 
-    column_formatters = dict( local_identifier = local_id_formatter )
+    column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter )
 
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -169,6 +173,19 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
+
+    @expose("/widgets/<local_identifier>/")
+    def list_widgets(self, local_identifier):
+        laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
+        if laboratory is None:
+            return self.render("ple_admin/errors.html", message = "Laboratory not found")
+
+        rlms_db = laboratory.rlms
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        rlms = RLMS_CLASS(rlms_db.configuration)
+
+        widgets = rlms.list_widgets(laboratory.laboratory_id)
+        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lms.name, lab_name = local_identifier)
 
 #################################################
 # 
