@@ -36,3 +36,53 @@ if SQLALCHEMY_ENGINE_STR is None:
 DEBUG      = True
 SECRET_KEY = 'secret'
 DEBUGGING_REQUESTS = False
+
+WEBLABDEUSTO_LABS = {
+
+    'aquarium@Aquatic experiments' : [
+        {
+            'name'        : 'ball-blue',
+            'description' : 'Blue ball'
+        },
+        {
+            'name'        : 'ball-white',
+            'description' : 'White ball'
+        },
+        {
+            'name'        : 'ball-yellow',
+            'description' : 'Yellow ball'
+        },
+        {
+            'name'        : 'ball-red',
+            'description' : 'Red ball'
+        },
+        {
+            'name'        : 'camera',
+            'description' : 'Main widget with two cameras'
+        },
+        {
+            'name'        : 'camera1',
+            'description' : 'Camera pointing to the aquarium'
+        },
+        {
+            'name'        : 'camera2',
+            'description' : 'Camera pointing to the pulley system'
+        },
+    ], # aquarium
+
+    'incubator@Farm experiments' : [
+        {
+            'name'        : 'egg1',
+            'description' : 'First egg',
+        },
+        {
+            'name'        : 'egg2',
+            'description' : 'Second egg',
+        },
+        {
+            'name'        : 'egg3',
+            'description' : 'Third egg',
+        },
+    ],
+}
+
