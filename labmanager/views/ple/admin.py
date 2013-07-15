@@ -229,22 +229,31 @@ def create_new_space(numeric_identifier):
     db_session.add(course)
     db_session.commit()
 
+def parse_space_url(url):
+    """ Given a Graasp URL, retrieve the space identifier (a number) """
+    if 'space_' in url:
+        try:
+            context_id = int(url.split('space_')[1])
+        except:
+            raise Exception("Invalid format. Expected space_NUMBER")
+        else:
+            return context_id
+    raise Exception("Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING")
+   
+
 class PleNewSpacesPanel(L4lPleView):
 
     @expose(methods = ['GET', 'POST'])
     def index(self):
         form = SpaceUrlForm()
         if form.validate_on_submit():
-            if 'space_' in form.url.data:
-                try:
-                    context_id = int(form.url.data.split('space_')[1])
-                except:
-                    form.url.errors.append("Invalid format. Expected space_NUMBER")
-                else:
-                    create_new_space(context_id)
-                    return redirect(url_for('ple_admin_courses.index_view'))
+            try:
+                context_id = parse_space_url(form.url.data)
+            except Exception as e:
+                form.url.errors.append(e.message)
             else:
-                form.url.errors.append("Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING")
+                create_new_space(context_id)
+                return redirect(url_for('ple_admin_courses.index_view'))
         return self.render("ple_admin/new_space.html", form = form)
 
 class PlePermissionToSpacePanel(L4lPleModelView):
