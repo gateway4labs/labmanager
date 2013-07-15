@@ -212,6 +212,24 @@ class BaseRLMS(object):
         But in the future it might contain other fields (such as the width of the field or so on).
         """
 
+    def list_widgets(self, laboratory_id):
+        """
+        This method is optional. Only called if the Capabilities.WIDGET is provided.
+        
+        Given a laboratory_id, request which widgets are provided by this laboratory. Example: if 
+        requested an aquarium laboratory, it may return a list like:
+        [
+            {
+                'name' : 'camera1',
+                'description' : "The camera1 shows the upper camera"
+            },
+            {
+                'name' : 'red-ball',
+                'description' : "The red ball enables you to modify the red ball"
+            }
+        ]
+        """
+
     # TODO:
     # - retrieve_data() or similar
     # - user_agent, origin_ip, referer... should be a dictionary 
