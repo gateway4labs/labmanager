@@ -6,7 +6,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-
+import json
 import hashlib
 import uuid
 import traceback
@@ -29,6 +29,7 @@ from flask.ext.login import current_user
 from labmanager.scorm import get_scorm_object
 from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
+from labmanager.db import db_session
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -179,7 +180,7 @@ def format_space_url(v, c, space, p):
     # shindig_space_url = '%s/rest/spaces/%s' % (shindig_url, space.context_id)
     # contents = urllib2.urlopen(shindig_space_url).read()
     # return json.loads(contents)['urls'][0]['value']
-    return Markup('<a href="https://graasp.epfl.ch/#item=space_%s">link</a>' % space.context_id)
+    return Markup('<a target="_blank" href="https://graasp.epfl.ch/#item=space_%s">link</a>' % space.context_id)
 
 class PleSpacesPanel(L4lPleModelView):
 
@@ -213,8 +214,20 @@ class SpaceUrlForm(Form):
                         validators.URL()], description = "Drop here the URL of the Space.", default = "http://graasp.epfl.ch/#item=space_1234")
 
 def create_new_space(numeric_identifier):
-    # TODO: go to shindig, get the display name of the course, create the Course with the context id and the description, put it in the db.
-    pass
+    # Retrieve the space name from Shindig
+    shindig_url = current_user.lms.shindig_credentials[0].shindig_url
+    shindig_space_url = '%s/rest/spaces/%s' % (shindig_url, numeric_identifier)
+    shindig_space_contents_json = urllib2.urlopen(shindig_space_url).read()
+    shindig_space_contents = json.loads(shindig_space_contents_json)
+    space_name = shindig_space_contents['entry']['displayName']
+
+    # Create the space
+    context_id = unicode(numeric_identifier)
+    course = Course(name = space_name, lms = current_user.lms, context_id = context_id)
+
+    # Add it to the database
+    db_session.add(course)
+    db_session.commit()
 
 class PleNewSpacesPanel(L4lPleView):
 
@@ -239,6 +252,11 @@ class PlePermissionToSpacePanel(L4lPleModelView):
     form_args = dict(
         permission_to_lms = dict(query_factory = lambda : PlePermissionToSpacePanel.permission_to_lms_filter()),
         course = dict(query_factory = lambda : PlePermissionToSpacePanel.course_filter()),
+    )
+
+    column_labels = dict(
+        permission_to_lms = 'Permission',
+        course = 'Space',
     )
 
 
