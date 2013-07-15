@@ -17,6 +17,8 @@ from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
+from flask.ext.wtf import Form, validators, TextField
+
 from flask import request, redirect, url_for, session, Markup, Response
 
 from flask.ext import wtf
@@ -120,12 +122,6 @@ class PleUsersPanel(L4lPleModelView):
         model.password = hashlib.new('sha',model.password).hexdigest()
 
 
-def create_lms_user_filter(session):
-    def filter():
-        return session.query(LmsUser).filter_by(lms = current_user.lms)
-
-    return staticmethod(filter)
-
 def create_permission_to_lms_filter(session):
     def filter():
         return session.query(PermissionToLms).filter_by(lms = current_user.lms)
@@ -173,24 +169,6 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
 
-    @expose('/scorm/scorm_<local_id>.zip')
-    def get_scorm(self, local_id):
-        db_lms = current_user.lms 
-
-        if db_lms.basic_http_authentications:
-            url = db_lms.basic_http_authentications[0].lms_url or ''
-        else:
-            url = ''
-
-        lms_path = urlparse.urlparse(url).path or '/'
-        extension = '/'
-        if 'gateway4labs/' in lms_path:
-            extension = lms_path[lms_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
-            lms_path  = lms_path[:lms_path.rfind('gateway4labs/')]
-
-        contents = get_scorm_object(False, local_id, lms_path, extension)
-        return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})
-
 #################################################
 # 
 #   Course management
@@ -229,6 +207,33 @@ class PleSpacesPanel(L4lPleModelView):
     def on_model_change(self, form, model):
         model.lms   = current_user.lms
 
+class SpaceUrlForm(Form):
+
+    url = TextField('Space URL', [validators.Length(min=6, max=200),
+                        validators.URL()], description = "Drop here the URL of the Space.", default = "http://graasp.epfl.ch/#item=space_1234")
+
+def create_new_space(numeric_identifier):
+    # TODO: go to shindig, get the display name of the course, create the Course with the context id and the description, put it in the db.
+    pass
+
+class PleNewSpacesPanel(L4lPleView):
+
+    @expose(methods = ['GET', 'POST'])
+    def index(self):
+        form = SpaceUrlForm()
+        if form.validate_on_submit():
+            if 'space_' in form.url.data:
+                try:
+                    context_id = int(form.url.data.split('space_')[1])
+                except:
+                    form.url.errors.append("Invalid format. Expected space_NUMBER")
+                else:
+                    create_new_space(context_id)
+                    return redirect(url_for('ple_admin_courses.index_view'))
+            else:
+                form.url.errors.append("Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING")
+        return self.render("ple_admin/new_space.html", form = form)
+
 class PlePermissionToSpacePanel(L4lPleModelView):
 
     form_args = dict(
@@ -260,8 +265,11 @@ def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = u"PLE admin", url = ple_admin_url, endpoint = 'ple-admin')
     ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
+
+    ple_admin.add_view(PleNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
     ple_admin.add_view(PlePermissionToSpacePanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
+
     ple_admin.add_view(PleUsersPanel(db_session,      name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
     ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
