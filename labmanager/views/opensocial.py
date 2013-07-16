@@ -7,7 +7,7 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.wtf import Form, validators, TextField, PasswordField, ValidationError
 
 from labmanager.db import db_session
-from labmanager.models import LMS, PermissionToLms, LmsUser, ShindigCredentials
+from labmanager.models import LMS, PermissionToLms, LmsUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
 
 SHINDIG = threading.local()
@@ -148,7 +148,7 @@ def open_widget(institution_id, lab_name, widget_name):
 
 class RegistrationForm(Form):
 
-    full_name  = TextField('School name', [validators.Length(min=4, max=15), validators.Required()], description = "School name.")
+    full_name  = TextField('School name', [validators.Length(min=4, max=50), validators.Required()], description = "School name.")
     short_name = TextField('Short name', [validators.Length(min=4, max=15), validators.Required()], description = "Short name (lower case, all letters, dots and numbers).")
     url        = TextField('School URL', [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = "Address of your school.")
 
@@ -181,7 +181,9 @@ def register():
             lms_user = LmsUser(login = form.user_login.data, full_name = form.user_full_name.data, lms = lms, access_level = 'admin')
             lms_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
 
-            # TODO: add some default labs
+            for lab in db_session.query(Laboratory).filter_by(available = True).all():
+                permission_to_lms = PermissionToLms(lms = lms, laboratory = lab, local_identifier = lab.default_local_identifier)
+                db_session.add(permission_to_lms)
 
             db_session.add(lms)
             db_session.add(shindig_credentials)
