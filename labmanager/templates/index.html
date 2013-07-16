@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <title>Lab Manager</title>
-    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
-    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
-</head>
-<body>
-    <div class="container">
+{% set title = "Home" %}
+{% set current_link = "home" %}
+{% extends "layout.html" %}
+{% block body_container %}
         <div class="row">
             <div class="hero-unit" align="center">
                 <p><img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="LMS4labs Logo" /></p> 
@@ -16,16 +9,11 @@
             </div>
         </div>
         <div class="row">
-            <div class="span4">
-                <h2>LMSs</h2>
-                <p>LMSs will forward SCORM requests to the Lab Manager, which will process them</p>
-                <p><a href="{{ url_for('basic_auth.requests') }}">URL for LMSs</a></p>
-            </div>
 
             <div class="span4">
-                <h2>Lab Manager administrators</h2>
-                <p>Lab Manager administrators will select which LMSs are registered in this Lab Manager, as well as which RLMSs will work.</p>
-                <p><a href="{{ url_for('admin.index') }}">Manage Lab Managers</a></p>
+                <h2>Graasp registration</h2>
+                <p>Register your school using Graasp.</p>
+                <p><a href="{{ url_for('opensocial.register') }}">Register</a></p>
             </div>
 
             <div class="span4">
@@ -41,16 +29,6 @@
             </div>
 
         </div>
-	<div class="row">
-	
-            <div class="span4">
-                <h2>Graasp registration</h2>
-                <p>Register your school using Graasp.</p>
-                <p><a href="{{ url_for('opensocial.register') }}">Register</a></p>
-            </div>
 	    
-	</div>
     </div>
-
-</body>
-</html>
+{% endblock %}

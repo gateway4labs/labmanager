@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>LabManager - {{ title }}</title>
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
+</head>
+{% block body_tag %}<body>{% endblock %}
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="{{ url_for('index') }}">LabManager</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li {% if current_link == 'home' %}    class="active" {% endif %}><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('admin.index') }}">Admin</a></li>
+            <li {% if current_link == 'developers' %} class="active" {% endif %}><a href="{{ url_for('developers') }}">Developers</a></li>
+            <li {% if current_link == 'about' %} class="active" {% endif %}><a href="{{ url_for('about') }}">About</a></li>
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div>
+    </div><!-- /navbar-inner -->
+  </div><!-- /navbar -->
+
+  <div class="container">
+  {% block body_container %}{% endblock %}
+  </div>
+</body>
+</html>
