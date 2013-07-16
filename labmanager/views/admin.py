@@ -10,7 +10,7 @@ from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
-from flask import request, redirect, url_for, session, Markup, abort, Response
+from flask import request, redirect, url_for, session, Markup, abort, Response, flash
 
 from flask.ext import wtf
 
@@ -381,16 +381,19 @@ def accessibility_formatter(v, c, lab, p):
         klass = 'btn-success'
         msg = 'Make available'
 
-    return Markup("""<form method='POST' action='%(url)s'>
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <label>Default local identifier: </label>
+                        <input type='text' name='local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
-                        url            = url_for('.change_accessibility'),
-                        activate_value = unicode(lab.available).lower(),
-                        lab_id         = lab.id,
-                        klass          = klass,
-                        msg            = msg,
+                        url                      = url_for('.change_accessibility'),
+                        activate_value           = unicode(lab.available).lower(),
+                        lab_id                   = lab.id,
+                        klass                    = klass,
+                        msg                      = msg,
+                        default_local_identifier = lab.default_local_identifier,
                     ))
 
 class LaboratoryPanel(L4lModelView):
@@ -399,6 +402,7 @@ class LaboratoryPanel(L4lModelView):
 
     column_list = ('rlms', 'name', 'laboratory_id', 'visibility', 'availability')
     column_formatters = dict(availability = accessibility_formatter)
+    column_descriptions = dict(availability = "Make this laboratory automatically available for the Learning Tools")
 
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
@@ -409,7 +413,12 @@ class LaboratoryPanel(L4lModelView):
         activate = request.form['activate'] == 'true'
         lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
         if lab is not None:
+            existing_lab = self.session.query(Laboratory).filter_by(default_local_identifier = request.form['local_identifier']).first()
+            if existing_lab != lab:
+                flash("Local identifier already exists")
+                return redirect(url_for('.index_view'))
             lab.available = not activate
+            lab.default_local_identifier = request.form['local_identifier']
             self.session.add(lab)
             self.session.commit()
         return redirect(url_for('.index_view'))

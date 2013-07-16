@@ -132,11 +132,12 @@ class Laboratory(Base, SBBase):
 
     id = Column(Integer, primary_key = True)
 
-    name          = Column(Unicode(50), nullable = False)
-    laboratory_id = Column(Unicode(50), nullable = False)
-    rlms_id       = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
-    visibility    = Column(Unicode(50), nullable = False, index = True, default = u'private')
-    available     = Column(Boolean, nullable = False, index = True, default = False)
+    name                     = Column(Unicode(50), nullable = False)
+    laboratory_id            = Column(Unicode(50), nullable = False)
+    rlms_id                  = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
+    visibility               = Column(Unicode(50), nullable = False, index = True, default = u'private')
+    available                = Column(Boolean, nullable = False, index = True, default = False)
+    default_local_identifier = Column(Unicode(50), nullable = False, default = u"")
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
