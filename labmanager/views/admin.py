@@ -413,10 +413,12 @@ class LaboratoryPanel(L4lModelView):
         activate = request.form['activate'] == 'true'
         lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
         if lab is not None:
-            existing_lab = self.session.query(Laboratory).filter_by(default_local_identifier = request.form['local_identifier']).first()
-            if existing_lab != lab:
-                flash("Local identifier already exists")
-                return redirect(url_for('.index_view'))
+            existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier = request.form['local_identifier']).all()
+            if len(existing_labs) > 0:
+                # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
+                if len(existing_labs) > 1 or lab not in existing_labs:
+                    flash("Local identifier already exists")
+                    return redirect(url_for('.index_view'))
             lab.available = not activate
             lab.default_local_identifier = request.form['local_identifier']
             self.session.add(lab)
