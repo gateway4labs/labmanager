@@ -52,6 +52,8 @@ init_lms_admin(app, db_session)
 from .views.lms.instructor import init_instructor_admin
 init_instructor_admin(app, db_session)
 
+from .views.ple.admin import init_ple_admin
+init_ple_admin(app, db_session)
 
 # 
 # Initialize login subsystem

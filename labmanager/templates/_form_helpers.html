@@ -15,6 +15,9 @@
             {% for error in field.errors %}
             <span class="help-inline">{{ error }}</span>
             {% endfor %}
+            {% if field.description %}
+            <span class="help-block">{{ field.description }}</span>
+            {% endif %}
         </div>
     </div>
 {% endmacro %}

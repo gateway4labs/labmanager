@@ -130,6 +130,12 @@ def create_permission_to_lms_filter(session):
 
     return staticmethod(filter)
 
+def create_course_filter(session):
+    def filter():
+        return session.query(Course).filter_by(lms = current_user.lms)
+
+    return staticmethod(filter)
+
 
 class PermissionToLmsUserPanel(L4lLmsModelView):
 
@@ -367,12 +373,14 @@ class LmsPermissionToCoursesPanel(L4lLmsModelView):
 
     form_args = dict(
         permission_to_lms = dict(query_factory = lambda : LmsPermissionToCoursesPanel.permission_to_lms_filter()),
+        course = dict(query_factory = lambda : LmsPermissionToCoursesPanel.course_filter()),
     )
 
 
     def __init__(self, session, **kwargs):
         super(LmsPermissionToCoursesPanel, self).__init__(PermissionToCourse, session, **kwargs)
         LmsPermissionToCoursesPanel.permission_to_lms_filter = create_permission_to_lms_filter(self.session)
+        LmsPermissionToCoursesPanel.course_filter = create_course_filter(self.session)
 
     def get_query(self, *args, **kwargs):
         query_obj = super(LmsPermissionToCoursesPanel, self).get_query(*args, **kwargs)
