@@ -10,7 +10,7 @@ from yaml import load as yload
 
 from wtforms.fields import PasswordField
 
-from flask import request, redirect, url_for, session, Markup, abort, Response
+from flask import request, redirect, url_for, session, Markup, abort, Response, flash
 
 from flask.ext import wtf
 
@@ -157,8 +157,9 @@ class LMSPanel(L4lModelView):
 
     inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
 
-    column_list = ('name', 'url', 'download')
+    column_list = ('full_name', 'name', 'url', 'download')
     column_formatters = dict( download = download )
+    column_descriptions = dict( name = "Institution short name (lower case, all letters, dots and numbers)", full_name = "Name of the institution.")
 
 
     def __init__(self, session, **kwargs):
@@ -371,13 +372,58 @@ class RLMSPanel(L4lModelView):
 
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
+def accessibility_formatter(v, c, lab, p):
+
+    if lab.available:
+        klass = 'btn-danger'
+        msg = 'Make not available'
+    else:
+        klass = 'btn-success'
+        msg = 'Make available'
+
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        <input type='hidden' name='activate' value='%(activate_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <label>Default local identifier: </label>
+                        <input type='text' name='local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.change_accessibility'),
+                        activate_value           = unicode(lab.available).lower(),
+                        lab_id                   = lab.id,
+                        klass                    = klass,
+                        msg                      = msg,
+                        default_local_identifier = lab.default_local_identifier,
+                    ))
+
 class LaboratoryPanel(L4lModelView):
 
-    can_create = False
-    can_edit   = False
+    can_create = can_edit = False
+
+    column_list = ('rlms', 'name', 'laboratory_id', 'visibility', 'availability')
+    column_formatters = dict(availability = accessibility_formatter)
+    column_descriptions = dict(availability = "Make this laboratory automatically available for the Learning Tools")
 
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
+
+    @expose('/lab', methods = ['POST'])
+    def change_accessibility(self):
+        lab_id   = int(request.form['lab_id'])
+        activate = request.form['activate'] == 'true'
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is not None:
+            existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier = request.form['local_identifier']).all()
+            if len(existing_labs) > 0:
+                # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
+                if len(existing_labs) > 1 or lab not in existing_labs:
+                    flash("Local identifier already exists")
+                    return redirect(url_for('.index_view'))
+            lab.available = not activate
+            lab.default_local_identifier = request.form['local_identifier']
+            self.session.add(lab)
+            self.session.commit()
+        return redirect(url_for('.index_view'))
 
 def scorm_formatter(v, c, permission, p):
     

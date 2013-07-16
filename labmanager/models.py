@@ -2,7 +2,7 @@
 
 import hashlib
 
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql, Table
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql, Table, Boolean
 from sqlalchemy.orm import relation, backref, relationship
 
 from flask.ext.login import UserMixin
@@ -132,16 +132,21 @@ class Laboratory(Base, SBBase):
 
     id = Column(Integer, primary_key = True)
 
-    name          = Column(Unicode(50), nullable = False)
-    laboratory_id = Column(Unicode(50), nullable = False)
-    rlms_id       = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
+    name                     = Column(Unicode(50), nullable = False)
+    laboratory_id            = Column(Unicode(50), nullable = False)
+    rlms_id                  = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
+    visibility               = Column(Unicode(50), nullable = False, index = True, default = u'private')
+    available                = Column(Boolean, nullable = False, index = True, default = False)
+    default_local_identifier = Column(Unicode(50), nullable = False, default = u"")
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, name = None, laboratory_id = None, rlms = None):
+    def __init__(self, name = None, laboratory_id = None, rlms = None, visibility = None, available = None):
         self.name          = name
         self.laboratory_id = laboratory_id
         self.rlms          = rlms
+        self.visibility    = visibility
+        self.available     = available
 
     def __unicode__(self):
         return u'%s at %s' % (self.name, self.rlms)
@@ -159,18 +164,20 @@ class Laboratory(Base, SBBase):
 class LMS(Base, SBBase):
 
     __tablename__  = 'lmss'
-    __table_args__ = (UniqueConstraint('name'), )
+    __table_args__ = (UniqueConstraint('name'), UniqueConstraint('full_name'))
 
     id = Column(Integer, primary_key = True)
-    name = Column(Unicode(50), nullable = False, index = True)
-    url = Column(Unicode(300), nullable = False)
+    name      = Column(Unicode(50), nullable = False, index = True)
+    full_name = Column(Unicode(50), nullable = False, index = True)
+    url       = Column(Unicode(300), nullable = False)
 
-    def __init__(self, name = None, url = None):
+    def __init__(self, name = None, full_name = None, url = None):
         self.name = name
+        self.full_name = full_name
         self.url = url
 
     def __repr__(self):
-        return "LMS(%r, %r)" % (self.name, self.url)
+        return "LMS(%r, %r, %r)" % (self.name, self.full_name, self.url)
 
     def __unicode__(self):
         return self.name
@@ -364,15 +371,17 @@ class PermissionToLms(Base, SBBase):
     lms_id        = Column(Integer, ForeignKey('lmss.id'),  nullable = False)
 
     configuration = Column(Unicode(10 * 1024)) # JSON document
+    accessible    = Column(Boolean, nullable = False, index = True, default = False)
 
     laboratory = relation(Laboratory.__name__,  backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
     lms        = relation(LMS.__name__, backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, lms = None, laboratory = None, configuration = None, local_identifier = None):
+    def __init__(self, lms = None, laboratory = None, configuration = None, local_identifier = None, accessible = None):
         self.lms              = lms
         self.laboratory       = laboratory
         self.configuration    = configuration
         self.local_identifier = local_identifier
+        self.accessible       = accessible
 
     def __unicode__(self):
         return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lms.name)
