@@ -1,0 +1,19 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<h1>Graasp Admin Dashboard</h1>
+
+<div class="row">
+    <div class="span8">
+        <p>Hi {{ current_user.full_name }} (of {{ current_user.lms.name }})!</p>
+
+        <p>This is the Graasp administration tool. Here you can:</p>
+        <ul>
+            <li>Create, modify or remove users of school.</li>
+            <li>Grant permissions on these users.</li>
+            <li>Create, modify or remove spaces</li>
+            <li>Grant permissions on these spaces.</li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

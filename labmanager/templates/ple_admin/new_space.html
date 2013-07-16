@@ -1,0 +1,24 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+
+
+<div class="span8">
+<h3>Add a new space</h3>
+
+{% from "_form_helpers.html" import render_field %}
+
+<form action="." method="POST"  class="form-horizontal">
+
+    {{ form.hidden_tag() }}
+
+    {{ render_field(form.url, size = 100) }}
+
+    <div class="form-actions">
+        <button class="btn btn-primary" name="action" type="submit" value="register">Add space</button>
+    </div>
+</form>
+
+</div>
+
+
+{% endblock %}
