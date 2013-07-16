@@ -7,6 +7,10 @@ function SmartGateway(container) {
 
     var me = this;
 
+    // The _mylabid identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
+                     
+    var _mylabid = '{{ url_for(".smartgateway", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
+   
     // Create a unique identifier
     this._identifier = Math.random();
     this._container = container;
@@ -33,9 +37,13 @@ function SmartGateway(container) {
             event: "select",
             type: "json",
             message: {
+                'srclabid'                   : _mylabid,
                 'labmanager-msg'             : 'labmanager::someone-there'
             }
         });
+
+       
+
 
     }
 
@@ -50,6 +58,7 @@ function SmartGateway(container) {
 
         var $button = $("<button id='reserve-button' class='btn btn-success'>Reserve</button>");
         $button.click( me.startReservation );
+
         var $div = $("<div></div>");
         $div.css({
             'text-align'    : 'center',
@@ -57,15 +66,23 @@ function SmartGateway(container) {
             'margin-top'    : '5px',
             'margin-bottom' : '5px'
         });
+
         $div.append($button);
 
         me._container.append($div);
 
         gadgets.window.adjustHeight();
+
+        $(document).hover(me._onHover, me._noHover)
     }
 
     this._onWaitReservationEvent = function(envelope, message) {
-        if (message['labmanager-src'] != me._identifier) { 
+        // Only one widget from the same labid performs each reservation, so the other widgets from the same labid should disable their reserve button.
+
+        var messlabid = message["srclabid"];
+ 
+        if ( (message['labmanager-src'] != me._identifier) && ( messlabid == _mylabid ) )
+        { 
             $('#reserve-button').attr('disabled', 'disabled');
         }
     }
@@ -86,9 +103,60 @@ function SmartGateway(container) {
 
             me._onSomeoneThere(envelope, message);
 
+        } else if (message["labmanager-msg"] == 'labmanager::updateBgColor') {
+
+            me._onUpdateBgColor(envelope, message);
+
         }
         return true;
     }
+
+    this._onHover = function() {
+        var color ="LightGray"
+        document.body.style.backgroundColor=color; 
+
+        // send data
+        gadgets.openapp.publish({
+            event: "select",
+            type: "json",
+            message: {
+                'srclabid'           : _mylabid,
+                'labmanager-msg'    : 'labmanager::updateBgColor',
+                'color'             : color,
+            }
+        });
+    };
+
+    this._noHover = function() {
+        var color ="white"
+        document.body.style.backgroundColor=color; 
+
+        // send data
+        gadgets.openapp.publish({
+            event: "select",
+            type: "json",
+            message: {
+                'srclabid'           : _mylabid,
+                'labmanager-msg'    : 'labmanager::updateBgColor',
+                'color'             : color,
+            }
+        });
+    };
+
+
+    this._onUpdateBgColor = function(envelope, message) {
+        var color = message["color"];
+
+        var messlabid = message["srclabid"];
+ 
+        if (messlabid == _mylabid)
+        {
+            document.body.style.backgroundColor=color; 
+        }
+                 
+        return true;
+    }
+
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -100,7 +168,10 @@ function SmartGateway(container) {
     // 
 
     this._onActivateEvent = function(envelope, message) {
-        if ( me._reservation_id == null ) {
+
+        var messlabid = message["srclabid"];
+
+        if ( ( me._reservation_id == null ) && ( messlabid  == _mylabid ) ) {
             me._reservation_id = message['labmanager-reservation-id'];
             me._loadCallback(me._reservation_id);
         }
@@ -108,11 +179,16 @@ function SmartGateway(container) {
 
 
     this._onSomeoneThere = function(envelope, message) {
-        if ( me._reservation_id != null ) {
+            
+        var messlabid = message["srclabid"];
+ 
+        if ( ( me._reservation_id != null ) && ( messlabid  == _mylabid ) )
+        {
             gadgets.openapp.publish({
                 event: "select",
                 type: "json",
                 message: {
+                    'srclabid'                   : _mylabid,
                     'labmanager-msg'             : 'labmanager::activate',
                     'labmanager-reservation-id'  : me._reservation_id,
                 }
@@ -135,6 +211,7 @@ function SmartGateway(container) {
                 event: "select",
                 type: "json",
                 message: {
+                    'srclabid'                   : _mylabid,
                     'labmanager-msg'             : 'labmanager::activate',
                     'labmanager-reservation-id'  : reservation_id,
                 }
@@ -155,6 +232,7 @@ function SmartGateway(container) {
                 event: "select",
                 type: "json",
                 message: {
+                    'srclabid'                   : _mylabid,
                     'labmanager-msg'             : 'labmanager::wait_reservation',
                     'labmanager-src'             : me._identifier
                 }
