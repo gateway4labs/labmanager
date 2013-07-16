@@ -372,13 +372,47 @@ class RLMSPanel(L4lModelView):
 
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
+def accessibility_formatter(v, c, lab, p):
+
+    if lab.available:
+        klass = 'btn-danger'
+        msg = 'Make not available'
+    else:
+        klass = 'btn-success'
+        msg = 'Make available'
+
+    return Markup("""<form method='POST' action='%(url)s'>
+                        <input type='hidden' name='activate' value='%(activate_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url            = url_for('.change_accessibility'),
+                        activate_value = unicode(lab.available).lower(),
+                        lab_id         = lab.id,
+                        klass          = klass,
+                        msg            = msg,
+                    ))
+
 class LaboratoryPanel(L4lModelView):
 
-    can_create = False
-    can_edit   = False
+    can_create = can_edit = False
+
+    column_list = ('rlms', 'name', 'laboratory_id', 'visibility', 'availability')
+    column_formatters = dict(availability = accessibility_formatter)
 
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
+
+    @expose('/lab', methods = ['POST'])
+    def change_accessibility(self):
+        lab_id   = int(request.form['lab_id'])
+        activate = request.form['activate'] == 'true'
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is not None:
+            lab.available = not activate
+            self.session.add(lab)
+            self.session.commit()
+        return redirect(url_for('.index_view'))
 
 def scorm_formatter(v, c, permission, p):
     

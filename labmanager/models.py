@@ -136,14 +136,16 @@ class Laboratory(Base, SBBase):
     laboratory_id = Column(Unicode(50), nullable = False)
     rlms_id       = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
     visibility    = Column(Unicode(50), nullable = False, index = True, default = u'private')
+    available     = Column(Boolean, nullable = False, index = True, default = False)
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, name = None, laboratory_id = None, rlms = None, visibility = None):
+    def __init__(self, name = None, laboratory_id = None, rlms = None, visibility = None, available = None):
         self.name          = name
         self.laboratory_id = laboratory_id
         self.rlms          = rlms
         self.visibility    = visibility
+        self.available     = available
 
     def __unicode__(self):
         return u'%s at %s' % (self.name, self.rlms)
