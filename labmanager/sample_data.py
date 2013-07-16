@@ -78,7 +78,7 @@ def add_sample_users():
     #     LMS 1: Using LTI
     #    
 
-    lms1 = LMS(name = u"Deusto Moodle (LTI)",
+    lms1 = LMS(full_name = u"Deusto Moodle (LTI)", name = "deusto",
                      url = u"http://alud2.deusto.es/")
     db_session.add(lms1)
 
@@ -111,7 +111,7 @@ def add_sample_users():
     #    
 
 
-    lms2 = LMS(name = u"Ilias Stuttgart (LTI)",
+    lms2 = LMS(full_name = u"Ilias Stuttgart (LTI)", name = "stuttgart",
                      url = u"https://ilias3.uni-stuttgart.de")
     db_session.add(lms2)
 
@@ -141,7 +141,7 @@ def add_sample_users():
     #     LMS 3: Using Basic HTTP
     #    
 
-    lms3 = LMS(name = u"UNED aLF (HTTP)",
+    lms3 = LMS(full_name = u"UNED aLF (HTTP)", name = "uned",
                      url = u"https://www.innova.uned.es/")
     db_session.add(lms3)
 
@@ -169,7 +169,7 @@ def add_sample_users():
     #     LMS 4: Using Shindig, school 1
     #    
 
-    lms4 = LMS(name = u"School 1 at Graasp", url = u"http://graasp.epfl.ch/")
+    lms4 = LMS(full_name = u"School 1 at Graasp", name = "school1", url = u"http://graasp.epfl.ch/")
     db_session.add(lms4)
 
     credential = ShindigCredentials(lms = lms4, shindig_url = 'http://shindig.epfl.ch')
@@ -196,7 +196,7 @@ def add_sample_users():
     #     LMS 5: Using Shindig, school 2
     #    
 
-    lms5 = LMS(name = u"School 2 at Graasp", url = u"http://graasp.epfl.ch/")
+    lms5 = LMS(full_name = u"School 2 at Graasp", name = "school2", url = u"http://graasp.epfl.ch/")
     db_session.add(lms5)
 
     credential = ShindigCredentials(lms = lms5, shindig_url = 'http://shindig.epfl.ch')

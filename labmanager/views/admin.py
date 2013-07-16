@@ -157,8 +157,9 @@ class LMSPanel(L4lModelView):
 
     inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
 
-    column_list = ('name', 'url', 'download')
+    column_list = ('full_name', 'name', 'url', 'download')
     column_formatters = dict( download = download )
+    column_descriptions = dict( name = "Institution short name (lower case, all letters, dots and numbers)", full_name = "Name of the institution.")
 
 
     def __init__(self, session, **kwargs):
