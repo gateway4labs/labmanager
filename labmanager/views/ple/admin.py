@@ -246,11 +246,9 @@ def parse_space_url(url):
             space_name = url.split('url=')[1]
             json_file = 'http://graasp.epfl.ch/item3a/' + space_name + '.json'
             json_response = urllib2.urlopen(json_file)
-            html_space = json_response.read()
-
-            if 'space_id' in html_space:
-                space_id=html_space.split('"space_id":')[1]
-                context_id=space_id[:4]
+            contents=json.loads(json_response.read())
+            
+            context_id=contents['id']
 
             return context_id
 
