@@ -67,12 +67,19 @@ def favicon():
 
 @app.route("/")
 def index():
-    # if login
-    #  redirect /admin
-    # else
-    #  redirect /login
     """Global index for the whole application."""
     return render_template("index.html")
+
+@app.route("/developers")
+def developers():
+    """Developer information about gateway4labs."""
+    return render_template("developers.html")
+
+@app.route("/about")
+def about():
+    """Global information about gateway4labs."""
+    return render_template("about.html")
+
 
 @app.teardown_request
 def shutdown_session(exception = None):

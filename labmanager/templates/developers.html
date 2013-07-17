@@ -1,0 +1,18 @@
+{% set title = "Developers" %}
+{% set current_link = "developers" %}
+{% extends "layout.html" %}
+{% block body_container %}
+        <div class="row">
+            <div class="hero-unit" align="center">
+                <p><img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="Gateway4labs Logo" /></p> 
+                <p>You have more technical information at <a href="http://gateway4labs.readthedocs.org">http://gateway4labs.readthedocs.org/</a></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span4">
+                <h2>LMSs</h2>
+                <p>LMSs will forward SCORM requests to the Lab Manager, which will process them</p>
+                <p><a href="{{ url_for('basic_auth.requests') }}">URL for LMSs</a></p>
+            </div>
+        </div>
+{% endblock %}

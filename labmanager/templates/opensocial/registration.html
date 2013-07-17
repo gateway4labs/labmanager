@@ -1,0 +1,35 @@
+{% set title = 'Registration' %}
+{% set current_link = 'home' %}
+{% extends 'layout.html' %}
+{% block body_container %}
+
+
+<div class="span8">
+<h3>Register your school</h3>
+
+<br/>
+<p>If you are using <a href="http://graasp.epfl.ch/">Graasp</a>, register here to access remote laboratories.</p>
+<br/>
+
+{% from "_form_helpers.html" import render_field %}
+
+<form action="." method="POST"  class="form-horizontal">
+
+    {{ form.hidden_tag() }}
+
+    {{ render_field(form.full_name) }}
+    {{ render_field(form.short_name) }}
+    {{ render_field(form.url) }}
+    {{ render_field(form.user_full_name) }}
+    {{ render_field(form.user_login) }}
+    {{ render_field(form.user_password) }}
+
+    <div class="form-actions">
+        <button class="btn btn-primary" name="action" type="submit" value="register">Register your school!</button>
+    </div>
+</form>
+
+</div>
+
+
+{% endblock %}

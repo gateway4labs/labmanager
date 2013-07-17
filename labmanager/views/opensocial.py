@@ -1,11 +1,13 @@
 import json
 import urllib2
+import hashlib
 import threading
 
-from flask import Blueprint, request, redirect, render_template
+from flask import Blueprint, request, redirect, render_template, url_for
+from flask.ext.wtf import Form, validators, TextField, PasswordField, ValidationError
 
 from labmanager.db import db_session
-from labmanager.models import LMS, PermissionToLms
+from labmanager.models import LMS, PermissionToLms, LmsUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
 
 SHINDIG = threading.local()
@@ -144,4 +146,50 @@ def open_widget(institution_id, lab_name, widget_name):
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
 
+class RegistrationForm(Form):
+
+    full_name  = TextField('School name', [validators.Length(min=4, max=50), validators.Required()], description = "School name.")
+    short_name = TextField('Short name', [validators.Length(min=4, max=15), validators.Required()], description = "Short name (lower case, all letters, dots and numbers).")
+    url        = TextField('School URL', [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = "Address of your school.")
+
+    user_full_name  = TextField('User name', [validators.Length(min=4, max=15), validators.Required()], description = "Your name and last name.")
+    user_login      = TextField('Login', [validators.Length(min=4, max=15), validators.Required()], description = "Your new login (you can create more later).")
+    user_password   = PasswordField('Password', [validators.Length(min=4, max=15), validators.Required()], description = "Your new login (you can create more later).")
+
+    def validate_short_name(form, field):
+        for c in field.data:
+            if c not in 'abcdefghijklmnopqrstuvwxyz._0123456789':
+                raise ValidationError('Invalid character found: %s' % c)
+
+    validate_login = validate_short_name
+
+
+@opensocial_blueprint.route("/register/", methods = ['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        errors = False
+        if db_session.query(LMS).filter_by(name = form.short_name.data).first():
+            form.short_name.errors.append("This name is already taken")
+            errors = True
+        if db_session.query(LMS).filter_by(full_name = form.full_name.data).first():
+            form.full_name.errors.append("This name is already taken")
+            errors = True
+        if not errors:
+            lms = LMS(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)
+            shindig_credentials = ShindigCredentials(lms = lms, shindig_url = 'http://shindig.epfl.ch')
+            lms_user = LmsUser(login = form.user_login.data, full_name = form.user_full_name.data, lms = lms, access_level = 'admin')
+            lms_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
+
+            for lab in db_session.query(Laboratory).filter_by(available = True).all():
+                permission_to_lms = PermissionToLms(lms = lms, laboratory = lab, local_identifier = lab.default_local_identifier)
+                db_session.add(permission_to_lms)
+
+            db_session.add(lms)
+            db_session.add(shindig_credentials)
+            db_session.add(lms_user)
+            db_session.commit()
+            return redirect(url_for('login_lms', next = url_for('ple_admin.index')) )
+        
+    return render_template("opensocial/registration.html", form = form)
 
