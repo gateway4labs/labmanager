@@ -161,7 +161,7 @@ class RegistrationForm(Form):
             if c not in 'abcdefghijklmnopqrstuvwxyz._0123456789':
                 raise ValidationError('Invalid character found: %s' % c)
 
-    validate_login = validate_short_name
+    validate_user_login = validate_short_name
 
 
 @opensocial_blueprint.route("/register/", methods = ['GET', 'POST'])

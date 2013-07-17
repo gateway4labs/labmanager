@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <title>LMS login</title>
+    <title>Institution login</title>
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
@@ -59,11 +59,11 @@
 
             <form action="{{url_for('login_lms', next=next)}}" method="POST" class="form-horizontal">
                 <div id="legend">
-                      <legend class="">LMS Login</legend>
+                      <legend class="">Institution Login</legend>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="lms_select">LMS</label>
+                    <label class="control-label" for="lms_select">Institution</label>
                     <div class="controls">
                         <select id="lms_select" name="lms">
                             {% for lms in lmss %}

@@ -230,21 +230,24 @@ class SpaceUrlForm(Form):
     url = TextField('Space URL', [validators.Length(min=6, max=200),
                         validators.URL()], description = "Drop here the URL of the Space.", default = "http://graasp.epfl.ch/#item=space_1234")
 
-def create_new_space(numeric_identifier):
+def retrieve_space_name(numeric_identifier):
     # Retrieve the space name from Shindig
     shindig_url = current_user.lms.shindig_credentials[0].shindig_url
     shindig_space_url = '%s/rest/spaces/%s' % (shindig_url, numeric_identifier)
     shindig_space_contents_json = urllib2.urlopen(shindig_space_url).read()
     shindig_space_contents = json.loads(shindig_space_contents_json)
-    space_name = shindig_space_contents['entry']['displayName']
+    space_name = shindig_space_contents.get('entry', {}).get('displayName')
+    return space_name
 
+
+def create_new_space(numeric_identifier, space_name):
     # Create the space
     context_id = unicode(numeric_identifier)
     course = Course(name = space_name, lms = current_user.lms, context_id = context_id)
 
     # Add it to the database
     db_session.add(course)
-    db_session.commit()
+    return course
 
 def parse_space_url(url):
     """ Given a Graasp URL, retrieve the space identifier (a number) """
@@ -263,15 +266,53 @@ class PleNewSpacesPanel(L4lPleView):
     @expose(methods = ['GET', 'POST'])
     def index(self):
         form = SpaceUrlForm()
+
+        permissions = current_user.lms.lab_permissions
+        lab_ids = dict([ 
+                (permission.local_identifier, { 
+                            'name' : permission.laboratory.name, 
+                            'checked' : request.form.get('lab_%s' % permission.local_identifier, 'off') in ('checked', 'on')
+                        }) 
+                for permission in permissions ])
+
+        request_space_name = False
+
         if form.validate_on_submit():
             try:
                 context_id = parse_space_url(form.url.data)
             except Exception as e:
                 form.url.errors.append(e.message)
             else:
-                create_new_space(context_id)
-                return redirect(url_for('ple_admin_courses.index_view'))
-        return self.render("ple_admin/new_space.html", form = form)
+                existing_course = self.session.query(Course).filter_by(lms = current_user.lms, context_id = context_id).first()
+                if existing_course:
+                    form.url.errors.append(u"Space already registered")
+                else:
+                    space_name = retrieve_space_name(context_id)
+                    # If space_name can not be retrieved (e.g., a closed or hidden space)
+                    if not space_name:
+                        # Try to get it from the form.
+                        space_name = request.form.get('space_name')
+
+                    # If it was possible, add the new space
+                    if space_name:
+                        course = create_new_space(context_id, space_name or 'Invalid name')
+
+                        labs_to_grant = [ lab_id for lab_id in lab_ids if lab_ids[lab_id]['checked'] ]
+
+                        for lab_to_grant in labs_to_grant:
+                            permission = [ permission for permission in permissions if permission.local_identifier == lab_to_grant ][0]
+                            permission_to_course = PermissionToCourse(course = course, permission_to_lms = permission)
+                            db_session.add(permission_to_course)
+
+                        db_session.commit()
+
+                        return redirect(url_for('ple_admin_courses.index_view'))
+
+                    # But if it was not possible to add it, add a new field called space_name
+                    else:
+                        request_space_name = True
+
+        return self.render("ple_admin/new_space.html", form = form, lab_ids = lab_ids, request_space_name = request_space_name)
 
 class PlePermissionToSpacePanel(L4lPleModelView):
 
