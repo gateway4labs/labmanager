@@ -251,6 +251,8 @@ def create_new_space(numeric_identifier, space_name):
 
 def parse_space_url(url):
     """ Given a Graasp URL, retrieve the space identifier (a number) """
+
+    # This is done in a different way if the space url ends with a number (the url contains space_) or if the url ends with a text (the url contains  url=)
     if 'space_' in url:
         try:
             context_id = int(url.split('space_')[1])
@@ -258,6 +260,21 @@ def parse_space_url(url):
             raise Exception("Invalid format. Expected space_NUMBER")
         else:
             return context_id
+
+    elif 'url=' in url:
+        try:
+            space_name = url.split('url=')[1]
+            json_file = 'http://graasp.epfl.ch/item3a/' + space_name + '.json'
+            json_response = urllib2.urlopen(json_file)
+            contents=json.loads(json_response.read())
+            
+            context_id=contents['id']
+
+            return context_id
+
+        except:
+            raise Exception("Invalid format. Expected a valid Graasp space URL")
+
     raise Exception("Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING")
    
 
