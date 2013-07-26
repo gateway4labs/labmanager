@@ -80,21 +80,32 @@ def reserve(institution_id, lab_name):
     spaces = [space_id]
     get_parent_spaces(space_id, spaces)
 
-    # Now: check for that institution if there is a permission identified by that lab_name,
-    # and check which courses (spaces in OpenSocial) have that permission.
 
-    permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
-    if permission is None:
-        return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
+    # Now, check permissions. First, check default permissions (e.g. the lab is accessible for everyone without specifying any Graasp space, institutions, or whatever). 
+    # After that, in the case that there are not default permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
 
-    courses_configurations = []
-    for course_permission in permission.course_permissions:
-        if course_permission.course.context_id in spaces:
-            # Let the server choose among the best possible configuration
-            courses_configurations.append(course_permission.configuration)
+    default_permission = db_session.query(PermissionToLms).filter_by(local_identifier = lab_name, accessible = True).first()
+    if default_permission is None:
+        permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
+        if permission is None:
+            return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
 
-    if len(courses_configurations) == 0:
-        return render_template("opensocial/errors.html", message = "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces)
+        courses_configurations = []
+        for course_permission in permission.course_permissions:
+            if course_permission.course.context_id in spaces:
+                # Let the server choose among the best possible configuration
+                courses_configurations.append(course_permission.configuration)
+
+        if len(courses_configurations) == 0:
+            return render_template("opensocial/errors.html", message = "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces)
+
+    else:
+        # There is a default permission for that lab
+        permission = default_permission
+        # No need to check the context_id prior to append the course configuration in this case since the lab is accessible for everybody. We take the first item in the course_permissions since there will only be one.
+        course_permission = permission.course_permissions[0]
+        courses_configurations.append(course_permission.configuration)
+ 
 
     ple_configuration = permission.configuration
     db_laboratory     = permission.laboratory
