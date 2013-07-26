@@ -1,5 +1,0 @@
-base_url = 'http://localhost:5000'
-user     = 'uned'
-password = 'password'
-course   = 'my course 1'
-lab      = 'unr'
