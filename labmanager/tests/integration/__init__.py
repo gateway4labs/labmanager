@@ -57,10 +57,12 @@ class IntegrationTestCase(object):
             self.assertEqual([], self.verificationErrors)
         finally:
             try:
+                self.flask_process.terminate()
                 self.flask_process.kill()
             except OSError: # Already killed
                 print "Error killing"
-                pass
+            
+            self.flask_process.wait()
 
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
