@@ -7,6 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import os, sys
+import optparse
 
 # 
 # Import the Flask global application and the configuration
@@ -74,6 +75,24 @@ def bootstrap():
 def run():
     bootstrap()
 
-    port = int(os.environ.get('PORT', 5000))
+    parser = optparse.OptionParser(usage =  "Run in development mode the LabManager. In production, please use WSGI.")
+
+    parser.add_option('-p', '--port', dest='port', metavar="PORT",
+                        help="Port to be used",
+                        type='int', default=5000)
+
+    parser.add_option('--register-fake-rlms', dest='register_fake_rlms', help="Register the fake RLMS", default=False, action='store_true')
+    parser.add_option('--testing', dest='testing', help="Enter in testing mode", default=False, action='store_true')
+    
+    args, _ = parser.parse_args() 
+    if args.register_fake_rlms:
+        from labmanager.tests.unit.fake_rlms import register_fake
+        register_fake()
+
+    if args.testing:
+        app.config['TESTING'] = True
+        app.config['CSRF_ENABLED'] = False
+
+    port = int(os.environ.get('PORT', args.port))
     app.run(host='0.0.0.0', port=port, threaded = True)
 
