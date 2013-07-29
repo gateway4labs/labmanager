@@ -114,6 +114,7 @@ def reserve(institution_id, lab_name):
     
     response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
+                                                institution               = institution.name,
                                                 general_configuration_str = ple_configuration,
                                                 particular_configurations = courses_configurations,
                                                 request_payload           = request_payload,

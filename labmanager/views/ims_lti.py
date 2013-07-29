@@ -113,6 +113,7 @@ def launch_experiment():
 
     response = remote_laboratory.reserve(db_laboratory.laboratory_id,
                                          author,
+                                         p_to_lms.lms.name,
                                          lms_configuration,
                                          courses_configurations,
                                          request_payload,
