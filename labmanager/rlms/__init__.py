@@ -26,6 +26,9 @@ class Laboratory(object):
         self.name          = name
         self.laboratory_id = laboratory_id
 
+    def __hash__(self):
+        return hash(self.laboratory_id)
+
 def register(name, versions, module_name):
     _RLMSs[name] = (module_name, versions)
 
