@@ -84,7 +84,7 @@ def reserve(institution_id, lab_name):
     # Now, check permissions. First, check default permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
     # After that, in the case that there are not default permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
 
-    default_permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name, accessible = True).first()
+    default_permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name, accessible = 'true').first()
     courses_configurations = []
     if default_permission is None:
         permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()

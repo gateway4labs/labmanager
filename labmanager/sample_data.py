@@ -196,7 +196,7 @@ def add_sample_users():
     #     LMS 5: Using Shindig, school 2
     #    
 
-    lms5 = LMS(full_name = u"School 2 at Graasp accessible", name = "school2", url = u"http://graasp.epfl.ch/")
+    lms5 = LMS(full_name = u"School 2 at Graasp", name = "school2", url = u"http://graasp.epfl.ch/")
     db_session.add(lms5)
 
     credential = ShindigCredentials(lms = lms5, shindig_url = 'http://shindig.epfl.ch')
@@ -207,7 +207,7 @@ def add_sample_users():
 
     db_session.add(lms_admin5)
 
-    permission_to_lms5 = PermissionToLms(lms = lms5, laboratory = robot_lab, configuration = '', local_identifier = 'robot', accessible = True)
+    permission_to_lms5 = PermissionToLms(lms = lms5, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
     db_session.add(permission_to_lms5)
 
     course1 = Course(name = "Other physics course", lms = lms5, context_id = "1236")
