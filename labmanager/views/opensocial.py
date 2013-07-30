@@ -81,16 +81,16 @@ def reserve(institution_id, lab_name):
     get_parent_spaces(space_id, spaces)
 
 
-    # Now, check permissions. First, check default permissions (e.g. the lab is accessible for everyone without specifying any Graasp space, institutions, or whatever). 
+    # Now, check permissions. First, check default permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
     # After that, in the case that there are not default permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
 
-    default_permission = db_session.query(PermissionToLms).filter_by(local_identifier = lab_name, accessible = True).first()
+    default_permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name, accessible = True).first()
+    courses_configurations = []
     if default_permission is None:
         permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
         if permission is None:
             return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
-
-        courses_configurations = []
+        
         for course_permission in permission.course_permissions:
             if course_permission.course.context_id in spaces:
                 # Let the server choose among the best possible configuration
@@ -101,11 +101,12 @@ def reserve(institution_id, lab_name):
 
     else:
         # There is a default permission for that lab
+        
         permission = default_permission
         # No need to check the context_id prior to append the course configuration in this case since the lab is accessible for everybody. We take the first item in the course_permissions since there will only be one.
         course_permission = permission.course_permissions[0]
         courses_configurations.append(course_permission.configuration)
- 
+
 
     ple_configuration = permission.configuration
     db_laboratory     = permission.laboratory
@@ -125,6 +126,7 @@ def reserve(institution_id, lab_name):
     
     response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
+                                                institution               = institution.name,
                                                 general_configuration_str = ple_configuration,
                                                 particular_configurations = courses_configurations,
                                                 request_payload           = request_payload,
