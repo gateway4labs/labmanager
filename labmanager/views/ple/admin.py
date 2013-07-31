@@ -157,8 +157,6 @@ def accessibility_formatter(v, c, lab, p):
     mylms = current_user.lms
     permissions = db_session.query(PermissionToLms).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
 
-    #laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
-
     # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
     if permissions is None:
         currently = 'This lab is NOT accesible'
