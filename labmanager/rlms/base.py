@@ -152,8 +152,8 @@ class BaseRLMS(object):
         """
 
     @abstractmethod
-    def reserve(self, laboratory_id, username, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
-        """reserve(laboratory_id, username, general_configuration_str, particular_configurations, request_payload, user_agent, origin_ip, referer) -> {}
+    def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
+        """reserve(laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties ) -> {}
 
         reserve will request a new reservation for a username called `username` to a laboratory 
         identified by `laboratory_id`. This identifier was provided by the get_laboratories() method.

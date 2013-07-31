@@ -125,9 +125,9 @@ def requests():
             ManagerClass = get_manager_class(rlms_kind, rlms_version)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             
-            # XXX TODO: a dictionary should be passed here so as to enable changing details among versions
             response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                         username                  = author,
+                                                        institution               = db_lms.name, 
                                                         general_configuration_str = lms_configuration,
                                                         particular_configurations = courses_configurations,
                                                         request_payload           = request_payload,
