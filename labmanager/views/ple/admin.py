@@ -448,5 +448,6 @@ def init_ple_admin(app, db_session):
     ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
 
-    app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+    # Uncomment for debugging purposes
+    # app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
