@@ -198,14 +198,7 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     can_create = False
 
     column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible')
-    
-    #  institution not inserted yet
-    #permissions = db_session.query(PermissionToLms).filter_by( local_identifier = local_identifier).first()
-
-    # permissions = db_session.query(PermissionToLms).filter_by(  local_identifier = local_identifier).first()
-
-    #laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
-
+   
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
 
     def __init__(self, session, **kwargs):
