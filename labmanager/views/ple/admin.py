@@ -161,17 +161,20 @@ def accessibility_formatter(v, c, lab, p):
 
     # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
     if permissions is None:
+        currently = 'This lab is NOT accesible'
         labaccessible = 'true'
         klass = 'btn-success'
         msg = 'Make accessible'
 
     else:
+        currently = 'This lab IS accesible'
         labaccessible = 'false'
         klass = 'btn-danger'
         msg = 'Make not accessible'
 
                                        
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        %(currently)s  
                         <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
                         <input type='hidden' name='lmsname' value='%(lmsname)s'/> 
@@ -185,6 +188,7 @@ def accessibility_formatter(v, c, lab, p):
                         klass                    = klass,
                         msg                      = msg,
                         default_local_identifier = lab.default_local_identifier,
+                        currently                = currently,
                     ))
 
 
