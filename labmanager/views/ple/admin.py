@@ -175,17 +175,13 @@ def accessibility_formatter(v, c, lab, p):
                         %(currently)s  
                         <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
-                        <input type='hidden' name='lmsname' value='%(lmsname)s'/> 
-                        <input type='hidden' name='default_local_identifier' value='%(default_local_identifier)s'/> 
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
-                        url                      = url_for('.change_accessibility'),  
-                        lmsname                  = mylms.name,                      
+                        url                      = url_for('.change_accessibility'),                     
                         accessible_value         = labaccessible,
-                        lab_id                   = lab.id,
+                        lab_id                   = lab.id,      
                         klass                    = klass,
                         msg                      = msg,
-                        default_local_identifier = lab.default_local_identifier,
                         currently                = currently,
                     ))
 
@@ -232,28 +228,20 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     @expose('/lab', methods = ['POST'])
     def change_accessibility(self):
         lab_id   = int(request.form['lab_id'])
-        isaccessible = request.form['accessible_value']  == 'true'
-        lmsname = request.form['lmsname']
-
-        lms = self.session.query(LMS).filter_by(name = lmsname).first()
-
-        local_identifier = request.form['default_local_identifier']
-
         lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+
+        isaccessible = request.form['accessible_value']  == 'true'
+        
+        local_identifier = lab.default_local_identifier
+
+        lms = current_user.lms
 
         permissions = db_session.query(PermissionToLms).filter_by( lms = lms, local_identifier = local_identifier).first()
 
-        # Remove existing permissions for a given pair <lms, lab>, in order to avoid integrity problems
-        if permissions is not None:
-            self.session.delete(permissions)
-            self.session.commit()
-        
-        newpermissions = PermissionToLms(lms = lms, laboratory = lab, configuration = '', local_identifier = local_identifier, accessible = isaccessible)
+        permissions.accessible = isaccessible
 
-        self.session.add(newpermissions)
         self.session.commit()
-
-        
+     
         return redirect(url_for('.index_view'))
 
 

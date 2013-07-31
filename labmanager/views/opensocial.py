@@ -108,8 +108,7 @@ def reserve(institution_id, lab_name):
         if len(permission.course_permissions) > 0:
             course_permission = permission.course_permissions[0]
             courses_configurations.append(course_permission.configuration)
-        else:
-            courses_configurations.append("")
+        
 
     ple_configuration = permission.configuration
     db_laboratory     = permission.laboratory
