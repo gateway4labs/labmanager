@@ -104,12 +104,6 @@ def reserve(institution_id, lab_name):
         
         permission = default_permission
 
-        # In the case that there are course permissions, add them
-        if len(permission.course_permissions) > 0:
-            course_permission = permission.course_permissions[0]
-            courses_configurations.append(course_permission.configuration)
-        
-
     ple_configuration = permission.configuration
     db_laboratory     = permission.laboratory
     db_rlms           = db_laboratory.rlms
