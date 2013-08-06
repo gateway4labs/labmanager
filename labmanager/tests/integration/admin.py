@@ -1,6 +1,6 @@
 import unittest
 
-from labmanager.tests.integration import IntegrationTestCase
+from labmanager.tests.integration.base import IntegrationTestCase
 
 # Utility functions. They can be used by other parts of the system
 
@@ -47,6 +47,10 @@ class AdminIntegrationTestCase(IntegrationTestCase, unittest.TestCase):
         labmanager_admin_login(self)
         title = self.driver.find_element_by_tag_name('h1')
         self.assertTrue('LabManager Admin Dashboard' in title.text)
+
+    def test_create_lms(self):
+        labmanager_admin_create_lms(self)
+        
 
 if __name__ == '__main__':
     unittest.main()
