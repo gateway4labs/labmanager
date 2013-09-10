@@ -55,6 +55,15 @@ init_instructor_admin(app, db_session)
 from .views.ple.admin import init_ple_admin
 init_ple_admin(app, db_session)
 
+#
+# Added by ILZ #28
+#
+from .views.ple.instructor import init_ple_instructor_admin
+init_ple_instructor_admin(app, db_session)
+#
+# End modification
+#
+
 # 
 # Initialize login subsystem
 # 

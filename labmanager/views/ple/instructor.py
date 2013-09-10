@@ -6,6 +6,10 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+#
+# Copied from lms\instructor.py and modified in order to create ple\instructor.py
+# Modified by ILZ #28
+#
 
 from flask import request, redirect, url_for, session
 
@@ -48,10 +52,10 @@ class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 #              Index
 # 
 
-class LmsInstructorPanel(L4lPleInstructorIndexView):
+class PleInstructorPanel(L4lPleInstructorIndexView):
     @expose()
     def index(self):
-        return self.render("lms_admin/instructors.html")
+        return self.render("ple_admin/instructors.html")
 
 
 ###############################################################
@@ -84,9 +88,9 @@ class PermissionToPleUserPanel(L4lPleInstructorModelView):
 #              Initialization
 # 
 
-def init_instructor_admin(app, db_session):
+def init_ple_instructor_admin(app, db_session):
     ple_instructor_url = '/ple_instructor'
-    ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = u"PLE instructor", url = ple_instructor_url, endpoint = 'ple-instructor')
+    ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = u"PLEinstructor", url = ple_instructor_url, endpoint = 'ple_instructor')
     ple_instructor.add_view(PermissionToPleUserPanel(db_session, name     = u"Permissions", endpoint = 'ple_instructor_permissions', url = 'permissions'))
     ple_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)

@@ -27,7 +27,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.scorm import get_scorm_object
-from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse
+from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse, LMS
 from labmanager.views import RedirectView, retrieve_courses
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
@@ -136,6 +136,71 @@ def create_course_filter(session):
 
     return staticmethod(filter)
 
+#
+# Modified by ILZ #28
+#
+
+def create_lms_user_filter(session):
+    def filter():
+        return session.query(LmsUser).filter_by(lms = current_user.lms)
+
+    return staticmethod(filter)
+
+class PermissionToPleUserPanel(L4lPleModelView):
+
+    can_edit = False
+
+    lms_user_filter          = None
+    permission_to_lms_filter = None
+
+    form_args = dict(
+        lms_user          = dict(query_factory = lambda : PermissionToPleUserPanel.lms_user_filter()),
+        permission_to_lms = dict(query_factory = lambda : PermissionToPleUserPanel.permission_to_lms_filter()),
+    )
+
+    form_columns = ('lms_user', 'permission_to_lms')
+
+    def __init__(self, session, **kwargs):
+        super(PermissionToPleUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+        PermissionToPleUserPanel.lms_user_filter = create_lms_user_filter(self.session)
+        PermissionToPleUserPanel.permission_to_lms_filter = create_permission_to_lms_filter(self.session)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(PermissionToPleUserPanel, self).get_query(*args, **kwargs)
+        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
+        return query_obj
+
+    def get_count_query(self, *args, **kwargs):
+        query_obj = super(PermissionToPleUserPanel, self).get_count_query(*args, **kwargs)
+        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
+        return query_obj
+
+    def on_model_change(self, form, model):
+
+        existing_permission = self.session.query(PermissionToLmsUser).filter_by(lms_user = model.lms_user, permission_to_lms = model.permission_to_lms).first()
+
+        if existing_permission:
+            raise Exception("Existing permission on that user for that xxxxxxxxxxx")
+
+        key = u'%s_%s_%s' % (current_user.lms, model.lms_user.login, model.permission_to_lms.local_identifier)
+        key = key.lower().replace(' ','_')
+        final_key = u''
+        for c in key:
+            if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-':
+                final_key += c
+            else:
+                final_key += '_'
+
+        # uuid4 returns a random string (based on random functions, not in any characteristic of this computer or network)
+        secret = uuid.uuid4().hex
+    
+        model.key    = final_key
+        model.secret = secret
+
+#
+# End modification
+#
+
 ###############################################
 # 
 #   Laboratories
@@ -151,15 +216,51 @@ def list_widgets_formatter(v, c, laboratory, p):
     return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
 
 
+
+def accessibility_formatter(v, c, lab, p):
+    
+    mylms = current_user.lms
+    permissions = db_session.query(PermissionToLms).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
+
+    # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
+    if permissions is None:
+        currently = 'This lab is NOT accesible'
+        labaccessible = 'true'
+        klass = 'btn-success'
+        msg = 'Make accessible'
+
+    else:
+        currently = 'This lab IS accesible'
+        labaccessible = 'false'
+        klass = 'btn-danger'
+        msg = 'Make not accessible'
+
+                                       
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        %(currently)s  
+                        <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.change_accessibility'),                     
+                        accessible_value         = labaccessible,
+                        lab_id                   = lab.id,      
+                        klass                    = klass,
+                        msg                      = msg,
+                        currently                = currently,
+                    ))
+
+
+
 class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
     can_delete = False
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets')
-
-    column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter )
+    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible')
+   
+    column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
 
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -186,6 +287,30 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
         widgets = rlms.list_widgets(laboratory.laboratory_id)
         return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lms.name, lab_name = local_identifier)
+
+
+
+    @expose('/lab', methods = ['POST'])
+    def change_accessibility(self):
+        lab_id   = int(request.form['lab_id'])
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+
+        isaccessible = request.form['accessible_value']  == 'true'
+        
+        local_identifier = lab.default_local_identifier
+
+        lms = current_user.lms
+
+        permissions = db_session.query(PermissionToLms).filter_by( lms = lms, local_identifier = local_identifier).first()
+
+        permissions.accessible = isaccessible
+
+        self.session.commit()
+     
+        return redirect(url_for('.index_view'))
+
+
+
 
 #################################################
 # 
@@ -372,7 +497,20 @@ def init_ple_admin(app, db_session):
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
     ple_admin.add_view(PlePermissionToSpacePanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
 
-    ple_admin.add_view(PleUsersPanel(db_session,      name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
+#
+# Modified by ILZ #28
+#
+#    ple_admin.add_view(PleUsersPanel(db_session,      name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
+
+    ple_admin.add_view(PleUsersPanel(db_session,      category = u"Users",   name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
+    ple_admin.add_view(PermissionToPleUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'ple_admin_user_permissions', url = 'user_permissions'))
+#
+# End modification
+#
+
     ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
+
+    # Uncomment for debugging purposes
+    # app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 

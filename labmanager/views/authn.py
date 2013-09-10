@@ -104,6 +104,45 @@ def login_lms():
             return render_template('login_lms.html', next=next, lmss=lmss)
     return "Error in create_session"
 
+#
+# Added by ILZ #28
+#
+@app.route('/login/ple/', methods=['GET', 'POST'])
+def login_ple():
+    """Login screen for application"""
+    DEFAULT_NEXT = url_for('ple_admin.index')
+    next = request.args.get('next', DEFAULT_NEXT)
+    lmss = LMS.all()
+
+    if request.method == 'GET':
+        return render_template('login_ple.html', next=next, lmss=lmss)
+
+    if request.method == 'POST' and 'username' in request.form:
+        username = request.form['username']
+        hashed = new_hash("sha", request.form['password']).hexdigest()
+        lms_id = request.form['lms']
+        user = LmsUser.exists(username, hashed, lms_id)
+        if user is not None:
+            if login_user(user):
+                session['loggeduser'] = username
+                session['last_request'] = time()
+                session['usertype'] = 'lms'
+                if next == DEFAULT_NEXT:
+                    if user.access_level == 'instructor':
+                        next = url_for('ple_instructor.index')
+                return redirect(next)
+            else:
+                flash(u'Could not log in.')
+                return render_template('login_ple.html', next=next, lmss=lmss)
+        else:
+            flash(u'Invalid username IRENE.')
+            return render_template('login_ple.html', next=next, lmss=lmss)
+    return "Error in create_session"
+
+#
+# End of ILZ
+#
+
 @app.route("/logout", methods=['GET'])
 @login_required
 def logout():
