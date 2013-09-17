@@ -497,16 +497,7 @@ def init_ple_admin(app, db_session):
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
     ple_admin.add_view(PlePermissionToSpacePanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
 
-#
-# Modified by ILZ #28
-#
-#    ple_admin.add_view(PleUsersPanel(db_session,      name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
-
     ple_admin.add_view(PleUsersPanel(db_session,      category = u"Users",   name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
-    ple_admin.add_view(PermissionToPleUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'ple_admin_user_permissions', url = 'user_permissions'))
-#
-# End modification
-#
 
     ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
