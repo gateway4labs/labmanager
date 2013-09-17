@@ -69,7 +69,13 @@ def add_sample_users():
     rlms_ilab = RLMS(kind = u'iLabs',
                        location = u'MIT',
                        url = u'http://ilab.mit.edu/wiki/',
-                       version = u"1.2.2")
+                       version = u"1.0",
+                       configuration = json.dumps(dict(
+                            sb_guid = 'ISB-247A4591CA1443485D85657CF357',
+                            sb_url  = 'http://ludi.mit.edu/iLabServiceBroker/iLabServiceBroker.asmx',
+                            authority_guid = 'fakeGUIDforRMLStest-12345',
+                            group_name = 'Experiment_Group',
+                       )))
     db_session.add(rlms_ilab)
 
 
