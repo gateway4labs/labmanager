@@ -155,31 +155,32 @@ def list_widgets_formatter(v, c, laboratory, p):
 def accessibility_formatter(v, c, lab, p):
     
     mylms = current_user.lms
-    permissions = db_session.query(PermissionToLms).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
+    permission = db_session.query(PermissionToLms).filter_by(lms = mylms, laboratory = lab).first()
 
-    # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
-    if permissions is None:
+    if not permission:
+        return "Invalid permission"
+
+    if permission.accessible:
+        currently = 'This lab IS accesible'
+        labaccessible = 'false'
+        klass = 'btn-danger'
+        msg = 'Make not accessible'
+    else:
         currently = 'This lab is NOT accesible'
         labaccessible = 'true'
         klass = 'btn-success'
         msg = 'Make accessible'
 
-    else:
-        currently = 'This lab IS accesible'
-        labaccessible = 'false'
-        klass = 'btn-danger'
-        msg = 'Make not accessible'
-
                                        
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         %(currently)s  
                         <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
-                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <input type='hidden' name='permission_to_lms_id' value='%(permission_id)s'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
                         url                      = url_for('.change_accessibility'),                     
                         accessible_value         = labaccessible,
-                        lab_id                   = lab.id,      
+                        permission_id            = permission.id,
                         klass                    = klass,
                         msg                      = msg,
                         currently                = currently,
@@ -227,20 +228,16 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
     @expose('/lab', methods = ['POST'])
     def change_accessibility(self):
-        lab_id   = int(request.form['lab_id'])
-        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
-
-        isaccessible = request.form['accessible_value']  == 'true'
-        
-        local_identifier = lab.default_local_identifier
+        isaccessible = unicode(request.form['accessible_value']).lower() == 'true'
 
         lms = current_user.lms
 
-        permissions = db_session.query(PermissionToLms).filter_by( lms = lms, local_identifier = local_identifier).first()
+        permission_id = int(request.form['permission_to_lms_id'])
+        permission = self.session.query(PermissionToLms).filter_by(id = permission_id, lms = lms).first()
 
-        permissions.accessible = isaccessible
-
-        self.session.commit()
+        if permission:
+            permission.accessible = isaccessible
+            self.session.commit()
      
         return redirect(url_for('.index_view'))
 
