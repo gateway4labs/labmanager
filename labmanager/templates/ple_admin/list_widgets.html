@@ -5,6 +5,8 @@
 
 <p>The laboratory {{ lab_name }} provides the following widgets. Copy the link for each particular widget and locate it in Graasp.</p>
 
+{% if widgets %}
+
 <table class="table table-striped table-bordered">
     <thead>
         <tr>
@@ -33,5 +35,14 @@
         this.select();
     });
 </script>
+
+
+
+{% else %}
+<div class="alert alert-error">
+  <strong>Warning!</strong> No widget available. This might mean that the RLMS plug-in was not properly configured.
+</div>
+
+{% endif %}
 
 {% endblock %}

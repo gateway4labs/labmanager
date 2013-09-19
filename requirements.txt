@@ -14,3 +14,4 @@ alembic==0.6.0
 
 git+https://github.com/gateway4labs/rlms_unr.git
 git+https://github.com/gateway4labs/rlms_weblabdeusto.git
+git+https://github.com/gateway4labs/rlms_ilabs.git
