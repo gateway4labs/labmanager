@@ -32,6 +32,9 @@ from labmanager.views import RedirectView, retrieve_courses
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
 
+from sqlalchemy import func
+ 
+
 config = yload(open('labmanager/config/config.yml'))
 
 
@@ -198,6 +201,8 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
    
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
 
+    column_descriptions = dict( accessible = "Make this laboratory automatically accessible by any Graasp space belonging to the institution represented by this Learning Tool")
+
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
 
@@ -243,6 +248,69 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
 
 
+####### issue 32
+
+
+def local_id_formatter_all_labs(v, c, laboratory, p):
+    
+    return 'N/A'
+
+
+
+def list_widgets_formatter_all_labs(v, c, laboratory, p):
+    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter_all_labs(v, c, laboratory, p)))
+
+
+class PleInstructorAllLaboratoriesPanel(L4lPleModelView):
+
+    can_delete = False
+    can_edit   = False
+    can_create = False
+
+    column_list = ('rlms', 'name', 'laboratory_id', 'request access')
+   
+    def __init__(self, session, **kwargs):
+        super(PleInstructorAllLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(PleInstructorAllLaboratoriesPanel, self).get_query(*args, **kwargs)
+        #laboratories_query = self.session.query(Laboratory).filter_by(available = '1')
+
+        
+        query_obj = query_obj.filter_by(available = '1')
+         
+        # laboratories_query = self.session.query(Laboratory).filter_by(available = '1').join(PermissionToLms).filter_by(lms = current_user.lms)
+
+        return query_obj
+
+    def get_count_query(self, *args, **kwargs):
+        query_obj = super(PleInstructorAllLaboratoriesPanel, self).get_count_query(*args, **kwargs)
+        query_obj = query_obj.filter_by(available = '1')
+        return query_obj
+	
+    @expose("/widgets/<local_identifier>/")
+    def list_widgets(self, local_identifier):
+        laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
+        if laboratory is None:
+            return self.render("ple_admin/errors.html", message = "Laboratory not found")
+
+        rlms_db = laboratory.rlms
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        rlms = RLMS_CLASS(rlms_db.configuration)
+
+        widgets = rlms.list_widgets(laboratory.laboratory_id)
+        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lms.name, lab_name = local_identifier)
+
+
+
+	def remainingLabs(self, laboratories, permissions):
+		remaining_labs = []
+
+		for lab in laboratories:
+			perm = self.session.query(permissions).filter_by(laboratory_id = lab_id)
+			if not perm:
+				remaining_labs.append(lab)
+		return remaining_labs
 
 #################################################
 # 
@@ -423,7 +491,11 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = u"PLE admin", url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
+    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = u"Labs", name = u"Available labs", endpoint = 'ple_admin_labs', url = 'labs'))
+
+
+    ple_admin.add_view(PleInstructorAllLaboratoriesPanel( db_session, category = u"Labs", name = u"Request new labs", endpoint = 'ple_admin_all_labs', url = 'labs/all'))
+
 
     ple_admin.add_view(PleNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
