@@ -94,6 +94,14 @@ class PleAdminPanel(L4lPleAdminIndexView):
 
 class PleUsersPanel(L4lPleModelView):
 
+# Modified by ILZ issue #28
+
+    can_delete = True
+    can_edit   = False
+    can_create = True
+
+# End of modification ILZ
+
     column_list = ('login', 'full_name', 'access_level')
 
     form_columns = ('login', 'full_name', 'access_level', 'password')
@@ -135,71 +143,6 @@ def create_course_filter(session):
         return session.query(Course).filter_by(lms = current_user.lms)
 
     return staticmethod(filter)
-
-#
-# Modified by ILZ #28
-#
-
-def create_lms_user_filter(session):
-    def filter():
-        return session.query(LmsUser).filter_by(lms = current_user.lms)
-
-    return staticmethod(filter)
-
-class PermissionToPleUserPanel(L4lPleModelView):
-
-    can_edit = False
-
-    lms_user_filter          = None
-    permission_to_lms_filter = None
-
-    form_args = dict(
-        lms_user          = dict(query_factory = lambda : PermissionToPleUserPanel.lms_user_filter()),
-        permission_to_lms = dict(query_factory = lambda : PermissionToPleUserPanel.permission_to_lms_filter()),
-    )
-
-    form_columns = ('lms_user', 'permission_to_lms')
-
-    def __init__(self, session, **kwargs):
-        super(PermissionToPleUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
-        PermissionToPleUserPanel.lms_user_filter = create_lms_user_filter(self.session)
-        PermissionToPleUserPanel.permission_to_lms_filter = create_permission_to_lms_filter(self.session)
-
-    def get_query(self, *args, **kwargs):
-        query_obj = super(PermissionToPleUserPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
-        return query_obj
-
-    def get_count_query(self, *args, **kwargs):
-        query_obj = super(PermissionToPleUserPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
-        return query_obj
-
-    def on_model_change(self, form, model):
-
-        existing_permission = self.session.query(PermissionToLmsUser).filter_by(lms_user = model.lms_user, permission_to_lms = model.permission_to_lms).first()
-
-        if existing_permission:
-            raise Exception("Existing permission on that user for that xxxxxxxxxxx")
-
-        key = u'%s_%s_%s' % (current_user.lms, model.lms_user.login, model.permission_to_lms.local_identifier)
-        key = key.lower().replace(' ','_')
-        final_key = u''
-        for c in key:
-            if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-':
-                final_key += c
-            else:
-                final_key += '_'
-
-        # uuid4 returns a random string (based on random functions, not in any characteristic of this computer or network)
-        secret = uuid.uuid4().hex
-    
-        model.key    = final_key
-        model.secret = secret
-
-#
-# End modification
-#
 
 ###############################################
 # 
@@ -252,7 +195,7 @@ def accessibility_formatter(v, c, lab, p):
 
 
 
-class PleInstructorLaboratoriesPanel(L4lPleModelView):
+class PleLaboratoriesPanel(L4lPleModelView):
 
     can_delete = False
     can_edit   = False
@@ -263,15 +206,15 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
 
     def __init__(self, session, **kwargs):
-        super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
+        super(PleLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
-        query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
+        query_obj = super(PleLaboratoriesPanel, self).get_query(*args, **kwargs)
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
-        query_obj = super(PleInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
+        query_obj = super(PleLaboratoriesPanel, self).get_count_query(*args, **kwargs)
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
 
@@ -491,13 +434,13 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = u"PLE admin", url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
+    ple_admin.add_view(PleLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
 
     ple_admin.add_view(PleNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
     ple_admin.add_view(PlePermissionToSpacePanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
 
-    ple_admin.add_view(PleUsersPanel(db_session,      category = u"Users",   name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
+    ple_admin.add_view(PleUsersPanel(db_session,      name = u"Users", endpoint = 'ple_admin_users', url = 'users'))
 
     ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)

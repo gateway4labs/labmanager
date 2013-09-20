@@ -11,13 +11,16 @@
 # Modified by ILZ #28
 #
 
-from flask import request, redirect, url_for, session
+from flask import request, redirect, url_for, session, Markup
 
 from flask.ext.admin import Admin, AdminIndexView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.views import RedirectView
+from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
+from labmanager.models import LMS,Laboratory, PermissionToLms
+from labmanager.rlms import get_manager_class
 
 #################################################################
 # 
@@ -56,8 +59,7 @@ class PleInstructorPanel(L4lPleInstructorIndexView):
     @expose()
     def index(self):
         return self.render("ple_admin/instructors.html")
-
-
+    
 ###############################################################
 #
 #              Permissions for this user
@@ -82,16 +84,123 @@ class PermissionToPleUserPanel(L4lPleInstructorModelView):
         query_obj = query_obj.filter_by(lms_user = current_user)
         return query_obj
 
+###############################################
+# 
+#   Laboratories
+# 
 
-#####################################################################
+def local_id_formatter(v, c, laboratory, p):
+    for permission in laboratory.lab_permissions:
+        if permission.lms == current_user.lms:
+            return permission.local_identifier
+    return 'N/A'
+
+def list_widgets_formatter(v, c, laboratory, p):
+    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+
+
+
+def accessibility_formatter(v, c, lab, p):
+    
+    mylms = current_user.lms
+    permissions = db_session.query(PermissionToLms).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
+
+    # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
+    if permissions is None:
+        currently = 'This lab is NOT accesible'
+        labaccessible = 'true'
+        klass = 'btn-success'
+        msg = 'Make accessible'
+
+    else:
+        currently = 'This lab IS accesible'
+        labaccessible = 'false'
+        klass = 'btn-danger'
+        msg = 'Make not accessible'
+
+                                       
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        %(currently)s  
+                        <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.change_accessibility'),                     
+                        accessible_value         = labaccessible,
+                        lab_id                   = lab.id,      
+                        klass                    = klass,
+                        msg                      = msg,
+                        currently                = currently,
+                    ))
+
+
+
+class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
+
+    can_delete = False
+    can_edit   = False
+    can_create = False
+
+    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets')
+   
+    column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter )
+
+    def __init__(self, session, **kwargs):
+        super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
+
+    def get_query(self, *args, **kwargs):
+#        print current_user
+#        print dir(current_user)
+        query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
+        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        return query_obj
+
+    def get_count_query(self, *args, **kwargs):
+        query_obj = super(PleInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
+        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        return query_obj
+
+    @expose("/widgets/<local_identifier>/")
+    def list_widgets(self, local_identifier):
+        laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
+        if laboratory is None:
+            return self.render("ple_admin/errors.html", message = "Laboratory not found")
+
+        rlms_db = laboratory.rlms
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        rlms = RLMS_CLASS(rlms_db.configuration)
+
+        widgets = rlms.list_widgets(laboratory.laboratory_id)
+        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lms.name, lab_name = local_identifier)
+
+#################################################
+# 
+#   Course management
+# 
+
+class PleInstructorNewSpacesPanel(PleAuthManagerMixin, PleNewSpacesPanel):
+    """PleNewSpacesPanel, but accessible by instructors through PleAuthManagerMixin"""
+
+class PleInstructorSpacesPanel(PleAuthManagerMixin, PleSpacesPanel):
+    """PleSpacesPanel, but accessible by instructors through PleAuthManagerMixin""" 
+
+class PleInstructorPermissionToSpacesPanel(PleAuthManagerMixin, PlePermissionToSpacePanel):
+    """PlePermissionToSpacePanel but accessible by instructors through PleAuthManagerMixin"""
+ 
+####################################################################
 # 
 #              Initialization
-# 
+#
 
 def init_ple_instructor_admin(app, db_session):
     ple_instructor_url = '/ple_instructor'
     ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = u"PLEinstructor", url = ple_instructor_url, endpoint = 'ple_instructor')
-    ple_instructor.add_view(PermissionToPleUserPanel(db_session, name     = u"Permissions", endpoint = 'ple_instructor_permissions', url = 'permissions'))
+    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = u"Laboratories", endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
+    
+    ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
+    ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_instructor_courses', url = 'spaces'))
+    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
+
     ple_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)
 
