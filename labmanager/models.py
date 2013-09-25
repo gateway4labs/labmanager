@@ -350,7 +350,10 @@ class Course(Base, SBBase):
 #   - Permission on LMS (=> LMS)
 #     + Permission on LMS User (may or may not exist)
 #       + Permission on Course
-# 
+#
+#   - RequestPermissionLMS
+#       When a school requests permission to use a lab, and the labmanager admin must grant or reject this request.
+#       If the request is granted, a new entry is created in PermissionToLms 
 
 ########################################################
 # 
@@ -385,6 +388,8 @@ class PermissionToLms(Base, SBBase):
 
     def __unicode__(self):
         return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lms.name)
+
+
 
 
 ########################################################
@@ -455,5 +460,42 @@ class PermissionToCourse(Base, SBBase):
         return u"%s from %s on %s" % (self.course.name,
                                            self.course.lms.name,
                                            self.permission_to_lms)
+
+########################################################
+# 
+#     RequestPermissionLMS
+#
+#     When a school requests permission to use a lab, and the labmanager admin must grant or reject this request.
+#     If the request is granted, a new entry is created in PermissionToLms 
+
+
+class RequestPermissionLMS(Base, SBBase):
+    __tablename__ = 'RequestPermissionLmss'
+    __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), UniqueConstraint('local_identifier', 'lms_id'))
+
+    id = Column(Integer, primary_key = True)
+
+    local_identifier     = Column(Unicode(100), nullable = False, index = True)
+
+    laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
+    lms_id        = Column(Integer, ForeignKey('lmss.id'),  nullable = False)
+
+    configuration = Column(Unicode(10 * 1024)) # JSON document
+    accessible    = Column(Boolean, nullable = False, index = True, default = False)
+
+    laboratory = relation(Laboratory.__name__,  backref = backref('lab_requestpermissions', order_by=id, cascade = 'all,delete'))
+    lms        = relation(LMS.__name__, backref = backref('lab_requestpermissions', order_by=id, cascade = 'all,delete'))
+
+    def __init__(self, lms = None, laboratory = None, configuration = None, local_identifier = None, accessible = None):
+        self.lms              = lms
+        self.laboratory       = laboratory
+        self.configuration    = configuration
+        self.local_identifier = local_identifier
+        self.accessible       = accessible
+
+    def __unicode__(self):
+        return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lms.name)
+
+
 
 
