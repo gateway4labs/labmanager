@@ -27,7 +27,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import LabManagerUser, LmsUser
 # from labmanager.db import db_session as DBS
 
-from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms
+from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms, RequestPermissionLMS
 from labmanager.models import BasicHttpCredentials, LMS, Course, PermissionToLmsUser, ShindigCredentials
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
@@ -133,6 +133,103 @@ class PermissionToLmsUsersPanel(L4lModelView):
 
 
 
+def accept_formatter(v, c, req, p):
+    
+    #request = self.session.query(RequestPermissionLMS).filter(id = req.id).first()
+
+    klass = 'btn-success'
+    msg = 'Accept request'
+                    
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        <input type='hidden' name='request_id' value='%(request_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.accept_request'),                     
+                        klass                    = klass,
+                        msg                      = msg,
+                        request_id               = req.id,
+                      
+                    ))
+
+
+        
+def reject_formatter(v, c, req, p):
+    
+    #request = db_session.query(RequestPermissionLMS).filter_by(lms = current_user.lms, id = lab.id).first()
+
+    klass = 'btn-danger'
+    msg = 'Reject request'
+ 
+                   
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                        <input type='hidden' name='request_id' value='%(request_id)s'/>
+                    </form>""" % dict(
+                        url                      = url_for('.reject_request'),                     
+                        klass                    = klass,
+                        msg                      = msg,
+                        request_id               = req.id,
+                      
+                    ))
+
+class LabRequestsPanel(L4lModelView):
+    # 
+    # TODO: manage configuration
+    # 
+
+    column_list = ('laboratory', 'local_identifier', 'lms', 'accept', 'reject')
+
+    column_formatters = dict( accept = accept_formatter, reject  = reject_formatter )
+
+    column_descriptions = dict(
+                laboratory       = u"The laboratory that has been requested",
+                lms              = u"Learning Management System which created each request",
+                local_identifier = u"Unique identifier for a LMS to access a laboratory",
+            )
+
+
+    def __init__(self, session, **kwargs):
+        super(LabRequestsPanel, self).__init__(RequestPermissionLMS, session, **kwargs)
+
+
+    @expose('/accept_request', methods = ['GET','POST'])
+    def accept_request(self):
+
+        request_id = unicode(request.form['request_id'])
+
+        req = self.session.query(RequestPermissionLMS).filter_by(id = request_id).first()
+    
+        perm = PermissionToLms(lms = req.lms, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
+
+        self.session.add(perm)    
+
+        self.session.delete(req)
+
+        self.session.commit()
+            
+        return redirect(url_for('.index_view'))
+
+    @expose('/reject_request', methods = ['GET','POST'])
+    def reject_request(self):
+
+        request_id = unicode(request.form['request_id'])
+
+        req = self.session.query(RequestPermissionLMS).filter_by(id = request_id).first()
+    
+        perm = PermissionToLms(lms = req.lms, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
+
+        self.session.add(perm)    
+
+        self.session.delete(req)
+
+        self.session.commit()
+            
+        return redirect(url_for('.index_view'))
+
+
+
+
+        
 ##############################################################
 # 
 #    LMS related views
@@ -491,6 +588,7 @@ def init_admin(app, db_session):
     admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
     admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"LMS Permissions",    endpoint = 'lms/permissions'))
     admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS Users",        endpoint = 'lms/users'))
+    admin.add_view(LabRequestsPanel(db_session,   category = u"LMS Management", name = u"LMS Requests",        endpoint = 'lms/requests'))
     # admin.add_view(PermissionToLmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS User permissions",        endpoint = 'lms/users/permissions'))
     # The following two, only for HTTP-based:
     # admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))

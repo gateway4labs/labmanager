@@ -317,11 +317,6 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
      
         return redirect(url_for('.index_view'))
 
-
-
-####### issue 32
-
-
 class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
 
     can_delete = False
