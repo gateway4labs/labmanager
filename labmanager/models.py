@@ -456,4 +456,3 @@ class PermissionToCourse(Base, SBBase):
                                            self.course.lms.name,
                                            self.permission_to_lms)
 
-

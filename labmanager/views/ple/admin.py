@@ -94,6 +94,14 @@ class PleAdminPanel(L4lPleAdminIndexView):
 
 class PleUsersPanel(L4lPleModelView):
 
+# Modified by ILZ issue #28
+
+    can_delete = True
+    can_edit   = False
+    can_create = True
+
+# End of modification ILZ
+
     column_list = ('login', 'full_name', 'access_level')
 
     form_columns = ('login', 'full_name', 'access_level', 'password')
@@ -188,7 +196,7 @@ def accessibility_formatter(v, c, lab, p):
 
 
 
-class PleInstructorLaboratoriesPanel(L4lPleModelView):
+class PleLaboratoriesPanel(L4lPleModelView):
 
     can_delete = False
     can_edit   = False
@@ -199,15 +207,15 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
 
     def __init__(self, session, **kwargs):
-        super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
+        super(PleLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
-        query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
+        query_obj = super(PleLaboratoriesPanel, self).get_query(*args, **kwargs)
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
-        query_obj = super(PleInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
+        query_obj = super(PleLaboratoriesPanel, self).get_count_query(*args, **kwargs)
         query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
         return query_obj
 
@@ -423,13 +431,14 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = u"PLE admin", url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
+    ple_admin.add_view(PleLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
 
     ple_admin.add_view(PleNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
     ple_admin.add_view(PlePermissionToSpacePanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
 
-    ple_admin.add_view(PleUsersPanel(db_session,      name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
+    ple_admin.add_view(PleUsersPanel(db_session,      name = u"Users", endpoint = 'ple_admin_users', url = 'users'))
+
     ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
 
