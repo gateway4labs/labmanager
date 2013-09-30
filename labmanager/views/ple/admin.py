@@ -27,10 +27,13 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.scorm import get_scorm_object
-from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse, LMS
+from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse, LMS, RequestPermissionLMS
 from labmanager.views import RedirectView, retrieve_courses
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
+
+from sqlalchemy import func
+ 
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -173,7 +176,7 @@ def accessibility_formatter(v, c, lab, p):
 
                                        
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
-                        %(currently)s  
+                        %(currently)s <BR>
                         <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
                         <input type='hidden' name='permission_to_lms_id' value='%(permission_id)s'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
@@ -187,6 +190,77 @@ def accessibility_formatter(v, c, lab, p):
                     ))
 
 
+def request_formatter(v, c, lab, p):
+    
+    mylms = current_user.lms
+    
+    
+
+    laboratory_available = db_session.query(Laboratory).filter_by(available = '1', id = lab.id).first()
+
+    permission = db_session.query(PermissionToLms).filter_by(lms = mylms, laboratory = laboratory_available).first()
+    
+    request = db_session.query(RequestPermissionLMS).filter_by(lms = mylms, laboratory = laboratory_available).first()
+    
+    
+    # if there is not a pending request ...
+    if not request:
+
+        if not permission:
+            currently = 'Available for request'
+            lab_request = 'true'
+            klass = 'btn-success'
+            msg = 'Request laboratory'
+            permission_to_lms_id = ''
+            lab_id = lab.id
+
+        else:
+            currently = 'Ready to use'
+            lab_request = 'false'
+            klass = 'btn-danger'
+            msg = 'Delete laboratory'
+            permission_to_lms_id = permission.id
+            lab_id = lab.id
+                
+                   
+        return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        %(currently)s <BR> 
+                        <input type='hidden' name='lab_request' value='%(lab_request)s'/>
+                        <input type='hidden' name='permission_to_lms_id' value='%(permission_to_lms_id)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.lab_request'),                     
+                        lab_request              = lab_request,
+                        permission_to_lms_id     = permission_to_lms_id,
+                        klass                    = klass,
+                        msg                      = msg,
+                        currently                = currently,
+                        lab_id                   = lab_id,
+                    ))
+
+    else: # if there is a pending request, offer the possibility to cancel such request, or wait until the labmanager admin processes it.
+
+        currently = 'Access request pending'
+        klass = 'btn-danger'
+        msg = 'Delete access request'
+        
+                
+        return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        %(currently)s <BR> 
+                        <input type='hidden' name='request_id' value='%(request_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.cancel_lab_request'),                     
+                        currently                = currently,
+                        request_id               = request.id,
+                        klass                    = klass,
+                        msg                      = msg,    
+                    ))
+
+
+        
+
 
 class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
@@ -197,6 +271,8 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible')
    
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
+
+    column_descriptions = dict( accessible = "Make this laboratory automatically accessible by any Graasp space belonging to the institution represented by this Learning Tool")
 
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -241,7 +317,79 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
      
         return redirect(url_for('.index_view'))
 
+class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
 
+    can_delete = False
+    can_edit   = False
+    can_create = False
+
+    column_list = ('rlms', 'name', 'laboratory_id', 'request_access')
+
+
+    column_formatters = dict(request_access = request_formatter)
+
+    column_descriptions = dict( request_access = "Request access to a lab. The Labmanager admin must accept or deny your request.")
+   
+    def __init__(self, session, **kwargs):
+        super(PleInstructorRequestLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
+
+    def get_query(self, *args, **kwargs):
+        query_obj = super(PleInstructorRequestLaboratoriesPanel, self).get_query(*args, **kwargs)
+        #laboratories_query = self.session.query(Laboratory).filter_by(available = '1')
+        
+        query_obj = query_obj.filter_by(available = '1')
+         
+        # laboratories_query = self.session.query(Laboratory).filter_by(available = '1').join(PermissionToLms).filter_by(lms = current_user.lms)
+
+        return query_obj
+
+    def get_count_query(self, *args, **kwargs):
+        query_obj = super(PleInstructorRequestLaboratoriesPanel, self).get_count_query(*args, **kwargs)
+        query_obj = query_obj.filter_by(available = '1')
+        return query_obj
+	
+    @expose('/lab_request', methods = ['GET','POST'])
+    def lab_request(self):
+
+        lab_request = unicode(request.form['lab_request']).lower() == 'true'
+
+        # if lab_request == true, then request the creation of permission. Else, delete the permission over this lab for this lms (no need to ask the labmanager admin to do this).   
+        if lab_request:
+                   
+            lab_id = unicode(request.form['lab_id'])
+            lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+            
+            request_perm = RequestPermissionLMS(lms = current_user.lms, laboratory = lab, local_identifier = lab.default_local_identifier)
+
+            self.session.add(request_perm)    
+
+        else:
+            
+            permission_id = unicode(request.form['permission_to_lms_id'])
+            
+            permission = self.session.query(PermissionToLms).filter_by(id = permission_id).first()
+            
+            self.session.delete(permission)    
+
+        self.session.commit()
+            
+        return redirect(url_for('.index_view'))
+
+       
+
+    @expose('/cancel_lab_request', methods = ['GET','POST'])
+    def cancel_lab_request(self):
+
+        req_id = unicode(request.form['request_id'])
+        req = self.session.query(RequestPermissionLMS).filter_by(id = req_id).first()
+            
+        self.session.delete(req)    
+
+        self.session.commit()
+            
+        return redirect(url_for('.index_view'))
+
+       
 
 
 #################################################
@@ -423,7 +571,11 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = u"PLE admin", url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'ple_admin_labs', url = 'labs'))
+    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = u"Labs", name = u"Available labs", endpoint = 'ple_admin_labs', url = 'labs/available'))
+
+
+    ple_admin.add_view(PleInstructorRequestLaboratoriesPanel( db_session, category = u"Labs", name = u"Request new labs", endpoint = 'ple_admin_request_labs', url = 'labs/request'))
+
 
     ple_admin.add_view(PleNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
