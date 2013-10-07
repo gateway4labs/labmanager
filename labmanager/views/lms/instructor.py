@@ -59,23 +59,23 @@ class LmsInstructorPanel(L4lLmsInstructorIndexView):
 #              Permissions for this user
 #
 
-from labmanager.models import PermissionToLmsUser
+from labmanager.models import PermissionToLtUser
 
 class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
 
     can_create = can_edit = can_delete = False
 
     def __init__(self, session, **kwargs):
-        super(PermissionToLmsUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+        super(PermissionToLmsUserPanel, self).__init__(PermissionToLtUser, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PermissionToLmsUserPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.filter_by(lt_user = current_user)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(PermissionToLmsUserPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.filter_by(lt_user = current_user)
         return query_obj
 
 

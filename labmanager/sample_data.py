@@ -10,8 +10,8 @@ import json
 import hashlib
 
 from .db import db_session, init_db
-from .models import LmsUser, PermissionToLms, Laboratory, PermissionToLmsUser
-from .models import LMS, RLMS, PermissionToCourse, BasicHttpCredentials, ShindigCredentials, Course
+from .models import LtUser, PermissionToLt, Laboratory, PermissionToLtUser
+from .models import LearningTool, RLMS, PermissionToCourse, BasicHttpCredentials, ShindigCredentials, Course
 
 def add_sample_users():
 
@@ -81,147 +81,147 @@ def add_sample_users():
 
     #######################################################
     #     
-    #     LMS 1: Using LTI
+    #     LT 1: Using LTI
     #    
 
-    lms1 = LMS(full_name = u"Deusto Moodle (LTI)", name = "deusto",
+    lt1 = LearningTool(full_name = u"Deusto Moodle (LTI)", name = "deusto",
                      url = u"http://alud2.deusto.es/")
-    db_session.add(lms1)
+    db_session.add(lt1)
 
     password = unicode(hashlib.new('sha', 'password').hexdigest())
 
-    lms_admin      = LmsUser(login="admin", full_name="Administrator", lms = lms1, access_level = 'admin')
-    lms_admin.password = password
-    lms_instructor1 = LmsUser(login="instructor1", full_name="Instructor 1", lms = lms1, access_level = 'instructor')
-    lms_instructor1.password = password
-    lms_instructor2 = LmsUser(login="instructor2", full_name="Instructor 2", lms = lms1, access_level = 'instructor')
-    lms_instructor2.password = password
+    lt_admin      = LtUser(login="admin", full_name="Administrator", lt = lt1, access_level = 'admin')
+    lt_admin.password = password
+    lt_instructor1 = LtUser(login="instructor1", full_name="Instructor 1", lt = lt1, access_level = 'instructor')
+    lt_instructor1.password = password
+    lt_instructor2 = LtUser(login="instructor2", full_name="Instructor 2", lt = lt1, access_level = 'instructor')
+    lt_instructor2.password = password
 
-    permission_to_lms1 = PermissionToLms(lms = lms1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
-    db_session.add(permission_to_lms1)
+    permission_to_lt1 = PermissionToLt(lt = lt1, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lt1)
 
-    db_session.add(lms_admin)
-    db_session.add(lms_instructor1)
-    db_session.add(lms_instructor2)
+    db_session.add(lt_admin)
+    db_session.add(lt_instructor1)
+    db_session.add(lt_instructor2)
 
-    permission_instructor1 = PermissionToLmsUser(permission_to_lms = permission_to_lms1, lms_user = lms_instructor1, key = 'deusto_moodle_instructor1_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
+    permission_instructor1 = PermissionToLtUser(permission_to_lt = permission_to_lt1, lt_user = lt_instructor1, key = 'deusto_moodle_instructor1_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
 
-    permission_instructor2 = PermissionToLmsUser(permission_to_lms = permission_to_lms1, lms_user = lms_instructor2, key = 'deusto_moodle_instructor2_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
+    permission_instructor2 = PermissionToLtUser(permission_to_lt = permission_to_lt1, lt_user = lt_instructor2, key = 'deusto_moodle_instructor2_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
 
     db_session.add(permission_instructor1)
     db_session.add(permission_instructor2)
 
     #######################################################
     #     
-    #     LMS 2: Using LTI, too
+    #     LT 2: Using LTI, too
     #    
 
 
-    lms2 = LMS(full_name = u"Ilias Stuttgart (LTI)", name = "stuttgart",
+    lt2 = LearningTool(full_name = u"Ilias Stuttgart (LTI)", name = "stuttgart",
                      url = u"https://ilias3.uni-stuttgart.de")
-    db_session.add(lms2)
+    db_session.add(lt2)
 
-    lms_admin2   = LmsUser(login="admin", full_name="Administrator", lms = lms2, access_level = 'admin')
-    lms_admin2.password = password
-    lms_instructor1b = LmsUser(login="instructor1", full_name="Instructor 1 (at B)", lms = lms2, access_level = 'instructor')
-    lms_instructor1b.password = password
-    lms_instructor2b = LmsUser(login="instructor2", full_name="Instructor 2 (at B)", lms = lms2, access_level = 'instructor')
-    lms_instructor2b.password = password
+    lt_admin2   = LtUser(login="admin", full_name="Administrator", lt = lt2, access_level = 'admin')
+    lt_admin2.password = password
+    lt_instructor1b = LtUser(login="instructor1", full_name="Instructor 1 (at B)", lt = lt2, access_level = 'instructor')
+    lt_instructor1b.password = password
+    lt_instructor2b = LtUser(login="instructor2", full_name="Instructor 2 (at B)", lt = lt2, access_level = 'instructor')
+    lt_instructor2b.password = password
 
-    db_session.add(lms_admin2)
-    db_session.add(lms_instructor1b)
-    db_session.add(lms_instructor2b)
+    db_session.add(lt_admin2)
+    db_session.add(lt_instructor1b)
+    db_session.add(lt_instructor2b)
 
-    permission_to_lms2 = PermissionToLms(lms = lms2, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
-    db_session.add(permission_to_lms2)
+    permission_to_lt2 = PermissionToLt(lt = lt2, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lt2)
 
-    permission_instructor1b = PermissionToLmsUser(permission_to_lms = permission_to_lms2, lms_user = lms_instructor1b, key = 'ilias_stuttgart_instructor1_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
+    permission_instructor1b = PermissionToLtUser(permission_to_lt = permission_to_lt2, lt_user = lt_instructor1b, key = 'ilias_stuttgart_instructor1_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
 
-    permission_instructor2b = PermissionToLmsUser(permission_to_lms = permission_to_lms2, lms_user = lms_instructor2b, key = 'ilias_stuttgart_instructor2_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
+    permission_instructor2b = PermissionToLtUser(permission_to_lt = permission_to_lt2, lt_user = lt_instructor2b, key = 'ilias_stuttgart_instructor2_robot', secret = 'abcdefghijklmnopqrstuvwxyz')
 
     db_session.add(permission_instructor1b)
     db_session.add(permission_instructor2b)
 
     #######################################################
     #     
-    #     LMS 3: Using Basic HTTP
+    #     LT 3: Using Basic HTTP
     #    
 
-    lms3 = LMS(full_name = u"UNED aLF (HTTP)", name = "uned",
+    lt3 = LearningTool(full_name = u"UNED aLF (HTTP)", name = "uned",
                      url = u"https://www.innova.uned.es/")
-    db_session.add(lms3)
+    db_session.add(lt3)
 
-    credential = BasicHttpCredentials(lms_login = 'uned', lms_password = password, lms = lms3, lms_url = 'http://localhost:5000/fake_list_courses/gateway4labs/list', labmanager_login = 'labmanager', labmanager_password = 'password')
+    credential = BasicHttpCredentials(lt_login = 'uned', lt_password = password, lt = lt3, lt_url = 'http://localhost:5000/fake_list_courses/gateway4labs/list', labmanager_login = 'labmanager', labmanager_password = 'password')
     db_session.add(credential)
 
-    lms_admin3   = LmsUser(login="admin", full_name="Administrator", lms = lms3, access_level = 'admin')
-    lms_admin3.password = password
+    lt_admin3   = LtUser(login="admin", full_name="Administrator", lt = lt3, access_level = 'admin')
+    lt_admin3.password = password
 
-    db_session.add(lms_admin3)
+    db_session.add(lt_admin3)
 
-    permission_to_lms3 = PermissionToLms(lms = lms3, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
-    db_session.add(permission_to_lms3)
+    permission_to_lt3 = PermissionToLt(lt = lt3, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lt3)
 
-    course1 = Course(name = "Physics course", lms = lms3, context_id = "physics")
-    course2 = Course(name = "Robots course", lms = lms3, context_id = "robots")
+    course1 = Course(name = "Physics course", lt = lt3, context_id = "physics")
+    course2 = Course(name = "Robots course", lt = lt3, context_id = "robots")
     db_session.add(course1)
     db_session.add(course2)
 
-    permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms3)
+    permission_to_course = PermissionToCourse(course = course2, permission_to_lt = permission_to_lt3)
     db_session.add(permission_to_course)
 
     #######################################################
     #     
-    #     LMS 4: Using Shindig, school 1
+    #     LT 4: Using Shindig, school 1
     #    
 
-    lms4 = LMS(full_name = u"School 1 at Graasp", name = "school1", url = u"http://graasp.epfl.ch/")
-    db_session.add(lms4)
+    lt4 = LearningTool(full_name = u"School 1 at Graasp", name = "school1", url = u"http://graasp.epfl.ch/")
+    db_session.add(lt4)
 
-    credential = ShindigCredentials(lms = lms4, shindig_url = 'http://shindig.epfl.ch')
+    credential = ShindigCredentials(lt = lt4, shindig_url = 'http://shindig.epfl.ch')
     db_session.add(credential)
 
-    lms_admin4   = LmsUser(login="admin", full_name="Administrator", lms = lms4, access_level = 'admin')
-    lms_admin4.password = password
+    lt_admin4   = LtUser(login="admin", full_name="Administrator", lt = lt4, access_level = 'admin')
+    lt_admin4.password = password
 
-    db_session.add(lms_admin4)
+    db_session.add(lt_admin4)
 
-    permission_to_lms4 = PermissionToLms(lms = lms4, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
-    db_session.add(permission_to_lms4)
+    permission_to_lt4 = PermissionToLt(lt = lt4, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lt4)
 
-    course1 = Course(name = "Physics course", lms = lms4, context_id = "1234")
-    course2 = Course(name = "Robots course", lms = lms4, context_id = "1235")
+    course1 = Course(name = "Physics course", lt = lt4, context_id = "1234")
+    course2 = Course(name = "Robots course", lt = lt4, context_id = "1235")
     db_session.add(course1)
     db_session.add(course2)
 
-    permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms4)
+    permission_to_course = PermissionToCourse(course = course2, permission_to_lt = permission_to_lt4)
     db_session.add(permission_to_course)
 
     #######################################################
     #     
-    #     LMS 5: Using Shindig, school 2
+    #     LT 5: Using Shindig, school 2
     #    
 
-    lms5 = LMS(full_name = u"School 2 at Graasp", name = "school2", url = u"http://graasp.epfl.ch/")
-    db_session.add(lms5)
+    lt5 = LearningTool(full_name = u"School 2 at Graasp", name = "school2", url = u"http://graasp.epfl.ch/")
+    db_session.add(lt5)
 
-    credential = ShindigCredentials(lms = lms5, shindig_url = 'http://shindig.epfl.ch')
+    credential = ShindigCredentials(lt = lt5, shindig_url = 'http://shindig.epfl.ch')
     db_session.add(credential)
 
-    lms_admin5  = LmsUser(login="admin", full_name="Administrator", lms = lms5, access_level = 'admin')
-    lms_admin5.password = password
+    lt_admin5  = LtUser(login="admin", full_name="Administrator", lt = lt5, access_level = 'admin')
+    lt_admin5.password = password
 
-    db_session.add(lms_admin5)
+    db_session.add(lt_admin5)
 
-    permission_to_lms5 = PermissionToLms(lms = lms5, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
-    db_session.add(permission_to_lms5)
+    permission_to_lt5 = PermissionToLt(lt = lt5, laboratory = robot_lab, configuration = '', local_identifier = 'robot')
+    db_session.add(permission_to_lt5)
 
-    course1 = Course(name = "Other physics course", lms = lms5, context_id = "1236")
-    course2 = Course(name = "Other robots course", lms = lms5, context_id = "1237")
+    course1 = Course(name = "Other physics course", lt = lt5, context_id = "1236")
+    course2 = Course(name = "Other robots course", lt = lt5, context_id = "1237")
     db_session.add(course1)
     db_session.add(course2)
 
-    permission_to_course = PermissionToCourse(course = course2, permission_to_lms = permission_to_lms5)
+    permission_to_course = PermissionToCourse(course = course2, permission_to_lt = permission_to_lt5)
     db_session.add(permission_to_course)
 
     db_session.commit()

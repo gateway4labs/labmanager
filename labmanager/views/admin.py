@@ -21,14 +21,10 @@ from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
 
-# LMS, Laboratory and Course declarations are needed for the 'show' view
-# so that sys.modules[__name__] can find it and create the Class object
-# TODO: clean up this part
-from labmanager.models import LabManagerUser, LmsUser
-# from labmanager.db import db_session as DBS
+from labmanager.models import LabManagerUser, LtUser
 
-from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLms, RequestPermissionLMS
-from labmanager.models import BasicHttpCredentials, LMS, Course, PermissionToLmsUser, ShindigCredentials
+from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
+from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
@@ -109,14 +105,14 @@ class UsersPanel(L4lModelView):
     def on_model_change(self, form, model):
         model.password = new_hash("sha", model.password).hexdigest()
 
-class LmsUsersPanel(L4lModelView):
+class LtUsersPanel(L4lModelView):
 
-    column_list = ('lms', 'login', 'full_name', 'access_level')
+    column_list = ('lt', 'login', 'full_name', 'access_level')
 
     def __init__(self, session, **kwargs):
-        super(LmsUsersPanel, self).__init__(LmsUser, session, **kwargs)
+        super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
 
-    form_columns = ('full_name', 'login', 'password', 'access_level', 'lms')
+    form_columns = ('full_name', 'login', 'password', 'access_level', 'lt')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
     form_args = dict( access_level=dict( choices=sel_choices ) )
@@ -126,17 +122,15 @@ class LmsUsersPanel(L4lModelView):
         model.password = new_hash("sha", model.password).hexdigest()
 
 
-class PermissionToLmsUsersPanel(L4lModelView):
+class PermissionToLtUsersPanel(L4lModelView):
 
     def __init__(self, session, **kwargs):
-        super(PermissionToLmsUsersPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+        super(PermissionToLtUsersPanel, self).__init__(PermissionToLtUser, session, **kwargs)
 
 
 
 def accept_formatter(v, c, req, p):
     
-    #request = self.session.query(RequestPermissionLMS).filter(id = req.id).first()
-
     klass = 'btn-success'
     msg = 'Accept request'
                     
@@ -155,8 +149,6 @@ def accept_formatter(v, c, req, p):
         
 def reject_formatter(v, c, req, p):
     
-    #request = db_session.query(RequestPermissionLMS).filter_by(lms = current_user.lms, id = lab.id).first()
-
     klass = 'btn-danger'
     msg = 'Reject request'
  
@@ -177,19 +169,19 @@ class LabRequestsPanel(L4lModelView):
     # TODO: manage configuration
     # 
 
-    column_list = ('laboratory', 'local_identifier', 'lms', 'accept', 'reject')
+    column_list = ('laboratory', 'local_identifier', 'lt', 'accept', 'reject')
 
     column_formatters = dict( accept = accept_formatter, reject  = reject_formatter )
 
     column_descriptions = dict(
                 laboratory       = u"The laboratory that has been requested",
-                lms              = u"Learning Management System which created each request",
-                local_identifier = u"Unique identifier for a LMS to access a laboratory",
+                lt              = u"Learning Management System which created each request",
+                local_identifier = u"Unique identifier for a LT to access a laboratory",
             )
 
 
     def __init__(self, session, **kwargs):
-        super(LabRequestsPanel, self).__init__(RequestPermissionLMS, session, **kwargs)
+        super(LabRequestsPanel, self).__init__(RequestPermissionLT, session, **kwargs)
 
 
     @expose('/accept_request', methods = ['GET','POST'])
@@ -197,9 +189,9 @@ class LabRequestsPanel(L4lModelView):
 
         request_id = unicode(request.form['request_id'])
 
-        req = self.session.query(RequestPermissionLMS).filter_by(id = request_id).first()
+        req = self.session.query(RequestPermissionLT).filter_by(id = request_id).first()
     
-        perm = PermissionToLms(lms = req.lms, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
+        perm = PermissionToLt(lt = req.lt, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
 
         self.session.add(perm)    
 
@@ -214,9 +206,9 @@ class LabRequestsPanel(L4lModelView):
 
         request_id = unicode(request.form['request_id'])
 
-        req = self.session.query(RequestPermissionLMS).filter_by(id = request_id).first()
+        req = self.session.query(RequestPermissionLT).filter_by(id = request_id).first()
     
-        perm = PermissionToLms(lms = req.lms, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
+        perm = PermissionToLt(lt = req.lt, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
 
         self.session.add(perm)    
 
@@ -232,25 +224,25 @@ class LabRequestsPanel(L4lModelView):
         
 ##############################################################
 # 
-#    LMS related views
+#    LT related views
 # 
 
 class BasicHttpCredentialsForm(InlineFormAdmin):
     column_descriptions = dict(
-            lms_login = 'Login of the LMS when contacting the LabManager',
+            lt_login = 'Login of the LT when contacting the LabManager',
         )
 
-    form_overrides = dict(lms_password=PasswordField, labmanager_password=PasswordField)
-    form_columns = ('id', 'lms_login', 'lms_password', 'lms_url', 'labmanager_login', 'labmanager_password')
+    form_overrides = dict(lt_password=PasswordField, labmanager_password=PasswordField)
+    form_columns = ('id', 'lt_login', 'lt_password', 'lt_url', 'labmanager_login', 'labmanager_password')
     excluded_form_fields = ('id',)
 
 
-def download(v, c, lms, p):
-    if len(lms.basic_http_authentications) > 0:
-            return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lms.id)))
+def download(v, c, lt, p):
+    if len(lt.basic_http_authentications) > 0:
+            return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lt.id)))
     return 'N/A'
 
-class LMSPanel(L4lModelView):
+class LTPanel(L4lModelView):
 
     inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
 
@@ -260,15 +252,15 @@ class LMSPanel(L4lModelView):
 
 
     def __init__(self, session, **kwargs):
-        super(LMSPanel, self).__init__(LMS, session, **kwargs)
+        super(LTPanel, self).__init__(LearningTool, session, **kwargs)
         self.local_data = threading.local()
 
     def edit_form(self, obj = None):
-        form = super(LMSPanel, self).edit_form(obj)
+        form = super(LTPanel, self).edit_form(obj)
         self.local_data.basic_http_authentications = {}
         if obj is not None:
             for auth in obj.basic_http_authentications:
-                self.local_data.basic_http_authentications[auth.id] = auth.lms_password
+                self.local_data.basic_http_authentications[auth.id] = auth.lt_password
         return form
 
     def on_model_change(self, form, model):
@@ -280,9 +272,9 @@ class LMSPanel(L4lModelView):
 
     @expose('/<id>/scorm_authentication.zip')
     def scorm_authentication(self, id):
-        lms = self.session.query(LMS).filter_by(id = id).one()
-        if lms.basic_http_authentications:
-            url = lms.basic_http_authentications[0].lms_url or ''
+        lt = self.session.query(LearningTool).filter_by(id = id).one()
+        if lt.basic_http_authentications:
+            url = lt.basic_http_authentications[0].lt_url or ''
         else:
             url = ''
         return get_authentication_scorm(url)
@@ -524,48 +516,48 @@ class LaboratoryPanel(L4lModelView):
 
 def scorm_formatter(v, c, permission, p):
     
-    if permission.lms.basic_http_authentications:
-        return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lms_id = permission.lms.id,  local_id = permission.local_identifier)))
+    if permission.lt.basic_http_authentications:
+        return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lt_id = permission.lt.id,  local_id = permission.local_identifier)))
 
     return 'N/A'
 
-class PermissionToLmsPanel(L4lModelView):
+class PermissionToLtPanel(L4lModelView):
     # 
     # TODO: manage configuration
     # 
 
-    column_list = ('laboratory', 'lms', 'local_identifier', 'configuration', 'SCORM')
+    column_list = ('laboratory', 'lt', 'local_identifier', 'configuration', 'SCORM')
 
     column_descriptions = dict(
                 laboratory       = u"Laboratory",
-                lms              = u"Learning Management System",
-                local_identifier = u"Unique identifier for a LMS to access a laboratory",
+                lt               = u"Learning Management System",
+                local_identifier = u"Unique identifier for a Learning Tool to access a laboratory",
             )
 
     column_formatters = dict( SCORM = scorm_formatter )
 
 
     def __init__(self, session, **kwargs):
-        super(PermissionToLmsPanel, self).__init__(PermissionToLms, session, **kwargs)
+        super(PermissionToLtPanel, self).__init__(PermissionToLt, session, **kwargs)
 
-    @expose('/scorm/<lms_id>/scorm_<local_id>.zip')
-    def get_scorm(self, lms_id, local_id):
-        permission = self.session.query(PermissionToLms).filter_by(lms_id = lms_id, local_identifier = local_id).one()
+    @expose('/scorm/<lt_id>/scorm_<local_id>.zip')
+    def get_scorm(self, lt_id, local_id):
+        permission = self.session.query(PermissionToLt).filter_by(lt_id = lt_id, local_identifier = local_id).one()
         
-        db_lms = permission.lms 
+        db_lt = permission.lt
 
-        if db_lms.basic_http_authentications:
-            url = db_lms.basic_http_authentications[0].lms_url or ''
+        if db_lt.basic_http_authentications:
+            url = db_lt.basic_http_authentications[0].lt_url or ''
         else:
             url = ''
 
-        lms_path = urlparse.urlparse(url).path or '/'
+        lt_path = urlparse.urlparse(url).path or '/'
         extension = '/'
-        if 'gateway4labs/' in lms_path:
-            extension = lms_path[lms_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
-            lms_path  = lms_path[:lms_path.rfind('gateway4labs/')]
+        if 'gateway4labs/' in lt_path:
+            extension = lt_path[lt_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
+            lt_path  = lt_path[:lt_path.rfind('gateway4labs/')]
 
-        contents = get_scorm_object(False, local_id, lms_path, extension)
+        contents = get_scorm_object(False, local_id, lt_path, extension)
         return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})
         
 
@@ -585,14 +577,10 @@ def init_admin(app, db_session):
 
     admin = Admin(index_view = AdminPanel(url=admin_url), name = u"Lab Manager", url = admin_url, endpoint = admin_url)
 
-    admin.add_view(LMSPanel(db_session,        category = u"LMS Management", name = u"LMS",     endpoint = 'lms/lms'))
-    admin.add_view(PermissionToLmsPanel(db_session, category = u"LMS Management", name = u"LMS Permissions",    endpoint = 'lms/permissions'))
-    admin.add_view(LmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS Users",        endpoint = 'lms/users'))
-    admin.add_view(LabRequestsPanel(db_session,   category = u"LMS Management", name = u"LMS Requests",        endpoint = 'lms/requests'))
-    # admin.add_view(PermissionToLmsUsersPanel(db_session,   category = u"LMS Management", name = u"LMS User permissions",        endpoint = 'lms/users/permissions'))
-    # The following two, only for HTTP-based:
-    # admin.add_view(CoursePanel(db_session,     category = u"LMS Management", name = u"Courses", endpoint = 'lms/courses'))
-    # admin.add_view(PermissionPanel(db_session, category = u"LMS Management", name = u"Course permissions", endpoint = 'permissions/course'))
+    admin.add_view(LTPanel(db_session,        category = u"LT Management", name = u"LT",     endpoint = 'lt/lt'))
+    admin.add_view(PermissionToLtPanel(db_session, category = u"LT Management", name = u"LT Permissions",    endpoint = 'lt/permissions'))
+    admin.add_view(LtUsersPanel(db_session,   category = u"LT Management", name = u"LT Users",        endpoint = 'lt/users'))
+    admin.add_view(LabRequestsPanel(db_session,   category = u"LT Management", name = u"LT Requests",        endpoint = 'lt/requests'))
 
     admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
     admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))

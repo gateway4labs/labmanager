@@ -7,7 +7,7 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.wtf import Form, validators, TextField, PasswordField, ValidationError
 
 from labmanager.db import db_session
-from labmanager.models import LMS, PermissionToLms, LmsUser, ShindigCredentials, Laboratory
+from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
 
 SHINDIG = threading.local()
@@ -54,7 +54,7 @@ def smartgateway(institution_id, lab_name):
 def reserve(institution_id, lab_name):
     st = request.args.get('st') or ''
 
-    institution = db_session.query(LMS).filter_by(name = institution_id).first()
+    institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
     if institution is None or len(institution.shindig_credentials) < 1:
         return "This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"
 
@@ -84,10 +84,10 @@ def reserve(institution_id, lab_name):
     # Now, check permissions. First, check default permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
     # After that, in the case that there are not default permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
 
-    default_permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name, accessible = True).first()
+    default_permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
     courses_configurations = []
     if default_permission is None:
-        permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
+        permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
         if permission is None:
             return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
         
@@ -138,11 +138,11 @@ def reserve(institution_id, lab_name):
 def open_widget(institution_id, lab_name, widget_name):
     reservation_id = request.args.get('reservation_id') or 'reservation-id-not-found'
 
-    institution = db_session.query(LMS).filter_by(name = institution_id).first()
+    institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
     if institution is None or len(institution.shindig_credentials) == 0:
         return "Institution not found or it does not support Shindig"
 
-    permission = db_session.query(PermissionToLms).filter_by(lms = institution, local_identifier = lab_name).first()
+    permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
     db_laboratory     = permission.laboratory
     db_rlms           = db_laboratory.rlms
     rlms_version      = db_rlms.version
@@ -178,25 +178,25 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         errors = False
-        if db_session.query(LMS).filter_by(name = form.short_name.data).first():
+        if db_session.query(LearningTool).filter_by(name = form.short_name.data).first():
             form.short_name.errors.append("This name is already taken")
             errors = True
-        if db_session.query(LMS).filter_by(full_name = form.full_name.data).first():
+        if db_session.query(LearningTool).filter_by(full_name = form.full_name.data).first():
             form.full_name.errors.append("This name is already taken")
             errors = True
         if not errors:
-            lms = LMS(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)
-            shindig_credentials = ShindigCredentials(lms = lms, shindig_url = 'http://shindig.epfl.ch')
-            lms_user = LmsUser(login = form.user_login.data, full_name = form.user_full_name.data, lms = lms, access_level = 'admin')
-            lms_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
+            lt = LearningTool(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)
+            shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'http://shindig.epfl.ch')
+            lt_user = LtUser(login = form.user_login.data, full_name = form.user_full_name.data, lt = lt, access_level = 'admin')
+            lt_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
 
             for lab in db_session.query(Laboratory).filter_by(available = True).all():
-                permission_to_lms = PermissionToLms(lms = lms, laboratory = lab, local_identifier = lab.default_local_identifier)
-                db_session.add(permission_to_lms)
+                permission_to_lt = PermissionToLt(lt = lt, laboratory = lab, local_identifier = lab.default_local_identifier)
+                db_session.add(permission_to_lt)
 
-            db_session.add(lms)
+            db_session.add(lt)
             db_session.add(shindig_credentials)
-            db_session.add(lms_user)
+            db_session.add(lt_user)
             db_session.commit()
             return redirect(url_for('login_lms', next = url_for('ple_admin.index')) )
         

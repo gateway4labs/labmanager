@@ -14,7 +14,7 @@ from flask.ext.login import LoginManager, login_user, logout_user, login_require
 
 
 from ..application import app
-from ..models import LabManagerUser, LmsUser, LMS
+from ..models import LabManagerUser, LtUser, LearningTool
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
@@ -22,19 +22,18 @@ login_manager.session_protection = "strong"
 
 @login_manager.user_loader
 def load_user(userid):
-
     if userid.startswith(u'labmanager_admin::'):
         login = userid.split(u'labmanager_admin::')[1]
         return LabManagerUser.find(login = login)
 
-    if userid.startswith(u'lms_user::'):
+    if userid.startswith(u'lt_user::'):
         try:
-            _, lms_name, login = userid.split('::')
+            _, lt_name, login = userid.split('::')
         except ValueError:
-            print "Invalid format (expected lms_user::lms_name::login"
+            print "Invalid format (expected lt_user::lt_name::login"
             return None
 
-        potential_users = [ user for user in LmsUser.all(login = login) if user.lms.name == lms_name ]
+        potential_users = [ user for user in LtUser.all(login = login) if user.lt.name == lt_name ]
         if len(potential_users) == 0:
             return None
         else:
@@ -77,16 +76,17 @@ def login_lms():
     """Login screen for application"""
     DEFAULT_NEXT = url_for('lms_admin.index')
     next = request.args.get('next', DEFAULT_NEXT)
-    lmss = LMS.all()
+
+    lmss = [ lt for lt in LearningTool.all() if len(lt.shindig_credentials) == 0 ]
 
     if request.method == 'GET':
-        return render_template('login_lms.html', next=next, lmss=lmss)
+        return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
 
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
         hashed = new_hash("sha", request.form['password']).hexdigest()
         lms_id = request.form['lms']
-        user = LmsUser.exists(username, hashed, lms_id)
+        user = LtUser.exists(username, hashed, lms_id)
         if user is not None:
             if login_user(user):
                 session['loggeduser'] = username
@@ -98,11 +98,42 @@ def login_lms():
                 return redirect(next)
             else:
                 flash(u'Could not log in.')
-                return render_template('login_lms.html', next=next, lmss=lmss)
+                return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
         else:
             flash(u'Invalid username.')
-            return render_template('login_lms.html', next=next, lmss=lmss)
+            return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
     return "Error in create_session"
+
+@app.route('/login/ple/', methods=['GET', 'POST'])
+def login_ple():
+    """Login screen for application"""
+    DEFAULT_NEXT = url_for('ple_admin.index')
+    next = request.args.get('next', DEFAULT_NEXT)
+
+    ples = [ lt for lt in LearningTool.all() if len(lt.shindig_credentials) > 0 ]
+
+    if request.method == 'GET':
+        return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+
+    if request.method == 'POST' and 'username' in request.form:
+        username = request.form['username']
+        hashed = new_hash("sha", request.form['password']).hexdigest()
+        lms_id = request.form['lms']
+        user = LtUser.exists(username, hashed, lms_id)
+        if user is not None:
+            if login_user(user):
+                session['loggeduser'] = username
+                session['last_request'] = time()
+                session['usertype'] = 'lms'
+                return redirect(next)
+            else:
+                flash(u'Could not log in.')
+                return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+        else:
+            flash(u'Invalid username.')
+            return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+    return "Error in create_session"
+
 
 @app.route("/logout", methods=['GET'])
 @login_required

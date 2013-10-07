@@ -16,7 +16,7 @@ from ims_lti_py import ToolProvider
 
 from flask import request, Blueprint, session, Response, render_template, redirect
 
-from labmanager.models import PermissionToLmsUser
+from labmanager.models import PermissionToLtUser
 from labmanager.rlms import get_manager_class
 
 lti_blueprint = Blueprint('lti', __name__)
@@ -25,17 +25,17 @@ lti_blueprint = Blueprint('lti', __name__)
 def verify_credentials():
     if 'oauth_consumer_key' in request.form:
         consumer_key = request.form['oauth_consumer_key']
-        permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
+        permission_to_lt_user = PermissionToLtUser.find(key = consumer_key)
 
         # TODO: check for nonce
         # TODO: check for old requests
 
-        if permission_to_lms_user is None:
+        if permission_to_lt_user is None:
             response = Response(render_template('lti/errors.html', message = "Invalid consumer key. Please check it again."))
             # response.status_code = 412
             return response
 
-        secret = permission_to_lms_user.secret
+        secret = permission_to_lt_user.secret
         tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
 
         try:
@@ -69,7 +69,7 @@ def verify_credentials():
 @lti_blueprint.route("/", methods = ['GET', 'POST'])
 def start_ims():
     consumer_key = session.get('consumer')
-    permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
+    permission_to_lt_user = PermissionToLtUser.find(key = consumer_key)
 
     # current_role = set(request.form['roles'].split(','))
     # 
@@ -83,8 +83,8 @@ def start_ims():
     #    ....
     # 
 
-    laboratory       = permission_to_lms_user.permission_to_lms.laboratory
-    local_identifier = permission_to_lms_user.permission_to_lms.local_identifier
+    laboratory       = permission_to_lt_user.permission_to_lt.laboratory
+    local_identifier = permission_to_lt_user.permission_to_lt.local_identifier
 
     return render_template('lti/display_lab.html', laboratory = laboratory, local_identifier = local_identifier)
 
@@ -94,16 +94,16 @@ def launch_experiment():
     if consumer_key is None:
         return "consumer key not found"
 
-    permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
-    if permission_to_lms_user is None:
+    permission_to_lt_user = PermissionToLtUser.find(key = consumer_key)
+    if permission_to_lt_user is None:
         return "permission not found"
 
-    p_to_lms = permission_to_lms_user.permission_to_lms
+    p_to_lt = permission_to_lt_user.permission_to_lt
 
     courses_configurations = [] # No such concept in the LTI version
     request_payload = {} # This could be populated in the HTML. Pending.
-    lms_configuration = p_to_lms.configuration
-    db_laboratory     = p_to_lms.laboratory
+    lt_configuration = p_to_lt.configuration
+    db_laboratory     = p_to_lt.laboratory
     db_rlms           = db_laboratory.rlms
     author            = session.get('author_identifier', '(not in session)')
     referer           = request.referrer
@@ -113,8 +113,8 @@ def launch_experiment():
 
     response = remote_laboratory.reserve(db_laboratory.laboratory_id,
                                          author,
-                                         p_to_lms.lms.name,
-                                         lms_configuration,
+                                         p_to_lt.lt.name,
+                                         lt_configuration,
                                          courses_configurations,
                                          request_payload,
                                          { 

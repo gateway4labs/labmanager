@@ -24,7 +24,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 
 from labmanager.scorm import get_scorm_object
-from labmanager.models import LmsUser, Course, Laboratory, PermissionToLms, PermissionToLmsUser, PermissionToCourse
+from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
 
 config = yload(open('labmanager/config/config.yml'))
@@ -98,41 +98,41 @@ class LmsUsersPanel(L4lLmsModelView):
     form_args = dict( access_level=dict( choices=sel_choices ) )
 
     def __init__(self, session, **kwargs):
-        super(LmsUsersPanel, self).__init__(LmsUser, session, **kwargs)
+        super(LmsUsersPanel, self).__init__(LtUser, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
         query_obj = super(LmsUsersPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms = current_user.lms)
+        query_obj = query_obj.filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(LmsUsersPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms = current_user.lms)
+        query_obj = query_obj.filter_by(lt = current_user.lt)
         return query_obj
 
         
 
     def on_model_change(self, form, model):
         # TODO: don't update password always
-        model.lms   = current_user.lms
+        model.lt   = current_user.lt
         model.password = hashlib.new('sha',model.password).hexdigest()
 
 
 def create_lms_user_filter(session):
     def filter():
-        return session.query(LmsUser).filter_by(lms = current_user.lms)
+        return session.query(LtUser).filter_by(lt = current_user.lt)
 
     return staticmethod(filter)
 
 def create_permission_to_lms_filter(session):
     def filter():
-        return session.query(PermissionToLms).filter_by(lms = current_user.lms)
+        return session.query(PermissionToLt).filter_by(lt = current_user.lt)
 
     return staticmethod(filter)
 
 def create_course_filter(session):
     def filter():
-        return session.query(Course).filter_by(lms = current_user.lms)
+        return session.query(Course).filter_by(lt = current_user.lt)
 
     return staticmethod(filter)
 
@@ -141,39 +141,39 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
 
     can_edit = False
 
-    lms_user_filter          = None
-    permission_to_lms_filter = None
+    lt_user_filter          = None
+    permission_to_lt_filter = None
 
     form_args = dict(
-        lms_user          = dict(query_factory = lambda : PermissionToLmsUserPanel.lms_user_filter()),
-        permission_to_lms = dict(query_factory = lambda : PermissionToLmsUserPanel.permission_to_lms_filter()),
+        lt_user          = dict(query_factory = lambda : PermissionToLmsUserPanel.lt_user_filter()),
+        permission_to_lt = dict(query_factory = lambda : PermissionToLmsUserPanel.permission_to_lt_filter()),
     )
 
-    form_columns = ('lms_user', 'permission_to_lms')
+    form_columns = ('lt_user', 'permission_to_lt')
 
     def __init__(self, session, **kwargs):
-        super(PermissionToLmsUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
-        PermissionToLmsUserPanel.lms_user_filter = create_lms_user_filter(self.session)
-        PermissionToLmsUserPanel.permission_to_lms_filter = create_permission_to_lms_filter(self.session)
+        super(PermissionToLmsUserPanel, self).__init__(PermissionToLtUser, session, **kwargs)
+        PermissionToLmsUserPanel.lt_user_filter = create_lms_user_filter(self.session)
+        PermissionToLmsUserPanel.permission_to_lt_filter = create_permission_to_lms_filter(self.session)
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PermissionToLmsUserPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(LtUser).filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(PermissionToLmsUserPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.join(LmsUser).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(LtUser).filter_by(lt = current_user.lt)
         return query_obj
 
     def on_model_change(self, form, model):
 
-        existing_permission = self.session.query(PermissionToLmsUser).filter_by(lms_user = model.lms_user, permission_to_lms = model.permission_to_lms).first()
+        existing_permission = self.session.query(PermissionToLtUser).filter_by(lt_user = model.lt_user, permission_to_lt = model.permission_to_lt).first()
 
         if existing_permission:
             raise Exception("Existing permission on that user for that laboratory")
 
-        key = u'%s_%s_%s' % (current_user.lms, model.lms_user.login, model.permission_to_lms.local_identifier)
+        key = u'%s_%s_%s' % (current_user.lt, model.lt_user.login, model.permission_to_lt.local_identifier)
         key = key.lower().replace(' ','_')
         final_key = u''
         for c in key:
@@ -196,15 +196,15 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
 
 def local_id_formatter(v, c, laboratory, p):
     for permission in laboratory.lab_permissions:
-        if permission.lms == current_user.lms:
+        if permission.lt == current_user.lt:
             return permission.local_identifier
     return 'N/A'
 
 def scorm_formatter(v, c, laboratory, p):
 
-    if current_user.lms.basic_http_authentications:
+    if current_user.lt.basic_http_authentications:
         for permission in laboratory.lab_permissions:
-            if permission.lms == current_user.lms:
+            if permission.lt == current_user.lt:
                 local_id = permission.local_identifier
 
                 return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', local_id = local_id)))
@@ -226,30 +226,30 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(LmsInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(LmsInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lt = current_user.lt)
         return query_obj
 
     @expose('/scorm/scorm_<local_id>.zip')
     def get_scorm(self, local_id):
-        db_lms = current_user.lms 
+        db_lt = current_user.lt
 
-        if db_lms.basic_http_authentications:
-            url = db_lms.basic_http_authentications[0].lms_url or ''
+        if db_lt.basic_http_authentications:
+            url = db_lt.basic_http_authentications[0].lt_url or ''
         else:
             url = ''
 
-        lms_path = urlparse.urlparse(url).path or '/'
+        lt_path = urlparse.urlparse(url).path or '/'
         extension = '/'
-        if 'gateway4labs/' in lms_path:
-            extension = lms_path[lms_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
-            lms_path  = lms_path[:lms_path.rfind('gateway4labs/')]
+        if 'gateway4labs/' in lt_path:
+            extension = lt_path[lt_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
+            lt_path  = lt_path[:lt_path.rfind('gateway4labs/')]
 
-        contents = get_scorm_object(False, local_id, lms_path, extension)
+        contents = get_scorm_object(False, local_id, lt_path, extension)
         return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})
 
 #################################################
@@ -268,22 +268,22 @@ class LmsCoursesPanel(L4lLmsModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(LmsCoursesPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms = current_user.lms)
+        query_obj = query_obj.filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(LmsCoursesPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms = current_user.lms)
+        query_obj = query_obj.filter_by(lt = current_user.lt)
         return query_obj
 
     def on_model_change(self, form, model):
-        model.lms   = current_user.lms
+        model.lt   = current_user.lt
 
 class LmsCourseDiscoveryPanel(L4lLmsView):
 
     @expose(methods=["POST", "GET"])
     def index(self):
-        basic_http_authentications = current_user.lms.basic_http_authentications
+        basic_http_authentications = current_user.lt.basic_http_authentications
         if not basic_http_authentications:
             message = "No authentication is configured in your LMS. If you are not using the Basic HTTP system (e.g., you're using LTI), don't worry. Otherwise, contact the Labmanager administrator."
             return self.render("lms_admin/discover-errors.html", message = message)
@@ -298,7 +298,7 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
 
         user     = basic_http_authentication.labmanager_login
         password = basic_http_authentication.labmanager_password
-        url = "%s?q=%s&start=%s" % (basic_http_authentication.lms_url, q, start)
+        url = "%s?q=%s&start=%s" % (basic_http_authentication.lt_url, q, start)
 
         VISIBLE_PAGES = 10
         results = retrieve_courses(url, user, password)
@@ -341,19 +341,19 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
                 if key.startswith('course-'):
                     courses_to_manage.append(key[len('course-'):])
 
-            existing_courses = self.session.query(Course).filter(Course.context_id.in_(courses_to_manage), Course.lms == current_user.lms).all()
+            existing_courses = self.session.query(Course).filter(Course.context_id.in_(courses_to_manage), Course.lt == current_user.lt).all()
             existing_course_ids = [ existing_course.context_id for existing_course in existing_courses ]
 
             if request.form['action'] == 'add':
                 for course_to_manage in courses_to_manage:
                     print course_to_manage not in existing_course_ids and course_to_manage in course_dict
                     if course_to_manage not in existing_course_ids and course_to_manage in course_dict:
-                        new_course = Course(name = course_dict[course_to_manage], lms = current_user.lms, context_id = course_to_manage)
+                        new_course = Course(name = course_dict[course_to_manage], lt = current_user.lt, context_id = course_to_manage)
                         self.session.add(new_course)
             elif request.form['action'] == 'delete':
                 for course_to_manage in courses_to_manage:
                     if course_to_manage in existing_course_ids:
-                        existing_course = self.session.query(Course).filter(Course.context_id == course_to_manage, Course.lms == current_user.lms).first()
+                        existing_course = self.session.query(Course).filter(Course.context_id == course_to_manage, Course.lt == current_user.lt).first()
                         if existing_course:
                             self.session.delete(existing_course)
                         
@@ -364,7 +364,7 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
 
 
 
-        existing_courses = self.session.query(Course).filter(Course.context_id.in_(course_dict.keys()), Course.lms == current_user.lms).all()
+        existing_courses = self.session.query(Course).filter(Course.context_id.in_(course_dict.keys()), Course.lt == current_user.lt).all()
         existing_course_ids = [ existing_course.context_id for existing_course in existing_courses ]
 
         return self.render("lms_admin/discover.html", current_page = current_page, current_pages = current_pages, max_page = max_page, q = q, start = start, courses = courses, per_page = per_page, max_position = number - VISIBLE_PAGES, max_position_page = (number - VISIBLE_PAGES) / VISIBLE_PAGES, existing_course_ids = existing_course_ids )
@@ -384,12 +384,12 @@ class LmsPermissionToCoursesPanel(L4lLmsModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(LmsPermissionToCoursesPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(Course).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(Course).filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(LmsPermissionToCoursesPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.join(Course).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(Course).filter_by(lt = current_user.lt)
         return query_obj
 
 ############################################## 

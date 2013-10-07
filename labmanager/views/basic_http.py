@@ -11,7 +11,7 @@ from flask import Response, render_template, request, g, Blueprint
 # Labmanager imports
 from labmanager.db import db_session
 from labmanager.models import BasicHttpCredentials
-from labmanager.models   import LMS, PermissionToLms
+from labmanager.models   import LearningTool, PermissionToLt
 from labmanager.rlms     import get_manager_class
 from labmanager.application import app
 
@@ -43,12 +43,12 @@ def requires_lms_auth():
         password = auth.password
 
     hash_password = hashlib.new('sha', password).hexdigest()
-    # TODO: check if there could be a conflict between two LMSs with same key??
+    # TODO: check if there could be a conflict between two LTs with same key??
     print username, hash_password
-    credential = db_session.query(BasicHttpCredentials).filter_by(lms_login = username, lms_password = hash_password).first()
+    credential = db_session.query(BasicHttpCredentials).filter_by(lt_login = username, lt_password = hash_password).first()
     if credential is None:
         return UNAUTHORIZED
-    g.lms = credential.lms.name
+    g.lt = credential.lt.name
 
 
 @basic_http_blueprint.route("/requests/", methods = ['GET', 'POST'])
@@ -56,11 +56,11 @@ def requests():
     """SCORM packages will perform requests to this method, which will
     interact with the permitted laboratories"""
     
-    db_lms = db_session.query(LMS).filter_by(name = g.lms).first()
+    db_lt = db_session.query(LearningTool).filter_by(name = g.lt).first()
 
     if request.method == 'GET':
-        local_identifiers = [ permission.local_identifier for permission in  db_lms.lab_permissions ]
-        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr, courses = db_lms.courses)
+        local_identifiers = [ permission.local_identifier for permission in  db_lt.lab_permissions ]
+        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr, courses = db_lt.courses)
     
     from labmanager.views import get_json
     json_data = get_json()
@@ -96,17 +96,17 @@ def requests():
 
 
     # reserving...
-    permission_to_lms = db_session.query(PermissionToLms).filter_by(lms = db_lms, local_identifier = experiment_identifier).first()
+    permission_to_lt = db_session.query(PermissionToLt).filter_by(lt = db_lt, local_identifier = experiment_identifier).first()
 
     good_msg  = messages_codes['ERROR_no_good']
     error_msg = None
     reservation_url = ""
 
-    if permission_to_lms is None:
+    if permission_to_lt is None:
         error_msg = messages_codes['ERROR_permission']
     else:
         courses_configurations = []
-        for course_permission in permission_to_lms.course_permissions:
+        for course_permission in permission_to_lt.course_permissions:
             if course_permission.course.context_id in courses:
                 # Let the server choose among the best possible configuration
                 courses_configurations.append(course_permission.configuration)
@@ -114,8 +114,8 @@ def requests():
         if len(courses_configurations) == 0 and not general_role:
             error_msg = messages_codes['ERROR_enrolled']
         else:
-            lms_configuration = permission_to_lms.configuration
-            db_laboratory     = permission_to_lms.laboratory
+            lt_configuration = permission_to_lt.configuration
+            db_laboratory     = permission_to_lt.laboratory
             db_rlms           = db_laboratory.rlms
             rlms_version      = db_rlms.version
             rlms_kind         = db_rlms.kind
@@ -127,8 +127,8 @@ def requests():
             
             response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                         username                  = author,
-                                                        institution               = db_lms.name, 
-                                                        general_configuration_str = lms_configuration,
+                                                        institution               = db_lt.name, 
+                                                        general_configuration_str = lt_configuration,
                                                         particular_configurations = courses_configurations,
                                                         request_payload           = request_payload,
                                                         user_properties           = {
@@ -147,7 +147,7 @@ def requests():
         rendering_data = {
             'name'        : cgi.escape(complete_name),
             'author'      : cgi.escape(author),
-            'lms'         : cgi.escape(g.lms),
+            'lms'         : cgi.escape(g.lt),
             'courses'     : courses,
             'request'     : cgi.escape(request_payload_str),
             'admin'       : general_role,
