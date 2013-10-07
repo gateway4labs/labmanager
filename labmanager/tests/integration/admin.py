@@ -14,13 +14,13 @@ def labmanager_admin_login(testcase):
     driver.find_element_by_id("password").send_keys("password")
     driver.find_element_by_css_selector("button.btn.btn-success").click()
 
-def labmanager_admin_create_lms(testcase):
+def labmanager_admin_create_lt(testcase):
     labmanager_admin_login(testcase)
     driver = testcase.driver
 
-    # Create LMS
-    driver.find_element_by_link_text("LMS Management").click()
-    driver.find_element_by_link_text("LMS").click()
+    # Create LT
+    driver.find_element_by_link_text("LT Management").click()
+    driver.find_element_by_link_text("LT").click()
     driver.find_element_by_link_text("Create").click()
     driver.find_element_by_id("name").clear()
     driver.find_element_by_id("name").send_keys("My school")
@@ -31,23 +31,23 @@ def labmanager_admin_create_lms(testcase):
     driver.find_element_by_id("url").clear()
     driver.find_element_by_id("url").send_keys("http://myschool.com/")
 
-    # Create LMS basic authentication
+    # Create LT basic authentication
     driver.find_element_by_link_text("Add Basic Http Authentications").click()
-    driver.find_element_by_id("basic_http_authentications-0-lms_login").clear()
-    driver.find_element_by_id("basic_http_authentications-0-lms_login").send_keys("admin")
-    driver.find_element_by_id("basic_http_authentications-0-lms_password").clear()
-    driver.find_element_by_id("basic_http_authentications-0-lms_password").send_keys("password")
-    driver.find_element_by_id("basic_http_authentications-0-lms_url").clear()
-    driver.find_element_by_id("basic_http_authentications-0-lms_url").send_keys("http://localhost/foo/lms4labs/foo.php")
+    driver.find_element_by_id("basic_http_authentications-0-lt_login").clear()
+    driver.find_element_by_id("basic_http_authentications-0-lt_login").send_keys("admin")
+    driver.find_element_by_id("basic_http_authentications-0-lt_password").clear()
+    driver.find_element_by_id("basic_http_authentications-0-lt_password").send_keys("password")
+    driver.find_element_by_id("basic_http_authentications-0-lt_url").clear()
+    driver.find_element_by_id("basic_http_authentications-0-lt_url").send_keys("http://localhost/foo/lms4labs/foo.php")
     driver.find_element_by_id("basic_http_authentications-0-labmanager_login").clear()
     driver.find_element_by_id("basic_http_authentications-0-labmanager_login").send_keys("admin")
     driver.find_element_by_id("basic_http_authentications-0-labmanager_password").clear()
     driver.find_element_by_id("basic_http_authentications-0-labmanager_password").send_keys("password")
     driver.find_element_by_xpath("//input[@value='Submit']").click()
 
-    # Create LMS user
-    driver.find_element_by_link_text("LMS Management").click()
-    driver.find_element_by_link_text("LMS Users").click()
+    # Create LT user
+    driver.find_element_by_link_text("LT Management").click()
+    driver.find_element_by_link_text("LT Users").click()
     driver.find_element_by_link_text("Create").click()
     driver.find_element_by_id("full_name").clear()
     driver.find_element_by_id("full_name").send_keys("Administrator")
@@ -61,7 +61,7 @@ def labmanager_admin_create_lms(testcase):
     driver.find_element_by_xpath("//input[@value='Submit']").click()
 
 
-from labmanager.tests.integration.lms import labmanager_lms_login
+from labmanager.tests.integration.lt import labmanager_lt_login
 
 class AdminIntegrationTestCase(IntegrationTestCase, unittest.TestCase):
     def test_login(self):
@@ -69,9 +69,9 @@ class AdminIntegrationTestCase(IntegrationTestCase, unittest.TestCase):
         title = self.driver.find_element_by_tag_name('h1')
         self.assertTrue('LabManager Admin Dashboard' in title.text)
 
-    def test_create_lms(self):
-        labmanager_admin_create_lms(self)
-        labmanager_lms_login(self)
+    def test_create_lt(self):
+        labmanager_admin_create_lt(self)
+        labmanager_lt_login(self)
 
         
 

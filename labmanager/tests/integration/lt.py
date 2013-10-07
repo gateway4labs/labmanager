@@ -4,9 +4,9 @@ from labmanager.tests.integration.base import IntegrationTestCase
 
 # Utility functions.
 
-def labmanager_lms_login(testcase, from_scratch = False):
+def labmanager_lt_login(testcase, from_scratch = False):
     if from_scratch:
-        labmanager_create_lms(testcase)
+        labmanager_create_lt(testcase)
 
     driver = testcase.driver
     driver.find_element_by_link_text("Log out").click()
@@ -23,13 +23,13 @@ def labmanager_lms_login(testcase, from_scratch = False):
     title = driver.find_element_by_tag_name('h1')
     testcase.assertTrue('LMS Admin Dashboard' in title.text)
 
-from labmanager.tests.integration.admin import labmanager_admin_create_lms
+from labmanager.tests.integration.admin import labmanager_admin_create_lt
 
 
 class LmsIntegrationTestCase(IntegrationTestCase, unittest.TestCase):
-    def test_login_lms(self):
-        labmanager_admin_create_lms(self)
-        labmanager_lms_login(self)
+    def test_login_lt(self):
+        labmanager_admin_create_lt(self)
+        labmanager_lt_login(self)
 
 
 if __name__ == '__main__':
