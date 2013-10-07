@@ -6,9 +6,13 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+import os
 import hashlib
 
-from sqlalchemy import create_engine
+from alembic.config import Config
+from alembic import command
+
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from config import SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
@@ -34,7 +38,18 @@ def init_db(drop = False):
     if drop:
         print "Droping Database"
         Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+
+        meta = MetaData(engine)
+        meta.reflect()
+        if 'alembic_version' in meta.tables:
+            meta.drop_all()
+
+    config = Config("alembic.ini")
+    config.set_main_option("script_location", os.path.abspath('alembic'))
+    config.set_main_option("url", SQLALCHEMY_ENGINE_STR)
+    config.set_main_option("sqlalchemy.url", SQLALCHEMY_ENGINE_STR)
+
+    command.upgrade(config, "head")
 
     password = unicode(hashlib.new('sha', 'password').hexdigest())
     admin_user = LabManagerUser(u'admin', u'Administrator', password)

@@ -105,8 +105,6 @@ if __name__ == '__main__':
     if options.create_db:
         create_db()
 
-    init_db()
-
     if options.add_sample_users:
         add_sample_users()
     else:
