@@ -43,8 +43,11 @@ def precondition_failed(e):
 # 
 # Initialize administration panels
 # 
-from .views.admin import init_admin as init_admin
+from .views.admin import init_admin
 init_admin(app, db_session)
+
+from .views.public import init_public_admin
+init_public_admin(app, db_session)
 
 from .views.lms.admin import init_lms_admin
 init_lms_admin(app, db_session)

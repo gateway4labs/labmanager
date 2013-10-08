@@ -139,6 +139,9 @@ class Laboratory(Base, SBBase):
     available                = Column(Boolean, nullable = False, index = True, default = False)
     default_local_identifier = Column(Unicode(50), nullable = False, default = u"")
 
+    publicly_available       = Column(Boolean, nullable = False, index = True, default = False)
+    public_identifier        = Column(Unicode(50), nullable = False, default = u"")
+
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
     def __init__(self, name = None, laboratory_id = None, rlms = None, visibility = None, available = None):

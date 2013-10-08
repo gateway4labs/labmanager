@@ -485,18 +485,46 @@ def accessibility_formatter(v, c, lab, p):
                         default_local_identifier = lab.default_local_identifier,
                     ))
 
+def public_availability_formatter(v, c, lab, p):
+
+    if lab.publicly_available:
+        klass = 'btn-danger'
+        msg = 'Make not publicly available'
+    else:
+        klass = 'btn-success'
+        msg = 'Make publicly available'
+
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        <input type='hidden' name='activate' value='%(activate_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <label>Public identifier: </label>
+                        <input type='text' name='public_identifier' value='%(public_identifier)s' style='width: 150px'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url               = url_for('.change_public_availability'),
+                        activate_value    = unicode(lab.publicly_available).lower(),
+                        lab_id            = lab.id,
+                        klass             = klass,
+                        msg               = msg,
+                        public_identifier = lab.public_identifier,
+                    ))
+
+
 class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'visibility', 'availability')
-    column_formatters = dict(availability = accessibility_formatter)
-    column_descriptions = dict(availability = "Make this laboratory automatically available for the Learning Tools")
+    column_list = ('rlms', 'name', 'laboratory_id', 'visibility', 'availability','public_availability')
+    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter)
+    column_descriptions = dict(
+                            availability = "Make this laboratory automatically available for the Learning Tools",
+                            public_availability = "Make this laboratory automatically available even from outside the registered Learning Tools"
+                    )
 
     def __init__(self, session, **kwargs):
         super(LaboratoryPanel, self).__init__(Laboratory, session, **kwargs)
 
-    @expose('/lab', methods = ['POST'])
+    @expose('/lab/availability/local', methods = ['POST'])
     def change_accessibility(self):
         lab_id   = int(request.form['lab_id'])
         activate = request.form['activate'] == 'true'
@@ -506,13 +534,40 @@ class LaboratoryPanel(L4lModelView):
             if len(existing_labs) > 0:
                 # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
                 if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash("Local identifier already exists")
+                    flash(u"Local identifier '%s' already exists" % request.form['local_identifier'])
                     return redirect(url_for('.index_view'))
             lab.available = not activate
             lab.default_local_identifier = request.form['local_identifier']
-            self.session.add(lab)
-            self.session.commit()
+            if lab.available and len(lab.default_local_identifier) == 0:
+                flash("Invalid local identifier (empty)")
+            else:
+                self.session.add(lab)
+                self.session.commit()
         return redirect(url_for('.index_view'))
+
+    @expose('/lab/availability/public', methods = ['POST'])
+    def change_public_availability(self):
+        lab_id   = int(request.form['lab_id'])
+        activate = request.form['activate'] == 'true'
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is not None:
+            existing_labs = self.session.query(Laboratory).filter_by(public_identifier = request.form['public_identifier']).all()
+            if len(existing_labs) > 0:
+                # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
+                if len(existing_labs) > 1 or lab not in existing_labs:
+                    flash(u"Public identifier '%s' already exists" % request.form['public_identifier'])
+                    return redirect(url_for('.index_view'))
+            lab.publicly_available = not activate
+            lab.public_identifier = request.form['public_identifier']
+            print "testing..."
+            if lab.publicly_available and len(lab.public_identifier) == 0:
+                print "shait..."
+                flash("Invalid public identifier (empty)")
+            else:
+                self.session.add(lab)
+                self.session.commit()
+        return redirect(url_for('.index_view'))
+
 
 def scorm_formatter(v, c, permission, p):
     

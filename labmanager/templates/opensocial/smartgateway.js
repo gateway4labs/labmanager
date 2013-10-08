@@ -8,8 +8,12 @@ function SmartGateway(container) {
     var me = this;
 
     // The _mylabid identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
-                     
+    
+    {% if public %}
+    var _mylabid = '{{ url_for(".public_smartgateway", lab_name = lab_name, _external = True) }}';
+    {% else %}
     var _mylabid = '{{ url_for(".smartgateway", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
+    {% endif %}
    
     // Create a unique identifier
     this._identifier = Math.random();
@@ -240,7 +244,11 @@ function SmartGateway(container) {
 
             // Then, take the token
             var token = shindig.auth.getSecurityToken();
+            {% if public %}
+            var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token;
+            {% else %}
             var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token;
+            {% endif %}
 
             trace("Loading... " + url);
 
