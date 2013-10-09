@@ -1,6 +1,7 @@
 import json
 import urllib2
 import hashlib
+import traceback
 import threading
 
 from flask import Blueprint, request, redirect, render_template, url_for
@@ -70,13 +71,14 @@ def _reserve_impl(lab_name, public, institution_id):
 
     if public:
         db_laboratory = db_session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
-        if db_laboratory:
+        if db_laboratory is None:
             return render_template("opensocial/errors.html", message = "That lab does not exist or it is not publicly available.")
 
-        SHINDIG.url = 'https://shindig.epfl.ch'
+        SHINDIG.url = 'http://shindig.epfl.ch'
 
         ple_configuration = '{}'
         institution_name  = 'public-labs' # TODO: make sure that this name is unique
+        courses_configurations = []
     else:
         institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
         if institution is None or len(institution.shindig_credentials) < 1:
@@ -126,8 +128,12 @@ def _reserve_impl(lab_name, public, institution_id):
         institution_name  = institution.name
 
     # Obtain user data
-    current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
-    current_user_data = json.loads(current_user_str)
+    try:
+        current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
+        current_user_data = json.loads(current_user_str)
+    except:
+        traceback.print_exc()
+        return render_template("opensocial/errors.html", message = "Could not connect to %s." % url_shindig("/rest/people/@me/@self?st=%s" % st))
 
     # name    = current_user_data['entry'].get('displayName') or 'anonymous'
     user_id = current_user_data['entry'].get('id') or 'no-id'
