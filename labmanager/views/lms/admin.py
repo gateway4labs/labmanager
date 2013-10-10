@@ -177,7 +177,7 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
         key = key.lower().replace(' ','_')
         final_key = u''
         for c in key:
-            if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-':
+            if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-':
                 final_key += c
             else:
                 final_key += '_'
