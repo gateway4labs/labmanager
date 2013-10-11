@@ -100,33 +100,47 @@ def _reserve_impl(lab_name, public, institution_id):
         get_parent_spaces(space_id, spaces)
 
 
-        # Now, check permissions. First, check default permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
-        # After that, in the case that there are not default permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
+        # Now, check permissions:
+        # First, check if the lab is public (e.g. the lab can be accessed by anyone)
+        # Second, check accesibility permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
+        # After that, in the case that there are not accesibility permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
 
-        default_permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
+        public_lab = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
         courses_configurations = []
-        if default_permission is None:
-            permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
-            if permission is None:
-                return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
+        
+        if public_lab is None:
+            # No public access is granted for the lab, check accesibility permissions
+            accessible_permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
             
-            for course_permission in permission.course_permissions:
-                if course_permission.course.context_id in spaces:
-                    # Let the server choose among the best possible configuration
-                    courses_configurations.append(course_permission.configuration)
+            if accessible_permission is None:
+                permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+                if permission is None:
+                    return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
+                
+                for course_permission in permission.course_permissions:
+                    if course_permission.course.context_id in spaces:
+                        # Let the server choose among the best possible configuration
+                        courses_configurations.append(course_permission.configuration)
 
-            if len(courses_configurations) == 0:
-                return render_template("opensocial/errors.html", message = "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces)
+                if len(courses_configurations) == 0:
+                    return render_template("opensocial/errors.html", message = "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces)
 
-        else:
-            # There is a default permission for that lab and institution
+            else:
+                # There is a accesibility permission for that lab and institution
+                
+                permission = accessible_permission
+
+            ple_configuration = permission.configuration
+            db_laboratory     = permission.laboratory
+            institution_name  = institution.name
+
+        else: 
+            # There is a public permission for the lab
+            ple_configuration = []
+            db_laboratory     = public_lab
+            institution_name  = institution.name            
+
             
-            permission = default_permission
-
-        ple_configuration = permission.configuration
-        db_laboratory     = permission.laboratory
-        institution_name  = institution.name
-
     # Obtain user data
     try:
         current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
