@@ -208,10 +208,15 @@ class PleLaboratoriesPanel(L4lPleModelView):
     can_edit   = False
     can_create = False
 
-    column_list = (lazy_gettext('rlms'), lazy_gettext('name'), lazy_gettext('laboratory_id'), lazy_gettext('local_identifier'), lazy_gettext('widgets'), lazy_gettext('accessible'))
-   
+    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible')
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
-
+    column_labels = dict(rlms = lazy_gettext('rlms'),
+                                    name = lazy_gettext('name'),
+                                    laboratory_id = lazy_gettext('laboratory_id'),
+                                    local_identifier = lazy_gettext('local_identifier'),
+                                    widgets = lazy_gettext('widgets'),
+                                    accessible = lazy_gettext('accesible'))
+                                    
     def __init__(self, session, **kwargs):
         super(PleLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
 
@@ -278,12 +283,13 @@ class PleSpacesPanel(L4lPleModelView):
 
     can_create = can_edit = False
 
-    column_list = (lazy_gettext('name'), lazy_gettext('context_id'), lazy_gettext('url'))
-
+    column_list = ('name', 'context_id', 'url')
     form_columns = ('name', 'context_id')
-
     column_formatters = dict( url = format_space_url  )
-
+    column_labels = dict(name = lazy_gettext('name'),
+                                    context_id = lazy_gettext('context_id'),
+                                    url = lazy_gettext('url'))
+                                    
     def __init__(self, session, **kwargs):
         super(PleSpacesPanel, self).__init__(Course, session, **kwargs)
 
@@ -414,11 +420,9 @@ class PlePermissionToSpacePanel(L4lPleModelView):
         course = dict(query_factory = lambda : PlePermissionToSpacePanel.course_filter()),
     )
 
-    column_labels = dict(
-        permission_to_lms = 'Permission',
-        course = 'Space',
-    )
-
+    column_labels = dict(permission_to_lms = lazy_gettext('Permission'),
+                                    course = lazy_gettext('Space'),
+                                    configuration = lazy_gettext('Configuration'))
 
     def __init__(self, session, **kwargs):
         super(PlePermissionToSpacePanel, self).__init__(PermissionToCourse, session, **kwargs)

@@ -35,7 +35,7 @@ class PleAuthManagerMixin(object):
         if not current_user.is_authenticated():
             return False
 
-        return session['usertype'] == 'lms'
+        return session['usertype'] == 'lms' and current_user.access_level == 'instructor'
     
 class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
 
@@ -144,9 +144,13 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
     can_edit   = False
     can_create = False
 
-    column_list = (lazy_gettext('rlms'), lazy_gettext('name'), lazy_gettext('laboratory_id'), lazy_gettext('local_identifier'), 'widgets')
-   
+    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets')
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter )
+    column_labels = dict(rlms = lazy_gettext('RLMS'),
+                                    name = lazy_gettext('Name'),
+                                    laboratory_id = lazy_gettext('Laboratory Id'),
+                                    local_identifier = lazy_gettext('Local Identifier'),
+                                    widgets = lazy_gettext('widgets')) 
 
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -197,12 +201,12 @@ class PleInstructorPermissionToSpacesPanel(PleAuthManagerMixin, PlePermissionToS
 
 def init_ple_instructor_admin(app, db_session):
     ple_instructor_url = '/ple_instructor'
-    ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = gettext(u'PLEinstructor'), url = ple_instructor_url, endpoint = 'ple_instructor')
-    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = gettext(u'Laboratories'), endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
-    
-    ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = gettext(u'Spaces'), name     = gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
-    ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = gettext(u'Spaces'), name     = gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
-    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = gettext(u'Spaces'), name     = gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
+    ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = lazy_gettext(u'PLEinstructor'), url = ple_instructor_url, endpoint = 'ple_instructor')
+    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = lazy_gettext(u'Laboratories'), endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
+    i18n_spaces=lazy_gettext(u'Spaces')
+    ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
+    ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
+    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
 
-    ple_instructor.add_view(RedirectView('logout',         name = gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
+    ple_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)
