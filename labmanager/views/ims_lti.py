@@ -19,6 +19,10 @@ from flask import request, Blueprint, session, Response, render_template, redire
 from labmanager.models import PermissionToLmsUser
 from labmanager.rlms import get_manager_class
 
+# Added by ILZ issue 34
+from flask.ext.babel import gettext, ngettext, lazy_gettext
+# End
+
 lti_blueprint = Blueprint('lti', __name__)
 
 @lti_blueprint.before_request
@@ -31,7 +35,7 @@ def verify_credentials():
         # TODO: check for old requests
 
         if permission_to_lms_user is None:
-            response = Response(render_template('lti/errors.html', message = "Invalid consumer key. Please check it again."))
+            response = Response(render_template('lti/errors.html', message = gettext("Invalid consumer key. Please check it again.")))
             # response.status_code = 412
             return response
 
@@ -41,12 +45,12 @@ def verify_credentials():
         try:
             return_value = tool_provider.valid_request(request)
         except:
-            response = Response(render_template('lti/errors.html', message = "Invalid secret: could not validate request."))
+            response = Response(render_template('lti/errors.html', message = gettext("Invalid secret: could not validate request.")))
             # response.status_code = 403
             return response
         else:
             if return_value == False:
-                response = Response(render_template('lti/errors.html', message = "Request checked and failed. Please check that the 'secret' is correct."))
+                response = Response(render_template('lti/errors.html', message = gettext("Request checked and failed. Please check that the 'secret' is correct.")))
                 # response.status_code = 403
                 return response
 
@@ -62,7 +66,7 @@ def verify_credentials():
             return
 
     else:
-        response = Response(render_template('lti/errors.html', message = "Session not initialized. Are you a LMS?"))
+        response = Response(render_template('lti/errors.html', message = gettext("Session not initialized. Are you a LMS?")))
         # response.status_code = 403
         return response
 
@@ -92,11 +96,11 @@ def start_ims():
 def launch_experiment():
     consumer_key = session.get('consumer')
     if consumer_key is None:
-        return "consumer key not found"
+        return gettext("consumer key not found")
 
     permission_to_lms_user = PermissionToLmsUser.find(key = consumer_key)
     if permission_to_lms_user is None:
-        return "permission not found"
+        return gettext("permission not found")
 
     p_to_lms = permission_to_lms_user.permission_to_lms
 

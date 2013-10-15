@@ -5,10 +5,10 @@
 
 
 <div class="span8">
-<h3>Register your school</h3>
+<h3>{{gettext('Register your school')}}</h3>
 
 <br/>
-<p>If you are using <a href="http://graasp.epfl.ch/">Graasp</a>, register here to access remote laboratories.</p>
+<p>{{gettext('If you are using')}} <a href="http://graasp.epfl.ch/">Graasp</a>, {{gettext('register here to access remote laboratories.')}}</p>
 <br/>
 
 {% from "_form_helpers.html" import render_field %}
@@ -25,7 +25,7 @@
     {{ render_field(form.user_password) }}
 
     <div class="form-actions">
-        <button class="btn btn-primary" name="action" type="submit" value="register">Register your school!</button>
+        <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Register your school!')}}</button>
     </div>
 </form>
 

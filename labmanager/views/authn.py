@@ -11,7 +11,9 @@ from hashlib import new as new_hash
 
 from flask import render_template, request, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
-
+# Added by ILZ issue 34
+from flask.ext.babel import gettext, ngettext, lazy_gettext
+# End
 
 from ..application import app
 from ..models import LabManagerUser, LmsUser, LMS
@@ -31,7 +33,7 @@ def load_user(userid):
         try:
             _, lms_name, login = userid.split('::')
         except ValueError:
-            print "Invalid format (expected lms_user::lms_name::login"
+            print gettext("Invalid format (expected lms_user::lms_name::login)")
             return None
 
         potential_users = [ user for user in LmsUser.all(login = login) if user.lms.name == lms_name ]
@@ -63,13 +65,13 @@ def login_admin():
                 next = request.args.get('next', url_for('admin.index'))
                 return redirect(next)
             else:
-                flash(u'Could not log in.')
+                flash(gettext(u'Could not log in.'))
                 return render_template('login_admin.html', next=next)
         else:
-            flash(u'Invalid username.')
+            flash(gettext(u'Invalid username.'))
             return render_template('login_admin.html', next=next)
 
-    return "Error in create_session"
+    return gettext("Error in create_session")
 
 
 @app.route('/login/lms/', methods=['GET', 'POST'])
@@ -97,12 +99,12 @@ def login_lms():
                         next = url_for('lms_instructor.index')
                 return redirect(next)
             else:
-                flash(u'Could not log in.')
+                flash(gettext(u'Could not log in.'))
                 return render_template('login_lms.html', next=next, lmss=lmss)
         else:
-            flash(u'Invalid username.')
+            flash(gettext(u'Invalid username.'))
             return render_template('login_lms.html', next=next, lmss=lmss)
-    return "Error in create_session"
+    return gettext("Error in create_session")
 
 #
 # Added by ILZ #28
@@ -132,12 +134,12 @@ def login_ple():
                         next = url_for('ple_instructor.index')
                 return redirect(next)
             else:
-                flash(u'Could not log in.')
+                flash(gettext(u'Could not log in.'))
                 return render_template('login_ple.html', next=next, lmss=lmss)
         else:
-            flash(u'Invalid username IRENE.')
+            flash(gettext(u'Invalid username.'))
             return render_template('login_ple.html', next=next, lmss=lmss)
-    return "Error in create_session"
+    return gettext("Error in create_session")
 
 #
 # End of ILZ

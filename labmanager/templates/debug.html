@@ -1,13 +1,13 @@
 
-Hi {{ data.name }} (username: {{ data.author }}),
+{{gettext('Hi')}} {{ data.name }} (username: {{ data.author }}),
 
-<p>I know that you're an admin ({{ data.admin }}) in the LMS {{ data.lms }}, and that you are in the following courses:</p>
+<p>{{gettext('I know that you're an admin')}} ({{ data.admin }}) {{gettext('in the LMS')}} {{ data.lms }}, {{gettext('and that you are in the following courses:')}}</p>
 <br/>
 <table>
   <thead>
     <tr>
-      <th>Course ID</th>
-      <th>Role</th>
+      <th>{{gettext('Course ID')}}</th>
+      <th>{{gettext('Role')}}</th>
   </tr>
   </thead>
   <tbody>   
@@ -20,19 +20,19 @@ Hi {{ data.name }} (username: {{ data.author }}),
   </tbody>
 </table>
 <br/>
-<p>The following error messages were sent:</p>
+<p>{{gettext('The following error messages were sent:')}}</p>
 <pre>{{ data.error_msg }}</pre>
-<p>The following good messages were sent:</p>
+<p>{{gettext('The following good messages were sent:')}}</p>
 <pre>{{ data.good_msg }}</pre>
 
-Furthermore, you sent me this request:
+{{gettext('Furthermore, you sent me this request:')}}
 <pre>
   {{ data.request }}
 </pre>
 
-And I'll process it!
+{{gettext('And I will process it!')}}
 
-Original request:
+{{gettext('Original request:')}}
 <pre> 
   {{ data.json }}
 </pre>

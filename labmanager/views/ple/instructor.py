@@ -21,6 +21,9 @@ from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
 from labmanager.models import LMS,Laboratory, PermissionToLms
 from labmanager.rlms import get_manager_class
+# Added by ILZ issue 34
+from flask.ext.babel import gettext, ngettext, lazy_gettext
+# End
 
 #################################################################
 # 
@@ -93,10 +96,10 @@ def local_id_formatter(v, c, laboratory, p):
     for permission in laboratory.lab_permissions:
         if permission.lms == current_user.lms:
             return permission.local_identifier
-    return 'N/A'
+    return gettext('N/A')
 
 def list_widgets_formatter(v, c, laboratory, p):
-    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+    return Markup('<a href="%s"> gettext("list") </a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
 
 
 
@@ -107,16 +110,16 @@ def accessibility_formatter(v, c, lab, p):
 
     # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
     if permissions is None:
-        currently = 'This lab is NOT accesible'
-        labaccessible = 'true'
+        currently = gettext('This lab is NOT accesible')
+        labaccessible = gettext('true')
         klass = 'btn-success'
-        msg = 'Make accessible'
+        msg = gettext('Make accessible')
 
     else:
-        currently = 'This lab IS accesible'
-        labaccessible = 'false'
+        currently = gettext('This lab IS accesible')
+        labaccessible = gettext('false')
         klass = 'btn-danger'
-        msg = 'Make not accessible'
+        msg = gettext('Make not accessible')
 
                                        
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
@@ -141,7 +144,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets')
+    column_list = (lazy_gettext('rlms'), lazy_gettext('name'), lazy_gettext('laboratory_id'), lazy_gettext('local_identifier'), 'widgets')
    
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter )
 
@@ -164,7 +167,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
     def list_widgets(self, local_identifier):
         laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
         if laboratory is None:
-            return self.render("ple_admin/errors.html", message = "Laboratory not found")
+            return self.render("ple_admin/errors.html", message = gettext("Laboratory not found"))
 
         rlms_db = laboratory.rlms
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
@@ -194,13 +197,12 @@ class PleInstructorPermissionToSpacesPanel(PleAuthManagerMixin, PlePermissionToS
 
 def init_ple_instructor_admin(app, db_session):
     ple_instructor_url = '/ple_instructor'
-    ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = u"PLEinstructor", url = ple_instructor_url, endpoint = 'ple_instructor')
-    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = u"Laboratories", endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
+    ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = gettext(u'PLEinstructor'), url = ple_instructor_url, endpoint = 'ple_instructor')
+    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = gettext(u'Laboratories'), endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
     
-    ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
-    ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_instructor_courses', url = 'spaces'))
-    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
+    ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = gettext(u'Spaces'), name     = gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
+    ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = gettext(u'Spaces'), name     = gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
+    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = gettext(u'Spaces'), name     = gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
 
-    ple_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_instructor_logout', url = 'logout'))
+    ple_instructor.add_view(RedirectView('logout',         name = gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)
-

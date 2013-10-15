@@ -5,28 +5,28 @@
         <div class="row">
             <div class="hero-unit" align="center">
                 <p><img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="LMS4labs Logo" /></p> 
-                <p>Welcome to the Lab Manager!</p>
+                <p>{{gettext('Welcome to the Lab Manager!')}}</p>
             </div>
         </div>
         <div class="row">
 
             <div class="span4">
-                <h2>Graasp registration</h2>
-                <p>Register your school using Graasp.</p>
-                <p><a href="{{ url_for('opensocial.register') }}">Register</a></p>
+                <h2>{{gettext('Graasp registration')}}</h2>
+                <p>{{gettext('Register your school using Graasp')}}</p>
+                <p><a href="{{ url_for('opensocial.register') }}">{{gettext('Register')}}</a></p>
             </div>
 
             <div class="span4">
-                <h2>Graasp users</h2>
-                <p>School owners using Graasp will select which courses or other users are registered.</p>
+                <h2>{{gettext('Graasp users')}}</h2>
+                <p>{{gettext('School owners using Graasp will select which courses or other users are registered')}}</p>
 <!-- Modificado por Irene  login_lms por login_ple -->
-                <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">Manage Graasp access</a></p>
+                <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">{{gettext('Manage Graasp access')}}</a></p>
             </div>
 
             <div class="span4">
-                <h2>LMS users</h2>
-                <p>LMS users will select which courses or other users are registered in a LMS.</p>
-                <p><a href="{{ url_for('login_lms') }}">Manage LMS internals</a></p>
+                <h2>{{gettext('LMS users')}}</h2>
+                <p>{{gettext('LMS users will select which courses or other users are registered in a LMS')}}</p>
+                <p><a href="{{ url_for('login_lms') }}">{{gettext('Manage LMS internals')}}</a></p>
             </div>
 
         </div>

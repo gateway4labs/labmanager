@@ -15,11 +15,11 @@
 import os
 
 from flask import Flask, render_template, redirect, url_for
-
 from labmanager.db import db_session
 
 app = Flask(__name__)
 app.config.from_object('config')
+
 if app.config['DEBUG']:
     app.secret_key = 'secret'
     import labmanager.views.fake_lms as fake_lms
@@ -39,6 +39,27 @@ def forbidden(e):
 def precondition_failed(e):
     return "412 precondition failed", 412
 
+# Added by ILZ issue 34
+from flask.ext.babel import Babel
+from flask import request
+
+babel = Babel(app)
+
+print babel.list_translations()
+
+@babel.localeselector
+def get_locale():
+    locale = request.args.get('locale', 'en')
+    print "Locale requested. Got: ", locale
+    return locale 
+
+@babel.timezoneselector
+def get_timezone():
+    timezone = request.args.set('timezone', 'en')
+    print "Timezone requested. Got: ", timezone
+    return timezone
+
+# End ILZ issue 34
 
 # 
 # Initialize administration panels

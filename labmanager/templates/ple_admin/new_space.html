@@ -3,7 +3,7 @@
 
 
 <div class="span8">
-<h3>Add a new space:</h3>
+<h3>{{gettext('Add a new space:')}}</h3>
 
 {% from "_form_helpers.html" import render_field %}
 
@@ -15,17 +15,17 @@
 
     {% if request_space_name %}
         <div class="control-group error">
-            <label class="control-label">Space name</label>
+            <label class="control-label">{{gettext('Space name')}}</label>
             <div class="controls">
                 <input type="text" name="space_name"/>
-                <span class="help-block">The provided space was hidden or closed. Please provide a name.</span>
+                <span class="help-block">{{gettext('The provided space was hidden or closed. Please provide a name.')}}</span>
             </div>
         </div>
     {% endif %}
 
     {% if lab_ids %}
         
-        <h4>Add permissions to the following labs:</h4>
+        <h4>{{gettext('Add permissions to the following labs:')}}</h4>
 
         {% for lab_id in lab_ids %}
             <div class="control-group">
@@ -33,14 +33,14 @@
                     <label class="checkbox">
                         <input name="lab_{{ lab_id }}" type="checkbox" {% if lab_ids[lab_id]['checked'] %}checked="checked"{% endif %}> {{ lab_id }}
                     </label>
-                    <span class="help-block">Permission on {{ lab_ids[lab_id]['name'] }}</span>
+                    <span class="help-block">{{gettext('Permission on')}} {{ lab_ids[lab_id]['name'] }}</span>
                 </div>
             </div>
         {% endfor %}
     {% endif %}
 
     <div class="form-actions">
-        <button class="btn btn-primary" name="action" type="submit" value="register">Add space</button>
+        <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Add space')}}</button>
     </div>
 </form>
 

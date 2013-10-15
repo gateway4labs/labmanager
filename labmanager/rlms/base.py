@@ -70,6 +70,9 @@ The RLMS may also need to access the RLMS.
 
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
+# Added by ILZ issue 34
+from flask.ext.babel import gettext, ngettext, lazy_gettext
+# End
 
 # 
 # This is the list of versions. The BaseRLMS has a method
@@ -79,7 +82,7 @@ from flask import Blueprint
 # those versions. 
 #
 class Versions(object):
-    VERSION_1 = "version1"
+    VERSION_1 = lazy_gettext("version1")
 
 
 class Capabilities(object):
@@ -90,7 +93,7 @@ class Capabilities(object):
     interface is splitted or not.
     """
 
-    TEACHER_PANEL = 'teacher_panel'
+    TEACHER_PANEL = lazy_gettext('teacher_panel')
     """
     Providing this capability shows that the RLMS plug-in has 
     implemented a user interface so teachers can see something else 
@@ -275,7 +278,7 @@ _BLUEPRINTS = {
 
 def register_blueprint(blueprint, url):
     if url in _BLUEPRINTS:
-        raise Exception("Attempt to register %r for url %r, but %r was already registered for that URL" % (_BLUEPRINTS[blueprint], url, blueprint))
+        raise Exception("Attempt to register %(blueprints)r for url %(url)r, but %(blueprint)r was already registered for that URL" % dict(blueprints=_BLUEPRINTS[blueprint], url=url, blueprint=blueprint))
 
     _BLUEPRINTS[url] = blueprint
 
