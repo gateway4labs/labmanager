@@ -7,6 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import os, sys
+import optparse
 
 # 
 # Import the Flask global application and the configuration
@@ -19,10 +20,10 @@ import config as _config
 # - Basic HTTP blueprint (user requests through LMS using SCORM)
 # - LTI blueprint (user requests through LMS using LTI)
 # 
-from labmanager.views import load as load_views
-from labmanager.views.ims_lti import lti_blueprint
-from labmanager.views.basic_http import basic_http_blueprint
-from labmanager.views.opensocial import opensocial_blueprint
+from .views import load as load_views
+from .views.ims_lti import lti_blueprint
+from .views.basic_http import basic_http_blueprint
+from .views.opensocial import opensocial_blueprint
 
 if hasattr(os, 'uname') and os.uname()[1] in ('plunder','scabb'): # TODO: Deusto servers
     print "Installing proxy handler...",
@@ -72,8 +73,34 @@ def bootstrap():
     # print app.url_map
 
 def run():
+    from .db import check_version
+    if not check_version():
+        print >> sys.stderr, "Database not upgraded!!! Run:"
+        print >> sys.stderr, "  alembic upgrade head"
+        print >> sys.stderr, "And then run this script again"
+        sys.exit(-1)
+
     bootstrap()
 
-    port = int(os.environ.get('PORT', 5000))
+    parser = optparse.OptionParser(usage =  "Run in development mode the LabManager. In production, please use WSGI.")
+
+    parser.add_option('-p', '--port', dest='port', metavar="PORT",
+                        help="Port to be used",
+                        type='int', default=5000)
+
+    parser.add_option('--register-fake-rlms', dest='register_fake_rlms', help="Register the fake RLMS", default=False, action='store_true')
+    parser.add_option('--testing', dest='testing', help="Enter in testing mode", default=False, action='store_true')
+    
+    args, _ = parser.parse_args() 
+    if args.register_fake_rlms:
+        from labmanager.tests.unit.fake_rlms import register_fake
+        register_fake()
+
+    if args.testing:
+        app.config['TESTING'] = True
+        app.config['CSRF_ENABLED'] = False
+        app.config['DEBUG'] = False
+
+    port = int(os.environ.get('PORT', args.port))
     app.run(host='0.0.0.0', port=port, threaded = True)
 

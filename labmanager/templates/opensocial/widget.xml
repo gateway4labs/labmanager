@@ -11,7 +11,11 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+{% if public %}
+    <script type="text/javascript" src="{{ url_for('.public_smartgateway', lab_name = lab_name, _external = True) }}"></script>
+{% else %}
     <script type="text/javascript" src="{{ url_for('.smartgateway', institution_id = institution_id, lab_name = lab_name, _external = True) }}"></script>
+{% endif %}
 
 
 
@@ -32,7 +36,11 @@
         // Register a callback: whenever a widget has a reservationId, this method is called 
         sg.registerOnLoad( function(reservationId) {
             
+            {% if public %}
+            var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId;
+            {% else %}
             var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId;
+            {% endif %}
 
             $("#container").html("");
             // Now show it

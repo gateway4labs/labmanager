@@ -45,9 +45,9 @@ class SBBase(object):
 #   + RLMS  
 #     - Laboratory
 # 
-#   + LMS
+#   + LearningTool
 #     - Course
-#     - LmsUser
+#     - LtUser
 #     - BasicHttpCredentials
 #
 #   + LabManagerUser
@@ -59,11 +59,11 @@ class SBBase(object):
 #     LabManager Users
 #    
 #   Typically administrators. They log in and they can
-#   add RLMSs, LMSs, etc.
+#   add RLMSs, LTs, etc.
 # 
 
 class LabManagerUser(Base, SBBase, UserMixin):
-    __tablename__ = 'LabManagerUsers'
+    __tablename__ = 'labmanager_users'
 
     id = Column(Integer, primary_key=True)
 
@@ -144,6 +144,9 @@ class Laboratory(Base, SBBase):
     available                = Column(Boolean, nullable = False, index = True, default = False)
     default_local_identifier = Column(Unicode(50), nullable = False, default = u"")
 
+    publicly_available       = Column(Boolean, nullable = False, index = True, default = False)
+    public_identifier        = Column(Unicode(50), nullable = False, default = u"")
+
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
     def __init__(self, name = None, laboratory_id = None, rlms = None, visibility = None, available = None):
@@ -158,17 +161,17 @@ class Laboratory(Base, SBBase):
 
 
 #######################################################################
+#
+#     LearningTool
 # 
-#     LMS
-# 
-# 1 LMS (or CMS or PLE) is a system that manages authentication and
+# 1 LearningTool (or CMS or PLE) is a system that manages authentication and
 # authorization. It is divided into multiple courses (see below).
 # 
 
 
-class LMS(Base, SBBase):
+class LearningTool(Base, SBBase):
 
-    __tablename__  = 'lmss'
+    __tablename__  = 'learning_tools'
     __table_args__ = (UniqueConstraint('name'), UniqueConstraint('full_name'))
 
     id = Column(Integer, primary_key = True)
@@ -182,7 +185,7 @@ class LMS(Base, SBBase):
         self.url = url
 
     def __repr__(self):
-        return gettext(u"LMS(%(lmsname)r, %(lmsfullname)r, %(lmsurl)r)", lmsname=self.name, lmsfullname=self.full_name, lmsurl=self.url)
+        return gettext(u"LearningTool(%(lmsname)r, %(lmsfullname)r, %(lmsurl)r)", lmsname=self.name, lmsfullname=self.full_name, lmsurl=self.url)
 
     def __unicode__(self):
         return self.name
@@ -190,97 +193,97 @@ class LMS(Base, SBBase):
 
 ##################################################
 # 
-#         LMS Basic HTTP Credentials
+#         LT Basic HTTP Credentials
 # 
-#   Used by LMSs to authenticate in the system
+#   Used by LTs to authenticate in the system
 # 
 
 class BasicHttpCredentials(Base, SBBase):
 
     __tablename__  = 'basic_http_credentials'
-    __table_args__ = (UniqueConstraint('lms_login'), UniqueConstraint('lms_id'))
+    __table_args__ = (UniqueConstraint('lt_login'), UniqueConstraint('lt_id'))
 
     id        = Column(Integer, primary_key = True)
-    lms_id        = Column(Integer, ForeignKey('lmss.id'), nullable = False)
+    lt_id        = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
 
-    # Arguments for the LMS to connect the LabManager
-    lms_login     = Column(Unicode(50), nullable = False)
-    lms_password  = Column(Unicode(50), nullable = False)
+    # Arguments for the LT to connect the LabManager
+    lt_login     = Column(Unicode(50), nullable = False)
+    lt_password  = Column(Unicode(50), nullable = False)
 
-    # Arguments for the LabManager to connect the LMS. Might be null
-    lms_url       = Column(Unicode(300), nullable = True)
+    # Arguments for the LabManager to connect the LT. Might be null
+    lt_url       = Column(Unicode(300), nullable = True)
     labmanager_login    = Column(Unicode(50), nullable = True)
     labmanager_password = Column(Unicode(50), nullable = True)
 
-    lms = relation('LMS', backref=backref('basic_http_authentications', order_by=id, cascade='all, delete'))
+    lt = relation('LearningTool', backref=backref('basic_http_authentications', order_by=id, cascade='all, delete'))
 
-    def __init__(self, lms_login = None, lms_password = None, lms = None, lms_url = None, labmanager_login = None, labmanager_password = None):
-        self.lms                 = lms
-        self.lms_login           = lms_login
-        self.lms_password        = lms_password
-        self.lms_url             = lms_url
+    def __init__(self, lt_login = None, lt_password = None, lt = None, lt_url = None, labmanager_login = None, labmanager_password = None):
+        self.lt                  = lt
+        self.lt_login            = lt_login
+        self.lt_password         = lt_password
+        self.lt_url              = lt_url
         self.labmanager_login    = labmanager_login
         self.labmanager_password = labmanager_password
 
 
     def __repr__(self):
-        return gettext(u"BasicHttpCredentials(lms_login=%(lmslogin)r, lms_password=%(lmspassword)r, lms=%(lmslms)r, lms_url=%(lmsurl)r, labmanager_login=%(labmanlogin)r, labmanager_password=%(labmanpassword)r)", lmslogin=self.lms_login, lmspassword=self.password, lmslms=self.lms, lmsurl=self.lms_url, labmanlogin=self.labmanager_login, labmanpassword=self.labmanager_password)
+        return gettext(u"BasicHttpCredentials(lt_login=%(lmslogin)r, lt_password=%(lmspassword)r, lt=%(lmslms)r, lt_url=%(lmsurl)r, labmanager_login=%(labmanlogin)r, labmanager_password=%(labmanpassword)r)", lmslogin=self.lt_login, lmspassword=self.password, lmslms=self.lt, lmsurl=self.lt_url, labmanlogin=self.labmanager_login, labmanpassword=self.labmanager_password)
 
     def __unicode__(self):
-        return gettext(u"Basic HTTP auth for %(name)s", name=self.lms.name)
+        return gettext(u"Basic HTTP auth for %(name)s", name=self.lt.name)
 
     def update_password(self, old_password):
-        if self.lms_password != old_password:
-            self.lms_password = hashlib.new('sha', self.lms_password).hexdigest()
+        if self.lt_password != old_password:
+            self.lt_password = hashlib.new('sha', self.lt_password).hexdigest()
 
 ##################################################
 # 
-#         LMS Basic HTTP Credentials
+#         LT Shindig credentials
 # 
-#   Used by LMSs to authenticate in the system
+#   Used by LTs to authenticate in the system
 # 
 
 class ShindigCredentials(Base, SBBase):
 
     __tablename__  = 'shindig_credentials'
-    __table_args__ = (UniqueConstraint('lms_id'),)
+    __table_args__ = (UniqueConstraint('lt_id'),)
 
     id        = Column(Integer, primary_key = True)
-    lms_id        = Column(Integer, ForeignKey('lmss.id'), nullable = False)
+    lt_id        = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
 
     # The URL of the Shindig server. Example: http://shindig.epfl.ch (no trailing slash)
     shindig_url   = Column(Unicode(50), nullable = False)
 
-    lms = relation('LMS', backref=backref('shindig_credentials', order_by=id, cascade='all, delete'))
+    lt = relation('LearningTool', backref=backref('shindig_credentials', order_by=id, cascade='all, delete'))
 
-    def __init__(self, lms = None, shindig_url = None):
-        self.lms         = lms
+    def __init__(self, lt = None, shindig_url = None):
+        self.lt         = lt
         self.shindig_url = shindig_url
 
 
     def __repr__(self):
-        return gettext(u"ShindigCredentials(lms=%(lmslms)r, shindig_url=%(shindigurl)r)", lmslms=self.lms, shindigurl=self.shindig_url )
+        return gettext(u"ShindigCredentials(lt=%(lmslms)r, shindig_url=%(shindigurl)r)", lmslms=self.lt, shindigurl=self.shindig_url )
 
     def __unicode__(self):
-        return gettext(u"ShindigCredentials for %(lmsname)s", lmsname=self.lms.name)
+        return gettext(u"ShindigCredentials for %(lmsname)s", lmsname=self.lt.name)
 
 
 ##################################################
 # 
-#                   LMS User
+#                   LT User
 # 
-#   LMS Users (administrators or teachers) can
-#   authenticate and change stuff at LMS level.
+#   LT Users (administrators or teachers) can
+#   authenticate and change stuff at LT level.
 #  
 
 users2courses_relation = Table('users2courses', Base.metadata,
     Column('course_id',   Integer, ForeignKey('courses.id')),
-    Column('lms_user_id', Integer, ForeignKey('lmsusers.id'))
+    Column('lt_user_id', Integer, ForeignKey('lt_users.id'))
 )
 
-class LmsUser(Base, SBBase, UserMixin):
-    __tablename__  = 'lmsusers'
-    __table_args__ = (UniqueConstraint('login','lms_id'), )
+class LtUser(Base, SBBase, UserMixin):
+    __tablename__  = 'lt_users'
+    __table_args__ = (UniqueConstraint('login','lt_id'), )
 
     id           = Column(Integer, primary_key = True)
 
@@ -289,29 +292,29 @@ class LmsUser(Base, SBBase, UserMixin):
     password     = Column(Unicode(128), nullable = False)
     access_level = Column(Unicode(50), nullable = False)
 
-    lms_id    = Column(Integer, ForeignKey('lmss.id'), nullable = False)
+    lt_id    = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
 
-    lms       = relation('LMS', backref = backref('users', order_by=id, cascade = 'all,delete'))
+    lt       = relation('LearningTool', backref = backref('users', order_by=id, cascade = 'all,delete'))
 
     courses = relationship("Course",
                     secondary=users2courses_relation,
                     backref="users")
 
-    def __init__(self, login = None, full_name = None, lms = None, access_level = None):
+    def __init__(self, login = None, full_name = None, lt = None, access_level = None):
         self.login        = login
         self.full_name    = full_name
-        self.lms          = lms
+        self.lt           = lt
         self.access_level = access_level
 
     def __unicode__(self):
-        return gettext(u"%(lmslogin)s@%(lmsname)s", lmslogin=self.login, lmsname=self.lms.name)
+        return gettext(u"%(lmslogin)s@%(lmsname)s", lmslogin=self.login, lmsname=self.lt.name)
     
     def get_id(self):
-        return gettext(u"lms_user::%(lmsname)s::%(lmslogin)s", lmsname=self.lms.name, lmslogin=self.login)
+        return gettext(u"lms_user::%(lmsname)s::%(lmslogin)s", lmsname=self.lt.name, lmslogin=self.login)
 
     @classmethod
-    def exists(self, login, word, lms_id):
-        return DBS.query(self).filter_by(login = login, password = word, lms_id = int(lms_id)).first()    
+    def exists(self, login, word, lt_id):
+        return DBS.query(self).filter_by(login = login, password = word, lt_id = int(lt_id)).first()    
 
 
 
@@ -320,105 +323,110 @@ class LmsUser(Base, SBBase, UserMixin):
 # 
 #    Course
 # 
-#  1 Course is part of a LMS and it will have permission on certain laboratories
+#  1 Course is part of a LT and it will have permission on certain laboratories
 # 
 
 class Course(Base, SBBase):
 
     __tablename__ = 'courses'
-    __table_args__ = (UniqueConstraint('lms_id','context_id'), )
+    __table_args__ = (UniqueConstraint('lt_id','context_id'), )
 
     id = Column(Integer, primary_key = True)
 
-    lms_id = Column(Integer, ForeignKey('lmss.id'), nullable = False)
+    lt_id = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
     name = Column(Unicode(50), nullable = False)
     context_id = Column(Unicode(50), nullable = False)
 
-    lms = relation('LMS', backref=backref('courses', order_by=id, cascade='all, delete'))
+    lt = relation('LearningTool', backref=backref('courses', order_by=id, cascade='all, delete'))
 
-    def __init__(self, name = None, lms = None, context_id = None):
+    def __init__(self, name = None, lt = None, context_id = None):
         self.name = name
-        self.lms = lms
+        self.lt   = lt
         self.context_id = context_id
 
     def __repr__(self):
-        return gettext(u"Course(name=%(coursename)r, lms=%(courselms)r, context_id=%(coursecontext)r)", coursename=self.name, courselms=self.lms, coursecontext=self.context_id)
+        return gettext(u"Course(name=%(coursename)r, lt=%(courselms)r, context_id=%(coursecontext)r)", coursename=self.name, courselms=self.lt, coursecontext=self.context_id)
 
     def __unicode__(self):
-        return gettext(u"%(coursename)s on %(courselms)s", coursename=self.name, courselms=self.lms)
+        return gettext(u"%(coursename)s on %(courselms)s", coursename=self.name, courselms=self.lt)
 
 
 ######################################################################################
 # 
 #              P E R M I S S I O N S 
 # 
-#   - Permission on LMS (=> LMS)
-#     + Permission on LMS User (may or may not exist)
+#   - Permission on LT (=> LT)
+#     + Permission on LT User (may or may not exist)
 #       + Permission on Course
-# 
+#
+#   - RequestPermissionLT
+#       When a school requests permission to use a lab, and the labmanager admin must grant or reject this request.
+#       If the request is granted, a new entry is created in PermissionToLt
 
 ########################################################
 # 
-#     PermissionToLms
+#     PermissionToLt
 #
-# Defines that a LMS has permission on a Laboratory.
+# Defines that a LT has permission on a Laboratory.
 #
 
-class PermissionToLms(Base, SBBase):
-    __tablename__ = 'PermissionToLmss'
-    __table_args__ = (UniqueConstraint('laboratory_id', 'lms_id'), UniqueConstraint('local_identifier', 'lms_id'))
+class PermissionToLt(Base, SBBase):
+    __tablename__ = 'permissions2lt'
+    __table_args__ = (UniqueConstraint('laboratory_id', 'lt_id'), UniqueConstraint('local_identifier', 'lt_id'))
 
     id = Column(Integer, primary_key = True)
 
     local_identifier     = Column(Unicode(100), nullable = False, index = True)
 
     laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
-    lms_id        = Column(Integer, ForeignKey('lmss.id'),  nullable = False)
+    lt_id        = Column(Integer, ForeignKey('learning_tools.id'),  nullable = False)
 
     configuration = Column(Unicode(10 * 1024)) # JSON document
     accessible    = Column(Boolean, nullable = False, index = True, default = False)
 
     laboratory = relation(Laboratory.__name__,  backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
-    lms        = relation(LMS.__name__, backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
+    lt        = relation(LearningTool.__name__, backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, lms = None, laboratory = None, configuration = None, local_identifier = None, accessible = None):
-        self.lms              = lms
+    def __init__(self, lt = None, laboratory = None, configuration = None, local_identifier = None, accessible = None):
+        self.lt               = lt
         self.laboratory       = laboratory
         self.configuration    = configuration
         self.local_identifier = local_identifier
         self.accessible       = accessible
 
     def __unicode__(self):
-        return gettext(u"%(identifier)s: lab %(labname)s to %(lmsname)s", identifier=self.local_identifier, labname=self.laboratory.name, lmsname=self.lms.name)
+        return gettext(u"%(identifier)s: lab %(labname)s to %(lmsname)s", identifier=self.local_identifier, labname=self.laboratory.name, lmsname=self.lt.name)
+
+
 
 
 ########################################################
 # 
-#     PermissionToLmsUser
+#     PermissionToLtUser
 #
-# Defines that a LMS User has permission on a Laboratory.
+# Defines that a LT User has permission on a Laboratory.
 #
 
-class PermissionToLmsUser(Base, SBBase):
+class PermissionToLtUser(Base, SBBase):
 
-    __tablename__  = 'PermissionsToLmsUsers'
-    __table_args__ = (UniqueConstraint('permission_to_lms_id', 'lms_user_id'),)
+    __tablename__  = 'permissions2ltuser'
+    __table_args__ = (UniqueConstraint('permission_to_lt_id', 'lt_user_id'),)
 
     id = Column(Integer, primary_key = True)
 
-    permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False, index = True)
-    lms_user_id          = Column(Integer, ForeignKey('lmsusers.id'), nullable = False, index = True)
+    permission_to_lt_id = Column(Integer, ForeignKey('permissions2lt.id'), nullable = False, index = True)
+    lt_user_id          = Column(Integer, ForeignKey('lt_users.id'), nullable = False, index = True)
     
     # LTI data
     key                  = Column(Unicode(100), nullable = False, unique = True)
     secret               = Column(Unicode(100), nullable = False)
 
-    permission_to_lms = relation('PermissionToLms', backref=backref('lms_user_permissions', order_by=id, cascade='all, delete'))
-    lms_user = relation('LmsUser', backref=backref('lms_user_permissions', order_by=id, cascade='all, delete'))
+    permission_to_lt = relation('PermissionToLt', backref=backref('lt_user_permissions', order_by=id, cascade='all, delete'))
+    lt_user = relation('LtUser', backref=backref('lt_user_permissions', order_by=id, cascade='all, delete'))
 
-    def __init__(self, permission_to_lms = None, lms_user = None, key = None, secret = None):
-        self.permission_to_lms = permission_to_lms
-        self.lms_user          = lms_user
+    def __init__(self, permission_to_lt = None, lt_user = None, key = None, secret = None):
+        self.permission_to_lt = permission_to_lt
+        self.lt_user          = lt_user
         self.key               = key
         self.secret            = secret
 
@@ -433,29 +441,68 @@ class PermissionToLmsUser(Base, SBBase):
 
 class PermissionToCourse(Base, SBBase):
 
-    __tablename__  = 'PermissionsToCourses'
-    __table_args__ = (UniqueConstraint('permission_to_lms_id', 'course_id'),)
+    __tablename__  = 'permissions2course'
+    __table_args__ = (UniqueConstraint('permission_to_lt_id', 'course_id'),)
 
     id = Column(Integer, primary_key = True)
 
     configuration = Column(Unicode(10 * 1024), nullable = True)
 
-    permission_to_lms_id = Column(Integer, ForeignKey('PermissionToLmss.id'), nullable = False)
+    permission_to_lt_id = Column(Integer, ForeignKey('permissions2lt.id'), nullable = False)
     course_id            = Column(Integer, ForeignKey('courses.id'), nullable = False)
 
 
-    permission_to_lms = relation('PermissionToLms', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
+    permission_to_lt = relation('PermissionToLt', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
 
-    def __init__(self, course = None, permission_to_lms = None,
+    def __init__(self, course = None, permission_to_lt = None,
                  configuration = None):
         self.course            = course
         self.configuration     = configuration
-        self.permission_to_lms = permission_to_lms
+        self.permission_to_lt = permission_to_lt
 
     def __repr__(self):
-        return gettext(u"PermissionToCourse(course=%(coursecourse)r, configuration=%(courseconfiguration)r, permission_to_lms=%(coursepermission)r)", coursecourse=self.course, courseconfiguration=self.configuration, coursepermission=self.permission_to_lms)
+        return gettext(u"PermissionToCourse(course=%(coursecourse)r, configuration=%(courseconfiguration)r, permission_to_lt=%(coursepermission)r)", coursecourse=self.course, courseconfiguration=self.configuration, coursepermission=self.permission_to_lt)
 
     def __unicode__(self):
-        return gettext(u"%(coursename)s from %(lmsname)s on %(permission)s", coursename=self.course.name, lmsname=self.course.lms.name, permission=self.permission_to_lms)
+        return gettext(u"%(coursename)s from %(lmsname)s on %(permission)s", coursename=self.course.name, lmsname=self.course.lt.name, permission=self.permission_to_lt)
+
+########################################################
+# 
+#     RequestPermissionLT
+#
+#     When a school requests permission to use a lab, and the labmanager admin must grant or reject this request.
+#     If the request is granted, a new entry is created in PermissionToLt
+
+
+class RequestPermissionLT(Base, SBBase):
+    __tablename__ = 'request_permissions_lt'
+    __table_args__ = (UniqueConstraint('laboratory_id', 'lt_id'), UniqueConstraint('local_identifier', 'lt_id'))
+
+    id = Column(Integer, primary_key = True)
+
+    local_identifier     = Column(Unicode(100), nullable = False, index = True)
+
+    laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
+    lt_id        = Column(Integer, ForeignKey('learning_tools.id'),  nullable = False)
+
+    configuration = Column(Unicode(10 * 1024)) # JSON document
+    accessible    = Column(Boolean, nullable = False, index = True, default = False)
+
+    laboratory = relation(Laboratory.__name__,  backref = backref('lab_requestpermissions', order_by=id, cascade = 'all,delete'))
+    lt        = relation(LearningTool.__name__, backref = backref('lab_requestpermissions', order_by=id, cascade = 'all,delete'))
+
+    def __init__(self, lt = None, laboratory = None, configuration = None, local_identifier = None, accessible = None):
+        self.lt              = lt
+        self.laboratory       = laboratory
+        self.configuration    = configuration
+        self.local_identifier = local_identifier
+        self.accessible       = accessible
+
+    def __unicode__(self):
+        return gettext(u"'%(localidentifier)s': lab %(labname)s to %(ltname)s", localidentifier=self.local_identifier, 
+                                                                                                                            labname = self.laboratory.name, 
+                                                                                                                            ltname = self.lt.name)
+
+
 

@@ -1,4 +1,8 @@
-*.py[cod]
+# Selenium files
+C:\\nppdf32Log*
+
+# Test database
+test_db.sqlite3
 
 # Configuration file
 config.py
@@ -11,6 +15,9 @@ env
 
 # SQLite
 *.db
+
+# Python code
+*.py[cod]
 
 # C extensions
 *.so
@@ -44,4 +51,3 @@ nosetests.xml
 #Mr Developer
 .mr.developer.cfg
 
-test_db.sqlite3
