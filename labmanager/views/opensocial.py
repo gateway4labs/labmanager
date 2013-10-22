@@ -151,7 +151,7 @@ def _reserve_impl(lab_name, public, institution_id):
         current_user_data = json.loads(current_user_str)
     except:
         traceback.print_exc()
-        return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st))
+        return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
 
     # name    = current_user_data['entry'].get('displayName') or 'anonymous'
     user_id = current_user_data['entry'].get('id') or 'no-id'
@@ -198,7 +198,7 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     else:
         institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
         if institution is None or len(institution.shindig_credentials) == 0:
-        return gettext("Institution not found or it does not support Shindig")
+            return gettext("Institution not found or it does not support Shindig")
 
         permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
         db_laboratory     = permission.laboratory if permission is not None else None

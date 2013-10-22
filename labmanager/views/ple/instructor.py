@@ -19,7 +19,7 @@ from flask.ext.login import current_user
 
 from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
-from labmanager.models import LMS,Laboratory, PermissionToLms
+from labmanager.models import LearningTool,Laboratory, PermissionToLt
 from labmanager.rlms import get_manager_class
 # Added by ILZ issue 34
 from flask.ext.babel import gettext, ngettext, lazy_gettext
@@ -68,14 +68,14 @@ class PleInstructorPanel(L4lPleInstructorIndexView):
 #              Permissions for this user
 #
 
-from labmanager.models import PermissionToLmsUser
+from labmanager.models import PermissionToLtUser
 
 class PermissionToPleUserPanel(L4lPleInstructorModelView):
 
     can_create = can_edit = can_delete = False
 
     def __init__(self, session, **kwargs):
-        super(PermissionToPleUserPanel, self).__init__(PermissionToLmsUser, session, **kwargs)
+        super(PermissionToPleUserPanel, self).__init__(PermissionToLtUser, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PermissionToPleUserPanel, self).get_query(*args, **kwargs)
@@ -106,7 +106,7 @@ def list_widgets_formatter(v, c, laboratory, p):
 def accessibility_formatter(v, c, lab, p):
     
     mylms = current_user.lms
-    permissions = db_session.query(PermissionToLms).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
+    permissions = db_session.query(PermissionToLt).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
 
     # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
     if permissions is None:
@@ -159,7 +159,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 #        print current_user
 #        print dir(current_user)
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lms = current_user.lms)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
