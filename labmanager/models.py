@@ -117,7 +117,7 @@ class RLMS(Base, SBBase):
         self.configuration = configuration
 
     def __repr__(self):
-        return gettext(u"RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rmlslocation)r, version=%(rmlsversion)r, configuration=%(rmlsconfiguration)r)", rmlskind=self.kind, rmlsurl=self.url, rmlslocation=self.location, rlmsversion=self.version, rmlsconfiguration=self.configuration)
+        return gettext(u"RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rmlsversion)r, configuration=%(rmlsconfiguration)r)", rmlskind=self.kind, rmlsurl=self.url, rmlslocation=self.location, rlmsversion=self.version, rmlsconfiguration=self.configuration)
 
     def __unicode__(self):
         return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)
