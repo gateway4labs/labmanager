@@ -69,7 +69,7 @@ msgstr "Identificador"
 #: labmanager/models.py:81
 #, python-format
 msgid "LabMUser(%(userlogin)r, %(username)r, %(userpassword)r)"
-msgstr "LabMUser (%(userlogin)r,%(username)r,%(userpassword)r)"
+msgstr "LabMUser(%(userlogin)r,%(username)r,%(userpassword)r)"
 
 #: labmanager/models.py:87
 #, python-format
@@ -844,7 +844,7 @@ msgstr "tipo"
 
 #: labmanager/views/admin.py:320 labmanager/views/admin.py:321
 msgid "version"
-msgstr "versión"
+msgstr "version"
 
 #: labmanager/views/admin.py:320
 msgid "location"
