@@ -1,7 +1,7 @@
 import traceback
 
 try:
-    USE_BABELEX = False
+    USE_BABELEX = True
 
     if USE_BABELEX:
         # Use regular Babelex instead of Babel
