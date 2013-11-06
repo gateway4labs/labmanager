@@ -7,9 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 from flask.ext.wtf import Form, TextField, Required, PasswordField, ValidationError
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 class RetrospectiveForm(Form):
 

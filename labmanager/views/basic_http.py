@@ -18,9 +18,7 @@ from labmanager.application import app
 from labmanager.views import get_json
 from labmanager.views.error_codes import messages_codes
 
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 ########################################################
 # 

@@ -25,7 +25,7 @@ from flask.ext import wtf
 from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
-from flask.ext.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 from labmanager.scorm import get_scorm_object
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse, RequestPermissionLT

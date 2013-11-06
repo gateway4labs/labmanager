@@ -11,9 +11,7 @@ from hashlib import new as new_hash
 
 from flask import render_template, request, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 from ..application import app
 from ..models import LabManagerUser, LtUser, LearningTool

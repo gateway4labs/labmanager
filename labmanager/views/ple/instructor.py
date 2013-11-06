@@ -21,9 +21,7 @@ from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
 from labmanager.models import LearningTool,Laboratory, PermissionToLt
 from labmanager.rlms import get_manager_class
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 #################################################################
 # 

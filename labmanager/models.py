@@ -9,9 +9,7 @@ from flask.ext.login import UserMixin
 
 from labmanager.db import Base, db_session as DBS
 
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 class SBBase(object):
     @classmethod
@@ -84,7 +82,7 @@ class LabManagerUser(Base, SBBase, UserMixin):
         return self.name
 
     def get_id(self):
-        return gettext(u"labmanager_admin::%(adminlogin)s", adminlogin=self.login)
+        return u"labmanager_admin::%s" % self.login
 
     @classmethod
     def exists(self, login, word):
@@ -310,7 +308,7 @@ class LtUser(Base, SBBase, UserMixin):
         return gettext(u"%(lmslogin)s@%(lmsname)s", lmslogin=self.login, lmsname=self.lt.name)
     
     def get_id(self):
-        return gettext(u"lms_user::%(lmsname)s::%(lmslogin)s", lmsname=self.lt.name, lmslogin=self.login)
+        return u"lms_user::%s::%s" %  (self.lt.name, self.login)
 
     @classmethod
     def exists(self, login, word, lt_id):

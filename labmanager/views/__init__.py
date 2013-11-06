@@ -17,10 +17,7 @@ import urllib2
 # 
 from flask import request, redirect, url_for
 from flask.ext.admin import BaseView, expose
-
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 ###################
 # 
