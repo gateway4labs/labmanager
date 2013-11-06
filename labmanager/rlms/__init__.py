@@ -10,9 +10,7 @@ import sys
 
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
 
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 # 
 # Add the proper managers by pointing to a module

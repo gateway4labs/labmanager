@@ -1,9 +1,7 @@
 # -*-*- encoding: utf-8 -*-*-
 # 
 
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 messages_codes = {
     "ERROR_enrolled" : gettext('Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it'),

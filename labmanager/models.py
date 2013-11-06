@@ -9,9 +9,7 @@ from flask.ext.login import UserMixin
 
 from labmanager.db import Base, db_session as DBS
 
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 class SBBase(object):
     @classmethod

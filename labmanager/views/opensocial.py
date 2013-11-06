@@ -11,9 +11,7 @@ from labmanager.db import db_session
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
 
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 SHINDIG = threading.local()
 

@@ -70,9 +70,7 @@ The RLMS may also need to access the RLMS.
 
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
-# Added by ILZ issue 34
-from flask.ext.babel import gettext, ngettext, lazy_gettext
-# End
+from labmanager.babel import gettext, ngettext, lazy_gettext
 
 # 
 # This is the list of versions. The BaseRLMS has a method
