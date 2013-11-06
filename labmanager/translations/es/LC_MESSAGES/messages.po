@@ -69,12 +69,12 @@ msgstr "Identificador"
 #: labmanager/models.py:81
 #, python-format
 msgid "LabMUser(%(userlogin)r, %(username)r, %(userpassword)r)"
-msgstr "LabMUser (%(userlogin)r,%(nombre de usuario)r,%(userpassword)r)"
+msgstr "LabMUser (%(userlogin)r,%(username)r,%(userpassword)r)"
 
 #: labmanager/models.py:87
 #, python-format
 msgid "labmanager_admin::%(adminlogin)s"
-msgstr "labmanager_admin ::%(adminlogin)s"
+msgstr "labmanager_admin::%(adminlogin)s"
 
 #: labmanager/models.py:120
 #, python-format
@@ -747,7 +747,7 @@ msgstr "JSON válido encontró"
 #: labmanager/views/__init__.py:53
 #, python-format
 msgid "Suggested JSON: %(rdata)r"
-msgstr "Sugerida JSON:% (rdata) r"
+msgstr "Sugerida JSON: %(rdata)r"
 
 #: labmanager/views/__init__.py:79
 msgid "Error opening provided URL"
@@ -911,7 +911,7 @@ msgstr ""
 #: labmanager/views/admin.py:539
 #, python-format
 msgid "Local identifier '%(localidentifier)s' already exists"
-msgstr "Identificador local '% (LocalIdentifier) ​​s' ya existe"
+msgstr "Identificador local '%(localidentifier)s' ya existe"
 
 #: labmanager/views/admin.py:544
 msgid "Invalid local identifier (empty)"
@@ -920,7 +920,7 @@ msgstr "Invalid identificador local (vacío)"
 #: labmanager/views/admin.py:560
 #, python-format
 msgid "Public identifier '%(publicidentifier)s' already exists"
-msgstr "Identificador Público '% (publicidentifier) ​​s' ya existe"
+msgstr "Identificador Público '%(publicidentifier)s' ya existe"
 
 #: labmanager/views/admin.py:567
 msgid "Invalid public identifier (empty)"
@@ -985,7 +985,7 @@ msgstr "Finalizar la sesión"
 
 #: labmanager/views/authn.py:35
 msgid "Invalid format (expected lt_user::lt_name::login)"
-msgstr "Formato no válido (lt_user espera :: lt_name :: identificación)"
+msgstr "Formato no válido (esperado lt_user::lt_name:: login)"
 
 #: labmanager/views/authn.py:67 labmanager/views/authn.py:102
 #: labmanager/views/authn.py:133
@@ -1142,7 +1142,7 @@ msgstr ""
 #: labmanager/views/opensocial.py:154
 #, python-format
 msgid "Could not connect to %(urlshindig)s."
-msgstr "No se pudo conectar a% (urlshindig) s."
+msgstr "No se pudo conectar a %(urlshindig)s."
 
 #: labmanager/views/opensocial.py:201
 msgid "Institution not found or it does not support Shindig"
