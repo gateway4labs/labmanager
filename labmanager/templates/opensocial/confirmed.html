@@ -5,7 +5,8 @@
             var data = {
                 'reservation-id' : '{{ reservation_id }}',
             };
-            window.parent.postMessage("reserved::" + JSON.stringify(data), '{{ shindig_url }}');
+            // window.parent.postMessage("reserved::" + JSON.stringify(data), '{{ shindig_url }}');
+            window.parent.postMessage("reserved::" + JSON.stringify(data), '*');
         }
     </script>
 </head>
