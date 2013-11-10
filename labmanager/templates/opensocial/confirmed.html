@@ -6,11 +6,27 @@
                 'reservation-id' : '{{ reservation_id }}',
             };
             // window.parent.postMessage("reserved::" + JSON.stringify(data), '{{ shindig_url }}');
+
+            // Some parts of Graasp right now use http://shindig.epfl.ch/ while others use https://shindig.epfl.ch
+            // Additionally, the errors of postMessage do not produce any exception, so we can't use both directly.
+            // Instead of doing something like '{{ shindig_url }}'.replace('http://','https://') or so, we use '*'
+            // and post the message once, until a single URL is used.
             window.parent.postMessage("reserved::" + JSON.stringify(data), '*');
+
+            // This iframe will be hidden as long as the message above is processed. 
+            // If 5 seconds pass, probably the message was not past. Show the error message.
+            setTimeout(function() {
+                // Show the error
+                document.getElementById('error_message').style.display = 'block';
+            }, 5000);
         }
     </script>
 </head>
 <body onload="init();">
+<div id="error_message" style="display: none; color: red; font-weight: bold">
+    <p>There was an error when reporting the the rest of the widgets the reservation identifier.</p>
+    <p>The laboratory will not work. This usually means that {{ shindig_url }} is not the valid URL (check http vs https).</p>
+</div>
 Confirmed. Reservation id: {{ reservation_id }}. 
 </body>
 </html>
