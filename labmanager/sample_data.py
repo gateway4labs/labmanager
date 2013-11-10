@@ -178,7 +178,7 @@ def add_sample_users():
     lt4 = LearningTool(full_name = u"School 1 at Graasp", name = "school1", url = u"http://graasp.epfl.ch/")
     db_session.add(lt4)
 
-    credential = ShindigCredentials(lt = lt4, shindig_url = 'http://shindig.epfl.ch')
+    credential = ShindigCredentials(lt = lt4, shindig_url = 'https://shindig.epfl.ch')
     db_session.add(credential)
 
     lt_admin4   = LtUser(login="admin", full_name="Administrator", lt = lt4, access_level = 'admin')

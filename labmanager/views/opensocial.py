@@ -74,7 +74,7 @@ def _reserve_impl(lab_name, public, institution_id):
         if db_laboratory is None:
             return render_template("opensocial/errors.html", message = "That lab does not exist or it is not publicly available.")
 
-        SHINDIG.url = 'http://shindig.epfl.ch'
+        SHINDIG.url = 'https://shindig.epfl.ch'
 
         ple_configuration = '{}'
         institution_name  = 'public-labs' # TODO: make sure that this name is unique
@@ -244,7 +244,7 @@ def register():
             errors = True
         if not errors:
             lt = LearningTool(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)
-            shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'http://shindig.epfl.ch')
+            shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'https://shindig.epfl.ch')
             lt_user = LtUser(login = form.user_login.data, full_name = form.user_full_name.data, lt = lt, access_level = 'admin')
             lt_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
 
