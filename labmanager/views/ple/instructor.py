@@ -97,7 +97,7 @@ def local_id_formatter(v, c, laboratory, p):
     return gettext('N/A')
 
 def list_widgets_formatter(v, c, laboratory, p):
-    return Markup('<a href="%s"> gettext("list") </a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+    return Markup('<a href="%s"> list </a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
 
 
 
@@ -142,7 +142,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets')
+    column_list = ['rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets']
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter )
     column_labels = dict(rlms = lazy_gettext('RLMS'),
                                     name = lazy_gettext('Name'),

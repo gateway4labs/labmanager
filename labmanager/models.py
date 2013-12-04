@@ -308,7 +308,7 @@ class LtUser(Base, SBBase, UserMixin):
         return "%(lmslogin)s@%(lmsname)s" % dict(lmslogin=self.login, lmsname=self.lt.name)
     
     def get_id(self):
-        return u"lms_user::%s::%s" %  (self.lt.name, self.login)
+        return u"lt_user::%s::%s" %  (self.lt.name, self.login)
 
     @classmethod
     def exists(self, login, word, lt_id):

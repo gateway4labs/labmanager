@@ -14,6 +14,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import Laboratory
 from labmanager.views import RedirectView
 from labmanager.rlms import get_manager_class
+from labmanager.babel import gettext, ngettext, lazy_gettext
  
 ##############################################
 # 
@@ -45,7 +46,7 @@ class PublicLaboratoriesPanel(ModelView):
     can_create = False
 
     column_list = ('rlms', 'name', 'laboratory_id', 'public_identifier', 'widgets')
-   
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), public_identifier=lazy_gettext('public_identifier'), widgets=lazy_gettext('widgets'))
     column_formatters = dict( local_identifier = public_id_formatter, widgets = list_widgets_formatter )
 
     def __init__(self, session, **kwargs):

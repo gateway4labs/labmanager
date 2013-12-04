@@ -104,7 +104,7 @@ class PleUsersPanel(L4lPleModelView):
     can_delete = True
     can_edit   = False
     can_create = True
-    column_list = ('login', 'full_name', 'access_level')
+    column_list = ['login', 'full_name', 'access_level']
     form_columns = ('login','full_name', 'access_level', 'password')
     
     column_labels = dict(login = lazy_gettext('login'),
@@ -162,7 +162,7 @@ def local_id_formatter(v, c, laboratory, p):
     return gettext('N/A')
 
 def list_widgets_formatter(v, c, laboratory, p):
-    return Markup('<a href="%s"> gettext("list")</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
 
 
 
@@ -279,7 +279,7 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible')
+    column_list = ['rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible'] 
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
     column_labels = dict(rlms = lazy_gettext('rlms'),
                                     name = lazy_gettext('name'),
@@ -339,8 +339,8 @@ class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'request_access')
-
+    column_list = ['rlms', 'name', 'laboratory_id', 'request_access']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), request_access=lazy_gettext('request_access'))
 
     column_formatters = dict(request_access = request_formatter)
 
@@ -424,7 +424,7 @@ class PleSpacesPanel(L4lPleModelView):
 
     can_create = can_edit = False
 
-    column_list = ('name', 'context_id', 'url')
+    column_list = ['name', 'context_id', 'url']
     form_columns = ('name', 'context_id')
     column_formatters = dict( url = format_space_url  )
     column_labels = dict(name = lazy_gettext('name'),

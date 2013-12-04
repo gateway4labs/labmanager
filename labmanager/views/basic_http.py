@@ -94,7 +94,7 @@ def requests():
             return messages_codes["ERROR_unsupported"]
     except KeyError:
         traceback.print_exc()
-        return messages_codes[gettext("ERROR_invalid")]
+        return messages_codes["ERROR_invalid"]
 
 
     # reserving...

@@ -89,7 +89,7 @@ class LmsAdminPanel(L4lLmsAdminIndexView):
 
 class LmsUsersPanel(L4lLmsModelView):
 
-    column_list = ('login', 'full_name', 'access_level')
+    column_list = ['login', 'full_name', 'access_level']
     form_columns = ('login', 'full_name', 'access_level', 'password')
     column_labels = dict(login = lazy_gettext('Login'),
                                     full_name = lazy_gettext('Full Name'),
@@ -212,7 +212,7 @@ def scorm_formatter(v, c, laboratory, p):
             if permission.lt == current_user.lt:
                 local_id = permission.local_identifier
 
-                return Markup('<a href="%s"> gettext("Download")</a>' % (url_for('.get_scorm', local_id = local_id)))
+                return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', local_id = local_id)))
 
     return gettext('N/A')
 
@@ -222,7 +222,7 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'SCORM')
+    column_list = ['rlms', 'name', 'laboratory_id', 'local_identifier', 'SCORM']
     column_labels = dict(rlms = lazy_gettext('Rlms'),
                                     name = lazy_gettext('Name'),
                                     laboratory_id = lazy_gettext('Laboratory Id'),
@@ -268,7 +268,7 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
 
 class LmsCoursesPanel(L4lLmsModelView):
 
-    column_list = ('name', 'context_id')
+    column_list = ['name', 'context_id']
     form_columns = ('name', 'context_id')
     column_labels = dict(name = lazy_gettext('Name'),
                                     context_id = lazy_gettext('Context Id'))

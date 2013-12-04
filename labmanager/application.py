@@ -80,14 +80,8 @@ init_instructor_admin(app, db_session)
 from .views.ple.admin import init_ple_admin
 init_ple_admin(app, db_session)
 
-#
-# Added by ILZ #28
-#
 from .views.ple.instructor import init_ple_instructor_admin
 init_ple_instructor_admin(app, db_session)
-#
-# End modification
-#
 
 # 
 # Initialize login subsystem
@@ -111,9 +105,9 @@ def developers():
 
 @app.route("/about")
 def about():
+    
     """Global information about gateway4labs."""
     return render_template("about.html")
-
 
 @app.teardown_request
 def shutdown_session(exception = None):

@@ -94,12 +94,14 @@ class AdminPanel(L4lAdminIndexView):
 
 class UsersPanel(L4lModelView):
 
-    column_list = (lazy_gettext('login'), lazy_gettext('name'))
+    column_list = ['login', 'name']
+    column_labels  = dict(login=lazy_gettext('login'), name=lazy_gettext('name'))
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
 
     form_columns = ('name', 'login', 'password')
+    column_labels = dict(name=lazy_gettext('name'), login=lazy_gettext('login'), passwor=lazy_gettext('password'))
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
 
     def on_model_change(self, form, model):
@@ -107,7 +109,8 @@ class UsersPanel(L4lModelView):
 
 class LtUsersPanel(L4lModelView):
 
-    column_list = (lazy_gettext('lt'), lazy_gettext('login'), lazy_gettext('full_name'), lazy_gettext('access_level'))
+    column_list = ['lt', 'login', 'full_name', 'access_level']
+    column_lists = dict(lt=lazy_gettext('lt'), login=lazy_gettext('login'), full_name=lazy_gettext('full_name'), access_level=lazy_gettext('access_level'))
 
     def __init__(self, session, **kwargs):
         super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
@@ -169,7 +172,8 @@ class LabRequestsPanel(L4lModelView):
     # TODO: manage configuration
     # 
 
-    column_list = (lazy_gettext('laboratory'), lazy_gettext('local_identifier'), lazy_gettext('lt'), lazy_gettext('accept'), lazy_gettext('reject'))
+    column_list = ['laboratory', 'local_identifier', 'lt', 'accept', 'reject']
+    column_labels = dict(laboratory=lazy_gettext('laboratory'), local_identifier=lazy_gettext('local_identifier'), lt=lazy_gettext('lt'), accept=lazy_gettext('accept'), reject=lazy_gettext('reject'))
 
     column_formatters = dict( accept = accept_formatter, reject  = reject_formatter )
 
@@ -239,14 +243,15 @@ class BasicHttpCredentialsForm(InlineFormAdmin):
 
 def download(v, c, lt, p):
     if len(lt.basic_http_authentications) > 0:
-            return Markup('<a href="%s"> gettext("Download")</a>' % (url_for('.scorm_authentication', id = lt.id)))
+            return Markup('<a href="%s"> Download </a>' % (url_for('.scorm_authentication', id = lt.id)))
     return gettext('N/A')
 
 class LTPanel(L4lModelView):
 
     inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
 
-    column_list = (lazy_gettext('full_name'), lazy_gettext('name'), lazy_gettext('url'), lazy_gettext('download'))
+    column_list = ['full_name', 'name', 'url', 'download']
+    column_labels = dict(full_name=lazy_gettext('full_name'), name=lazy_gettext('name'), url=lazy_gettext('url'), download=lazy_gettext('download'))
     column_formatters = dict( download = download )
     column_descriptions = dict( name = lazy_gettext("Institution short name (lower case, all letters, dots and numbers)"), full_name = lazy_gettext("Name of the institution."))
 
@@ -315,11 +320,13 @@ class RLMSPanel(L4lModelView):
     form_overrides = dict(kind=DynamicSelectField)
 
     # For listing 
-    column_list  = [lazy_gettext('kind'), lazy_gettext('version'), lazy_gettext('location'), lazy_gettext('url'), lazy_gettext('labs')]
+    # column_list  = [lazy_gettext('kind'), lazy_gettext('version'), lazy_gettext('location'), lazy_gettext('url'), lazy_gettext('labs')]
+    column_list  = ['kind', 'version', 'location', 'url', 'labs']
+    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
     column_exclude_list = (lazy_gettext('version'), lazy_gettext('configuration'))
 
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s"> lazy_gettext("List")</a>' % (url_for('.labs', id=rlms.id)))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), list))
         )
 
     def __init__(self, session, **kwargs):
@@ -514,7 +521,8 @@ class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
 
-    column_list = (lazy_gettext('rlms'), lazy_gettext('name'), lazy_gettext('laboratory_id'), lazy_gettext('visibility'), lazy_gettext('availability'), lazy_gettext('public_availability'))
+    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability']
+    column_lables = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'))
     column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter)
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
@@ -581,8 +589,8 @@ class PermissionToLtPanel(L4lModelView):
     # TODO: manage configuration
     # 
 
-    column_list = (lazy_gettext('laboratory'), lazy_gettext('lt'), lazy_gettext('local_identifier'), lazy_gettext('configuration'), lazy_gettext('SCORM'))
-
+    column_list = ['laboratory', 'lt', 'local_identifier', 'configuration', 'SCORM']
+    column_labels = dict(laboratory=lazy_gettext('laboratory'), lt=lazy_gettext('lt'), local_identifier=lazy_gettext('local_identifier'), configuration=lazy_gettext('configuration'), SCORM=lazy_gettext('SCORM'))
     column_descriptions = dict(
                 laboratory       = lazy_gettext(u"Laboratory"),
                 lt               = lazy_gettext(u"Learning Management System"),
