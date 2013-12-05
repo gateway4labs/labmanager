@@ -48,18 +48,26 @@ else:
     babel = Babel(app)
 
     print babel.list_translations()
+    supported_languages = ['en']
+    supported_languages.extend([ translation.language for translation in babel.list_translations() ])
 
     @babel.localeselector
     def get_locale():
-        locale = request.args.get('locale', 'en')
+        locale = request.args.get('locale',  None)
+        if locale is None:
+            locale = request.accept_languages.best_match(supported_languages)
+        if locale is None:
+            locale = 'en'
         print "Locale requested. Got: ", locale
         return locale 
 
     @babel.timezoneselector
     def get_timezone():
-        timezone = request.args.set('timezone', 'en')
-        print "Timezone requested. Got: ", timezone
-        return timezone
+        #timezone = request.args.get('timezone', 'en')
+        #print "Timezone requested. Got: ", timezone
+        #return timezone
+        # TODO 
+        return None
 
 
 # 

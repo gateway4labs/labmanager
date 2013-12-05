@@ -28,12 +28,14 @@
                 <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">{{gettext('Manage Graasp access')}}</a></p>
             </div>
 
+        </div>
+        
+        <div class="row">
             <div class="span4">
                 <h2>{{gettext('LMS users')}}</h2>
                 <p>{{gettext('LMS users will select which courses or other users are registered in a LMS')}}</p>
                 <p><a href="{{ url_for('login_lms') }}">{{gettext('Manage LMS internals')}}</a></p>
             </div>
-
         </div>
 	    
     </div>
