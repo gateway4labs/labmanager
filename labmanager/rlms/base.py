@@ -70,6 +70,7 @@ The RLMS may also need to access the RLMS.
 
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
+assert Blueprint or None # Avoid pyflakes warning
 
 # 
 # This is the list of versions. The BaseRLMS has a method
