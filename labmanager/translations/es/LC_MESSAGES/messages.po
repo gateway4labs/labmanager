@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-12-03 13:35+0100\n"
+"POT-Creation-Date: 2013-12-09 15:58+0100\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -54,9 +54,7 @@ msgstr "Es obligatorio introducir un valor en este campo"
 msgid "Login"
 msgstr "Usuario"
 
-#: labmanager/forms.py:51 labmanager/templates/login_admin.html:67
-#: labmanager/templates/login_lms.html:84
-#: labmanager/templates/login_ple.html:84 labmanager/views/opensocial.py:226
+#: labmanager/forms.py:51 labmanager/views/opensocial.py:226
 #: labmanager/views/lms/admin.py:97
 msgid "Password"
 msgstr "Contraseña"
@@ -106,19 +104,6 @@ msgstr "%(coursename)s de %(lmsname)s en %(permission)s"
 msgid "'%(localidentifier)s': lab %(labname)s to %(ltname)s"
 msgstr "'%(localidentifier)s': laboratorio %(labname)s en %(ltname)s"
 
-#: labmanager/rlms/__init__.py:55
-#, python-format
-msgid "Misconfiguration: %(rlmstype)s %(rmlsversion)s does not exist"
-msgstr "La configuración no es válida: no existe %(rlmstype)s %(rmlsversion)s"
-
-#: labmanager/rlms/base.py:83
-msgid "version1"
-msgstr "versión 1"
-
-#: labmanager/rlms/base.py:94
-msgid "teacher_panel"
-msgstr "Panel del instructor"
-
 #: labmanager/templates/_form_helpers.html:2
 msgid "Input with warning"
 msgstr "Aviso para los datos introducidos"
@@ -133,7 +118,11 @@ msgid ""
 "laboratories accessible by the final users in a simpler way, by going "
 "wherever the users are: PLEs, LMSs, CMSs, etc. You have more information "
 "in its"
-msgstr "Gateway4labs es una iniciativa abierta cuyo objetivo es que los laboratorios remotos y virtuales sean accesibles a los usuarios finales de una forma sencilla, llevando los laboratorios hasta los usuarios. Tiene más información en su"
+msgstr ""
+"Gateway4labs es una iniciativa abierta cuyo objetivo es que los "
+"laboratorios remotos y virtuales sean accesibles a los usuarios finales "
+"de una forma sencilla, llevando los laboratorios hasta los usuarios. "
+"Tiene más información en su"
 
 #: labmanager/templates/about.html:8
 msgid "official page"
@@ -151,7 +140,9 @@ msgstr "LT"
 msgid ""
 "LMSs will forward SCORM requests to the Lab Manager, which will process "
 "them"
-msgstr "LT reenviará las solicitudes del estándar SCORM al gestor de laboratorios, que las procesará"
+msgstr ""
+"LT reenviará las solicitudes del estándar SCORM al gestor de "
+"laboratorios, que las procesará"
 
 #: labmanager/templates/developers.html:15
 msgid "URL for LMSs"
@@ -169,7 +160,9 @@ msgstr "Laboratorios públicos disponibles en Graasp"
 msgid ""
 "Here you can find the list of public labs available for Graasp without "
 "registration."
-msgstr "En este apartado se muestran los laboratorios públicos disponibles en Graasp, es decir, para los que no es necesario un registro previo"
+msgstr ""
+"En este apartado se muestran los laboratorios públicos disponibles en "
+"Graasp, es decir, para los que no es necesario un registro previo"
 
 #: labmanager/templates/index.html:15
 #, fuzzy
@@ -197,21 +190,25 @@ msgstr "Usuarios de Graasp"
 msgid ""
 "School owners using Graasp will select which courses or other users are "
 "registered"
-msgstr "Los responsables de las escuelas, utilizando Graasp,  podrán gestionar los cursos y usuarios registrados"
+msgstr ""
+"Los responsables de las escuelas, utilizando Graasp,  podrán gestionar "
+"los cursos y usuarios registrados"
 
 #: labmanager/templates/index.html:28
 msgid "Manage Graasp access"
 msgstr "Administrar el acceso Graasp"
 
-#: labmanager/templates/index.html:32
+#: labmanager/templates/index.html:35
 msgid "LMS users"
 msgstr "Usuarios del LT"
 
-#: labmanager/templates/index.html:33
+#: labmanager/templates/index.html:36
 msgid "LMS users will select which courses or other users are registered in a LMS"
-msgstr "Los responsable del un LT podrán gestionar los cursos y usuarios registrados en el LT"
+msgstr ""
+"Los responsable del un LT podrán gestionar los cursos y usuarios "
+"registrados en el LT"
 
-#: labmanager/templates/index.html:34
+#: labmanager/templates/index.html:37
 msgid "Manage LMS internals"
 msgstr "Gestión del LT"
 
@@ -234,49 +231,6 @@ msgstr "Desarrolladores"
 #: labmanager/templates/layout.html:26
 msgid "About"
 msgstr "Acerca de"
-
-#: labmanager/templates/login_admin.html:5
-msgid "LabManager login"
-msgstr "Acceso a la gestión de laboratorios"
-
-#: labmanager/templates/login_admin.html:56
-msgid "LabManager Login"
-msgstr "Administración del gestor de laboratorios"
-
-#: labmanager/templates/login_admin.html:60
-#: labmanager/templates/login_lms.html:77
-#: labmanager/templates/login_ple.html:77
-msgid "Username"
-msgstr "Usuario"
-
-#: labmanager/templates/login_admin.html:85
-#: labmanager/templates/login_lms.html:103
-#: labmanager/templates/login_ple.html:103
-msgid "Log in"
-msgstr "Conectar"
-
-#: labmanager/templates/login_admin.html:88
-#: labmanager/templates/login_lms.html:107
-#: labmanager/templates/login_ple.html:107
-msgid "Back"
-msgstr "Regresar"
-
-#: labmanager/templates/login_lms.html:5 labmanager/templates/login_ple.html:5
-msgid "Institution login"
-msgstr "Acceso para las escuelas registradas"
-
-#: labmanager/templates/login_lms.html:62
-msgid "Institution Login"
-msgstr "Página de acceso a la gestión de los laboratorios remotos"
-
-#: labmanager/templates/login_lms.html:66
-#: labmanager/templates/login_ple.html:66
-msgid "Institution"
-msgstr "Nombre oficial de la escuela"
-
-#: labmanager/templates/login_ple.html:62
-msgid "GRAASP Institution Login"
-msgstr "Página de acceso a la gestión en Graasp"
 
 #: labmanager/templates/test_admin_authentication.html:23
 msgid "Click me"
@@ -316,7 +270,9 @@ msgstr "¡Hola"
 
 #: labmanager/templates/labmanager_admin/index.html:9
 msgid "This is the Lab Manager administration tool. Here you can:"
-msgstr "Esta es la herramienta de administración del Gestor de Laboratorios. A través de esta herramienta se puede:"
+msgstr ""
+"Esta es la herramienta de administración del Gestor de Laboratorios. A "
+"través de esta herramienta se puede:"
 
 #: labmanager/templates/labmanager_admin/index.html:11
 msgid "Create, modify or remove users of this Lab Manager."
@@ -326,13 +282,19 @@ msgstr "Crear, modificar o eliminar usuarios de este gestor de laboratorios"
 msgid ""
 "Create, modify or remove remote laboratory management systems and "
 "laboratories associated to them."
-msgstr "Crear, modificar o eliminar los sistemas de gestión de laboratorios remotos (Remote Laboratory Management Systems - RLMS) y los laboratorios asociados a ellos"
+msgstr ""
+"Crear, modificar o eliminar los sistemas de gestión de laboratorios "
+"remotos (Remote Laboratory Management Systems - RLMS) y los laboratorios "
+"asociados a ellos"
 
 #: labmanager/templates/labmanager_admin/index.html:13
 msgid ""
 "Create, modify or remove LMSs, assigning permissions on them, and "
 "creating admin users on them (so they can manage these permissions)."
-msgstr "Crear, modificar o eliminar un sistema de aprendizaje (Learning Tool - LT), asignar permisos en dichos LT, y crear usuarios administradores de los mismos para que gestionen estos permisos"
+msgstr ""
+"Crear, modificar o eliminar un sistema de aprendizaje (Learning Tool - "
+"LT), asignar permisos en dichos LT, y crear usuarios administradores de "
+"los mismos para que gestionen estos permisos"
 
 #: labmanager/templates/labmanager_admin/index.html:15
 msgid "The typical cycle is:"
@@ -352,13 +314,17 @@ msgstr "Crear un LT"
 
 #: labmanager/templates/labmanager_admin/index.html:20
 msgid "Grant permissions on that LMS (which labs can be accessed by them)"
-msgstr "Conceder permisos en ese LMS, indicando los laboratorios a los que se puede acceder"
+msgstr ""
+"Conceder permisos en ese LMS, indicando los laboratorios a los que se "
+"puede acceder"
 
 #: labmanager/templates/labmanager_admin/index.html:21
 msgid ""
 "Create an admin user for this LMS, and tell them their credentials by "
 "e-mail."
-msgstr "Crear un usuario administrador del LT, y enviarle los datos de conexión por e-mail"
+msgstr ""
+"Crear un usuario administrador del LT, y enviarle los datos de conexión "
+"por e-mail"
 
 #: labmanager/templates/labmanager_admin/index.html:23
 msgid ""
@@ -366,7 +332,9 @@ msgid ""
 "and give them permissions on the laboratories. Or, if they are using the "
 "Basic HTTP system, then they can add courses and grant permissions on "
 "those courses."
-msgstr "Si está utilizando LTI, el usuario administrador del LT puede crear usuarios instructores, y darles permisos de acceso sobre los laboratorios"
+msgstr ""
+"Si está utilizando LTI, el usuario administrador del LT puede crear "
+"usuarios instructores, y darles permisos de acceso sobre los laboratorios"
 
 #: labmanager/templates/labmanager_admin/lab-list.html:3
 msgid "Available labs for "
@@ -464,7 +432,9 @@ msgstr "¡Hola "
 msgid ""
 "This is the LMS instructor tool. Here you can see which permissions you "
 "have in which laboratories."
-msgstr "Esta es la herramienta para el instructor del LT. Mediante ella puede ver qué permisos se poseen sobre qué laboratorios"
+msgstr ""
+"Esta es la herramienta para el instructor del LT. Mediante ella puede ver"
+" qué permisos se poseen sobre qué laboratorios"
 
 #: labmanager/templates/lti/display_lab.html:5
 #: labmanager/templates/lti/errors.html:5
@@ -508,7 +478,7 @@ msgstr "Haga clic aquí para utilizar el laboratorio"
 msgid "Error while processing the request"
 msgstr "Error al procesar la petición"
 
-#: labmanager/templates/opensocial/confirmed.html:13
+#: labmanager/templates/opensocial/confirmed.html:30
 msgid "Confirmed. Reservation id:"
 msgstr "Confirmado. Identificador de la reserva:"
 
@@ -528,6 +498,10 @@ msgstr "regístrese aquí para acceder a los laboratorios remotos"
 msgid "Register your school!"
 msgstr "Registre su escuela en Graasp"
 
+#: labmanager/templates/opensocial/smartgateway.js:63
+msgid "Reserve"
+msgstr "Reserva"
+
 #: labmanager/templates/ple_admin/index.html:3
 msgid "Graasp Admin Dashboard"
 msgstr "Panel de administración de Graasp"
@@ -538,7 +512,9 @@ msgstr "de "
 
 #: labmanager/templates/ple_admin/index.html:9
 msgid "This is the Graasp administration tool. Here you can:"
-msgstr "Esta es la herramienta que permite interactuar a los administradores con Graasp. Esta herramienta permite:"
+msgstr ""
+"Esta es la herramienta que permite interactuar a los administradores con "
+"Graasp. Esta herramienta permite:"
 
 #: labmanager/templates/ple_admin/index.html:11
 msgid "Create, modify or remove users of school."
@@ -560,7 +536,9 @@ msgstr "Panel del instructor en Graasp"
 msgid ""
 "This is the Graasp instructor tool. Here you can see which permissions "
 "you have in which laboratories."
-msgstr "Esta es la herramienta para que los instructores interactuen con Graasp. Esta herramienta permite ver qué permisos tiene sobre qué laboratorios"
+msgstr ""
+"Esta es la herramienta para que los instructores interactuen con Graasp. "
+"Esta herramienta permite ver qué permisos tiene sobre qué laboratorios"
 
 #: labmanager/templates/ple_admin/list_widgets.html:4
 msgid "Widgets for "
@@ -576,7 +554,9 @@ msgstr "El laboratorio"
 msgid ""
 "provides the following widgets. Copy the link for each particular widget "
 "and locate it in Graasp."
-msgstr "provee los siguientes widgets. Copie el enlace de cada widget concreto y colóquelo en Graasp"
+msgstr ""
+"provee los siguientes widgets. Copie el enlace de cada widget concreto y "
+"colóquelo en Graasp"
 
 #: labmanager/templates/ple_admin/list_widgets.html:13
 #: labmanager/templates/public/list_widgets.html:13
@@ -603,7 +583,9 @@ msgstr "¡Advertencia!"
 msgid ""
 "No widget available. This might mean that the RLMS plug-in was not "
 "properly configured."
-msgstr "El widget no está disponible. Esto podría deberse a que el plug-in del RLMS no se ha configurado correctamente."
+msgstr ""
+"El widget no está disponible. Esto podría deberse a que el plug-in del "
+"RLMS no se ha configurado correctamente."
 
 #: labmanager/templates/ple_admin/new_space.html:6
 msgid "Add a new space:"
@@ -615,7 +597,9 @@ msgstr "Nombre del espacio"
 
 #: labmanager/templates/ple_admin/new_space.html:21
 msgid "The provided space was hidden or closed. Please provide a name."
-msgstr "El espacio que solicita está oculto o cerrado. Por favor, proporcione un nombre"
+msgstr ""
+"El espacio que solicita está oculto o cerrado. Por favor, proporcione un "
+"nombre"
 
 #: labmanager/templates/ple_admin/new_space.html:28
 msgid "Add permissions to the following labs:"
@@ -642,7 +626,10 @@ msgstr "Si usted es un instructor, debe obtener la información de:"
 msgid ""
 "Here you can see the list of publicly available laboratories and their "
 "app URLs. These labs are not aware of who is using the system."
-msgstr "Aquí se puede ver la lista de los laboratorios a disposición del público y sus direcciones URL de acceso. El acceso a estos laboratorios no requiere un registro previo"
+msgstr ""
+"Aquí se puede ver la lista de los laboratorios a disposición del público "
+"y sus direcciones URL de acceso. El acceso a estos laboratorios no "
+"requiere un registro previo"
 
 #: labmanager/templates/public/list_widgets.html:4
 #, fuzzy
@@ -667,18 +654,18 @@ msgid "Invalid JSON"
 msgstr "El JSON es válido"
 
 #: labmanager/views/admin.py:98 labmanager/views/admin.py:104
-#: labmanager/views/admin.py:113 labmanager/views/ple/admin.py:110
+#: labmanager/views/admin.py:113 labmanager/views/ple/admin.py:103
 msgid "login"
 msgstr "Usuario"
 
 #: labmanager/views/admin.py:98 labmanager/views/admin.py:104
 #: labmanager/views/admin.py:254 labmanager/views/admin.py:525
-#: labmanager/views/public.py:49 labmanager/views/ple/admin.py:285
-#: labmanager/views/ple/admin.py:343 labmanager/views/ple/admin.py:430
+#: labmanager/views/public.py:49 labmanager/views/ple/admin.py:278
+#: labmanager/views/ple/admin.py:336 labmanager/views/ple/admin.py:424
 msgid "name"
 msgstr "Nombre"
 
-#: labmanager/views/admin.py:104 labmanager/views/ple/admin.py:113
+#: labmanager/views/admin.py:104 labmanager/views/ple/admin.py:106
 msgid "password"
 msgstr "Contraseña"
 
@@ -688,11 +675,11 @@ msgid "lt"
 msgstr "LT"
 
 #: labmanager/views/admin.py:113 labmanager/views/admin.py:254
-#: labmanager/views/ple/admin.py:111
+#: labmanager/views/ple/admin.py:104
 msgid "full_name"
 msgstr "Nombre completo"
 
-#: labmanager/views/admin.py:113 labmanager/views/ple/admin.py:112
+#: labmanager/views/admin.py:113 labmanager/views/ple/admin.py:105
 msgid "access_level"
 msgstr "Nivel de acceso"
 
@@ -701,7 +688,7 @@ msgid "laboratory"
 msgstr "Laboratorio"
 
 #: labmanager/views/admin.py:176 labmanager/views/admin.py:593
-#: labmanager/views/ple/admin.py:287
+#: labmanager/views/ple/admin.py:280
 msgid "local_identifier"
 msgstr "Identificador local"
 
@@ -730,13 +717,13 @@ msgid "Login of the LT when contacting the LabManager"
 msgstr "Usuario del LT que contacta con el gestor de laboratorios"
 
 #: labmanager/views/admin.py:247 labmanager/views/lms/admin.py:206
-#: labmanager/views/lms/admin.py:217 labmanager/views/ple/admin.py:162
+#: labmanager/views/lms/admin.py:217 labmanager/views/ple/admin.py:155
 #: labmanager/views/ple/instructor.py:97
 msgid "N/A"
 msgstr "N / A"
 
 #: labmanager/views/admin.py:254 labmanager/views/admin.py:325
-#: labmanager/views/ple/admin.py:432
+#: labmanager/views/ple/admin.py:426
 msgid "url"
 msgstr "URL"
 
@@ -789,12 +776,12 @@ msgid "Make publicly available"
 msgstr "Marcar como disponible al público"
 
 #: labmanager/views/admin.py:525 labmanager/views/public.py:49
-#: labmanager/views/ple/admin.py:284 labmanager/views/ple/admin.py:343
+#: labmanager/views/ple/admin.py:277 labmanager/views/ple/admin.py:336
 msgid "rlms"
 msgstr "RLMS"
 
 #: labmanager/views/admin.py:525 labmanager/views/public.py:49
-#: labmanager/views/ple/admin.py:286 labmanager/views/ple/admin.py:343
+#: labmanager/views/ple/admin.py:279 labmanager/views/ple/admin.py:336
 msgid "laboratory_id"
 msgstr "Identificador del laboratorio"
 
@@ -812,13 +799,17 @@ msgstr "Público"
 
 #: labmanager/views/admin.py:528
 msgid "Make this laboratory automatically available for the Learning Tools"
-msgstr "Marcar este laboratorio como accesible automáticamente para las herramientas de aprendizaje"
+msgstr ""
+"Marcar este laboratorio como accesible automáticamente para las "
+"herramientas de aprendizaje"
 
 #: labmanager/views/admin.py:529
 msgid ""
 "Make this laboratory automatically available even from outside the "
 "registered Learning Tools"
-msgstr "Marcar este laboratorio accesible de forma automática, incluso desde fuera de las herramientas de aprendizaje registradas"
+msgstr ""
+"Marcar este laboratorio accesible de forma automática, incluso desde "
+"fuera de las herramientas de aprendizaje registradas"
 
 #: labmanager/views/admin.py:545
 #, python-format
@@ -848,7 +839,9 @@ msgstr "Sistema de gestión del aprendizaje (Learning Tool - LT)"
 
 #: labmanager/views/admin.py:597
 msgid "Unique identifier for a Learning Tool to access a laboratory"
-msgstr "Identificador único para una herramienta de aprendizaje para acceder a un laboratorio"
+msgstr ""
+"Identificador único para una herramienta de aprendizaje para acceder a un"
+" laboratorio"
 
 #: labmanager/views/admin.py:642
 msgid "LT Management"
@@ -879,7 +872,7 @@ msgid "Registered labs"
 msgstr "Laboratorios registrados"
 
 #: labmanager/views/admin.py:650 labmanager/views/lms/admin.py:420
-#: labmanager/views/lms/admin.py:421 labmanager/views/ple/admin.py:596
+#: labmanager/views/lms/admin.py:421 labmanager/views/ple/admin.py:590
 msgid "Users"
 msgstr "Usuarios"
 
@@ -888,7 +881,7 @@ msgid "Labmanager Users"
 msgstr "Usuarios del gestor de laboratorios"
 
 #: labmanager/views/admin.py:651 labmanager/views/lms/admin.py:423
-#: labmanager/views/lms/instructor.py:97 labmanager/views/ple/admin.py:597
+#: labmanager/views/lms/instructor.py:97 labmanager/views/ple/admin.py:591
 #: labmanager/views/ple/instructor.py:209
 msgid "Log out"
 msgstr "Finalizar la sesión"
@@ -920,13 +913,17 @@ msgstr "No se han podido verificar sus credenciales para esa URL"
 msgid ""
 "Your LMS has permission to use that laboratory; but you are not enrolled "
 "in any course with permissions to use it"
-msgstr "Su LT tiene autorización para utilizar ese laboratorio, pero usted no está matriculado en ningún curso que le permita utilizarlo"
+msgstr ""
+"Su LT tiene autorización para utilizar ese laboratorio, pero usted no "
+"está matriculado en ningún curso que le permita utilizarlo"
 
 #: labmanager/views/error_codes.py:8
 msgid ""
 "Your LMS does not have permission to use that laboratory or that "
 "identifier does not exist"
-msgstr "Su LT no tiene permiso para usar ese laboratorio o el identificador no existe"
+msgstr ""
+"Su LT no tiene permiso para usar ese laboratorio o el identificador no "
+"existe"
 
 #: labmanager/views/error_codes.py:9
 msgid "No good news :-("
@@ -993,7 +990,9 @@ msgstr "El secreto no es válido: no se ha podido validar la petición"
 
 #: labmanager/views/ims_lti.py:51
 msgid "Request checked and failed. Please check that the 'secret' is correct."
-msgstr "La petición no se ha podido atender. Por favor, compruebe que el 'secreto' es correcto"
+msgstr ""
+"La petición no se ha podido atender. Por favor, compruebe que el "
+"'secreto' es correcto"
 
 #: labmanager/views/ims_lti.py:67
 msgid "Session not initialized. Are you a LMS?"
@@ -1015,7 +1014,9 @@ msgstr "Ese laboratorio no existe o no está disponible públicamente."
 msgid ""
 "This is not a valid PLE. Make sure that the institution id is fine and "
 "that there are Shindig Credentials configured"
-msgstr "Ésto no es un PLE válido. Asegúrese de que el identificador de su escuela es corecto y que las credenciales de acceso a Shindig están configuradas"
+msgstr ""
+"Ésto no es un PLE válido. Asegúrese de que el identificador de su escuela"
+" es corecto y que las credenciales de acceso a Shindig están configuradas"
 
 #: labmanager/views/opensocial.py:98
 #, python-format
@@ -1033,7 +1034,9 @@ msgstr "Su PLE es válido, pero no tiene permisos para el laboratorio solicitado
 msgid ""
 "Your PLE is valid and your lab too, but you're not in one of the spaces "
 "that have permissions (you are in %(space)r)"
-msgstr "Su PLE es válido y su laboratorio también, pero no está en uno de los espacios que tienen permiso. Usted está en el espacio %(space)r"
+msgstr ""
+"Su PLE es válido y su laboratorio también, pero no está en uno de los "
+"espacios que tienen permiso. Usted está en el espacio %(space)r"
 
 #: labmanager/views/opensocial.py:152
 #, python-format
@@ -1044,7 +1047,7 @@ msgstr "No se pudo conectar a %(urlshindig)s."
 msgid "Institution not found or it does not support Shindig"
 msgstr "No se ha encontrado la escuela o no soporta Shindig"
 
-#: labmanager/views/opensocial.py:205 labmanager/views/ple/admin.py:310
+#: labmanager/views/opensocial.py:205 labmanager/views/ple/admin.py:303
 #: labmanager/views/ple/instructor.py:172
 msgid "Laboratory not found"
 msgstr "No se ha encontrado el laboratorio"
@@ -1103,7 +1106,7 @@ msgstr "Este nombre ya ha sido registrado"
 msgid "public_identifier"
 msgstr "Identificador local"
 
-#: labmanager/views/public.py:49 labmanager/views/ple/admin.py:288
+#: labmanager/views/public.py:49 labmanager/views/ple/admin.py:281
 #: labmanager/views/ple/instructor.py:151
 msgid "widgets"
 msgstr "widgets"
@@ -1161,17 +1164,24 @@ msgid ""
 "No authentication is configured in your LMS. If you are not using the "
 "Basic HTTP system (e.g., you're using LTI), don't worry. Otherwise, "
 "contact the Labmanager administrator."
-msgstr "Su LT no tiene configurada la autenticación. Si no está usando el sistema HTTP básico (por ejemplo si está usando LTI), no se preocupe. De lo contrario, contacte con el Administrador del Gestor de Laboratorios."
+msgstr ""
+"Su LT no tiene configurada la autenticación. Si no está usando el sistema"
+" HTTP básico (por ejemplo si está usando LTI), no se preocupe. De lo "
+"contrario, contacte con el Administrador del Gestor de Laboratorios."
 
 #: labmanager/views/lms/admin.py:316
 msgid ""
 "Invalid JSON provided or could not connect to the LMS. Look at the logs "
 "for more information"
-msgstr "El JSON obtenido no es válido o no se ha podido conectar con el LT. Revise el/los ficheros de logs para obtener más información"
+msgstr ""
+"El JSON obtenido no es válido o no se ha podido conectar con el LT. "
+"Revise el/los ficheros de logs para obtener más información"
 
 #: labmanager/views/lms/admin.py:345
 msgid "Malformed data retrieved. Look at the logs for more information"
-msgstr "Los datos recuperados no están bien formados. Revise el/los ficheros de logs para obtener más información"
+msgstr ""
+"Los datos recuperados no están bien formados. Revise el/los ficheros de "
+"logs para obtener más información"
 
 #: labmanager/views/lms/admin.py:371
 msgid "Invalid action found (add or delete expected)"
@@ -1198,7 +1208,7 @@ msgid "Discover"
 msgstr "Buscar"
 
 #: labmanager/views/lms/admin.py:419 labmanager/views/lms/admin.py:422
-#: labmanager/views/lms/instructor.py:96 labmanager/views/ple/admin.py:595
+#: labmanager/views/lms/instructor.py:96 labmanager/views/ple/admin.py:589
 #: labmanager/views/ple/instructor.py:207
 msgid "Permissions"
 msgstr "Permisos"
@@ -1215,134 +1225,139 @@ msgstr "Usuarios del LT"
 msgid "LMS instructor"
 msgstr "Instructor del LT"
 
-#: labmanager/views/ple/admin.py:175
+#: labmanager/views/ple/admin.py:168
 msgid "Invalid permission"
 msgstr "El permiso no es válido"
 
-#: labmanager/views/ple/admin.py:178 labmanager/views/ple/instructor.py:117
+#: labmanager/views/ple/admin.py:171 labmanager/views/ple/instructor.py:117
 msgid "This lab IS accesible"
 msgstr "El laboratorio está accesible"
 
-#: labmanager/views/ple/admin.py:179 labmanager/views/ple/admin.py:230
+#: labmanager/views/ple/admin.py:172 labmanager/views/ple/admin.py:223
 #: labmanager/views/ple/instructor.py:118
 msgid "false"
 msgstr "falso"
 
-#: labmanager/views/ple/admin.py:181 labmanager/views/ple/instructor.py:120
+#: labmanager/views/ple/admin.py:174 labmanager/views/ple/instructor.py:120
 msgid "Make not accessible"
 msgstr "Marcar como inaccesible"
 
-#: labmanager/views/ple/admin.py:183 labmanager/views/ple/instructor.py:111
+#: labmanager/views/ple/admin.py:176 labmanager/views/ple/instructor.py:111
 msgid "This lab is NOT accesible"
 msgstr "Este laboratorio no es accesible"
 
-#: labmanager/views/ple/admin.py:184 labmanager/views/ple/admin.py:222
+#: labmanager/views/ple/admin.py:177 labmanager/views/ple/admin.py:215
 #: labmanager/views/ple/instructor.py:112
 msgid "true"
 msgstr "verdadero"
 
-#: labmanager/views/ple/admin.py:186 labmanager/views/ple/instructor.py:114
+#: labmanager/views/ple/admin.py:179 labmanager/views/ple/instructor.py:114
 msgid "Make accessible"
 msgstr "Marcar como accesible"
 
-#: labmanager/views/ple/admin.py:221
+#: labmanager/views/ple/admin.py:214
 msgid "Available for request"
 msgstr "Disponible para realizar una solicitud"
 
-#: labmanager/views/ple/admin.py:224
+#: labmanager/views/ple/admin.py:217
 msgid "Request laboratory"
 msgstr "Solicitud de laboratorio"
 
-#: labmanager/views/ple/admin.py:229
+#: labmanager/views/ple/admin.py:222
 msgid "Ready to use"
 msgstr "Preparado para ser utilizado"
 
-#: labmanager/views/ple/admin.py:232
+#: labmanager/views/ple/admin.py:225
 msgid "Delete laboratory"
 msgstr "Eliminar laboratorio"
 
-#: labmanager/views/ple/admin.py:255
+#: labmanager/views/ple/admin.py:248
 msgid "Access request pending"
 msgstr "Solicitud de acceso en espera"
 
-#: labmanager/views/ple/admin.py:257
+#: labmanager/views/ple/admin.py:250
 msgid "Delete access request"
 msgstr "Eliminar la solicitud de acceso"
 
-#: labmanager/views/ple/admin.py:289
+#: labmanager/views/ple/admin.py:282
 msgid "accesible"
 msgstr "accesible"
 
-#: labmanager/views/ple/admin.py:291
+#: labmanager/views/ple/admin.py:284
 msgid ""
 "Make this laboratory automatically accessible by any Graasp space "
 "belonging to the institution represented by this Learning Tool"
-msgstr "Hacer que este laboratorio sea automáticamente accesible desde cualquier espacio de Graasp que pertenezca a la institución representada por esta herramienta de aprendizaje (LT)"
+msgstr ""
+"Hacer que este laboratorio sea automáticamente accesible desde cualquier "
+"espacio de Graasp que pertenezca a la institución representada por esta "
+"herramienta de aprendizaje (LT)"
 
-#: labmanager/views/ple/admin.py:343
+#: labmanager/views/ple/admin.py:336
 #, fuzzy
 msgid "request_access"
 msgstr "solicitud de acceso "
 
-#: labmanager/views/ple/admin.py:431
+#: labmanager/views/ple/admin.py:425
 msgid "context_id"
 msgstr "Identificador del contexto"
 
-#: labmanager/views/ple/admin.py:452
+#: labmanager/views/ple/admin.py:446
 msgid "Space URL"
 msgstr "URL del espacio"
 
-#: labmanager/views/ple/admin.py:453
+#: labmanager/views/ple/admin.py:447
 msgid "Drop here the URL of the Space."
 msgstr "Coloque aquí la dirección del espacio"
 
-#: labmanager/views/ple/admin.py:482
+#: labmanager/views/ple/admin.py:476
 msgid "Invalid format. Expected space_NUMBER"
 msgstr "El formato no es válido.Se espera space_NUMBER"
 
-#: labmanager/views/ple/admin.py:498
+#: labmanager/views/ple/admin.py:492
 msgid "Invalid format. Expected a valid Graasp space URL"
-msgstr "El formato no es válido. Se esperaba una URL válida de un espacio de Graasp"
+msgstr ""
+"El formato no es válido. Se esperaba una URL válida de un espacio de "
+"Graasp"
 
-#: labmanager/views/ple/admin.py:500
+#: labmanager/views/ple/admin.py:494
 msgid "Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING"
 msgstr "El formato no es válido. Se espera http://graasp.epfl.ch/#item=space_ALGO"
 
-#: labmanager/views/ple/admin.py:527
+#: labmanager/views/ple/admin.py:521
 msgid "Space already registered"
 msgstr "El espacio ya está registrado"
 
-#: labmanager/views/ple/admin.py:537
+#: labmanager/views/ple/admin.py:531
 msgid "Invalid name"
 msgstr "Nombre no válido"
 
-#: labmanager/views/ple/admin.py:564
+#: labmanager/views/ple/admin.py:558
 msgid "Permission"
 msgstr "Permiso"
 
-#: labmanager/views/ple/admin.py:565
+#: labmanager/views/ple/admin.py:559
 msgid "Space"
 msgstr "Espacios"
 
-#: labmanager/views/ple/admin.py:590
+#: labmanager/views/ple/admin.py:584
 msgid "PLE admin"
 msgstr "Administrador del PLE"
 
-#: labmanager/views/ple/admin.py:591
+#: labmanager/views/ple/admin.py:585
 msgid "Labs"
 msgstr "Laboratorios"
 
-#: labmanager/views/ple/admin.py:591
+#: labmanager/views/ple/admin.py:585
 msgid "Available labs"
 msgstr "Laboratorios disponibles"
 
-#: labmanager/views/ple/admin.py:592 labmanager/views/ple/admin.py:594
+#: labmanager/views/ple/admin.py:586 labmanager/views/ple/admin.py:588
 #: labmanager/views/ple/instructor.py:204
 #: labmanager/views/ple/instructor.py:206
 msgid "Spaces"
 msgstr "Espacios"
 
-#: labmanager/views/ple/admin.py:593 labmanager/views/ple/instructor.py:205
+#: labmanager/views/ple/admin.py:587 labmanager/views/ple/instructor.py:205
 msgid "New"
 msgstr "Nuevo"
 
@@ -1377,4 +1392,40 @@ msgstr "Laboratorios"
 
 #~ msgid "ERROR_invalid"
 #~ msgstr "ERROR"
+
+#~ msgid "Misconfiguration: %(rlmstype)s %(rmlsversion)s does not exist"
+#~ msgstr "La configuración no es válida: no existe %(rlmstype)s %(rmlsversion)s"
+
+#~ msgid "version1"
+#~ msgstr "versión 1"
+
+#~ msgid "teacher_panel"
+#~ msgstr "Panel del instructor"
+
+#~ msgid "LabManager login"
+#~ msgstr "Acceso a la gestión de laboratorios"
+
+#~ msgid "LabManager Login"
+#~ msgstr "Administración del gestor de laboratorios"
+
+#~ msgid "Username"
+#~ msgstr "Usuario"
+
+#~ msgid "Log in"
+#~ msgstr "Conectar"
+
+#~ msgid "Back"
+#~ msgstr "Regresar"
+
+#~ msgid "Institution login"
+#~ msgstr "Acceso para las escuelas registradas"
+
+#~ msgid "Institution Login"
+#~ msgstr "Página de acceso a la gestión de los laboratorios remotos"
+
+#~ msgid "Institution"
+#~ msgstr "Nombre oficial de la escuela"
+
+#~ msgid "GRAASP Institution Login"
+#~ msgstr "Página de acceso a la gestión en Graasp"
 
