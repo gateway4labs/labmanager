@@ -8,9 +8,6 @@
 
 import json
 import hashlib
-import uuid
-import traceback
-import urlparse
 import urllib2
 
 from yaml import load as yload
@@ -19,7 +16,7 @@ from wtforms.fields import PasswordField
 
 from flask.ext.wtf import Form, validators, TextField
 
-from flask import request, redirect, url_for, session, Markup, Response
+from flask import request, redirect, url_for, session, Markup
 
 from flask.ext import wtf
 from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
@@ -27,14 +24,10 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 from labmanager.babel import gettext, lazy_gettext
 
-from labmanager.scorm import get_scorm_object
-from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse, RequestPermissionLT
-from labmanager.views import RedirectView, retrieve_courses
+from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToCourse, RequestPermissionLT
+from labmanager.views import RedirectView
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
-
-from sqlalchemy import func
- 
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -415,6 +408,7 @@ class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
 
 def format_space_url(v, c, space, p):
     shindig_url = space.lt.shindig_credentials[0]
+    assert shindig_url or True # Avoid pyflakes warnings
     # shindig_space_url = '%s/rest/spaces/%s' % (shindig_url, space.context_id)
     # contents = urllib2.urlopen(shindig_space_url).read()
     # return json.loads(contents)['urls'][0]['value']
