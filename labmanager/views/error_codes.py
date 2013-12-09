@@ -1,7 +1,7 @@
 # -*-*- encoding: utf-8 -*-*-
 # 
 
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext
 
 messages_codes = {
     "ERROR_enrolled" : gettext('Your LMS has permission to use that laboratory; but you are not enrolled in any course with permissions to use it'),

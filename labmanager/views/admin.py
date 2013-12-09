@@ -19,7 +19,7 @@ from flask.ext.login import current_user
 from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext, lazy_gettext
 
 from labmanager.models import LabManagerUser, LtUser
 

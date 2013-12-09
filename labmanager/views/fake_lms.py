@@ -3,7 +3,7 @@ import json
 from flask import request, Response
 
 from labmanager.application import app
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext
 
 @app.route("/fake_list_courses/gateway4labs/list", methods = ['GET','POST'])
 def fake_list_courses():

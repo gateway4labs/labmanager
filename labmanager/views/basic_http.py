@@ -18,7 +18,7 @@ from labmanager.application import app
 from labmanager.views import get_json
 from labmanager.views.error_codes import messages_codes
 
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext
 
 ########################################################
 # 

@@ -10,8 +10,6 @@ import sys
 
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
 
-from labmanager.babel import gettext, ngettext, lazy_gettext
-
 # 
 # Add the proper managers by pointing to a module
 # 
@@ -52,7 +50,7 @@ def _get_module(rlms_type, rlms_version):
     if rlms_version in versions:
         return sys.modules[module_name].get_module(rlms_version)
     else:
-        raise Exception(gettext(u"Misconfiguration: %(rlmstype)s %(rmlsversion)s does not exist", rlmstype = rlms_type, rmlsversion = rlms_version))
+        raise Exception(u"Misconfiguration: %(rlmstype)s %(rmlsversion)s does not exist" % dict(rlmstype = rlms_type, rmlsversion = rlms_version))
 
 def _get_form_creator(rlms_type, rlms_version):
     return _get_module(rlms_type, rlms_version).FORM_CREATOR

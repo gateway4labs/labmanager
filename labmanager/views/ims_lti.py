@@ -19,7 +19,7 @@ from flask import request, Blueprint, session, Response, render_template, redire
 from labmanager.models import PermissionToLtUser
 from labmanager.rlms import get_manager_class
 
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext
 
 lti_blueprint = Blueprint('lti', __name__)
 
