@@ -217,7 +217,12 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
 
 class RegistrationForm(Form):
 
-    full_name  = TextField(lazy_gettext('School name'), [validators.Length(min=4, max=50), validators.Required()], description = lazy_gettext('School name.'))
+
+
+
+    full_name  = TextField(lazy_gettext('School name'), [validators.Regexp("^[\w\.]{4,50}$")], description = lazy_gettext('School name.'))
+
+#    full_name  = TextField(lazy_gettext('School name'), [validators.Length(min=4, max=50), validators.Required()], description = lazy_gettext('School name.'))
     short_name = TextField(lazy_gettext('Short name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
     url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
 
