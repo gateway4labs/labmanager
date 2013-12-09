@@ -65,7 +65,7 @@ class LabManagerUser(Base, SBBase, UserMixin):
 
     id = Column(Integer, primary_key=True)
 
-    login    = Column(Unicode(50), unique = True )
+    login    = Column(Unicode(50), unique = True, nullable = False)
     name     = Column(Unicode(50), nullable = False)
     password = Column(Unicode(50), nullable = False) # hash
 

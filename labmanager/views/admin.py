@@ -95,7 +95,6 @@ class AdminPanel(L4lAdminIndexView):
 class UsersPanel(L4lModelView):
 
     column_list = ['login', 'name']
-    column_labels  = dict(login=lazy_gettext('login'), name=lazy_gettext('name'))
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
