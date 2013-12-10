@@ -36,7 +36,15 @@ def verify_credentials():
             return response
 
         secret = permission_to_lt_user.secret
-        tool_provider = ToolProvider(consumer_key, secret, request.form.to_dict())
+        # The original dict is in unicode, which does not work with ToolProvider
+        USE_UNICODE = False
+        if USE_UNICODE:
+            data_dict = request.form.to_dict()
+        else:
+            data_dict = {} 
+            for key, value in request.form.to_dict().iteritems():
+                data_dict[key.encode('utf8')] = value.encode('utf8')
+        tool_provider = ToolProvider(consumer_key, secret, data_dict)
 
         try:
             return_value = tool_provider.valid_request(request)
