@@ -31,6 +31,7 @@ from labmanager.babel import gettext, lazy_gettext
 class PleAuthManagerMixin(object):
     def is_accessible(self):
         if not current_user.is_authenticated():
+            print "no autenticado"
             return False
 
         return session['usertype'] == 'lms' and current_user.access_level == 'instructor'
@@ -39,6 +40,7 @@ class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
+            print "no accesible 1"
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lPleInstructorModelView, self)._handle_view(name, **kwargs)
@@ -46,7 +48,10 @@ class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
 class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
+        print self
+        print name
         if not self.is_accessible():
+            print "no accesible 2"
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lPleInstructorIndexView, self)._handle_view(name, **kwargs)
@@ -59,6 +64,7 @@ class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 class PleInstructorPanel(L4lPleInstructorIndexView):
     @expose()
     def index(self):
+        print "            PLE INSTRUCTOR PANEL             "
         return self.render("ple_admin/instructors.html")
     
 ###############################################################
@@ -77,12 +83,12 @@ class PermissionToPleUserPanel(L4lPleInstructorModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PermissionToPleUserPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.filter_by(lt_user = current_user)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(PermissionToPleUserPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.filter_by(lt_user = current_user)
         return query_obj
 
 ###############################################
@@ -92,7 +98,7 @@ class PermissionToPleUserPanel(L4lPleInstructorModelView):
 
 def local_id_formatter(v, c, laboratory, p):
     for permission in laboratory.lab_permissions:
-        if permission.lms == current_user.lms:
+        if permission.lt == current_user.lt:
             return permission.local_identifier
     return gettext('N/A')
 
@@ -157,17 +163,17 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 #        print current_user
 #        print dir(current_user)
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLt).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lt = current_user.lt)
         return query_obj
 
     @expose("/widgets/<local_identifier>/")
     def list_widgets(self, local_identifier):
-        laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
+        laboratory = self.session.query(Laboratory).join(PermissionToLt).filter_by(lt = current_user.lt, local_identifier = local_identifier).first()
         if laboratory is None:
             return self.render("ple_admin/errors.html", message = gettext("Laboratory not found"))
 
@@ -176,7 +182,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
         rlms = RLMS_CLASS(rlms_db.configuration)
 
         widgets = rlms.list_widgets(laboratory.laboratory_id)
-        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lms.name, lab_name = local_identifier)
+        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lt.name, lab_name = local_identifier)
 
 #################################################
 # 
@@ -200,11 +206,12 @@ class PleInstructorPermissionToSpacesPanel(PleAuthManagerMixin, PlePermissionToS
 def init_ple_instructor_admin(app, db_session):
     ple_instructor_url = '/ple_instructor'
     ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = lazy_gettext(u'PLEinstructor'), url = ple_instructor_url, endpoint = 'ple_instructor')
+    print db_session
     ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = lazy_gettext(u'Laboratories'), endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
     i18n_spaces=lazy_gettext(u'Spaces')
     ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
     ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
     ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
-
+ 
     ple_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)

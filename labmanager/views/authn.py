@@ -114,10 +114,11 @@ def login_ple():
 
     if request.method == 'GET':
 #IRENE      return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
-        return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+        return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
 
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
+        print username
         hashed = new_hash("sha", request.form['password']).hexdigest()
         lms_id = request.form['lms']
         user = LtUser.exists(username, hashed, lms_id)
@@ -126,15 +127,18 @@ def login_ple():
                 session['loggeduser'] = username
                 session['last_request'] = time()
                 session['usertype'] = 'lms'
+                if next == DEFAULT_NEXT:
+                    if user.access_level == 'instructor':
+                        next = url_for('ple_instructor.index')
                 return redirect(next)
             else:
                 flash(gettext(u'Could not log in.'))
 # IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
-                return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+                return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
         else:
             flash(gettext(u'Invalid username.'))
 # IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))            
-            return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+            return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     return gettext(u"Error in create_session")
 
 
