@@ -29,6 +29,12 @@ from labmanager.rlms import get_form_class, get_supported_types, get_supported_v
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 
+import requests
+import re
+
+from requests.auth import HTTPBasicAuth
+
+
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -319,7 +325,7 @@ class RLMSPanel(L4lModelView):
     column_exclude_list = ('version','configuration')
 
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id)))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.restlabs', id=rlms.id)))
         )
 
     def __init__(self, session, **kwargs):
@@ -422,6 +428,7 @@ class RLMSPanel(L4lModelView):
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
         labs = rlms.get_laboratories()
+        
 
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
@@ -459,6 +466,54 @@ class RLMSPanel(L4lModelView):
 
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
+        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
+
+
+    def get_user(self,id):
+        # returns the user needed to access a ReLMS
+        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
+        l=rlms_db.configuration.split()
+        raw_user = l[3]
+        # raw_user would be, for example: "agus-uned",
+        # So, remove the uneeded characters in order to get: agus-uned
+        user = re.split('[",]+', raw_user) 
+        #user = ['', 'agus-uned', '']
+        return user[1]       
+        
+   
+    def get_password(self,id):
+        # returns the password needed to access a ReLMS
+        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
+        l=rlms_db.configuration.split()
+        raw_passwd = l[1]
+        # raw_passwd would be, for example: "12345",
+        # So, remove the uneeded characters in order to get: 12345
+        passwd = re.split('[",]+', raw_passwd) 
+        #passwd = ['', '12345', '']
+        return passwd[1]       
+                
+
+
+
+    @expose('/restlabs/<id>/', methods = ['GET','POST'])
+    def restlabs(self, id):
+        # 
+        # TODO: CSRF is not used here. Security hole
+        # 
+
+        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
+
+
+        if rlms_db is None:
+            return abort(404)
+
+        labs = rlms.get_laboratories()
+    
+        user = self.get_user(id)
+        passwd = self.get_password(id)
+        url = rlms_db.url + "/labs"
+        r=requests.get(url, auth=(user, passwd))
+        
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
 def accessibility_formatter(v, c, lab, p):
