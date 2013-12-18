@@ -10,6 +10,7 @@ from flask.ext.wtf import Form, validators, TextField, PasswordField, Validation
 from labmanager.db import db_session
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
+import labmanager.forms as forms
 
 from labmanager.babel import gettext, ngettext, lazy_gettext
 
@@ -215,27 +216,21 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
 
+
 class RegistrationForm(Form):
-
-
-
+#    full_name  = TextField(lazy_gettext('School name'), [validators.Length(min=4, max=50), validators.Required()], description = lazy_gettext('School name.'))
+#    short_name = TextField(lazy_gettext('Short name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
+#    url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
+#    user_full_name  = TextField(lazy_gettext('User name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your name and last name.'))
+#    user_login      = TextField(lazy_gettext('Login'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your new login (you can create more later).'))
+#    user_password   = PasswordField(lazy_gettext('Password'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your access password.'))
 
     full_name  = TextField(lazy_gettext('School name'), [validators.Regexp("^[\w\.]{4,50}$")], description = lazy_gettext('School name.'))
-
-#    full_name  = TextField(lazy_gettext('School name'), [validators.Length(min=4, max=50), validators.Required()], description = lazy_gettext('School name.'))
-    short_name = TextField(lazy_gettext('Short name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
+    short_name = TextField(lazy_gettext('Short name'), [validators.Required(),validators.Regexp("^[a-z0-9\.\_]{4,15}")], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
     url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
-
-    user_full_name  = TextField(lazy_gettext('User name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your name and last name.'))
-    user_login      = TextField(lazy_gettext('Login'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your new login (you can create more later).'))
-    user_password   = PasswordField(lazy_gettext('Password'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your access password.'))
-
-    def validate_short_name(form, field):
-        for c in field.data:
-            if c not in 'abcdefghijklmnopqrstuvwxyz._0123456789':
-                raise ValidationError(gettext('Invalid character found: %(char)s', char=c))
-
-    validate_user_login = validate_short_name
+    user_full_name  = TextField(lazy_gettext('User name'), [validators.Required(), validators.Regexp("^[a-zA-Z]{4,15}$")], description = lazy_gettext('Your name and last name.'))
+    user_login      = TextField(lazy_gettext('Login'), [validators.Required()] + forms.USER_LOGIN_DEFAULT_VALIDATORS, description = lazy_gettext('Your new login (you can create more later).'))
+    user_password   = PasswordField(lazy_gettext('Password'), [validators.Required(), validators.Regexp("[^\s]{8,}")], description = lazy_gettext('Your access password.'))
 
 
 @opensocial_blueprint.route("/register/", methods = ['GET', 'POST'])

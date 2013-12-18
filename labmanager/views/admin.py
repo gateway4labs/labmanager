@@ -29,6 +29,7 @@ from labmanager.models import BasicHttpCredentials, LearningTool, Course, Permis
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
+import labmanager.forms as forms
 
 
 config = yload(open('labmanager/config/config.yml'))
@@ -102,31 +103,34 @@ class UsersPanel(L4lModelView):
  #   form_args = dict(login=dict(validators=[validators.Length(min=5), validators.Regexp("^[a-z\._0-9]*$")]),
  #                           password=dict(validators=[validators.Optional(), validators.Length(min=8), validators.Regexp("[^\s]"]))
  
- # login can accept uppercases, lowercases, numbers, "_" and "." and must be at least 5 characters long
- # password can accept any caracter except " " and must be at least 8 characters long
-    form_args = dict(login=dict(validators=[validators.Regexp("^[\w\.]{5,}$")]),
-                            password=dict(validators=[validators.Optional(), validators.Regexp("[^\s]{8,}")]))
+    form_args = dict(login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
+ #                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))
+                            password=dict(validators=[validators.Optional(), forms.USER_PASSWORD_DEFAULT_VALIDATORS]))           
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
         
     def create_model(self, form):
-        if form.password.data == '':            
+
+        if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
             return False
-            
+
         form.password.data = new_hash("sha", form.password.data).hexdigest()
         return super(UsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
+        print "Estoy en update model"
         old_password = model.password
         if form.password.data != '':
+            print "se cambia la password"
             form.password.data = new_hash("sha", form.password.data).hexdigest()
             
         return_value = super(UsersPanel, self).update_model(form, model)
         
         if form.password.data == '':
             model.password = old_password
+            print "se mantiene la password antigua"
             self.session.add(model)
             self.session.commit()
         return return_value
