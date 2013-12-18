@@ -104,8 +104,8 @@ class UsersPanel(L4lModelView):
  #                           password=dict(validators=[validators.Optional(), validators.Length(min=8), validators.Regexp("[^\s]"]))
  
     form_args = dict(login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
- #                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))
-                            password=dict(validators=[validators.Optional(), forms.USER_PASSWORD_DEFAULT_VALIDATORS]))           
+                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))
+#                            password=dict(validators=[validators.Optional(), forms.USER_PASSWORD_DEFAULT_VALIDATORS]))           
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
