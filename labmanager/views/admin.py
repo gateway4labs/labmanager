@@ -111,7 +111,7 @@ class UsersPanel(L4lModelView):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
         
     def create_model(self, form):
-
+        
         if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
             return False
@@ -120,6 +120,7 @@ class UsersPanel(L4lModelView):
         return super(UsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
+        
         print "Estoy en update model"
         old_password = model.password
         if form.password.data != '':
