@@ -1,15 +1,14 @@
-# Translations template for gateway4labs.
+# Translations template for labmanager.
 # Copyright (C) 2013 ORGANIZATION
-# This file is distributed under the same license as the gateway4labs
-# project.
+# This file is distributed under the same license as the labmanager project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gateway4labs VERSION\n"
+"Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-12-09 15:58+0100\n"
+"POT-Creation-Date: 2013-12-19 12:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +20,7 @@ msgstr ""
 #: labmanager/forms.py:26 labmanager/forms.py:48
 #: labmanager/templates/labmanager_admin/lab-list.html:13
 #: labmanager/views/lms/admin.py:227 labmanager/views/lms/admin.py:273
-#: labmanager/views/ple/instructor.py:148
+#: labmanager/views/ple/instructor.py:154
 msgid "Name"
 msgstr ""
 
@@ -430,7 +429,7 @@ msgid "Laboratory"
 msgstr ""
 
 #: labmanager/templates/lti/display_lab.html:31 labmanager/views/admin.py:648
-#: labmanager/views/ple/instructor.py:147
+#: labmanager/views/ple/instructor.py:153
 msgid "RLMS"
 msgstr ""
 
@@ -674,7 +673,7 @@ msgstr ""
 
 #: labmanager/views/admin.py:247 labmanager/views/lms/admin.py:206
 #: labmanager/views/lms/admin.py:217 labmanager/views/ple/admin.py:155
-#: labmanager/views/ple/instructor.py:97
+#: labmanager/views/ple/instructor.py:103
 msgid "N/A"
 msgstr ""
 
@@ -832,7 +831,7 @@ msgstr ""
 
 #: labmanager/views/admin.py:651 labmanager/views/lms/admin.py:423
 #: labmanager/views/lms/instructor.py:97 labmanager/views/ple/admin.py:591
-#: labmanager/views/ple/instructor.py:209
+#: labmanager/views/ple/instructor.py:216
 msgid "Log out"
 msgstr ""
 
@@ -841,17 +840,17 @@ msgid "Invalid format (expected lt_user::lt_name::login)"
 msgstr ""
 
 #: labmanager/views/authn.py:65 labmanager/views/authn.py:100
-#: labmanager/views/authn.py:131
+#: labmanager/views/authn.py:135
 msgid "Could not log in."
 msgstr ""
 
 #: labmanager/views/authn.py:68 labmanager/views/authn.py:103
-#: labmanager/views/authn.py:135
+#: labmanager/views/authn.py:139
 msgid "Invalid username."
 msgstr ""
 
 #: labmanager/views/authn.py:71 labmanager/views/authn.py:105
-#: labmanager/views/authn.py:138
+#: labmanager/views/authn.py:142
 msgid "Error in create_session"
 msgstr ""
 
@@ -988,7 +987,7 @@ msgid "Institution not found or it does not support Shindig"
 msgstr ""
 
 #: labmanager/views/opensocial.py:205 labmanager/views/ple/admin.py:303
-#: labmanager/views/ple/instructor.py:172
+#: labmanager/views/ple/instructor.py:178
 msgid "Laboratory not found"
 msgstr ""
 
@@ -1046,7 +1045,7 @@ msgid "public_identifier"
 msgstr ""
 
 #: labmanager/views/public.py:49 labmanager/views/ple/admin.py:281
-#: labmanager/views/ple/instructor.py:151
+#: labmanager/views/ple/instructor.py:157
 msgid "widgets"
 msgstr ""
 
@@ -1082,11 +1081,11 @@ msgstr ""
 msgid "Rlms"
 msgstr ""
 
-#: labmanager/views/lms/admin.py:228 labmanager/views/ple/instructor.py:149
+#: labmanager/views/lms/admin.py:228 labmanager/views/ple/instructor.py:155
 msgid "Laboratory Id"
 msgstr ""
 
-#: labmanager/views/lms/admin.py:229 labmanager/views/ple/instructor.py:150
+#: labmanager/views/lms/admin.py:229 labmanager/views/ple/instructor.py:156
 msgid "Local Identifier"
 msgstr ""
 
@@ -1141,7 +1140,7 @@ msgstr ""
 
 #: labmanager/views/lms/admin.py:419 labmanager/views/lms/admin.py:422
 #: labmanager/views/lms/instructor.py:96 labmanager/views/ple/admin.py:589
-#: labmanager/views/ple/instructor.py:207
+#: labmanager/views/ple/instructor.py:214
 msgid "Permissions"
 msgstr ""
 
@@ -1161,29 +1160,29 @@ msgstr ""
 msgid "Invalid permission"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:171 labmanager/views/ple/instructor.py:117
+#: labmanager/views/ple/admin.py:171 labmanager/views/ple/instructor.py:123
 msgid "This lab IS accesible"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:172 labmanager/views/ple/admin.py:223
-#: labmanager/views/ple/instructor.py:118
+#: labmanager/views/ple/instructor.py:124
 msgid "false"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:174 labmanager/views/ple/instructor.py:120
+#: labmanager/views/ple/admin.py:174 labmanager/views/ple/instructor.py:126
 msgid "Make not accessible"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:176 labmanager/views/ple/instructor.py:111
+#: labmanager/views/ple/admin.py:176 labmanager/views/ple/instructor.py:117
 msgid "This lab is NOT accesible"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:177 labmanager/views/ple/admin.py:215
-#: labmanager/views/ple/instructor.py:112
+#: labmanager/views/ple/instructor.py:118
 msgid "true"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:179 labmanager/views/ple/instructor.py:114
+#: labmanager/views/ple/admin.py:179 labmanager/views/ple/instructor.py:120
 msgid "Make accessible"
 msgstr ""
 
@@ -1278,20 +1277,20 @@ msgid "Available labs"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:586 labmanager/views/ple/admin.py:588
-#: labmanager/views/ple/instructor.py:204
-#: labmanager/views/ple/instructor.py:206
+#: labmanager/views/ple/instructor.py:211
+#: labmanager/views/ple/instructor.py:213
 msgid "Spaces"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:587 labmanager/views/ple/instructor.py:205
+#: labmanager/views/ple/admin.py:587 labmanager/views/ple/instructor.py:212
 msgid "New"
 msgstr ""
 
-#: labmanager/views/ple/instructor.py:202
+#: labmanager/views/ple/instructor.py:208
 msgid "PLEinstructor"
 msgstr ""
 
-#: labmanager/views/ple/instructor.py:203
+#: labmanager/views/ple/instructor.py:210
 msgid "Laboratories"
 msgstr ""
 

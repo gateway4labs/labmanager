@@ -110,7 +110,7 @@ class UsersPanel(L4lModelView):
 class LtUsersPanel(L4lModelView):
 
     column_list = ['lt', 'login', 'full_name', 'access_level']
-    column_lists = dict(lt=lazy_gettext('lt'), login=lazy_gettext('login'), full_name=lazy_gettext('full_name'), access_level=lazy_gettext('access_level'))
+    column_labels = dict(lt=lazy_gettext('lt'), login=lazy_gettext('login'), full_name=lazy_gettext('full_name'), access_level=lazy_gettext('access_level'))
 
     def __init__(self, session, **kwargs):
         super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
@@ -522,7 +522,7 @@ class LaboratoryPanel(L4lModelView):
     can_create = can_edit = False
 
     column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability']
-    column_lables = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'))
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'))
     column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter)
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
@@ -580,7 +580,7 @@ class LaboratoryPanel(L4lModelView):
 def scorm_formatter(v, c, permission, p):
     
     if permission.lt.basic_http_authentications:
-        return Markup('<a href="%s"> gettext("Download")</a>' % (url_for('.get_scorm', lt_id = permission.lt.id,  local_id = permission.local_identifier)))
+        return Markup('<a href="%s"> Download </a>' % (url_for('.get_scorm', lt_id = permission.lt.id,  local_id = permission.local_identifier)))
 
     return 'N/A'
 
