@@ -29,6 +29,7 @@ from labmanager.rlms import get_form_class, get_supported_types, get_supported_v
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 
+
 import requests
 import re
 
@@ -429,7 +430,7 @@ class RLMSPanel(L4lModelView):
         rlms = RLMS_CLASS(rlms_db.configuration)
         labs = rlms.get_laboratories()
         
-
+        
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
         if request.method == 'POST':
@@ -502,18 +503,92 @@ class RLMSPanel(L4lModelView):
         # 
 
         rlms_db = self.session.query(RLMS).filter_by(id = id).first()
-
+        
 
         if rlms_db is None:
             return abort(404)
 
-        labs = rlms.get_laboratories()
-    
         user = self.get_user(id)
         passwd = self.get_password(id)
         url = rlms_db.url + "/labs"
         r=requests.get(url, auth=(user, passwd))
+
+        jsonresponse = json.loads(r.text)
+        # Check the following "for" loop before reaching production, since actual servers may use different format. 
+        # The response format used here is:
+        #
+        #{
+        #  "labs": [
+        #    {
+        #      ...
+        #      "laboratory_id": "Submarine@Aquatic experiments", 
+        #      "name": "ACH_Submarine", 
+        #      ...
+        #    }, 
+        #    {
+        #      ...
+        #      "laboratory_id": "Aircraft@Aeronautical experiments", 
+        #      "name": "ACH_Aircraft", 
+        #      ...
+        #    }
+        #  ]
+        #}        
+
+        labs = []
+        #jsonresponse['labs'][0]['name']     
+        for json_lab in jsonresponse['labs']:  
+            labname = json_lab['name']
+            lab_id = json_lab['laboratory_id']
+            tmplab = Laboratory(labname, lab_id)
+            labs.append(tmplab)
+       
+
+
+        registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
         
+
+        if request.method == 'POST':
+            selected = []
+            for name, value in request.form.items():
+                if name != 'action' and value == 'on':
+                    for lab in labs:
+                        if lab.laboratory_id == name:
+                            selected.append(lab)
+            changes = False
+
+            if request.form['action'] == 'register':
+                for lab in selected:
+                    if not lab.laboratory_id in registered_labs:
+                        self.session.add(Laboratory(name = lab.name, laboratory_id = lab.laboratory_id, rlms = rlms_db))
+                        changes = True
+
+            elif request.form['action'] == 'unregister':
+
+                for lab in selected:
+                    if lab.laboratory_id in registered_labs:
+                        cur_lab_db = None
+                        for lab_db in rlms_db.laboratories:
+                            if lab_db.laboratory_id == lab.laboratory_id:
+                                cur_lab_db = lab_db
+                                break
+
+                        if cur_lab_db is not None:
+                            self.session.delete(cur_lab_db)
+                            changes = True
+
+            if changes:
+                self.session.commit()
+
+
+
+
+
+
+
+
+        registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
+        
+
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
 def accessibility_formatter(v, c, lab, p):
@@ -624,6 +699,8 @@ class LaboratoryPanel(L4lModelView):
         return redirect(url_for('.index_view'))
 
 
+
+
 def scorm_formatter(v, c, permission, p):
     
     if permission.lt.basic_http_authentications:
@@ -693,6 +770,7 @@ def init_admin(app, db_session):
     admin.add_view(LabRequestsPanel(db_session,   category = u"LT Management", name = u"LT Requests",        endpoint = 'lt/requests'))
 
     admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
+
     admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
 
     admin.add_view(UsersPanel(db_session,      category = u"Users", name = u"Labmanager Users", endpoint = 'users/labmanager'))
