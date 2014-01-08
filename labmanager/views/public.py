@@ -14,7 +14,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import Laboratory
 from labmanager.views import RedirectView
 from labmanager.rlms import get_manager_class
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import lazy_gettext
  
 ##############################################
 # 

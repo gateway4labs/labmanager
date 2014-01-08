@@ -15,7 +15,7 @@ from flask.ext.login import current_user
 
 from labmanager.views import RedirectView
 
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import lazy_gettext
 
 #################################################################
 # 

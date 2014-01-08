@@ -70,7 +70,7 @@ The RLMS may also need to access the RLMS.
 
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
-from labmanager.babel import gettext, ngettext, lazy_gettext
+assert Blueprint or None # Avoid pyflakes warning
 
 # 
 # This is the list of versions. The BaseRLMS has a method
@@ -80,7 +80,7 @@ from labmanager.babel import gettext, ngettext, lazy_gettext
 # those versions. 
 #
 class Versions(object):
-    VERSION_1 = lazy_gettext("version1")
+    VERSION_1 = "version1"
 
 
 class Capabilities(object):
@@ -91,7 +91,7 @@ class Capabilities(object):
     interface is splitted or not.
     """
 
-    TEACHER_PANEL = lazy_gettext('teacher_panel')
+    TEACHER_PANEL = 'teacher_panel'
     """
     Providing this capability shows that the RLMS plug-in has 
     implemented a user interface so teachers can see something else 

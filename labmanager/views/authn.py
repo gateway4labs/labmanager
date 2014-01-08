@@ -11,7 +11,7 @@ from hashlib import new as new_hash
 
 from flask import render_template, request, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext
 
 from ..application import app
 from ..models import LabManagerUser, LtUser, LearningTool
@@ -114,7 +114,7 @@ def login_ple():
 
     if request.method == 'GET':
 #IRENE      return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
-        return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+        return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
 
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
@@ -133,11 +133,11 @@ def login_ple():
             else:
                 flash(gettext(u'Could not log in.'))
 # IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
-                return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+                return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
         else:
             flash(gettext(u'Invalid username.'))
 # IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))            
-            return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+            return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     return gettext(u"Error in create_session")
 
 

@@ -16,7 +16,7 @@ from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
 from labmanager.models import LearningTool,Laboratory, PermissionToLt
 from labmanager.rlms import get_manager_class
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext, lazy_gettext
 
 #################################################################
 # 
@@ -27,6 +27,7 @@ class PleAuthManagerMixin(object):
     def is_accessible(self):
         print "Estoy en is_accessible"
         if not current_user.is_authenticated():
+            print "no autenticado"
             return False
         
         print current_user
@@ -37,6 +38,7 @@ class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
+            print "no accesible 1"
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lPleInstructorModelView, self)._handle_view(name, **kwargs)
@@ -44,8 +46,9 @@ class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
 class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
+        print self
+        print name
         if not self.is_accessible():
-            print " ******************* L4lPlrInstructorIndexView IS ACCESIBLE "
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lPleInstructorIndexView, self)._handle_view(name, **kwargs)
@@ -58,6 +61,7 @@ class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 class PleInstructorPanel(L4lPleInstructorIndexView):
     @expose()
     def index(self):
+        print "            PLE INSTRUCTOR PANEL             "
         return self.render("ple_admin/instructors.html")
     
 ###############################################################
@@ -169,7 +173,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
         rlms = RLMS_CLASS(rlms_db.configuration)
 
         widgets = rlms.list_widgets(laboratory.laboratory_id)
-        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lms.name, lab_name = local_identifier)
+        return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lt.name, lab_name = local_identifier)
 
 #################################################
 # 
@@ -199,6 +203,6 @@ def init_ple_instructor_admin(app, db_session):
     ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
     ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
     ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
-
+ 
     ple_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)

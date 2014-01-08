@@ -12,7 +12,7 @@ from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCrede
 from labmanager.rlms import get_manager_class
 import labmanager.forms as forms
 
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext, lazy_gettext
 
 SHINDIG = threading.local()
 
