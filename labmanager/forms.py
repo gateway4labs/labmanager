@@ -77,26 +77,23 @@ def login_validator(form, field):
         raise ValidationError(gettext('login lenght must be at least 5 characters long'))
 
 USER_LOGIN_DEFAULT_VALIDATORS = [validators.Regexp("^[a-z0-9\.\_]{5,}$"), login_validator]
-LABMANAGER_USER_LOGIN_VALIDATORS = USER_LOGIN_DEFAULT_VALIDATORS
-REGISTRATION_USER_LOGIN_VALIDATORS = USER_LOGIN_DEFAULT_VALIDATORS
+#LABMANAGER_USER_LOGIN_VALIDATORS = USER_LOGIN_DEFAULT_VALIDATORS
+#REGISTRATION_USER_LOGIN_VALIDATORS = USER_LOGIN_DEFAULT_VALIDATORS
 
 def password_validator(form, field):
-    print "                                          Estoy en password_validator"
+    
     if len(field.data) > 0:
         
-        print "la password contiene al menos un caracter"
         invalid_chars = [ c
                                 for c in field.data
                                 if c.isspace() ]
                             
         if invalid_chars:
-            print "                                             Estoy en invalid_chars"
             raise ValidationError(gettext('Passwords can not contain a space'))
     
         if len(field.data) < 8:
-            print "                                             Estoy en len(field.data) < 8"
             raise ValidationError(gettext('password lenght must be at least 8 characters long'))
 
-USER_PASSWORD_DEFAULT_VALIDATORS = [validators.Regexp("[^\s]{8,}"), password_validator]
-LABMANAGER_USER_PASSWORD_VALIDATORS = USER_PASSWORD_DEFAULT_VALIDATORS
-REGISTRATION_USER_PASSWORD_VALIDATORS = USER_PASSWORD_DEFAULT_VALIDATORS
+USER_PASSWORD_DEFAULT_VALIDATORS = [validators.Optional(),validators.Regexp("[^\s]{8,}"), password_validator]
+#LABMANAGER_USER_PASSWORD_VALIDATORS = USER_PASSWORD_DEFAULT_VALIDATORS
+#REGISTRATION_USER_PASSWORD_VALIDATORS = USER_PASSWORD_DEFAULT_VALIDATORS

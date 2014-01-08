@@ -7,7 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-import hashlib
+from hashlib import new as new_hash
 import uuid
 import traceback
 import urlparse
@@ -27,6 +27,7 @@ from labmanager.babel import gettext, ngettext, lazy_gettext
 from labmanager.scorm import get_scorm_object
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
+import labmanager.forms as forms
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -97,8 +98,10 @@ class LmsUsersPanel(L4lLmsModelView):
                                     password = lazy_gettext('Password'))  
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(password=PasswordField, access_level=wtf.SelectField)
-    form_args = dict( access_level=dict( choices=sel_choices ) )
-                                    
+    form_args = dict( access_level=dict( choices=sel_choices ),
+                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
+                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))            
+                           
     def __init__(self, session, **kwargs):
         super(LmsUsersPanel, self).__init__(LtUser, session, **kwargs)
 
@@ -111,14 +114,31 @@ class LmsUsersPanel(L4lLmsModelView):
         query_obj = super(LmsUsersPanel, self).get_count_query(*args, **kwargs)
         query_obj = query_obj.filter_by(lt = current_user.lt)
         return query_obj
-
         
+    def create_model(self, form):
+        if form.password.data == '':
+            form.password.errors.append(lazy_gettext("This field is required."))
+            return False
+
+        form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
+        return super(LmsUsersPanel, self).create_model(form)
 
     def on_model_change(self, form, model):
-        # TODO: don't update password always
-        model.lt   = current_user.lt
-        model.password = hashlib.new('sha',model.password).hexdigest()
+        model.lt = current_user.lt
 
+    def update_model(self, form, model):
+        
+        old_password = model.password
+        if form.password.data != '':
+            form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
+            
+        return_value = super(LmsUsersPanel, self).update_model(form, model)
+        
+        if form.password.data == '':
+            model.password = old_password
+            self.session.add(model)
+            self.session.commit()
+        return return_value
 
 def create_lms_user_filter(session):
     def filter():

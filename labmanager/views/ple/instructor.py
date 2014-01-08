@@ -6,11 +6,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-#
-# Copied from lms\instructor.py and modified in order to create ple\instructor.py
-# Modified by ILZ #28
-#
-
 from flask import request, redirect, url_for, session, Markup
 
 from flask.ext.admin import Admin, AdminIndexView, expose
@@ -99,8 +94,6 @@ def local_id_formatter(v, c, laboratory, p):
 def list_widgets_formatter(v, c, laboratory, p):
     return Markup('<a href="%s"> list </a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
 
-
-
 def accessibility_formatter(v, c, lab, p):
     
     mylms = current_user.lms
@@ -134,8 +127,6 @@ def accessibility_formatter(v, c, lab, p):
                         currently                = currently,
                     ))
 
-
-
 class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 
     can_delete = False
@@ -154,8 +145,6 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
 
     def get_query(self, *args, **kwargs):
-#        print current_user
-#        print dir(current_user)
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
         query_obj = query_obj.join(PermissionToLt).filter_by(lms = current_user.lms)
         return query_obj

@@ -100,12 +100,8 @@ class UsersPanel(L4lModelView):
     form_columns = ('name', 'login', 'password')
     column_labels = dict(name=lazy_gettext('name'), login=lazy_gettext('login'), password=lazy_gettext('password'))
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
- #   form_args = dict(login=dict(validators=[validators.Length(min=5), validators.Regexp("^[a-z\._0-9]*$")]),
- #                           password=dict(validators=[validators.Optional(), validators.Length(min=8), validators.Regexp("[^\s]"]))
- 
     form_args = dict(login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
-                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))
-#                            password=dict(validators=[validators.Optional(), forms.USER_PASSWORD_DEFAULT_VALIDATORS]))           
+                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))       
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
@@ -116,22 +112,19 @@ class UsersPanel(L4lModelView):
             form.password.errors.append(lazy_gettext("This field is required."))
             return False
 
-        form.password.data = new_hash("sha", form.password.data).hexdigest()
+        form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
         return super(UsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
         
-        print "Estoy en update model"
         old_password = model.password
         if form.password.data != '':
-            print "se cambia la password"
-            form.password.data = new_hash("sha", form.password.data).hexdigest()
+            form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
             
         return_value = super(UsersPanel, self).update_model(form, model)
         
         if form.password.data == '':
             model.password = old_password
-            print "se mantiene la password antigua"
             self.session.add(model)
             self.session.commit()
         return return_value
@@ -140,26 +133,43 @@ class LtUsersPanel(L4lModelView):
 
     column_list = ['lt', 'login', 'full_name', 'access_level']
     column_lists = dict(lt=lazy_gettext('lt'), login=lazy_gettext('login'), full_name=lazy_gettext('full_name'), access_level=lazy_gettext('access_level'))
-
-    def __init__(self, session, **kwargs):
-        super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
-
     form_columns = ('full_name', 'login', 'password', 'access_level', 'lt')
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
-    form_args = dict( access_level=dict( choices=sel_choices ) )
+    form_args = dict(access_level=dict( choices=sel_choices ),
+                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
+                            password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))
+    
+    def __init__(self, session, **kwargs):
+        super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
 
-    def on_model_change(self, form, model):
-        # TODO: don't update password always
-        model.password = new_hash("sha", model.password).hexdigest()
+    def create_model(self, form):
+ 
+        if form.password.data == '':
+            form.password.errors.append(lazy_gettext("This field is required."))
+            return False
 
+        form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
+        return super(LtUsersPanel, self).create_model(form)
+
+    def update_model(self, form, model):
+        
+        old_password = model.password
+        if form.password.data != '':
+            form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
+            
+        return_value = super(LtUsersPanel, self).update_model(form, model)
+        
+        if form.password.data == '':
+            model.password = old_password
+            self.session.add(model)
+            self.session.commit()
+        return return_value
 
 class PermissionToLtUsersPanel(L4lModelView):
 
     def __init__(self, session, **kwargs):
         super(PermissionToLtUsersPanel, self).__init__(PermissionToLtUser, session, **kwargs)
-
-
 
 def accept_formatter(v, c, req, p):
     
@@ -177,8 +187,6 @@ def accept_formatter(v, c, req, p):
                       
                     ))
 
-
-        
 def reject_formatter(v, c, req, p):
     
     klass = 'btn-danger'

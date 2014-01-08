@@ -32,6 +32,7 @@ from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, Permis
 from labmanager.views import RedirectView, retrieve_courses
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
+import labmanager.forms as forms
 
 from sqlalchemy import func
  
@@ -104,6 +105,7 @@ class PleUsersPanel(L4lPleModelView):
     can_delete = True
     can_edit   = False
     can_create = True
+    
     column_list = ['login', 'full_name', 'access_level']
     form_columns = ('login','full_name', 'access_level', 'password')
     
@@ -115,7 +117,9 @@ class PleUsersPanel(L4lPleModelView):
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
 
     form_overrides = dict(password=PasswordField, access_level=wtf.SelectField)
-    form_args = dict( access_level=dict( choices=sel_choices ) )
+    form_args = dict( access_level=dict( choices=sel_choices ),
+                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
+                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS)) 
 
     def __init__(self, session, **kwargs):
         super(PleUsersPanel, self).__init__(LtUser, session, **kwargs)
@@ -130,12 +134,12 @@ class PleUsersPanel(L4lPleModelView):
         query_obj = query_obj.filter_by(lt = current_user.lt)
         return query_obj
 
-        
-
     def on_model_change(self, form, model):
-        # TODO: don't update password always
+        # TODO: don't update password always 
+        # Irene: Edit is false, so there is no possibility of changing data
+        print "******************** Estoy en on_model_change de PleUsersPanel  "
         model.lt   = current_user.lt
-        model.password = hashlib.new('sha',model.password).hexdigest()
+        model.password = unicode(hashlib.new('sha',model.password).hexdigest())
 
 
 def create_permission_to_lms_filter(session):
@@ -269,10 +273,6 @@ def request_formatter(v, c, lab, p):
                         msg                      = msg,    
                     ))
 
-
-        
-
-
 class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
     can_delete = False
@@ -315,8 +315,6 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
 
         widgets = rlms.list_widgets(laboratory.laboratory_id)
         return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lt.name, lab_name = local_identifier)
-
-
 
     @expose('/lab', methods = ['POST'])
     def change_accessibility(self):
@@ -586,9 +584,10 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 #    Initialization
 # 
 def init_ple_admin(app, db_session):
+    
     ple_admin_url = '/ple_admin'
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = lazy_gettext(u'PLE admin'), url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = lazy_gettext(u"Labs"), name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
+    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
     i18n_spaces = lazy_gettext(u'Spaces')
     ple_admin.add_view(PleNewSpacesPanel(db_session,             category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,                   category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_admin_courses', url = 'spaces'))
