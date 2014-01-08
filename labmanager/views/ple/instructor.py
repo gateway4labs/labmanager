@@ -25,9 +25,12 @@ from labmanager.babel import gettext, ngettext, lazy_gettext
 
 class PleAuthManagerMixin(object):
     def is_accessible(self):
+        print "Estoy en is_accessible"
         if not current_user.is_authenticated():
             return False
-
+        
+        print current_user
+        print current_user.access_level
         return session['usertype'] == 'lms' and current_user.access_level == 'instructor'
     
 class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
@@ -42,6 +45,7 @@ class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
+            print " ******************* L4lPlrInstructorIndexView IS ACCESIBLE "
             return redirect(url_for('login_lms', next=request.url))
 
         return super(L4lPleInstructorIndexView, self)._handle_view(name, **kwargs)
@@ -72,12 +76,12 @@ class PermissionToPleUserPanel(L4lPleInstructorModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PermissionToPleUserPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.filter_by(lt_user = current_user)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(PermissionToPleUserPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.filter_by(lms_user = current_user)
+        query_obj = query_obj.filter_by(lt_user = current_user)
         return query_obj
 
 ###############################################
@@ -87,7 +91,7 @@ class PermissionToPleUserPanel(L4lPleInstructorModelView):
 
 def local_id_formatter(v, c, laboratory, p):
     for permission in laboratory.lab_permissions:
-        if permission.lms == current_user.lms:
+        if permission.lt == current_user.lt:
             return permission.local_identifier
     return gettext('N/A')
 
@@ -96,7 +100,7 @@ def list_widgets_formatter(v, c, laboratory, p):
 
 def accessibility_formatter(v, c, lab, p):
     
-    mylms = current_user.lms
+    mylms = current_user.lt
     permissions = db_session.query(PermissionToLt).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
 
     # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
@@ -146,17 +150,17 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 
     def get_query(self, *args, **kwargs):
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLt).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lt = current_user.lt)
         return query_obj
 
     def get_count_query(self, *args, **kwargs):
         query_obj = super(PleInstructorLaboratoriesPanel, self).get_count_query(*args, **kwargs)
-        query_obj = query_obj.join(PermissionToLms).filter_by(lms = current_user.lms)
+        query_obj = query_obj.join(PermissionToLt).filter_by(lt = current_user.lt)
         return query_obj
 
     @expose("/widgets/<local_identifier>/")
     def list_widgets(self, local_identifier):
-        laboratory = self.session.query(Laboratory).join(PermissionToLms).filter_by(lms = current_user.lms, local_identifier = local_identifier).first()
+        laboratory = self.session.query(Laboratory).join(PermissionToLt).filter_by(lt = current_user.lt, local_identifier = local_identifier).first()
         if laboratory is None:
             return self.render("ple_admin/errors.html", message = gettext("Laboratory not found"))
 
@@ -174,6 +178,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 
 class PleInstructorNewSpacesPanel(PleAuthManagerMixin, PleNewSpacesPanel):
     """PleNewSpacesPanel, but accessible by instructors through PleAuthManagerMixin"""
+    courses_panel_endpoint = 'ple_instructor_courses'
 
 class PleInstructorSpacesPanel(PleAuthManagerMixin, PleSpacesPanel):
     """PleSpacesPanel, but accessible by instructors through PleAuthManagerMixin""" 

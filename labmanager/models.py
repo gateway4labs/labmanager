@@ -308,6 +308,9 @@ class LtUser(Base, SBBase, UserMixin):
         return "%(lmslogin)s@%(lmsname)s" % dict(lmslogin=self.login, lmsname=self.lt.name)
     
     def get_id(self):
+        print "******************** %s" % self.lt.name
+        print "******************** %s" % self.login
+        
         return u"lt_user::%s::%s" %  (self.lt.name, self.login)
 
     @classmethod

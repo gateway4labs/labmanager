@@ -126,6 +126,9 @@ def login_ple():
                 session['loggeduser'] = username
                 session['last_request'] = time()
                 session['usertype'] = 'lms'
+                if next == DEFAULT_NEXT:
+                    if user.access_level == 'instructor':
+                        next = url_for('ple_instructor.index')
                 return redirect(next)
             else:
                 flash(gettext(u'Could not log in.'))

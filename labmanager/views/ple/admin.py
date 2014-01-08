@@ -500,6 +500,8 @@ def parse_space_url(url):
 
 class PleNewSpacesPanel(L4lPleView):
 
+    courses_panel_endpoint = 'ple_admin_courses'
+
     @expose(methods = ['GET', 'POST'])
     def index(self):
         form = SpaceUrlForm()
@@ -543,7 +545,7 @@ class PleNewSpacesPanel(L4lPleView):
 
                         db_session.commit()
 
-                        return redirect(url_for('ple_admin_courses.index_view'))
+                        return redirect(url_for('%s.index_view' % self.courses_panel_endpoint))
 
                     # But if it was not possible to add it, add a new field called space_name
                     else:
