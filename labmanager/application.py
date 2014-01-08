@@ -26,6 +26,7 @@ if app.config['DEBUG']:
     assert fake_lms is not None # Avoid flakes warning
 else:
     app.secret_key = os.urandom(32)
+app.config['SESSION_COOKIE_NAME'] = 'g4lsession'
 
 @app.errorhandler(404)
 def not_found(e):
