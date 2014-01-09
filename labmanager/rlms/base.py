@@ -82,7 +82,6 @@ assert Blueprint or None # Avoid pyflakes warning
 class Versions(object):
     VERSION_1 = "version1"
 
-
 class Capabilities(object):
     """ 
     Capabilities: a RLMS may support only a subset of capabilities.
@@ -104,7 +103,6 @@ class Capabilities(object):
     that the UI is splitted. This is useful for its inclusion in 
     widgets (e.g., in the Graasp OpenSocial widgets).
     """
-
 
 class BaseRLMS(object):
     """
@@ -279,4 +277,3 @@ def register_blueprint(blueprint, url):
         raise Exception("Attempt to register %(blueprints)r for url %(url)r, but %(blueprint)r was already registered for that URL" % dict(blueprints=_BLUEPRINTS[blueprint], url=url, blueprint=blueprint))
 
     _BLUEPRINTS[url] = blueprint
-

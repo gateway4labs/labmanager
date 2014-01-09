@@ -7,7 +7,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 from flask.ext.wtf import Form, TextField, Required, PasswordField, ValidationError, validators
-from labmanager.babel import gettext, ngettext, lazy_gettext
+from labmanager.babel import gettext, lazy_gettext
 
 class RetrospectiveForm(Form):
 
@@ -18,17 +18,14 @@ class RetrospectiveForm(Form):
                 field_names.append(field.name)
         return field_names
 
-
 class AddForm(RetrospectiveForm):
     pass
 
 class AddLmsForm(RetrospectiveForm):
     name      = TextField(lazy_gettext("Name"), validators = [ Required() ])
     url       = TextField(lazy_gettext("URL"),  validators = [ Required() ])
-
     lms_login    = TextField(lazy_gettext("LMS login"), validators = [ Required() ])
     lms_password = PasswordField(lazy_gettext("LMS password"))
-
     labmanager_login    = TextField(lazy_gettext("Labmanager login"), validators = [ Required() ])
     labmanager_password = PasswordField(lazy_gettext("Labmanager password"))
 
@@ -46,7 +43,6 @@ class AddLmsForm(RetrospectiveForm):
 
 class AddUserForm(RetrospectiveForm):
     name      = TextField(lazy_gettext("Name"), validators = [ Required() ])
-
     login     = TextField(lazy_gettext("Login"), validators = [ Required() ])
     password  = PasswordField(lazy_gettext("Password"))
 
@@ -62,38 +58,28 @@ class GenericPermissionForm(RetrospectiveForm):
     identifier    = TextField(lazy_gettext("Identifier"), validators = [ Required() ])
 
 # Basic model validators
- # login can accept uppercases, lowercases, numbers, "_" and "." and must be at least 5 characters long
- # password can accept any caracter except " " and must be at least 8 characters long
+# login can accept uppercases, lowercases, numbers, "_" and "." and must be at least 5 characters long
+# password can accept any caracter except " " and must be at least 8 characters long
  
 def login_validator(form, field):
-    
     invalid_chars = [ c
-                                for c in field.data
-                                if c.isupper() or not c.isalnum() and c not in '._' ]
+                            for c in field.data
+                            if c.isupper() or not c.isalnum() and c not in '._' ]
     if invalid_chars:
         raise ValidationError(gettext('Invalid characters found: %(char)s', char=', '.join(invalid_chars)))
-    
     if len(field.data) < 5:
         raise ValidationError(gettext('login lenght must be at least 5 characters long'))
 
 USER_LOGIN_DEFAULT_VALIDATORS = [validators.Regexp("^[a-z0-9\.\_]{5,}$"), login_validator]
-#LABMANAGER_USER_LOGIN_VALIDATORS = USER_LOGIN_DEFAULT_VALIDATORS
-#REGISTRATION_USER_LOGIN_VALIDATORS = USER_LOGIN_DEFAULT_VALIDATORS
 
 def password_validator(form, field):
-    
     if len(field.data) > 0:
-        
         invalid_chars = [ c
                                 for c in field.data
                                 if c.isspace() ]
-                            
-        if invalid_chars:
-            raise ValidationError(gettext('Passwords can not contain a space'))
-    
-        if len(field.data) < 8:
-            raise ValidationError(gettext('password lenght must be at least 8 characters long'))
+    if invalid_chars:
+        raise ValidationError(gettext('Passwords can not contain a space'))
+    if len(field.data) < 8:
+        raise ValidationError(gettext('password lenght must be at least 8 characters long'))
 
 USER_PASSWORD_DEFAULT_VALIDATORS = [validators.Optional(),validators.Regexp("[^\s]{8,}"), password_validator]
-#LABMANAGER_USER_PASSWORD_VALIDATORS = USER_PASSWORD_DEFAULT_VALIDATORS
-#REGISTRATION_USER_PASSWORD_VALIDATORS = USER_PASSWORD_DEFAULT_VALIDATORS

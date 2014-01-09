@@ -47,8 +47,6 @@ if Babel is None:
     print "Not using Babel. Everything will be in English"
 else:
     babel = Babel(app)
-
-    print babel.list_translations()
     supported_languages = ['en']
     supported_languages.extend([ translation.language for translation in babel.list_translations() ])
 
@@ -69,7 +67,6 @@ else:
         #return timezone
         # TODO 
         return None
-
 
 # 
 # Initialize administration panels
@@ -114,7 +111,6 @@ def developers():
 
 @app.route("/about")
 def about():
-    
     """Global information about gateway4labs."""
     return render_template("about.html")
 

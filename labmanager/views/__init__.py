@@ -63,18 +63,15 @@ def get_json():
 def retrieve_courses(url, user, password):
     req = urllib2.Request(url, '')
     req.add_header('Content-type','application/json')
-
     password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
     password_mgr.add_password(None, url, user, password)
     password_handler = urllib2.HTTPBasicAuthHandler(password_mgr)
     opener = urllib2.build_opener(password_handler)
-
     try:
         json_results= opener.open(req).read()
     except:
         traceback.print_exc()
         return gettext("Error opening provided URL")
-
     try:
         return json.loads(json_results)
     except:

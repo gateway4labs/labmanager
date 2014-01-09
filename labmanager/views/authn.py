@@ -8,11 +8,9 @@
 
 from time import time
 from hashlib import new as new_hash
-
 from flask import render_template, request, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
 from labmanager.babel import gettext
-
 from ..application import app
 from ..models import LabManagerUser, LtUser, LearningTool
 
@@ -25,20 +23,17 @@ def load_user(userid):
     if userid.startswith(u'labmanager_admin::'):
         login = userid.split(u'labmanager_admin::')[1]
         return LabManagerUser.find(login = login)
-
     if userid.startswith(u'lt_user::'):
         try:
             _, lt_name, login = userid.split('::')
         except ValueError:
             print gettext("Invalid format (expected lt_user::lt_name::login)")
             return None
-
         potential_users = [ user for user in LtUser.all(login = login) if user.lt.name == lt_name ]
         if len(potential_users) == 0:
             return None
         else:
             return potential_users[0]
-
     return None
 
 @app.route('/login/admin/', methods=['GET', 'POST'])
@@ -49,7 +44,6 @@ def login_admin():
 
     if request.method == 'GET':
         return render_template('login_admin.html', next=next)
-
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
         hashed = unicode(new_hash("sha", request.form['password']).hexdigest())
@@ -67,9 +61,7 @@ def login_admin():
         else:
             flash(gettext(u'Invalid username.'))
             return render_template('login_admin.html', next=next)
-
     return gettext("Error in create_session")
-
 
 @app.route('/login/lms/', methods=['GET', 'POST'])
 def login_lms():
@@ -81,7 +73,6 @@ def login_lms():
 
     if request.method == 'GET':
         return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
-
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
         hashed = unicode(new_hash("sha", request.form['password']).hexdigest())
@@ -109,13 +100,9 @@ def login_ple():
     """Login screen for application"""
     DEFAULT_NEXT = url_for('ple_admin.index')
     next = request.args.get('next', DEFAULT_NEXT)
-
     ples = [ lt for lt in LearningTool.all() if len(lt.shindig_credentials) > 0 ]
-
     if request.method == 'GET':
-#IRENE      return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
         return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
-
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
         hashed = unicode(new_hash("sha", request.form['password']).hexdigest())
@@ -132,14 +119,11 @@ def login_ple():
                 return redirect(next)
             else:
                 flash(gettext(u'Could not log in.'))
-# IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
                 return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
         else:
             flash(gettext(u'Invalid username.'))
-# IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))            
             return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     return gettext(u"Error in create_session")
-
 
 @app.route("/logout", methods=['GET'])
 @login_required
@@ -147,4 +131,3 @@ def logout():
     logout_user()
     session.pop('loggeduser', None)
     return redirect(url_for('index'))
-

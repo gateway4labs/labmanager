@@ -7,11 +7,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 from flask import request, redirect, url_for, session, Markup
-
 from flask.ext.admin import Admin, AdminIndexView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
-
 from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
 from labmanager.models import LearningTool,Laboratory, PermissionToLt
@@ -25,32 +23,20 @@ from labmanager.babel import gettext, lazy_gettext
 
 class PleAuthManagerMixin(object):
     def is_accessible(self):
-        print "Estoy en is_accessible"
         if not current_user.is_authenticated():
-            print "no autenticado"
             return False
-        
-        print current_user
-        print current_user.access_level
         return session['usertype'] == 'lms' and current_user.access_level == 'instructor'
     
 class L4lPleInstructorModelView(PleAuthManagerMixin, ModelView):
-
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            print "no accesible 1"
             return redirect(url_for('login_lms', next=request.url))
-
         return super(L4lPleInstructorModelView, self)._handle_view(name, **kwargs)
 
 class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
-
     def _handle_view(self, name, **kwargs):
-        print self
-        print name
         if not self.is_accessible():
             return redirect(url_for('login_lms', next=request.url))
-
         return super(L4lPleInstructorIndexView, self)._handle_view(name, **kwargs)
 
 ###############################################################
@@ -61,7 +47,6 @@ class L4lPleInstructorIndexView(PleAuthManagerMixin, AdminIndexView):
 class PleInstructorPanel(L4lPleInstructorIndexView):
     @expose()
     def index(self):
-        print "            PLE INSTRUCTOR PANEL             "
         return self.render("ple_admin/instructors.html")
     
 ###############################################################
@@ -102,39 +87,6 @@ def local_id_formatter(v, c, laboratory, p):
 def list_widgets_formatter(v, c, laboratory, p):
     return Markup('<a href="%s"> list </a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
 
-def accessibility_formatter(v, c, lab, p):
-    
-    mylms = current_user.lt
-    permissions = db_session.query(PermissionToLt).filter_by(lms = mylms, local_identifier = lab.default_local_identifier, accessible = True).first()
-
-    # labaccessible shows what we want the lab to be (e.g. if it is currently  not accesible, then we want it accessible)
-    if permissions is None:
-        currently = gettext('This lab is NOT accesible')
-        labaccessible = gettext('true')
-        klass = 'btn-success'
-        msg = gettext('Make accessible')
-
-    else:
-        currently = gettext('This lab IS accesible')
-        labaccessible = gettext('false')
-        klass = 'btn-danger'
-        msg = gettext('Make not accessible')
-
-                                       
-    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
-                        %(currently)s  
-                        <input type='hidden' name='accessible_value' value='%(accessible_value)s'/>
-                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
-                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
-                    </form>""" % dict(
-                        url                      = url_for('.change_accessibility'),                     
-                        accessible_value         = labaccessible,
-                        lab_id                   = lab.id,      
-                        klass                    = klass,
-                        msg                      = msg,
-                        currently                = currently,
-                    ))
-
 class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 
     can_delete = False
@@ -167,11 +119,9 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
         laboratory = self.session.query(Laboratory).join(PermissionToLt).filter_by(lt = current_user.lt, local_identifier = local_identifier).first()
         if laboratory is None:
             return self.render("ple_admin/errors.html", message = gettext("Laboratory not found"))
-
         rlms_db = laboratory.rlms
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
-
         widgets = rlms.list_widgets(laboratory.laboratory_id)
         return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lt.name, lab_name = local_identifier)
 
@@ -203,6 +153,5 @@ def init_ple_instructor_admin(app, db_session):
     ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
     ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
     ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
- 
     ple_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)

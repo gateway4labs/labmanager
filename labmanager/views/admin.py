@@ -6,31 +6,22 @@ import threading
 
 from hashlib import new as new_hash
 from yaml import load as yload
-
-
 from wtforms.fields import PasswordField
-
 from flask import request, redirect, url_for, session, Markup, abort, Response, flash
-
 from flask.ext import wtf
 from flask.ext.wtf import validators
-
 from flask.ext.login import current_user
-
 from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.babel import gettext, lazy_gettext
-
 from labmanager.models import LabManagerUser, LtUser
-
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
 from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 import labmanager.forms as forms
-
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -41,47 +32,38 @@ config = yload(open('labmanager/config/config.yml'))
 # 
 # 
 
-
 class L4lModelView(ModelView):
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
-
         return session['usertype'] == 'labmanager'
     
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
             return redirect(url_for('login_admin', next=request.url))
-
         return super(L4lModelView, self)._handle_view(name, **kwargs)
 
 class L4lBaseView(BaseView):
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
-        
         return session['usertype'] == 'labmanager'
     
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
             return redirect(url_for('login_admin', next=request.url))
-
         return super(L4lBaseView, self)._handle_view(name, **kwargs)
 
 class L4lAdminIndexView(AdminIndexView):
-
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
-        
         return session['usertype'] == 'labmanager'
     
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
             return redirect(url_for('login_admin', next=request.url))
-
         return super(L4lAdminIndexView, self)._handle_view(name, **kwargs)
-
 
 ##############################################################
 # 
@@ -93,9 +75,7 @@ class AdminPanel(L4lAdminIndexView):
     def index(self):
         return self.render("labmanager_admin/index.html")
 
-
 class UsersPanel(L4lModelView):
-
     column_list = ['login', 'name']
     form_columns = ('name', 'login', 'password')
     column_labels = dict(name=lazy_gettext('name'), login=lazy_gettext('login'), password=lazy_gettext('password'))
@@ -107,22 +87,17 @@ class UsersPanel(L4lModelView):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
         
     def create_model(self, form):
-        
         if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
-            return False
-
+            return False            
         form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
         return super(UsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
-        
         old_password = model.password
         if form.password.data != '':
             form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
-            
         return_value = super(UsersPanel, self).update_model(form, model)
-        
         if form.password.data == '':
             model.password = old_password
             self.session.add(model)
@@ -130,7 +105,6 @@ class UsersPanel(L4lModelView):
         return return_value
 
 class LtUsersPanel(L4lModelView):
-
     column_list = ['lt', 'login', 'full_name', 'access_level']
     column_labels = dict(lt=lazy_gettext('lt'), login=lazy_gettext('login'), full_name=lazy_gettext('full_name'), access_level=lazy_gettext('access_level'))
     form_columns = ('full_name', 'login', 'password', 'access_level', 'lt')
@@ -144,22 +118,17 @@ class LtUsersPanel(L4lModelView):
         super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
 
     def create_model(self, form):
- 
         if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
             return False
-
         form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
         return super(LtUsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
-        
         old_password = model.password
         if form.password.data != '':
             form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
-            
         return_value = super(LtUsersPanel, self).update_model(form, model)
-        
         if form.password.data == '':
             model.password = old_password
             self.session.add(model)
@@ -167,15 +136,12 @@ class LtUsersPanel(L4lModelView):
         return return_value
 
 class PermissionToLtUsersPanel(L4lModelView):
-
     def __init__(self, session, **kwargs):
         super(PermissionToLtUsersPanel, self).__init__(PermissionToLtUser, session, **kwargs)
 
 def accept_formatter(v, c, req, p):
-    
     klass = 'btn-success'
     msg = 'Accept request'
-                    
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='request_id' value='%(request_id)s'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
@@ -188,11 +154,8 @@ def accept_formatter(v, c, req, p):
                     ))
 
 def reject_formatter(v, c, req, p):
-    
     klass = 'btn-danger'
     msg = 'Reject request'
- 
-                   
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                         <input type='hidden' name='request_id' value='%(request_id)s'/>
@@ -201,82 +164,55 @@ def reject_formatter(v, c, req, p):
                         klass                    = klass,
                         msg                      = msg,
                         request_id               = req.id,
-                      
                     ))
 
 class LabRequestsPanel(L4lModelView):
     # 
     # TODO: manage configuration
     # 
-
     column_list = ['laboratory', 'local_identifier', 'lt', 'accept', 'reject']
     column_labels = dict(laboratory=lazy_gettext('laboratory'), local_identifier=lazy_gettext('local_identifier'), lt=lazy_gettext('lt'), accept=lazy_gettext('accept'), reject=lazy_gettext('reject'))
-
     column_formatters = dict( accept = accept_formatter, reject  = reject_formatter )
-
     column_descriptions = dict(
                 laboratory       = lazy_gettext(u"The laboratory that has been requested"),
                 lt              = lazy_gettext(u"Learning Management System which created each request"),
                 local_identifier = lazy_gettext(u"Unique identifier for a LT to access a laboratory"),
             )
 
-
     def __init__(self, session, **kwargs):
         super(LabRequestsPanel, self).__init__(RequestPermissionLT, session, **kwargs)
 
-
     @expose('/accept_request', methods = ['GET','POST'])
     def accept_request(self):
-
         request_id = unicode(request.form['request_id'])
-
         req = self.session.query(RequestPermissionLT).filter_by(id = request_id).first()
-    
         perm = PermissionToLt(lt = req.lt, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
-
         self.session.add(perm)    
-
         self.session.delete(req)
-
         self.session.commit()
-            
         return redirect(url_for('.index_view'))
 
     @expose('/reject_request', methods = ['GET','POST'])
     def reject_request(self):
-
         request_id = unicode(request.form['request_id'])
-
         req = self.session.query(RequestPermissionLT).filter_by(id = request_id).first()
-    
         perm = PermissionToLt(lt = req.lt, laboratory = req.laboratory, configuration = '', local_identifier = req.local_identifier)
-
         self.session.add(perm)    
-
         self.session.delete(req)
-
         self.session.commit()
-            
         return redirect(url_for('.index_view'))
-
-
-
-
         
 ##############################################################
 # 
 #    LT related views
 # 
-
 class BasicHttpCredentialsForm(InlineFormAdmin):
     column_descriptions = dict(
             lt_login = lazy_gettext('Login of the LT when contacting the LabManager'),
         )
-
     form_overrides = dict(lt_password=PasswordField, labmanager_password=PasswordField)
     form_columns = ('id', 'lt_login', 'lt_password', 'lt_url', 'labmanager_login', 'labmanager_password')
     excluded_form_fields = ('id',)
-
 
 def download(v, c, lt, p):
     if len(lt.basic_http_authentications) > 0:
@@ -284,14 +220,11 @@ def download(v, c, lt, p):
     return gettext('N/A')
 
 class LTPanel(L4lModelView):
-
     inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
-
     column_list = ['full_name', 'name', 'url', 'download']
     column_labels = dict(full_name=lazy_gettext('full_name'), name=lazy_gettext('name'), url=lazy_gettext('url'), download=lazy_gettext('download'))
     column_formatters = dict( download = download )
     column_descriptions = dict( name = lazy_gettext("Institution short name (lower case, all letters, dots and numbers)"), full_name = lazy_gettext("Name of the institution."))
-
 
     def __init__(self, session, **kwargs):
         super(LTPanel, self).__init__(LearningTool, session, **kwargs)
@@ -307,7 +240,6 @@ class LTPanel(L4lModelView):
 
     def on_model_change(self, form, model):
         old_basic_http_authentications = getattr(self.local_data, 'basic_http_authentications', {})
-
         for authentication in model.basic_http_authentications:
             old_password = old_basic_http_authentications.get(authentication.id, None)
             authentication.update_password(old_password)
@@ -320,12 +252,10 @@ class LTPanel(L4lModelView):
         else:
             url = ''
         return get_authentication_scorm(url)
-            
-
+ 
 class CoursePanel(L4lModelView):
     def __init__(self, session, **kwargs):
         super(CoursePanel, self).__init__(Course, session, **kwargs)
-
 
 ##########################################################
 # 
@@ -342,7 +272,6 @@ class DynamicSelectWidget(wtf.widgets.Select):
 class DynamicSelectField(wtf.SelectField):
     widget = DynamicSelectWidget()
 
-
 def _generate_choices():
     sel_choices = [('','')]
     for ins_rlms in get_supported_types():
@@ -351,24 +280,20 @@ def _generate_choices():
     return sel_choices
 
 class RLMSPanel(L4lModelView):
-
     # For editing
     form_columns = ('kind', 'location', 'url')
     form_overrides = dict(kind=DynamicSelectField)
-
     # For listing 
     # column_list  = [lazy_gettext('kind'), lazy_gettext('version'), lazy_gettext('location'), lazy_gettext('url'), lazy_gettext('labs')]
     column_list  = ['kind', 'version', 'location', 'url', 'labs']
     column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
     column_exclude_list = (lazy_gettext('version'), lazy_gettext('configuration'))
-
     column_formatters = dict(
             labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), list))
         )
 
     def __init__(self, session, **kwargs):
         super(RLMSPanel, self).__init__(RLMS, session, **kwargs)
-        
         # 
         # For each supported RLMS, it provides a different edition
         # form. So as to avoid creating a new class each type for 
@@ -395,7 +320,6 @@ class RLMSPanel(L4lModelView):
         form.csrf_token.data = old_form.csrf_token.data
         form.process(obj=obj)
         form.csrf_token.data = old_form.csrf_token.data
-
         for key in form.get_field_names():
             if key in request.form:
                 getattr(form, key).data = request.form[key]
@@ -403,10 +327,8 @@ class RLMSPanel(L4lModelView):
     def create_form(self, obj = None, *args, **kwargs):
         form = super(RLMSPanel, self).create_form(*args, **kwargs)
         rlms = request.args.get('rlms')
-
         if rlms is not None and '<>' in rlms:
             form_class = self._get_cached_form_class(rlms, form)
-
             old_form = form
             form = form_class(add_or_edit=True, fields=form._fields)
             form.kind.default = rlms
@@ -420,29 +342,24 @@ class RLMSPanel(L4lModelView):
         old_form = form
         form = form_class(add_or_edit=False, fields=form._fields)
         del form.kind
-        
         configuration = json.loads(obj.configuration)
         for key in configuration:
             # TODO: this should be RLMS specific
             if 'password' not in key: 
                 setattr(obj, key, configuration[key])
-
         self._fill_form_instance(form, old_form, obj )
         return form
 
     def on_model_change(self, form, model):
         if model.kind == '':
             abort(406)
-        
         if '<>' in model.kind:
             rlms_ver = model.kind.split('<>')
             model.kind, model.version = rlms_ver[0], rlms_ver[1]
-
         if not model.configuration:
             other_data = {}
         else:
             other_data = json.loads(model.configuration)
-
         for key in form.get_field_names():
             if key not in RLMSPanel.form_columns:
                 # TODO: this should be RLMS specific
@@ -450,7 +367,6 @@ class RLMSPanel(L4lModelView):
                     pass # Passwords can be skipped
                 else:
                     other_data[key] = getattr(form, key).data
-        
         model.configuration = json.dumps(other_data)
 
     @expose('/labs/<id>/', methods = ['GET','POST'])
@@ -458,7 +374,6 @@ class RLMSPanel(L4lModelView):
         # 
         # TODO: CSRF is not used here. Security hole
         # 
-
         rlms_db = self.session.query(RLMS).filter_by(id = id).first()
         if rlms_db is None:
             return abort(404)
@@ -466,9 +381,7 @@ class RLMSPanel(L4lModelView):
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
         labs = rlms.get_laboratories()
-
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-
         if request.method == 'POST':
             selected = []
             for name, value in request.form.items():
@@ -477,15 +390,12 @@ class RLMSPanel(L4lModelView):
                         if lab.laboratory_id == name:
                             selected.append(lab)
             changes = False
-
             if request.form['action'] == 'register':
                 for lab in selected:
                     if not lab.laboratory_id in registered_labs:
                         self.session.add(Laboratory(name = lab.name, laboratory_id = lab.laboratory_id, rlms = rlms_db))
                         changes = True
-
             elif request.form['action'] == 'unregister':
-
                 for lab in selected:
                     if lab.laboratory_id in registered_labs:
                         cur_lab_db = None
@@ -493,27 +403,21 @@ class RLMSPanel(L4lModelView):
                             if lab_db.laboratory_id == lab.laboratory_id:
                                 cur_lab_db = lab_db
                                 break
-
                         if cur_lab_db is not None:
                             self.session.delete(cur_lab_db)
                             changes = True
-
             if changes:
                 self.session.commit()
-
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
 def accessibility_formatter(v, c, lab, p):
-
     if lab.available:
         klass = 'btn-danger'
         msg = gettext('Make not available')
     else:
         klass = 'btn-success'
         msg = gettext('Make available')
-
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
@@ -530,14 +434,12 @@ def accessibility_formatter(v, c, lab, p):
                     ))
 
 def public_availability_formatter(v, c, lab, p):
-
     if lab.publicly_available:
         klass = 'btn-danger'
         msg = gettext('Make not publicly available')
     else:
         klass = 'btn-success'
         msg = gettext('Make publicly available')
-
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
@@ -552,7 +454,6 @@ def public_availability_formatter(v, c, lab, p):
                         msg               = msg,
                         public_identifier = lab.public_identifier,
                     ))
-
 
 class LaboratoryPanel(L4lModelView):
 
@@ -579,7 +480,7 @@ class LaboratoryPanel(L4lModelView):
             if len(existing_labs) > 0:
                 # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
                 if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash(gettext(u"Local identifier '%(localidentifier)s' already exists"), localidentifier=request.form['local_identifier'])
+                    flash(gettext(u"Local identifier '%(localidentifier)s' already exists", localidentifier=request.form['local_identifier']))
                     return redirect(url_for('.index_view'))
             lab.available = not activate
             lab.default_local_identifier = request.form['local_identifier']
@@ -613,19 +514,15 @@ class LaboratoryPanel(L4lModelView):
                 self.session.commit()
         return redirect(url_for('.index_view'))
 
-
 def scorm_formatter(v, c, permission, p):
-    
     if permission.lt.basic_http_authentications:
         return Markup('<a href="%s"> Download </a>' % (url_for('.get_scorm', lt_id = permission.lt.id,  local_id = permission.local_identifier)))
-
     return 'N/A'
 
 class PermissionToLtPanel(L4lModelView):
     # 
     # TODO: manage configuration
     # 
-
     column_list = ['laboratory', 'lt', 'local_identifier', 'configuration', 'SCORM']
     column_labels = dict(laboratory=lazy_gettext('laboratory'), lt=lazy_gettext('lt'), local_identifier=lazy_gettext('local_identifier'), configuration=lazy_gettext('configuration'), SCORM=lazy_gettext('SCORM'))
     column_descriptions = dict(
@@ -633,9 +530,7 @@ class PermissionToLtPanel(L4lModelView):
                 lt               = lazy_gettext(u"Learning Management System"),
                 local_identifier = lazy_gettext(u"Unique identifier for a Learning Tool to access a laboratory"),
             )
-
     column_formatters = dict( SCORM = scorm_formatter )
-
 
     def __init__(self, session, **kwargs):
         super(PermissionToLtPanel, self).__init__(PermissionToLt, session, **kwargs)
@@ -643,29 +538,22 @@ class PermissionToLtPanel(L4lModelView):
     @expose('/scorm/<lt_id>/scorm_<local_id>.zip')
     def get_scorm(self, lt_id, local_id):
         permission = self.session.query(PermissionToLt).filter_by(lt_id = lt_id, local_identifier = local_id).one()
-        
         db_lt = permission.lt
-
         if db_lt.basic_http_authentications:
             url = db_lt.basic_http_authentications[0].lt_url or ''
         else:
             url = ''
-
         lt_path = urlparse.urlparse(url).path or '/'
         extension = '/'
         if 'gateway4labs/' in lt_path:
             extension = lt_path[lt_path.rfind('gateway4labs/lms/list') + len('gateway4labs/lms/list'):]
             lt_path  = lt_path[:lt_path.rfind('gateway4labs/')]
-
         contents = get_scorm_object(False, local_id, lt_path, extension)
         return Response(contents, headers = {'Content-Type' : 'application/zip', 'Content-Disposition' : 'attachment; filename=scorm_%s.zip' % local_id})
-        
-
+   
 class PermissionPanel(L4lModelView):
-
     def __init__(self, session, **kwargs):
         super(PermissionPanel, self).__init__(PermissionToCourse, session, **kwargs)
-
 
 ##########################################################
 # 
@@ -674,7 +562,6 @@ class PermissionPanel(L4lModelView):
 
 def init_admin(app, db_session):
     admin_url = '/admin'
-
     admin = Admin(index_view = AdminPanel(url=admin_url), name = lazy_gettext(u"Lab Manager"), url = admin_url, endpoint = admin_url)
     i18n_LMSmngmt = lazy_gettext(u'LT Management')
     admin.add_view(LTPanel(db_session,        category = i18n_LMSmngmt, name = lazy_gettext(u"LT"),     endpoint = 'lt/lt'))
@@ -687,4 +574,3 @@ def init_admin(app, db_session):
     admin.add_view(UsersPanel(db_session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
     admin.add_view(RedirectView('logout',      name = lazy_gettext(u"Log out"), endpoint = 'admin/logout'))
     admin.init_app(app)
-
