@@ -101,6 +101,7 @@ def run():
         app.config['TESTING'] = True
         app.config['CSRF_ENABLED'] = False
         app.config['DEBUG'] = False
+        app.config['TRANSLATE_LABMANAGER'] = False
 
     port = int(os.environ.get('PORT', args.port))
     app.run(host='0.0.0.0', port=port, threaded = True)

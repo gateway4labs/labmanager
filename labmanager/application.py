@@ -52,13 +52,16 @@ else:
 
     @babel.localeselector
     def get_locale():
-        locale = request.args.get('locale',  None)
-        if locale is None:
-            locale = request.accept_languages.best_match(supported_languages)
-        if locale is None:
-            locale = 'en'
-        print "Locale requested. Got: ", locale
-        return locale 
+        if app.config.get('TRANSLATE_LABMANAGER', True):
+            locale = request.args.get('locale',  None)
+            if locale is None:
+                locale = request.accept_languages.best_match(supported_languages)
+            if locale is None:
+                locale = 'en'
+            print "Locale requested. Got: ", locale
+            return locale 
+        else:
+            return 'en'
 
     @babel.timezoneselector
     def get_timezone():
