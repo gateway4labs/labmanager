@@ -54,13 +54,13 @@ class AddUserForm(RetrospectiveForm):
         if form.add_or_edit and field.data == '':
             raise ValidationError(gettext("This field is required."))
 
-class GenericPermissionForm(RetrospectiveForm):
-    identifier    = TextField(lazy_gettext("Identifier"), validators = [ Required() ])
-
 # Basic model validators
 # login can accept uppercases, lowercases, numbers, "_" and "." and must be at least 5 characters long
 # password can accept any caracter except " " and must be at least 8 characters long
  
+class GenericPermissionForm(RetrospectiveForm):
+    identifier    = TextField(lazy_gettext("Identifier"), validators = [ Required() ])
+
 def login_validator(form, field):
     invalid_chars = [ c
                             for c in field.data
@@ -71,6 +71,7 @@ def login_validator(form, field):
         raise ValidationError(gettext('login lenght must be at least 5 characters long'))
 
 USER_LOGIN_DEFAULT_VALIDATORS = [validators.Regexp("^[a-z0-9\.\_]{5,}$"), login_validator]
+print USER_LOGIN_DEFAULT_VALIDATORS
 
 def password_validator(form, field):
     if len(field.data) > 0:
@@ -83,3 +84,46 @@ def password_validator(form, field):
         raise ValidationError(gettext('password lenght must be at least 8 characters long'))
 
 USER_PASSWORD_DEFAULT_VALIDATORS = [validators.Optional(),validators.Regexp("[^\s]{8,}"), password_validator]
+
+# Registrarion Form validations
+# login can accept uppercases, lowercases, numbers, "_" and "." and must be at least 5 characters long
+# password can accept any caracter except " " and must be at least 8 characters long
+
+class RegistrationPermissionForm(RetrospectiveForm):
+    identifier    = TextField(lazy_gettext("Identifier"), validators = [ Required() ])
+
+def school_full_name_validator(form, field):
+    if len(field.data) < 4 or len(field.data) > 50:
+        raise ValidationError(gettext('Oficial name must be between 4 and 50 characters long'))
+    else:
+        invalid_chars = [ c
+                                for c in field.data
+                                if not c.isalnum() and c not in ' ' ]
+    if invalid_chars:
+         raise ValidationError(gettext('Invalid characters found: %(char)s', char=', '.join(invalid_chars)))
+        
+SCHOOL_FULL_NAME_VALIDATORS = [validators.Regexp("^[A-Za-z\. ]{4,50}$"), school_full_name_validator]
+        
+def school_short_name_validator(form, field):
+    if len(field.data) < 4 or len(field.data) > 15:
+        raise ValidationError(gettext('Short name must be between 4 and 15 characters long'))
+    else:
+        invalid_chars = [ c
+                                for c in field.data 
+                                    if not c.isalnum() and c not in '.']
+    if invalid_chars:
+         raise ValidationError(gettext('Invalid characters found: %(char)s', char=', '.join(invalid_chars)))
+        
+SCHOOL_SHORT_NAME_VALIDATORS = [validators.Regexp("^[a-z0-9\.]{4,15}$"), school_short_name_validator]
+
+def user_full_name_validator(form, field):
+    if len(field.data) < 4 or len(field.data) > 15:
+        raise ValidationError(gettext('Oficial name must be between 4 and 15 characters long'))
+    else:
+        invalid_chars = [ c
+                                for c in field.data 
+                                    if not c.isalnum() and c not in ' ']
+    if invalid_chars:
+         raise ValidationError(gettext('Invalid characters found: %(char)s', char=', '.join(invalid_chars)))
+
+USER_FULL_NAME_VALIDATORS = [validators.Regexp("^[a-zA-Z\ ]{4,15}$"), user_full_name_validator]

@@ -90,8 +90,8 @@ class PleUsersPanel(L4lPleModelView):
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(password=PasswordField, access_level=wtf.SelectField)
     form_args = dict( access_level=dict( choices=sel_choices ),
-                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
-                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS)) 
+                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS[:]),
+                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS[:])) 
 
     def __init__(self, session, **kwargs):
         super(PleUsersPanel, self).__init__(LtUser, session, **kwargs)

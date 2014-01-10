@@ -184,21 +184,14 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     response = remote_laboratory.load_widget(reservation_id, widget_name)
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
-
+    
 class RegistrationForm(Form):
-#    full_name  = TextField(lazy_gettext('School name'), [validators.Length(min=4, max=50), validators.Required()], description = lazy_gettext('School name.'))
-#    short_name = TextField(lazy_gettext('Short name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
-#    url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
-#    user_full_name  = TextField(lazy_gettext('User name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your name and last name.'))
-#    user_login      = TextField(lazy_gettext('Login'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your new login (you can create more later).'))
-#    user_password   = PasswordField(lazy_gettext('Password'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your access password.'))
-
-    full_name  = TextField(lazy_gettext('School name'), [validators.Regexp("^[\w\.]{4,50}$")], description = lazy_gettext('School name.'))
-    short_name = TextField(lazy_gettext('Short name'), [validators.Required(),validators.Regexp("^[a-z0-9\.\_]{4,15}")], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
+    full_name  = TextField(lazy_gettext('School name'), [validators.Required()] + forms.SCHOOL_FULL_NAME_VALIDATORS, description = lazy_gettext('School name.'))
+    short_name = TextField(lazy_gettext('Short name'), [validators.Required()] + forms.SCHOOL_SHORT_NAME_VALIDATORS, description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
     url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
-    user_full_name  = TextField(lazy_gettext('User name'), [validators.Required(), validators.Regexp("^[a-zA-Z]{4,15}$")], description = lazy_gettext('Your name and last name.'))
+    user_full_name  = TextField(lazy_gettext('User name'), [validators.Required()] + forms.USER_FULL_NAME_VALIDATORS, description = lazy_gettext('Your name and last name.'))
     user_login      = TextField(lazy_gettext('Login'), [validators.Required()] + forms.USER_LOGIN_DEFAULT_VALIDATORS, description = lazy_gettext('Your new login (you can create more later).'))
-    user_password   = PasswordField(lazy_gettext('Password'), [validators.Required(), validators.Regexp("[^\s]{8,}")], description = lazy_gettext('Your access password.'))
+    user_password   = PasswordField(lazy_gettext('Password'), [validators.Required()] + forms.USER_PASSWORD_DEFAULT_VALIDATORS, description = lazy_gettext('Your access password.'))
 
 @opensocial_blueprint.route("/register/", methods = ['GET', 'POST'])
 def register():
@@ -223,5 +216,6 @@ def register():
             db_session.add(shindig_credentials)
             db_session.add(lt_user)
             db_session.commit()
-            return redirect(url_for('login_lms', next = url_for('ple_admin.index')) )
+            return redirect(url_for('login_ple', next = url_for('ple_admin.index')) )
+            
     return render_template("opensocial/registration.html", form = form)

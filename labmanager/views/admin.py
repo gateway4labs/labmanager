@@ -80,8 +80,8 @@ class UsersPanel(L4lModelView):
     form_columns = ('name', 'login', 'password')
     column_labels = dict(name=lazy_gettext('name'), login=lazy_gettext('login'), password=lazy_gettext('password'))
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
-    form_args = dict(login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
-                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))       
+    form_args = dict(login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS[:]),
+                           password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS[:]))       
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
@@ -111,8 +111,8 @@ class LtUsersPanel(L4lModelView):
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
     form_args = dict(access_level=dict( choices=sel_choices ),
-                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS),
-                            password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS))
+                            login=dict(validators=forms.USER_LOGIN_DEFAULT_VALIDATORS[:]),
+                            password=dict(validators=forms.USER_PASSWORD_DEFAULT_VALIDATORS[:]))
     
     def __init__(self, session, **kwargs):
         super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
