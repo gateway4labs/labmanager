@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-01-14 13:06+0100\n"
+"POT-Creation-Date: 2014-01-14 16:20+0100\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -74,27 +74,27 @@ msgstr "Se ha encontrado un carácter no válido: %(char)s"
 
 #: labmanager/forms.py:71
 msgid "login lenght must be at least 5 characters long"
-msgstr "El nombre de usuario debe tener al menos 5 caracteres"
+msgstr ""
 
 #: labmanager/forms.py:82
 msgid "Passwords can not contain a space"
-msgstr "Las contraseñas no pueden contener espacios en blanco"
+msgstr ""
 
 #: labmanager/forms.py:84
 msgid "password lenght must be at least 8 characters long"
-msgstr "La contraseña debe tener al menos 8 caracteres de longitud"
+msgstr ""
 
 #: labmanager/forms.py:97
 msgid "Oficial name must be between 4 and 50 characters long"
-msgstr "El nombre oficial debe tener entre 4 y 50 caracteres de longitud"
+msgstr ""
 
 #: labmanager/forms.py:109
 msgid "Short name must be between 4 and 15 characters long"
-msgstr "El nombre corto debe tener entre 4 y 15 caracteres de longitud"
+msgstr ""
 
 #: labmanager/forms.py:121
 msgid "Oficial name must be between 4 and 15 characters long"
-msgstr "El nombre oficial debe tener entre 4 y 15 caracteres de longitud"
+msgstr ""
 
 #: labmanager/models.py:110
 #, python-format
@@ -532,7 +532,7 @@ msgstr "Registre su escuela en Graasp"
 
 #: labmanager/templates/opensocial/smartgateway.js:63
 msgid "Reserve"
-msgstr "Reservar"
+msgstr ""
 
 #: labmanager/templates/ple_admin/index.html:3
 msgid "Graasp Admin Dashboard"
@@ -648,7 +648,7 @@ msgstr "Añadir un espacio"
 #: labmanager/templates/public/index.html:8 labmanager/views/public.py:77
 #, fuzzy
 msgid "Public laboratories"
-msgstr "Laboratorios de libre acceso"
+msgstr "Laboratorios"
 
 #: labmanager/templates/public/index.html:11
 msgid "If you are a teacher, you should consume this information from:"
@@ -718,12 +718,12 @@ msgstr "Nivel de acceso"
 #: labmanager/views/admin.py:144
 #, fuzzy
 msgid "Accept request"
-msgstr "Aceptar la solicitud"
+msgstr "Eliminar la solicitud de acceso"
 
 #: labmanager/views/admin.py:157
 #, fuzzy
 msgid "Reject request"
-msgstr "Rechazar la solicitud"
+msgstr "Eliminar la solicitud de acceso"
 
 #: labmanager/views/admin.py:173 labmanager/views/admin.py:526
 msgid "laboratory"
@@ -1151,11 +1151,11 @@ msgstr "widgets"
 #: labmanager/views/public.py:78
 #, fuzzy
 msgid "Show public labs"
-msgstr "Laboratorios"
+msgstr "Ver los laboratorios públicos"
 
 #: labmanager/views/public.py:79
 msgid "Back"
-msgstr "Volver"
+msgstr "Regresar"
 
 #: labmanager/views/lms/admin.py:82
 msgid "Full Name"
@@ -1445,17 +1445,14 @@ msgstr "Laboratorios"
 #~ msgid "LabManager login"
 #~ msgstr "Acceso a la gestión de laboratorios"
 
-msgid "LabManager Login"
-msgstr "Administración del gestor de laboratorios"
+#~ msgid "LabManager Login"
+#~ msgstr "Administración del gestor de laboratorios"
 
 #~ msgid "Username"
 #~ msgstr "Usuario"
 
 #~ msgid "Log in"
 #~ msgstr "Conectar"
-
-#~ msgid "Back"
-#~ msgstr "Regresar"
 
 #~ msgid "Institution login"
 #~ msgstr "Acceso para las escuelas registradas"
@@ -1471,7 +1468,4 @@ msgstr "Administración del gestor de laboratorios"
 
 #~ msgid "Labs"
 #~ msgstr "Laboratorios"
-
-#~ msgid "Public labs"
-#~ msgstr "Ver los laboratorios públicos"
 
