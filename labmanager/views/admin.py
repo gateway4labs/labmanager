@@ -141,7 +141,7 @@ class PermissionToLtUsersPanel(L4lModelView):
 
 def accept_formatter(v, c, req, p):
     klass = 'btn-success'
-    msg = 'Accept request'
+    msg = lazy_gettext("Accept request")
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='request_id' value='%(request_id)s'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
@@ -150,12 +150,11 @@ def accept_formatter(v, c, req, p):
                         klass                    = klass,
                         msg                      = msg,
                         request_id               = req.id,
-                      
                     ))
 
 def reject_formatter(v, c, req, p):
     klass = 'btn-danger'
-    msg = 'Reject request'
+    msg =  lazy_gettext('Reject request')
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                         <input type='hidden' name='request_id' value='%(request_id)s'/>
