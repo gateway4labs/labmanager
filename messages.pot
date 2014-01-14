@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-01-14 10:56+0100\n"
+"POT-Creation-Date: 2014-01-14 11:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -605,7 +605,7 @@ msgstr ""
 msgid "Add space"
 msgstr ""
 
-#: labmanager/templates/public/index.html:8
+#: labmanager/templates/public/index.html:8 labmanager/views/public.py:77
 msgid "Public laboratories"
 msgstr ""
 
@@ -1082,6 +1082,14 @@ msgstr ""
 #: labmanager/views/public.py:43 labmanager/views/ple/admin.py:232
 #: labmanager/views/ple/instructor.py:102
 msgid "widgets"
+msgstr ""
+
+#: labmanager/views/public.py:78
+msgid "Show public labs"
+msgstr ""
+
+#: labmanager/views/public.py:79
+msgid "Back"
 msgstr ""
 
 #: labmanager/views/lms/admin.py:82

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-01-14 10:56+0100\n"
+"POT-Creation-Date: 2014-01-14 11:44+0100\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -645,10 +645,10 @@ msgstr "Permisos sobre"
 msgid "Add space"
 msgstr "Añadir un espacio"
 
-#: labmanager/templates/public/index.html:8
+#: labmanager/templates/public/index.html:8 labmanager/views/public.py:77
 #, fuzzy
 msgid "Public laboratories"
-msgstr "Laboratorios"
+msgstr "Laboratorios de libre acceso"
 
 #: labmanager/templates/public/index.html:11
 msgid "If you are a teacher, you should consume this information from:"
@@ -1148,6 +1148,15 @@ msgstr "Identificador local"
 msgid "widgets"
 msgstr "widgets"
 
+#: labmanager/views/public.py:78
+#, fuzzy
+msgid "Show public labs"
+msgstr "Laboratorios"
+
+#: labmanager/views/public.py:79
+msgid "Back"
+msgstr "Volver"
+
 #: labmanager/views/lms/admin.py:82
 msgid "Full Name"
 msgstr "Nombre completo"
@@ -1462,4 +1471,7 @@ msgstr "Laboratorios"
 
 #~ msgid "Labs"
 #~ msgstr "Laboratorios"
+
+#~ msgid "Public labs"
+#~ msgstr "Ver los laboratorios públicos"
 

@@ -74,7 +74,7 @@ class PublicLaboratoriesPanel(ModelView):
 
 def init_public_admin(app, db_session):
     public_admin_url = '/public'
-    public_admin = Admin(index_view = PublicAdminPanel(url=public_admin_url, endpoint = 'public_admin'), name = u"Public labs", url = public_admin_url, endpoint = 'public-admin')
-    public_admin.add_view(PublicLaboratoriesPanel( db_session, name = u"Public labs", endpoint = 'public_admin_labs', url = 'labs/public'))
-    public_admin.add_view(RedirectView('index',          name = u"Back", endpoint = 'public_admin_logout', url = 'back'))
+    public_admin = Admin(index_view = PublicAdminPanel(url=public_admin_url, endpoint = 'public_admin'), name = lazy_gettext(u"Public laboratories"), url = public_admin_url, endpoint = 'public-admin')
+    public_admin.add_view(PublicLaboratoriesPanel( db_session, name = lazy_gettext(u"Show public labs"), endpoint = 'public_admin_labs', url = 'labs/public'))
+    public_admin.add_view(RedirectView('index', name = lazy_gettext(u"Back"), endpoint = 'public_admin_logout', url = 'back'))
     public_admin.init_app(app)
