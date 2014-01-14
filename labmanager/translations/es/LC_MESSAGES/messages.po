@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-01-14 11:44+0100\n"
+"POT-Creation-Date: 2014-01-14 13:06+0100\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -74,27 +74,27 @@ msgstr "Se ha encontrado un carácter no válido: %(char)s"
 
 #: labmanager/forms.py:71
 msgid "login lenght must be at least 5 characters long"
-msgstr ""
+msgstr "El nombre de usuario debe tener al menos 5 caracteres"
 
 #: labmanager/forms.py:82
 msgid "Passwords can not contain a space"
-msgstr ""
+msgstr "Las contraseñas no pueden contener espacios en blanco"
 
 #: labmanager/forms.py:84
 msgid "password lenght must be at least 8 characters long"
-msgstr ""
+msgstr "La contraseña debe tener al menos 8 caracteres de longitud"
 
 #: labmanager/forms.py:97
 msgid "Oficial name must be between 4 and 50 characters long"
-msgstr ""
+msgstr "El nombre oficial debe tener entre 4 y 50 caracteres de longitud"
 
 #: labmanager/forms.py:109
 msgid "Short name must be between 4 and 15 characters long"
-msgstr ""
+msgstr "El nombre corto debe tener entre 4 y 15 caracteres de longitud"
 
 #: labmanager/forms.py:121
 msgid "Oficial name must be between 4 and 15 characters long"
-msgstr ""
+msgstr "El nombre oficial debe tener entre 4 y 15 caracteres de longitud"
 
 #: labmanager/models.py:110
 #, python-format
@@ -532,7 +532,7 @@ msgstr "Registre su escuela en Graasp"
 
 #: labmanager/templates/opensocial/smartgateway.js:63
 msgid "Reserve"
-msgstr ""
+msgstr "Reservar"
 
 #: labmanager/templates/ple_admin/index.html:3
 msgid "Graasp Admin Dashboard"
@@ -1445,8 +1445,8 @@ msgstr "Laboratorios"
 #~ msgid "LabManager login"
 #~ msgstr "Acceso a la gestión de laboratorios"
 
-#~ msgid "LabManager Login"
-#~ msgstr "Administración del gestor de laboratorios"
+msgid "LabManager Login"
+msgstr "Administración del gestor de laboratorios"
 
 #~ msgid "Username"
 #~ msgstr "Usuario"
