@@ -44,7 +44,7 @@
 
             $("#container").html("");
             // Now show it
-            var contents = $("<iframe id='final_widget_iframe' src='" + url + "' height='500px' width='100%'>");
+            var contents = $("<iframe id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}500px{% endif %}' width='100%'>");
             trace("I'm going to set as innerHTML: " + contents);
             $("#container").append(contents); 
             gadgets.window.adjustHeight();
