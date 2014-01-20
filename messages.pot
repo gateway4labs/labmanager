@@ -1,14 +1,15 @@
-# Translations template for labmanager.
+# Translations template for gateway4labs.
 # Copyright (C) 2014 ORGANIZATION
-# This file is distributed under the same license as the labmanager project.
+# This file is distributed under the same license as the gateway4labs
+# project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: labmanager VERSION\n"
+"Project-Id-Version: gateway4labs VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-01-14 16:20+0100\n"
+"POT-Creation-Date: 2014-01-20 12:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +56,12 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: labmanager/forms.py:47 labmanager/views/opensocial.py:194
+#: labmanager/forms.py:47 labmanager/templates/login_admin.html:67
+#: labmanager/templates/login_admin.html:69
+#: labmanager/templates/login_lms.html:84
+#: labmanager/templates/login_lms.html:86
+#: labmanager/templates/login_ple.html:84
+#: labmanager/templates/login_ple.html:86 labmanager/views/opensocial.py:194
 #: labmanager/views/lms/admin.py:84
 msgid "Password"
 msgstr ""
@@ -248,6 +254,52 @@ msgstr ""
 
 #: labmanager/templates/layout.html:26
 msgid "About"
+msgstr ""
+
+#: labmanager/templates/login_admin.html:5
+msgid "LabManager login"
+msgstr ""
+
+#: labmanager/templates/login_admin.html:56
+msgid "LabManager Login"
+msgstr ""
+
+#: labmanager/templates/login_admin.html:60
+#: labmanager/templates/login_admin.html:62
+#: labmanager/templates/login_lms.html:77
+#: labmanager/templates/login_lms.html:79
+#: labmanager/templates/login_ple.html:77
+#: labmanager/templates/login_ple.html:79
+msgid "Username"
+msgstr ""
+
+#: labmanager/templates/login_admin.html:85
+#: labmanager/templates/login_lms.html:103
+#: labmanager/templates/login_ple.html:103
+msgid "Log in"
+msgstr ""
+
+#: labmanager/templates/login_admin.html:88
+#: labmanager/templates/login_lms.html:107
+#: labmanager/templates/login_ple.html:107 labmanager/views/public.py:79
+msgid "Back"
+msgstr ""
+
+#: labmanager/templates/login_lms.html:5 labmanager/templates/login_ple.html:5
+msgid "Institution login"
+msgstr ""
+
+#: labmanager/templates/login_lms.html:62
+msgid "Institution Login"
+msgstr ""
+
+#: labmanager/templates/login_lms.html:66
+#: labmanager/templates/login_ple.html:66
+msgid "Institution"
+msgstr ""
+
+#: labmanager/templates/login_ple.html:62
+msgid "GRAASP Institution Login"
 msgstr ""
 
 #: labmanager/templates/test_admin_authentication.html:23
@@ -1086,10 +1138,6 @@ msgstr ""
 
 #: labmanager/views/public.py:78
 msgid "Show public labs"
-msgstr ""
-
-#: labmanager/views/public.py:79
-msgid "Back"
 msgstr ""
 
 #: labmanager/views/lms/admin.py:82

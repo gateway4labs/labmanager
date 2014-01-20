@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-01-14 16:20+0100\n"
+"POT-Creation-Date: 2014-01-20 12:51+0100\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -56,7 +56,12 @@ msgstr "Es obligatorio introducir un valor en este campo"
 msgid "Login"
 msgstr "Usuario"
 
-#: labmanager/forms.py:47 labmanager/views/opensocial.py:194
+#: labmanager/forms.py:47 labmanager/templates/login_admin.html:67
+#: labmanager/templates/login_admin.html:69
+#: labmanager/templates/login_lms.html:84
+#: labmanager/templates/login_lms.html:86
+#: labmanager/templates/login_ple.html:84
+#: labmanager/templates/login_ple.html:86 labmanager/views/opensocial.py:194
 #: labmanager/views/lms/admin.py:84
 msgid "Password"
 msgstr "Contraseña"
@@ -263,6 +268,58 @@ msgstr "Desarrolladores"
 #: labmanager/templates/layout.html:26
 msgid "About"
 msgstr "Acerca de"
+
+#: labmanager/templates/login_admin.html:5
+#, fuzzy
+msgid "LabManager login"
+msgstr "Usuario del gestor de laboratorios"
+
+#: labmanager/templates/login_admin.html:56
+#, fuzzy
+msgid "LabManager Login"
+msgstr "Usuario del gestor de laboratorios"
+
+#: labmanager/templates/login_admin.html:60
+#: labmanager/templates/login_admin.html:62
+#: labmanager/templates/login_lms.html:77
+#: labmanager/templates/login_lms.html:79
+#: labmanager/templates/login_ple.html:77
+#: labmanager/templates/login_ple.html:79
+#, fuzzy
+msgid "Username"
+msgstr "Responsable"
+
+#: labmanager/templates/login_admin.html:85
+#: labmanager/templates/login_lms.html:103
+#: labmanager/templates/login_ple.html:103
+#, fuzzy
+msgid "Log in"
+msgstr "Usuario"
+
+#: labmanager/templates/login_admin.html:88
+#: labmanager/templates/login_lms.html:107
+#: labmanager/templates/login_ple.html:107 labmanager/views/public.py:79
+msgid "Back"
+msgstr "Regresar"
+
+#: labmanager/templates/login_lms.html:5 labmanager/templates/login_ple.html:5
+msgid "Institution login"
+msgstr ""
+
+#: labmanager/templates/login_lms.html:62
+msgid "Institution Login"
+msgstr ""
+
+#: labmanager/templates/login_lms.html:66
+#: labmanager/templates/login_ple.html:66
+#, fuzzy
+msgid "Institution"
+msgstr "Nombre oficial de la escuela"
+
+#: labmanager/templates/login_ple.html:62
+#, fuzzy
+msgid "GRAASP Institution Login"
+msgstr "Registro en Graasp"
 
 #: labmanager/templates/test_admin_authentication.html:23
 msgid "Click me"
@@ -1153,10 +1210,6 @@ msgstr "widgets"
 msgid "Show public labs"
 msgstr "Ver los laboratorios públicos"
 
-#: labmanager/views/public.py:79
-msgid "Back"
-msgstr "Regresar"
-
 #: labmanager/views/lms/admin.py:82
 msgid "Full Name"
 msgstr "Nombre completo"
@@ -1468,4 +1521,7 @@ msgstr "Laboratorios"
 
 #~ msgid "Labs"
 #~ msgstr "Laboratorios"
+
+#~ msgid "LabManager Login2"
+#~ msgstr "Usuario del gestor de laboratorios"
 
