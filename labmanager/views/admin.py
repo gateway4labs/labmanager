@@ -420,13 +420,14 @@ def accessibility_formatter(v, c, lab, p):
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
-                        <label>Default local identifier: </label>
+                        <label> %(texto)s </label>
                         <input type='text' name='local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
                         url                      = url_for('.change_accessibility'),
                         activate_value           = unicode(lab.available).lower(),
                         lab_id                   = lab.id,
+                        texto                     =gettext('Default local identifier:'),
                         klass                    = klass,
                         msg                      = msg,
                         default_local_identifier = lab.default_local_identifier,
@@ -442,13 +443,14 @@ def public_availability_formatter(v, c, lab, p):
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
-                        <label>Public identifier: </label>
+                        <label> %(texto)s </label>
                         <input type='text' name='public_identifier' value='%(public_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
                         url               = url_for('.change_public_availability'),
                         activate_value    = unicode(lab.publicly_available).lower(),
                         lab_id            = lab.id,
+                        texto              = gettext('Public identifier:'),
                         klass             = klass,
                         msg               = msg,
                         public_identifier = lab.public_identifier,
