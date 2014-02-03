@@ -10,7 +10,8 @@ export ENV_NAME='labmanager_env'
 if [ ! -d /home/vagrant/.virtualenvs/$ENV_NAME ]; then
   mkvirtualenv $ENV_NAME
   workon $ENV_NAME
-  pip install $SHARED_DIR
+  pip install -r requirements.txt
+  # pip install -r requirements-test.txt
   echo 'Finishing provisioning' $ENV_NAME
 else
   echo 'Ignoring existing default environment' $ENV_NAME
