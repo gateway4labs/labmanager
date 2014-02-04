@@ -38,13 +38,40 @@ def get_parent_spaces(space_id, spaces):
 
 opensocial_blueprint = Blueprint('opensocial', __name__)
 
+def _extract_widget_config(laboratory, widget_name):
+    if not laboratory:
+        return {}
+
+    rlms_db = laboratory.rlms
+    RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+    rlms = RLMS_CLASS(rlms_db.configuration)
+
+    widgets = rlms.list_widgets(laboratory.laboratory_id)
+    for widget in widgets:
+        if widget['name'] == widget_name:
+            return widget
+    return {}
+
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
-    return render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name)
+    public_lab = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    if public_lab:
+        widget_config = _extract_widget_config(public_lab, widget_name)
+    else:
+        widget_config = {} # Default value
+        institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
+        if institution:
+            permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+            if permission:
+                widget_config = _extract_widget_config(permission.laboratory, widget_name)
+
+    return render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml")
 def public_widget_xml(lab_name, widget_name):
-    return render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name)
+    laboratory = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    widget_config = _extract_widget_config(laboratory, widget_name)
+    return render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
