@@ -9,6 +9,8 @@ from flask.ext.login import UserMixin
 
 from labmanager.db import Base, db_session as DBS
 
+from labmanager.babel import gettext
+
 class SBBase(object):
     @classmethod
     def find(klass, query_id = None, **kwargs):
@@ -73,13 +75,14 @@ class LabManagerUser(Base, SBBase, UserMixin):
         self.password = password
 
     def __repr__(self):
-        return "LabMUser(%r, %r, %r, %r)" % (self.login, self.name, self.password)
+#        return "LabMUser(%r, %r, %r, %r)" % (self.login, self.name, self.password)
+        return "LabMUser(%(userlogin)r, %(username)r, %(userpassword)r)" % dict(userlogin=self.login, username=self.name, userpassword=self.password)
 
     def __unicode__(self):
         return self.name
 
     def get_id(self):
-        return u'labmanager_admin::%s' % self.login
+        return u"labmanager_admin::%s" % self.login
 
     @classmethod
     def exists(self, login, word):
@@ -112,10 +115,10 @@ class RLMS(Base, SBBase):
         self.configuration = configuration
 
     def __repr__(self):
-        return "RLMS(kind = %r, url=%r, location=%r, version=%r, configuration=%r)" % (self.kind, self.url, self.location, self.version, self.configuration)
+        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rmlsversion)r, configuration=%(rmlsconfiguration)r)" % dict(rmlskind=self.kind, rmlsurl=self.url, rmlslocation=self.location, rlmsversion=self.version, rmlsconfiguration=self.configuration)
 
     def __unicode__(self):
-        return u"%s on %s" % (self.kind, self.location)
+        return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)
 
 
 #######################################################################
@@ -152,7 +155,7 @@ class Laboratory(Base, SBBase):
         self.available     = available
 
     def __unicode__(self):
-        return u'%s at %s' % (self.name, self.rlms)
+        return gettext(u"%(name)s at %(rlms)s", name=self.name, rlms=self.rlms)
 
 
 #######################################################################
@@ -180,7 +183,7 @@ class LearningTool(Base, SBBase):
         self.url = url
 
     def __repr__(self):
-        return "LearningTool(%r, %r, %r)" % (self.name, self.full_name, self.url)
+        return "LearningTool(%(lmsname)r, %(lmsfullname)r, %(lmsurl)r)" % dict(lmsname=self.name, lmsfullname=self.full_name, lmsurl=self.url)
 
     def __unicode__(self):
         return self.name
@@ -222,10 +225,10 @@ class BasicHttpCredentials(Base, SBBase):
 
 
     def __repr__(self):
-        return "BasicHttpCredentials(lt_login=%r, lt_password=%r, lt=%r, lt_url=%r, labmanager_login=%r, labmanager_password=%r)" % ( self.lt_login, self.password, self.lt, self.lt_url, self.labmanager_login, self.labmanager_password)
+        return "BasicHttpCredentials(lt_login=%(lmslogin)r, lt_password=%(lmspassword)r, lt=%(lmslms)r, lt_url=%(lmsurl)r, labmanager_login=%(labmanlogin)r, labmanager_password=%(labmanpassword)r)" % dict(lmslogin=self.lt_login, lmspassword=self.password, lmslms=self.lt, lmsurl=self.lt_url, labmanlogin=self.labmanager_login, labmanpassword=self.labmanager_password)
 
     def __unicode__(self):
-        return "Basic HTTP auth for %s" %(self.lt.name)
+        return gettext(u"Basic HTTP auth for %(name)s", name=self.lt.name)
 
     def update_password(self, old_password):
         if self.lt_password != old_password:
@@ -257,10 +260,10 @@ class ShindigCredentials(Base, SBBase):
 
 
     def __repr__(self):
-        return "ShindigCredentials(lt=%r, shindig_url=%r)" % ( self.lt, self.shindig_url )
+        return "ShindigCredentials(lt=%(lmslms)r, shindig_url=%(shindigurl)r)" % dict(lmslms=self.lt, shindigurl=self.shindig_url)
 
     def __unicode__(self):
-        return "ShindigCredentials for %s" % (self.lt.name)
+        return gettext(u"ShindigCredentials for %(lmsname)s", lmsname=self.lt.name)
 
 
 ##################################################
@@ -302,10 +305,10 @@ class LtUser(Base, SBBase, UserMixin):
         self.access_level = access_level
 
     def __unicode__(self):
-        return u'%s@%s' % (self.login, self.lt.name)
+        return "%(lmslogin)s@%(lmsname)s" % dict(lmslogin=self.login, lmsname=self.lt.name)
     
     def get_id(self):
-        return u'lt_user::%s::%s' % (self.lt.name, self.login)
+        return u"lt_user::%s::%s" %  (self.lt.name, self.login)
 
     @classmethod
     def exists(self, login, word, lt_id):
@@ -340,10 +343,10 @@ class Course(Base, SBBase):
         self.context_id = context_id
 
     def __repr__(self):
-        return "Course(name=%r, lt=%r, context_id=%r)" % (self.name, self.lt, self.context_id)
+        return "Course(name=%(coursename)r, lt=%(courselms)r, context_id=%(coursecontext)r)" % dict(coursename=self.name, courselms=self.lt, coursecontext=self.context_id)
 
     def __unicode__(self):
-        return "%s on %s" % (self.name, self.lt)
+        return gettext(u"%(coursename)s on %(courselms)s", coursename=self.name, courselms=self.lt)
 
 
 ######################################################################################
@@ -390,7 +393,7 @@ class PermissionToLt(Base, SBBase):
         self.accessible       = accessible
 
     def __unicode__(self):
-        return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lt.name)
+        return gettext(u"%(identifier)s: lab %(labname)s to %(lmsname)s", identifier=self.local_identifier, labname=self.laboratory.name, lmsname=self.lt.name)
 
 
 
@@ -457,12 +460,10 @@ class PermissionToCourse(Base, SBBase):
         self.permission_to_lt = permission_to_lt
 
     def __repr__(self):
-        return "PermissionToCourse(course=%r, configuration=%r, permission_to_lt=%r)" % (self.course, self.configuration, self.permission_to_lt)
+        return "PermissionToCourse(course=%(coursecourse)r, configuration=%(courseconfiguration)r, permission_to_lt=%(coursepermission)r)" % dict(coursecourse=self.course, courseconfiguration=self.configuration, coursepermission=self.permission_to_lt)
 
     def __unicode__(self):
-        return u"%s from %s on %s" % (self.course.name,
-                                           self.course.lt.name,
-                                           self.permission_to_lt)
+        return gettext(u"%(coursename)s from %(lmsname)s on %(permission)s", coursename=self.course.name, lmsname=self.course.lt.name, permission=self.permission_to_lt)
 
 ########################################################
 # 
@@ -497,8 +498,9 @@ class RequestPermissionLT(Base, SBBase):
         self.accessible       = accessible
 
     def __unicode__(self):
-        return u"'%s': lab %s to %s" % (self.local_identifier, self.laboratory.name, self.lt.name)
-
+        return gettext(u"'%(localidentifier)s': lab %(labname)s to %(ltname)s", localidentifier=self.local_identifier, 
+                                                                                                                            labname = self.laboratory.name, 
+                                                                                                                            ltname = self.lt.name)
 
 
 

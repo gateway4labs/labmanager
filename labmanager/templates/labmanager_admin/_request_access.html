@@ -1,13 +1,13 @@
 {#
-This file describes an entry in the Admin Index page.
+{{gettext('This file describes an entry in the Admin Index page.
 Each entry is an access request from a tool to an experiment.
-The contents of this file will be rendered for each pending request.
+The contents of this file will be rendered for each pending request.')}}
 #}
-<p>Course <a href="{{ url_for( 'admin.show', model=request.course.__class__.__name__, r_id=request.course.id ) }}">{{ request.course.name }}</a>
-  from
+<p>{{gettext('Course')}} <a href="{{ url_for( 'admin.show', model=request.course.__class__.__name__, r_id=request.course.id ) }}">{{ request.course.name }}</a>
+  {{gettext('from')}}
   <a href="{{ url_for( 'admin.show', model=request.course.lms.__class__.__name__, r_id=request.course.lms.id ) }}">{{ request.course.lms.name }}</a>
-  is requesting access to
+  {{gettext('is requesting access to')}}
   <a href="{{url_for( 'admin.show', model=request.permission_to_lms.laboratory.__class__.__name__, r_id=request.permission_to_lms.laboratory.id ) }}">{{ request.permission_to_lms.laboratory }}</a>
-  <a style="color:#0F0" href="{{ url_for( 'admin.update', id=request.id, status='granted' ) }}"> Grant </a>
-  <a style="color:#F00" href="{{ url_for( 'admin.update', id=request.id, status='denied'  ) }}"> Deny </a>
+  <a style="color:#0F0" href="{{ url_for( 'admin.update', id=request.id, status='granted' ) }}"> {{gettext('Grant')}} </a>
+  <a style="color:#F00" href="{{ url_for( 'admin.update', id=request.id, status='denied'  ) }}"> {{gettext('Deny')}} </a>
 </p>

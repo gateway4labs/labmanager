@@ -22,6 +22,7 @@ from flask.ext import wtf
 from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
+from labmanager.babel import gettext, lazy_gettext
 
 from labmanager.scorm import get_scorm_object
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse
@@ -88,15 +89,16 @@ class LmsAdminPanel(L4lLmsAdminIndexView):
 
 class LmsUsersPanel(L4lLmsModelView):
 
-    column_list = ('login', 'full_name', 'access_level')
-
+    column_list = ['login', 'full_name', 'access_level']
     form_columns = ('login', 'full_name', 'access_level', 'password')
-
+    column_labels = dict(login = lazy_gettext('Login'),
+                                    full_name = lazy_gettext('Full Name'),
+                                    access_level = lazy_gettext('Access Level'),
+                                    password = lazy_gettext('Password'))  
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
-
     form_overrides = dict(password=PasswordField, access_level=wtf.SelectField)
     form_args = dict( access_level=dict( choices=sel_choices ) )
-
+                                    
     def __init__(self, session, **kwargs):
         super(LmsUsersPanel, self).__init__(LtUser, session, **kwargs)
 
@@ -140,7 +142,12 @@ def create_course_filter(session):
 class PermissionToLmsUserPanel(L4lLmsModelView):
 
     can_edit = False
-
+    form_columns = ('lt_user', 'permission_to_lt')
+    column_labels = dict(permission_to_lt = lazy_gettext('Permission To LT'),
+                                    lms_user = lazy_gettext('LT User'),
+                                    key = lazy_gettext('Key'),
+                                    secret = lazy_gettext('Secret'))
+                                    
     lt_user_filter          = None
     permission_to_lt_filter = None
 
@@ -148,9 +155,7 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
         lt_user          = dict(query_factory = lambda : PermissionToLmsUserPanel.lt_user_filter()),
         permission_to_lt = dict(query_factory = lambda : PermissionToLmsUserPanel.permission_to_lt_filter()),
     )
-
-    form_columns = ('lt_user', 'permission_to_lt')
-
+                                   
     def __init__(self, session, **kwargs):
         super(PermissionToLmsUserPanel, self).__init__(PermissionToLtUser, session, **kwargs)
         PermissionToLmsUserPanel.lt_user_filter = create_lms_user_filter(self.session)
@@ -171,7 +176,7 @@ class PermissionToLmsUserPanel(L4lLmsModelView):
         existing_permission = self.session.query(PermissionToLtUser).filter_by(lt_user = model.lt_user, permission_to_lt = model.permission_to_lt).first()
 
         if existing_permission:
-            raise Exception("Existing permission on that user for that laboratory")
+            raise Exception(gettext("Existing permission on that user for that laboratory"))
 
         key = u'%s_%s_%s' % (current_user.lt, model.lt_user.login, model.permission_to_lt.local_identifier)
         key = key.lower().replace(' ','_')
@@ -198,7 +203,7 @@ def local_id_formatter(v, c, laboratory, p):
     for permission in laboratory.lab_permissions:
         if permission.lt == current_user.lt:
             return permission.local_identifier
-    return 'N/A'
+    return gettext('N/A')
 
 def scorm_formatter(v, c, laboratory, p):
 
@@ -209,7 +214,7 @@ def scorm_formatter(v, c, laboratory, p):
 
                 return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', local_id = local_id)))
 
-    return 'N/A'
+    return gettext('N/A')
 
 class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
 
@@ -217,10 +222,14 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'SCORM')
-
+    column_list = ['rlms', 'name', 'laboratory_id', 'local_identifier', 'SCORM']
+    column_labels = dict(rlms = lazy_gettext('Rlms'),
+                                    name = lazy_gettext('Name'),
+                                    laboratory_id = lazy_gettext('Laboratory Id'),
+                                    local_identifier = lazy_gettext('Local Identifier'),
+                                    scorm =lazy_gettext('Scorm'))
     column_formatters = dict( SCORM = scorm_formatter, local_identifier = local_id_formatter )
-
+                                    
     def __init__(self, session, **kwargs):
         super(LmsInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
 
@@ -259,9 +268,10 @@ class LmsInstructorLaboratoriesPanel(L4lLmsModelView):
 
 class LmsCoursesPanel(L4lLmsModelView):
 
-    column_list = ('name', 'context_id')
-
+    column_list = ['name', 'context_id']
     form_columns = ('name', 'context_id')
+    column_labels = dict(name = lazy_gettext('Name'),
+                                    context_id = lazy_gettext('Context Id'))
 
     def __init__(self, session, **kwargs):
         super(LmsCoursesPanel, self).__init__(Course, session, **kwargs)
@@ -285,7 +295,7 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
     def index(self):
         basic_http_authentications = current_user.lt.basic_http_authentications
         if not basic_http_authentications:
-            message = "No authentication is configured in your LMS. If you are not using the Basic HTTP system (e.g., you're using LTI), don't worry. Otherwise, contact the Labmanager administrator."
+            message = gettext("No authentication is configured in your LMS. If you are not using the Basic HTTP system (e.g., you're using LTI), don't worry. Otherwise, contact the Labmanager administrator.")
             return self.render("lms_admin/discover-errors.html", message = message)
 
         basic_http_authentication = basic_http_authentications[0]
@@ -303,7 +313,7 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
         VISIBLE_PAGES = 10
         results = retrieve_courses(url, user, password)
         if isinstance(results, basestring):
-            message = "Invalid JSON provided or could not connect to the LMS. Look at the logs for more information"
+            message = gettext("Invalid JSON provided or could not connect to the LMS. Look at the logs for more information")
             return self.render("lms_admin/discover-errors.html", message = message)
 
         try:
@@ -332,7 +342,7 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
             current_pages   = range(min_page, max_page)
         except:
             traceback.print_exc()
-            message = "Malformed data retrieved. Look at the logs for more information"
+            message = gettext("Malformed data retrieved. Look at the logs for more information")
             return self.render('lms_admin/discover-errors.html', message = message)
 
         if request.method == 'POST':
@@ -358,7 +368,7 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
                             self.session.delete(existing_course)
                         
             else:
-                return self.render('lms_admin/discover-errors.html', message = "Invalid action found (add or delete expected)")
+                return self.render('lms_admin/discover-errors.html', message = gettext("Invalid action found (add or delete expected)"))
 
             self.session.commit()
 
@@ -371,11 +381,14 @@ class LmsCourseDiscoveryPanel(L4lLmsView):
 
 class LmsPermissionToCoursesPanel(L4lLmsModelView):
 
+    column_labels = dict(permission_to_lms = lazy_gettext('Permission To LT'),
+                                    course = lazy_gettext('Course'),
+                                    configuration = lazy_gettext('Configuration'))
+                                    
     form_args = dict(
         permission_to_lms = dict(query_factory = lambda : LmsPermissionToCoursesPanel.permission_to_lms_filter()),
         course = dict(query_factory = lambda : LmsPermissionToCoursesPanel.course_filter()),
     )
-
 
     def __init__(self, session, **kwargs):
         super(LmsPermissionToCoursesPanel, self).__init__(PermissionToCourse, session, **kwargs)
@@ -398,13 +411,14 @@ class LmsPermissionToCoursesPanel(L4lLmsModelView):
 # 
 def init_lms_admin(app, db_session):
     lms_admin_url = '/lms_admin'
-    lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms_admin'), name = u"LMS admin", url = lms_admin_url, endpoint = 'lms-admin')
-    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = u"Labs", endpoint = 'lms_admin_labs', url = 'labs'))
-    lms_admin.add_view(LmsCoursesPanel(db_session,    category = u"Courses", name     = u"Courses", endpoint = 'lms_admin_courses', url = 'courses'))
-    lms_admin.add_view(LmsCourseDiscoveryPanel(db_session,    category = u"Courses", name     = u"Discover", endpoint = 'lms_admin_course_discover', url = 'courses/discover'))
-    lms_admin.add_view(LmsPermissionToCoursesPanel(db_session,    category = u"Courses", name     = u"Permissions", endpoint = 'lms_admin_course_permissions', url = 'courses/permissions'))
-    lms_admin.add_view(LmsUsersPanel(db_session,      category = u"Users", name     = u"Users", endpoint = 'lms_admin_users', url = 'users'))
-    lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = u"Users", name     = u"Permissions", endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
-    lms_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms_admin_logout', url = 'logout'))
+    lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms_admin'), name = lazy_gettext(u'LMS admin'), url = lms_admin_url, endpoint = 'lms-admin')
+    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = lazy_gettext(u"Lab"), endpoint = 'lms_admin_labs', url = 'labs'))
+    i18n_courses=lazy_gettext(u"Courses")
+    lms_admin.add_view(LmsCoursesPanel(db_session,    category = i18n_courses, name     = lazy_gettext(u"Courses"), endpoint = 'lms_admin_courses', url = 'courses'))
+    lms_admin.add_view(LmsCourseDiscoveryPanel(db_session,    category = i18n_courses, name     = lazy_gettext(u'Discover'), endpoint = 'lms_admin_course_discover', url = 'courses/discover'))
+    lms_admin.add_view(LmsPermissionToCoursesPanel(db_session,    category =i18n_courses, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_admin_course_permissions', url = 'courses/permissions'))
+    i18n_users=lazy_gettext(u'Users')
+    lms_admin.add_view(LmsUsersPanel(db_session,      category = i18n_users, name     = lazy_gettext(u'Users'), endpoint = 'lms_admin_users', url = 'users'))
+    lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = i18n_users, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
+    lms_admin.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'lms_admin_logout', url = 'logout'))
     lms_admin.init_app(app)
-

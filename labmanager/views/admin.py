@@ -19,7 +19,7 @@ from flask.ext.login import current_user
 from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
-
+from labmanager.babel import gettext, lazy_gettext
 
 from labmanager.models import LabManagerUser, LtUser
 
@@ -94,12 +94,14 @@ class AdminPanel(L4lAdminIndexView):
 
 class UsersPanel(L4lModelView):
 
-    column_list = ('login', 'name')
+    column_list = ['login', 'name']
+    column_labels  = dict(login=lazy_gettext('login'), name=lazy_gettext('name'))
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(LabManagerUser, session, **kwargs)
 
     form_columns = ('name', 'login', 'password')
+    column_labels = dict(name=lazy_gettext('name'), login=lazy_gettext('login'), passwor=lazy_gettext('password'))
     form_overrides = dict(access_level=wtf.SelectField, password=PasswordField)
 
     def on_model_change(self, form, model):
@@ -107,7 +109,8 @@ class UsersPanel(L4lModelView):
 
 class LtUsersPanel(L4lModelView):
 
-    column_list = ('lt', 'login', 'full_name', 'access_level')
+    column_list = ['lt', 'login', 'full_name', 'access_level']
+    column_labels = dict(lt=lazy_gettext('lt'), login=lazy_gettext('login'), full_name=lazy_gettext('full_name'), access_level=lazy_gettext('access_level'))
 
     def __init__(self, session, **kwargs):
         super(LtUsersPanel, self).__init__(LtUser, session, **kwargs)
@@ -169,14 +172,15 @@ class LabRequestsPanel(L4lModelView):
     # TODO: manage configuration
     # 
 
-    column_list = ('laboratory', 'local_identifier', 'lt', 'accept', 'reject')
+    column_list = ['laboratory', 'local_identifier', 'lt', 'accept', 'reject']
+    column_labels = dict(laboratory=lazy_gettext('laboratory'), local_identifier=lazy_gettext('local_identifier'), lt=lazy_gettext('lt'), accept=lazy_gettext('accept'), reject=lazy_gettext('reject'))
 
     column_formatters = dict( accept = accept_formatter, reject  = reject_formatter )
 
     column_descriptions = dict(
-                laboratory       = u"The laboratory that has been requested",
-                lt              = u"Learning Management System which created each request",
-                local_identifier = u"Unique identifier for a LT to access a laboratory",
+                laboratory       = lazy_gettext(u"The laboratory that has been requested"),
+                lt              = lazy_gettext(u"Learning Management System which created each request"),
+                local_identifier = lazy_gettext(u"Unique identifier for a LT to access a laboratory"),
             )
 
 
@@ -229,7 +233,7 @@ class LabRequestsPanel(L4lModelView):
 
 class BasicHttpCredentialsForm(InlineFormAdmin):
     column_descriptions = dict(
-            lt_login = 'Login of the LT when contacting the LabManager',
+            lt_login = lazy_gettext('Login of the LT when contacting the LabManager'),
         )
 
     form_overrides = dict(lt_password=PasswordField, labmanager_password=PasswordField)
@@ -239,16 +243,17 @@ class BasicHttpCredentialsForm(InlineFormAdmin):
 
 def download(v, c, lt, p):
     if len(lt.basic_http_authentications) > 0:
-            return Markup('<a href="%s">Download</a>' % (url_for('.scorm_authentication', id = lt.id)))
-    return 'N/A'
+            return Markup('<a href="%s"> Download </a>' % (url_for('.scorm_authentication', id = lt.id)))
+    return gettext('N/A')
 
 class LTPanel(L4lModelView):
 
     inline_models = (BasicHttpCredentialsForm(BasicHttpCredentials), ShindigCredentials)
 
-    column_list = ('full_name', 'name', 'url', 'download')
+    column_list = ['full_name', 'name', 'url', 'download']
+    column_labels = dict(full_name=lazy_gettext('full_name'), name=lazy_gettext('name'), url=lazy_gettext('url'), download=lazy_gettext('download'))
     column_formatters = dict( download = download )
-    column_descriptions = dict( name = "Institution short name (lower case, all letters, dots and numbers)", full_name = "Name of the institution.")
+    column_descriptions = dict( name = lazy_gettext("Institution short name (lower case, all letters, dots and numbers)"), full_name = lazy_gettext("Name of the institution."))
 
 
     def __init__(self, session, **kwargs):
@@ -315,11 +320,13 @@ class RLMSPanel(L4lModelView):
     form_overrides = dict(kind=DynamicSelectField)
 
     # For listing 
+    # column_list  = [lazy_gettext('kind'), lazy_gettext('version'), lazy_gettext('location'), lazy_gettext('url'), lazy_gettext('labs')]
     column_list  = ['kind', 'version', 'location', 'url', 'labs']
-    column_exclude_list = ('version','configuration')
+    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
+    column_exclude_list = (lazy_gettext('version'), lazy_gettext('configuration'))
 
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id)))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), list))
         )
 
     def __init__(self, session, **kwargs):
@@ -465,10 +472,10 @@ def accessibility_formatter(v, c, lab, p):
 
     if lab.available:
         klass = 'btn-danger'
-        msg = 'Make not available'
+        msg = gettext('Make not available')
     else:
         klass = 'btn-success'
-        msg = 'Make available'
+        msg = gettext('Make available')
 
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
@@ -489,10 +496,10 @@ def public_availability_formatter(v, c, lab, p):
 
     if lab.publicly_available:
         klass = 'btn-danger'
-        msg = 'Make not publicly available'
+        msg = gettext('Make not publicly available')
     else:
         klass = 'btn-success'
-        msg = 'Make publicly available'
+        msg = gettext('Make publicly available')
 
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
@@ -514,11 +521,12 @@ class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'visibility', 'availability','public_availability')
+    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'))
     column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter)
     column_descriptions = dict(
-                            availability = "Make this laboratory automatically available for the Learning Tools",
-                            public_availability = "Make this laboratory automatically available even from outside the registered Learning Tools"
+                            availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
+                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools")
                     )
 
     def __init__(self, session, **kwargs):
@@ -534,12 +542,12 @@ class LaboratoryPanel(L4lModelView):
             if len(existing_labs) > 0:
                 # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
                 if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash(u"Local identifier '%s' already exists" % request.form['local_identifier'])
+                    flash(gettext(u"Local identifier '%(localidentifier)s' already exists"), localidentifier=request.form['local_identifier'])
                     return redirect(url_for('.index_view'))
             lab.available = not activate
             lab.default_local_identifier = request.form['local_identifier']
             if lab.available and len(lab.default_local_identifier) == 0:
-                flash("Invalid local identifier (empty)")
+                flash(gettext(u"Invalid local identifier (empty)"))
             else:
                 self.session.add(lab)
                 self.session.commit()
@@ -555,14 +563,14 @@ class LaboratoryPanel(L4lModelView):
             if len(existing_labs) > 0:
                 # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
                 if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash(u"Public identifier '%s' already exists" % request.form['public_identifier'])
+                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists"), publicidentifier=request.form['public_identifier'])
                     return redirect(url_for('.index_view'))
             lab.publicly_available = not activate
             lab.public_identifier = request.form['public_identifier']
             print "testing..."
             if lab.publicly_available and len(lab.public_identifier) == 0:
                 print "shait..."
-                flash("Invalid public identifier (empty)")
+                flash(gettext("Invalid public identifier (empty)"))
             else:
                 self.session.add(lab)
                 self.session.commit()
@@ -572,7 +580,7 @@ class LaboratoryPanel(L4lModelView):
 def scorm_formatter(v, c, permission, p):
     
     if permission.lt.basic_http_authentications:
-        return Markup('<a href="%s">Download</a>' % (url_for('.get_scorm', lt_id = permission.lt.id,  local_id = permission.local_identifier)))
+        return Markup('<a href="%s"> Download </a>' % (url_for('.get_scorm', lt_id = permission.lt.id,  local_id = permission.local_identifier)))
 
     return 'N/A'
 
@@ -581,12 +589,12 @@ class PermissionToLtPanel(L4lModelView):
     # TODO: manage configuration
     # 
 
-    column_list = ('laboratory', 'lt', 'local_identifier', 'configuration', 'SCORM')
-
+    column_list = ['laboratory', 'lt', 'local_identifier', 'configuration', 'SCORM']
+    column_labels = dict(laboratory=lazy_gettext('laboratory'), lt=lazy_gettext('lt'), local_identifier=lazy_gettext('local_identifier'), configuration=lazy_gettext('configuration'), SCORM=lazy_gettext('SCORM'))
     column_descriptions = dict(
-                laboratory       = u"Laboratory",
-                lt               = u"Learning Management System",
-                local_identifier = u"Unique identifier for a Learning Tool to access a laboratory",
+                laboratory       = lazy_gettext(u"Laboratory"),
+                lt               = lazy_gettext(u"Learning Management System"),
+                local_identifier = lazy_gettext(u"Unique identifier for a Learning Tool to access a laboratory"),
             )
 
     column_formatters = dict( SCORM = scorm_formatter )
@@ -630,20 +638,16 @@ class PermissionPanel(L4lModelView):
 def init_admin(app, db_session):
     admin_url = '/admin'
 
-    admin = Admin(index_view = AdminPanel(url=admin_url), name = u"Lab Manager", url = admin_url, endpoint = admin_url)
-
-    admin.add_view(LTPanel(db_session,        category = u"LT Management", name = u"LT",     endpoint = 'lt/lt'))
-    admin.add_view(PermissionToLtPanel(db_session, category = u"LT Management", name = u"LT Permissions",    endpoint = 'lt/permissions'))
-    admin.add_view(LtUsersPanel(db_session,   category = u"LT Management", name = u"LT Users",        endpoint = 'lt/users'))
-    admin.add_view(LabRequestsPanel(db_session,   category = u"LT Management", name = u"LT Requests",        endpoint = 'lt/requests'))
-
-    admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
-    admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
-
-    admin.add_view(UsersPanel(db_session,      category = u"Users", name = u"Labmanager Users", endpoint = 'users/labmanager'))
-
-
-    admin.add_view(RedirectView('logout',      name = u"Log out", endpoint = 'admin/logout'))
-
+    admin = Admin(index_view = AdminPanel(url=admin_url), name = lazy_gettext(u"Lab Manager"), url = admin_url, endpoint = admin_url)
+    i18n_LMSmngmt = lazy_gettext(u'LT Management')
+    admin.add_view(LTPanel(db_session,        category = i18n_LMSmngmt, name = lazy_gettext(u"LT"),     endpoint = 'lt/lt'))
+    admin.add_view(PermissionToLtPanel(db_session, category = i18n_LMSmngmt, name = lazy_gettext(u"LT Permissions"),    endpoint = 'lt/permissions'))
+    admin.add_view(LtUsersPanel(db_session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Users"),        endpoint = 'lt/users'))
+    admin.add_view(LabRequestsPanel(db_session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Requests"),        endpoint = 'lt/requests'))
+    i18n_ReLMSmngmt = lazy_gettext(u'ReLMS Management')
+    admin.add_view(RLMSPanel(db_session,       category = i18n_ReLMSmngmt, name = lazy_gettext(u"RLMS"),            endpoint = 'rlms/rlms'))
+    admin.add_view(LaboratoryPanel(db_session, category = i18n_ReLMSmngmt, name = lazy_gettext(u"Registered labs"), endpoint = 'rlms/labs'))
+    admin.add_view(UsersPanel(db_session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
+    admin.add_view(RedirectView('logout',      name = lazy_gettext(u"Log out"), endpoint = 'admin/logout'))
     admin.init_app(app)
 

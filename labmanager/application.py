@@ -15,11 +15,11 @@
 import os
 
 from flask import Flask, render_template, redirect, url_for
-
 from labmanager.db import db_session
 
 app = Flask(__name__)
 app.config.from_object('config')
+
 if app.config['DEBUG']:
     app.secret_key = 'secret'
     import labmanager.views.fake_lms as fake_lms
@@ -40,6 +40,36 @@ def forbidden(e):
 def precondition_failed(e):
     return "412 precondition failed", 412
 
+from labmanager.babel import Babel
+from flask import request
+
+if Babel is None:
+    print "Not using Babel. Everything will be in English"
+else:
+    babel = Babel(app)
+
+    print babel.list_translations()
+    supported_languages = ['en']
+    supported_languages.extend([ translation.language for translation in babel.list_translations() ])
+
+    @babel.localeselector
+    def get_locale():
+        locale = request.args.get('locale',  None)
+        if locale is None:
+            locale = request.accept_languages.best_match(supported_languages)
+        if locale is None:
+            locale = 'en'
+        print "Locale requested. Got: ", locale
+        return locale 
+
+    @babel.timezoneselector
+    def get_timezone():
+        #timezone = request.args.get('timezone', 'en')
+        #print "Timezone requested. Got: ", timezone
+        #return timezone
+        # TODO 
+        return None
+
 
 # 
 # Initialize administration panels
@@ -58,6 +88,9 @@ init_instructor_admin(app, db_session)
 
 from .views.ple.admin import init_ple_admin
 init_ple_admin(app, db_session)
+
+from .views.ple.instructor import init_ple_instructor_admin
+init_ple_instructor_admin(app, db_session)
 
 # 
 # Initialize login subsystem
@@ -81,9 +114,9 @@ def developers():
 
 @app.route("/about")
 def about():
+    
     """Global information about gateway4labs."""
     return render_template("about.html")
-
 
 @app.teardown_request
 def shutdown_session(exception = None):

@@ -8,9 +8,6 @@
 
 import json
 import hashlib
-import uuid
-import traceback
-import urlparse
 import urllib2
 
 from yaml import load as yload
@@ -19,21 +16,18 @@ from wtforms.fields import PasswordField
 
 from flask.ext.wtf import Form, validators, TextField
 
-from flask import request, redirect, url_for, session, Markup, Response
+from flask import request, redirect, url_for, session, Markup
 
 from flask.ext import wtf
 from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
+from labmanager.babel import gettext, lazy_gettext
 
-from labmanager.scorm import get_scorm_object
-from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse, RequestPermissionLT
-from labmanager.views import RedirectView, retrieve_courses
+from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToCourse, RequestPermissionLT
+from labmanager.views import RedirectView
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
-
-from sqlalchemy import func
- 
 
 config = yload(open('labmanager/config/config.yml'))
 
@@ -54,6 +48,7 @@ class L4lPleModelView(PleAuthManagerMixin, ModelView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
+# IRENE    return redirect(url_for('login_lms', next=request.url))    
             return redirect(url_for('login_ple', next=request.url))
 
         return super(L4lPleModelView, self)._handle_view(name, **kwargs)
@@ -61,7 +56,8 @@ class L4lPleModelView(PleAuthManagerMixin, ModelView):
 class L4lPleAdminIndexView(PleAuthManagerMixin, AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
+        if not self.is_accessible():   
+# IRENE     return redirect(url_for('login_lms', next=request.url))         
             return redirect(url_for('login_ple', next=request.url))
 
         return super(L4lPleAdminIndexView, self)._handle_view(name, **kwargs)
@@ -73,6 +69,7 @@ class L4lPleView(PleAuthManagerMixin, BaseView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
+# IRENE     return redirect(url_for('login_lms', next=request.url))      
             return redirect(url_for('login_ple', next=request.url))
 
         return super(L4lPleView, self)._handle_view(name, **kwargs)
@@ -97,9 +94,16 @@ class PleAdminPanel(L4lPleAdminIndexView):
 
 class PleUsersPanel(L4lPleModelView):
 
-    column_list = ('login', 'full_name', 'access_level')
-
-    form_columns = ('login', 'full_name', 'access_level', 'password')
+    can_delete = True
+    can_edit   = False
+    can_create = True
+    column_list = ['login', 'full_name', 'access_level']
+    form_columns = ('login','full_name', 'access_level', 'password')
+    
+    column_labels = dict(login = lazy_gettext('login'),
+                                    full_name = lazy_gettext('full_name'),
+                                    access_level = lazy_gettext('access_level'),
+                                    password = lazy_gettext('password'))
 
     sel_choices = [(level, level.title()) for level in config['user_access_level']]
 
@@ -148,7 +152,7 @@ def local_id_formatter(v, c, laboratory, p):
     for permission in laboratory.lab_permissions:
         if permission.lt == current_user.lt:
             return permission.local_identifier
-    return 'N/A'
+    return gettext('N/A')
 
 def list_widgets_formatter(v, c, laboratory, p):
     return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
@@ -161,18 +165,18 @@ def accessibility_formatter(v, c, lab, p):
     permission = db_session.query(PermissionToLt).filter_by(lt = mylt, laboratory = lab).first()
 
     if not permission:
-        return "Invalid permission"
+        return gettext(u"Invalid permission")
 
     if permission.accessible:
-        currently = 'This lab IS accesible'
-        labaccessible = 'false'
+        currently = gettext('This lab IS accesible')
+        labaccessible = gettext('false')
         klass = 'btn-danger'
-        msg = 'Make not accessible'
+        msg = gettext('Make not accessible')
     else:
-        currently = 'This lab is NOT accesible'
-        labaccessible = 'true'
+        currently = gettext(u'This lab is NOT accesible')
+        labaccessible = gettext('true')
         klass = 'btn-success'
-        msg = 'Make accessible'
+        msg = gettext('Make accessible')
 
                                        
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
@@ -207,18 +211,18 @@ def request_formatter(v, c, lab, p):
     if not request:
 
         if not permission:
-            currently = 'Available for request'
-            lab_request = 'true'
+            currently = gettext(u'Available for request')
+            lab_request = gettext(u'true')
             klass = 'btn-success'
-            msg = 'Request laboratory'
+            msg = gettext(u'Request laboratory')
             permission_to_lt_id = ''
             lab_id = lab.id
 
         else:
-            currently = 'Ready to use'
-            lab_request = 'false'
+            currently = gettext(u'Ready to use')
+            lab_request = gettext(u'false')
             klass = 'btn-danger'
-            msg = 'Delete laboratory'
+            msg = gettext(u'Delete laboratory')
             permission_to_lt_id = permission.id
             lab_id = lab.id
                 
@@ -241,9 +245,9 @@ def request_formatter(v, c, lab, p):
 
     else: # if there is a pending request, offer the possibility to cancel such request, or wait until the labmanager admin processes it.
 
-        currently = 'Access request pending'
+        currently = gettext(u'Access request pending')
         klass = 'btn-danger'
-        msg = 'Delete access request'
+        msg = gettext(u'Delete access request')
         
                 
         return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
@@ -268,11 +272,16 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible')
-   
+    column_list = ['rlms', 'name', 'laboratory_id', 'local_identifier', 'widgets', 'accessible'] 
     column_formatters = dict( local_identifier = local_id_formatter, widgets = list_widgets_formatter, accessible = accessibility_formatter )
-
-    column_descriptions = dict( accessible = "Make this laboratory automatically accessible by any Graasp space belonging to the institution represented by this Learning Tool")
+    column_labels = dict(rlms = lazy_gettext('rlms'),
+                                    name = lazy_gettext('name'),
+                                    laboratory_id = lazy_gettext('laboratory_id'),
+                                    local_identifier = lazy_gettext('local_identifier'),
+                                    widgets = lazy_gettext('widgets'),
+                                    accessible = lazy_gettext('accesible'))
+                                    
+    column_descriptions = dict( accessible = gettext("Make this laboratory automatically accessible by any Graasp space belonging to the institution represented by this Learning Tool"))
 
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -291,7 +300,7 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
     def list_widgets(self, local_identifier):
         laboratory = self.session.query(Laboratory).join(PermissionToLt).filter_by(lt = current_user.lt, local_identifier = local_identifier).first()
         if laboratory is None:
-            return self.render("ple_admin/errors.html", message = "Laboratory not found")
+            return self.render("ple_admin/errors.html", message = gettext("Laboratory not found"))
 
         rlms_db = laboratory.rlms
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
@@ -323,8 +332,8 @@ class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
     can_edit   = False
     can_create = False
 
-    column_list = ('rlms', 'name', 'laboratory_id', 'request_access')
-
+    column_list = ['rlms', 'name', 'laboratory_id', 'request_access']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), request_access=lazy_gettext('request_access'))
 
     column_formatters = dict(request_access = request_formatter)
 
@@ -399,6 +408,7 @@ class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
 
 def format_space_url(v, c, space, p):
     shindig_url = space.lt.shindig_credentials[0]
+    assert shindig_url or True # Avoid pyflakes warnings
     # shindig_space_url = '%s/rest/spaces/%s' % (shindig_url, space.context_id)
     # contents = urllib2.urlopen(shindig_space_url).read()
     # return json.loads(contents)['urls'][0]['value']
@@ -408,12 +418,13 @@ class PleSpacesPanel(L4lPleModelView):
 
     can_create = can_edit = False
 
-    column_list = ('name', 'context_id', 'url')
-
+    column_list = ['name', 'context_id', 'url']
     form_columns = ('name', 'context_id')
-
     column_formatters = dict( url = format_space_url  )
-
+    column_labels = dict(name = lazy_gettext('name'),
+                                    context_id = lazy_gettext('context_id'),
+                                    url = lazy_gettext('url'))
+                                    
     def __init__(self, session, **kwargs):
         super(PleSpacesPanel, self).__init__(Course, session, **kwargs)
 
@@ -432,8 +443,8 @@ class PleSpacesPanel(L4lPleModelView):
 
 class SpaceUrlForm(Form):
 
-    url = TextField('Space URL', [validators.Length(min=6, max=200),
-                        validators.URL()], description = "Drop here the URL of the Space.", default = "http://graasp.epfl.ch/#item=space_1234")
+    url = TextField(lazy_gettext('Space URL'), [validators.Length(min=6, max=200),
+                        validators.URL()], description = lazy_gettext("Drop here the URL of the Space."), default = "http://graasp.epfl.ch/#item=space_1234")
 
 def retrieve_space_name(numeric_identifier):
     # Retrieve the space name from Shindig
@@ -462,7 +473,7 @@ def parse_space_url(url):
         try:
             context_id = int(url.split('space_')[1])
         except:
-            raise Exception("Invalid format. Expected space_NUMBER")
+            raise Exception(gettext("Invalid format. Expected space_NUMBER"))
         else:
             return context_id
 
@@ -478,9 +489,9 @@ def parse_space_url(url):
             return context_id
 
         except:
-            raise Exception("Invalid format. Expected a valid Graasp space URL")
+            raise Exception(gettext("Invalid format. Expected a valid Graasp space URL"))
 
-    raise Exception("Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING")
+    raise Exception(gettext("Invalid format. Expected http://graasp.epfl.ch/#item=space_SOMETHING"))
    
 
 class PleNewSpacesPanel(L4lPleView):
@@ -507,7 +518,7 @@ class PleNewSpacesPanel(L4lPleView):
             else:
                 existing_course = self.session.query(Course).filter_by(lt = current_user.lt, context_id = context_id).first()
                 if existing_course:
-                    form.url.errors.append(u"Space already registered")
+                    form.url.errors.append(gettext(u"Space already registered"))
                 else:
                     space_name = retrieve_space_name(context_id)
                     # If space_name can not be retrieved (e.g., a closed or hidden space)
@@ -517,7 +528,7 @@ class PleNewSpacesPanel(L4lPleView):
 
                     # If it was possible, add the new space
                     if space_name:
-                        course = create_new_space(context_id, space_name or 'Invalid name')
+                        course = create_new_space(context_id, space_name or gettext('Invalid name'))
 
                         labs_to_grant = [ lab_id for lab_id in lab_ids if lab_ids[lab_id]['checked'] ]
 
@@ -544,8 +555,8 @@ class PlePermissionToSpacePanel(L4lPleModelView):
     )
 
     column_labels = dict(
-        permission_to_lt = 'Permission',
-        course = 'Space',
+        permission_to_lt = lazy_gettext('Permission'),
+        course = lazy_gettext('Space'),
     )
 
 
@@ -570,21 +581,15 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 # 
 def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
-    ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = u"PLE admin", url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = u"Labs", name = u"Available labs", endpoint = 'ple_admin_labs', url = 'labs/available'))
-
-
-    ple_admin.add_view(PleInstructorRequestLaboratoriesPanel( db_session, category = u"Labs", name = u"Request new labs", endpoint = 'ple_admin_request_labs', url = 'labs/request'))
-
-
-    ple_admin.add_view(PleNewSpacesPanel(db_session,    category = u"Spaces", name     = u"New", endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
-    ple_admin.add_view(PleSpacesPanel(db_session,    category = u"Spaces", name     = u"Spaces", endpoint = 'ple_admin_courses', url = 'spaces'))
-    ple_admin.add_view(PlePermissionToSpacePanel(db_session,    category = u"Spaces", name     = u"Permissions", endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
-
-    ple_admin.add_view(PleUsersPanel(db_session,      name     = u"Users", endpoint = 'ple_admin_users', url = 'users'))
-    ple_admin.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'ple_admin_logout', url = 'logout'))
+    ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = lazy_gettext(u'PLE admin'), url = ple_admin_url, endpoint = 'ple-admin')
+    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = lazy_gettext(u"Labs"), name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
+    i18n_spaces = lazy_gettext(u'Spaces')
+    ple_admin.add_view(PleNewSpacesPanel(db_session,             category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
+    ple_admin.add_view(PleSpacesPanel(db_session,                   category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_admin_courses', url = 'spaces'))
+    ple_admin.add_view(PlePermissionToSpacePanel(db_session,  category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
+    ple_admin.add_view(PleUsersPanel(db_session,      name = lazy_gettext(u'Users'), endpoint = 'ple_admin_users', url = 'users'))
+    ple_admin.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
 
     # Uncomment for debugging purposes
     # app.config['TRAP_BAD_REQUEST_ERRORS'] = True
-

@@ -18,6 +18,8 @@ from labmanager.application import app
 from labmanager.views import get_json
 from labmanager.views.error_codes import messages_codes
 
+from labmanager.babel import gettext
+
 ########################################################
 # 
 #  Basic HTTP blueprint and methods
@@ -28,7 +30,7 @@ basic_http_blueprint = Blueprint('basic_auth', __name__)
 @basic_http_blueprint.before_request
 def requires_lms_auth():
 
-    UNAUTHORIZED = Response(response="Could not verify your credentials for that URL", status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
+    UNAUTHORIZED = Response(response=gettext("Could not verify your credentials for that URL"), status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
 
     auth = request.authorization
     if not auth:
@@ -66,7 +68,7 @@ def requests():
     json_data = get_json()
 
     if json_data is None:
-        return messages_codes['ERROR_json']
+        return messages_codes["ERROR_json"]
 
     courses             = json_data['courses']
     request_payload_str = json_data['request-payload']
@@ -81,7 +83,7 @@ def requests():
         request_payload = json.loads(request_payload_str)
     except:
         traceback.print_exc()
-        return messages_codes['ERROR_invalid_json']
+        return messages_codes["ERROR_invalid_json"]
 
     try:
         action = request_payload['action']
@@ -89,21 +91,21 @@ def requests():
             experiment_identifier = request_payload['experiment']
         else:
             # TODO: other operations: for instructors, booking, etc.
-            return messages_codes['ERROR_unsupported']
+            return messages_codes["ERROR_unsupported"]
     except KeyError:
         traceback.print_exc()
-        return messages_codes['ERROR_invalid']
+        return messages_codes["ERROR_invalid"]
 
 
     # reserving...
     permission_to_lt = db_session.query(PermissionToLt).filter_by(lt = db_lt, local_identifier = experiment_identifier).first()
 
-    good_msg  = messages_codes['ERROR_no_good']
+    good_msg  = messages_codes["ERROR_no_good"]
     error_msg = None
     reservation_url = ""
 
     if permission_to_lt is None:
-        error_msg = messages_codes['ERROR_permission']
+        error_msg = messages_codes["ERROR_permission"]
     else:
         courses_configurations = []
         for course_permission in permission_to_lt.course_permissions:
@@ -112,7 +114,7 @@ def requests():
                 courses_configurations.append(course_permission.configuration)
         
         if len(courses_configurations) == 0 and not general_role:
-            error_msg = messages_codes['ERROR_enrolled']
+            error_msg = messages_codes["ERROR_enrolled"]
         else:
             lt_configuration = permission_to_lt.configuration
             db_laboratory     = permission_to_lt.laboratory

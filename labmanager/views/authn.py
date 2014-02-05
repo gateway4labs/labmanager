@@ -11,7 +11,7 @@ from hashlib import new as new_hash
 
 from flask import render_template, request, flash, redirect, url_for, session
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
-
+from labmanager.babel import gettext
 
 from ..application import app
 from ..models import LabManagerUser, LtUser, LearningTool
@@ -30,7 +30,7 @@ def load_user(userid):
         try:
             _, lt_name, login = userid.split('::')
         except ValueError:
-            print "Invalid format (expected lt_user::lt_name::login"
+            print gettext("Invalid format (expected lt_user::lt_name::login)")
             return None
 
         potential_users = [ user for user in LtUser.all(login = login) if user.lt.name == lt_name ]
@@ -62,13 +62,13 @@ def login_admin():
                 next = request.args.get('next', url_for('admin.index'))
                 return redirect(next)
             else:
-                flash(u'Could not log in.')
+                flash(gettext(u'Could not log in.'))
                 return render_template('login_admin.html', next=next)
         else:
-            flash(u'Invalid username.')
+            flash(gettext(u'Invalid username.'))
             return render_template('login_admin.html', next=next)
 
-    return "Error in create_session"
+    return gettext("Error in create_session")
 
 
 @app.route('/login/lms/', methods=['GET', 'POST'])
@@ -97,12 +97,12 @@ def login_lms():
                         next = url_for('lms_instructor.index')
                 return redirect(next)
             else:
-                flash(u'Could not log in.')
+                flash(gettext(u'Could not log in.'))
                 return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
         else:
-            flash(u'Invalid username.')
+            flash(gettext(u'Invalid username.'))
             return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
-    return "Error in create_session"
+    return gettext("Error in create_session")
 
 @app.route('/login/ple/', methods=['GET', 'POST'])
 def login_ple():
@@ -113,10 +113,12 @@ def login_ple():
     ples = [ lt for lt in LearningTool.all() if len(lt.shindig_credentials) > 0 ]
 
     if request.method == 'GET':
-        return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+#IRENE      return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+        return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
 
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
+        print username
         hashed = new_hash("sha", request.form['password']).hexdigest()
         lms_id = request.form['lms']
         user = LtUser.exists(username, hashed, lms_id)
@@ -125,14 +127,19 @@ def login_ple():
                 session['loggeduser'] = username
                 session['last_request'] = time()
                 session['usertype'] = 'lms'
+                if next == DEFAULT_NEXT:
+                    if user.access_level == 'instructor':
+                        next = url_for('ple_instructor.index')
                 return redirect(next)
             else:
-                flash(u'Could not log in.')
-                return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+                flash(gettext(u'Could not log in.'))
+# IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+                return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
         else:
-            flash(u'Invalid username.')
-            return render_template('login_lms.html', next=next, lmss=ples, action_url = url_for('login_ple'))
-    return "Error in create_session"
+            flash(gettext(u'Invalid username.'))
+# IRENE     return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))            
+            return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
+    return gettext(u"Error in create_session")
 
 
 @app.route("/logout", methods=['GET'])

@@ -1,6 +1,6 @@
 {% extends 'admin/master.html' %}
 {% block body %}
-<h1>Discover courses</h1>
+<h1>{{gettext('Discover courses')}}</h1>
 
 <div class="row">
 
@@ -10,9 +10,9 @@
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th>Course id</th>
-                    <th>Course name</th>
-                    <th>Registered</th>
+                    <th>{{gettext('Course id')}}</th>
+                    <th>{{gettext('Course name')}}</th>
+                    <th>{{gettext('Registered')}}</th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
@@ -33,13 +33,13 @@
         </table>
         {% else  %}
         <div class="alert">
-            No course found
+            {{gettext('No course found')}}
         </div>
         {% endif %}
 
         <div class="form-actions" align="center">
-            <button class="btn btn-primary" name="action" type="submit" value="add">Add</button>
-            {% if courses|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">Delete</button>{% endif %}
+            <button class="btn btn-primary" name="action" type="submit" value="add">{{gettext('Add')}}</button>
+            {% if courses|length > 0 %}<button class="btn btn-danger" name="action" type="submit" value="delete">{{gettext('Delete')}}</button>{% endif %}
         </div>
     </form>
 

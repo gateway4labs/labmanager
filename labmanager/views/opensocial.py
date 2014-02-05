@@ -11,6 +11,8 @@ from labmanager.db import db_session
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
 
+from labmanager.babel import gettext, lazy_gettext
+
 SHINDIG = threading.local()
 
 def url_shindig(url):
@@ -99,7 +101,7 @@ def _reserve_impl(lab_name, public, institution_id):
     if public:
         db_laboratory = db_session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
         if db_laboratory is None:
-            return render_template("opensocial/errors.html", message = "That lab does not exist or it is not publicly available.")
+            return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
 
         SHINDIG.url = 'https://shindig.epfl.ch'
 
@@ -109,7 +111,7 @@ def _reserve_impl(lab_name, public, institution_id):
     else:
         institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
         if institution is None or len(institution.shindig_credentials) < 1:
-            return render_template("opensocial/errors.html", message = "This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured")
+            return render_template("opensocial/errors.html", message = gettext("This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"))
 
         SHINDIG.url = institution.shindig_credentials[0].shindig_url
 
@@ -120,7 +122,7 @@ def _reserve_impl(lab_name, public, institution_id):
         space_id = current_app_data['entry'].get('parentId') or 'null parent'
         parent_type = current_app_data['entry'].get('parentType')
         if parent_type != '@space':
-            return render_template("opensocial/errors.html", message =  "Invalid parent: it should be a space, and it is a %s" % parent_type)
+            return render_template("opensocial/errors.html", message = gettext("Invalid parent: it should be a space, and it is a %(parenttype)s", parenttype=parent_type))
 
         # Obtain the list of parent spaces of that space
         spaces = [space_id]
@@ -142,7 +144,7 @@ def _reserve_impl(lab_name, public, institution_id):
             if accessible_permission is None:
                 permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
                 if permission is None:
-                    return render_template("opensocial/errors.html", message = "Your PLE is valid, but don't have permissions for the requested laboratory.")
+                    return render_template("opensocial/errors.html", message = gettext("Your PLE is valid, but don't have permissions for the requested laboratory."))
                 
                 for course_permission in permission.course_permissions:
                     if course_permission.course.context_id in spaces:
@@ -150,7 +152,7 @@ def _reserve_impl(lab_name, public, institution_id):
                         courses_configurations.append(course_permission.configuration)
 
                 if len(courses_configurations) == 0:
-                    return render_template("opensocial/errors.html", message = "Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %r)" % spaces)
+                    return render_template("opensocial/errors.html", message = gettext("Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %(space)r)", space=spaces))
 
             else:
                 # There is a accesibility permission for that lab and institution
@@ -174,7 +176,7 @@ def _reserve_impl(lab_name, public, institution_id):
         current_user_data = json.loads(current_user_str)
     except:
         traceback.print_exc()
-        return render_template("opensocial/errors.html", message = "Could not connect to %s." % url_shindig("/rest/people/@me/@self?st=%s" % st))
+        return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
 
     # name    = current_user_data['entry'].get('displayName') or 'anonymous'
     user_id = current_user_data['entry'].get('id') or 'no-id'
@@ -221,13 +223,13 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     else:
         institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
         if institution is None or len(institution.shindig_credentials) == 0:
-            return "Institution not found or it does not support Shindig"
+            return gettext("Institution not found or it does not support Shindig")
 
         permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
         db_laboratory     = permission.laboratory if permission is not None else None
 
     if db_laboratory is None:
-        return "Laboratory not found"
+        return gettext("Laboratory not found")
     db_rlms           = db_laboratory.rlms
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
@@ -242,18 +244,18 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
 
 class RegistrationForm(Form):
 
-    full_name  = TextField('School name', [validators.Length(min=4, max=50), validators.Required()], description = "School name.")
-    short_name = TextField('Short name', [validators.Length(min=4, max=15), validators.Required()], description = "Short name (lower case, all letters, dots and numbers).")
-    url        = TextField('School URL', [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = "Address of your school.")
+    full_name  = TextField(lazy_gettext('School name'), [validators.Length(min=4, max=50), validators.Required()], description = lazy_gettext('School name.'))
+    short_name = TextField(lazy_gettext('Short name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
+    url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
 
-    user_full_name  = TextField('User name', [validators.Length(min=4, max=15), validators.Required()], description = "Your name and last name.")
-    user_login      = TextField('Login', [validators.Length(min=4, max=15), validators.Required()], description = "Your new login (you can create more later).")
-    user_password   = PasswordField('Password', [validators.Length(min=4, max=15), validators.Required()], description = "Your new login (you can create more later).")
+    user_full_name  = TextField(lazy_gettext('User name'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your name and last name.'))
+    user_login      = TextField(lazy_gettext('Login'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your new login (you can create more later).'))
+    user_password   = PasswordField(lazy_gettext('Password'), [validators.Length(min=4, max=15), validators.Required()], description = lazy_gettext('Your access password.'))
 
     def validate_short_name(form, field):
         for c in field.data:
             if c not in 'abcdefghijklmnopqrstuvwxyz._0123456789':
-                raise ValidationError('Invalid character found: %s' % c)
+                raise ValidationError(gettext('Invalid character found: %(char)s', char=c))
 
     validate_user_login = validate_short_name
 
@@ -264,10 +266,10 @@ def register():
     if form.validate_on_submit():
         errors = False
         if db_session.query(LearningTool).filter_by(name = form.short_name.data).first():
-            form.short_name.errors.append("This name is already taken")
+            form.short_name.errors.append(gettext('This name is already taken'))
             errors = True
         if db_session.query(LearningTool).filter_by(full_name = form.full_name.data).first():
-            form.full_name.errors.append("This name is already taken")
+            form.full_name.errors.append(gettext('This name is already taken'))
             errors = True
         if not errors:
             lt = LearningTool(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)

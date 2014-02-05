@@ -1,0 +1,9 @@
+# First, update the messages.pot file:
+pybabel extract -F babel.cfg -k lazy_gettext -o messages.pot --project gateway4labs .
+
+# Then, if you want to generate for a certain language (es for Spanish in this case), run:
+pybabel update -i messages.pot -d labmanager/translations -l es
+
+# This will generate a file called labmanager/translations/es/LC_MESSAGES/messages.po with those messages. 
+# Once that is translated, run the following to compile it:
+pybabel compile -f -d labmanager/translations

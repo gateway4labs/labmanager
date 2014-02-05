@@ -70,6 +70,7 @@ The RLMS may also need to access the RLMS.
 
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
+assert Blueprint or None # Avoid pyflakes warning
 
 # 
 # This is the list of versions. The BaseRLMS has a method
@@ -275,7 +276,7 @@ _BLUEPRINTS = {
 
 def register_blueprint(blueprint, url):
     if url in _BLUEPRINTS:
-        raise Exception("Attempt to register %r for url %r, but %r was already registered for that URL" % (_BLUEPRINTS[blueprint], url, blueprint))
+        raise Exception("Attempt to register %(blueprints)r for url %(url)r, but %(blueprint)r was already registered for that URL" % dict(blueprints=_BLUEPRINTS[blueprint], url=url, blueprint=blueprint))
 
     _BLUEPRINTS[url] = blueprint
 

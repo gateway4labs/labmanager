@@ -15,6 +15,8 @@ from flask.ext.login import current_user
 
 from labmanager.views import RedirectView
 
+from labmanager.babel import lazy_gettext
+
 #################################################################
 # 
 #            Base class
@@ -25,7 +27,7 @@ class LmsAuthManagerMixin(object):
         if not current_user.is_authenticated():
             return False
 
-        return session['usertype'] == 'lms'
+        return session['usertype'] == 'lms' and current_user.access_level == 'instructor'
     
 class L4lLmsInstructorModelView(LmsAuthManagerMixin, ModelView):
 
@@ -64,7 +66,11 @@ from labmanager.models import PermissionToLtUser
 class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
 
     can_create = can_edit = can_delete = False
-
+    column_labels = dict(permission_to_lms = lazy_gettext('Permission To LMS'),
+                                    lms_user = lazy_gettext('LMS User'),
+                                    key = lazy_gettext('Key'),
+                                    secret = lazy_gettext('Secret'))  
+                                    
     def __init__(self, session, **kwargs):
         super(PermissionToLmsUserPanel, self).__init__(PermissionToLtUser, session, **kwargs)
 
@@ -86,8 +92,8 @@ class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
 
 def init_instructor_admin(app, db_session):
     lms_instructor_url = '/lms_instructor'
-    lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms_instructor'), name = u"LMS instructor", url = lms_instructor_url, endpoint = 'lms-instructor')
-    lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = u"Permissions", endpoint = 'lms_instructor_permissions', url = 'permissions'))
-    lms_instructor.add_view(RedirectView('logout',         name = u"Log out", endpoint = 'lms_instructor_logout', url = 'logout'))
+    lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms_instructor'), name = lazy_gettext(u'LMS instructor'), url = lms_instructor_url, endpoint = 'lms-instructor')
+    lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_instructor_permissions', url = 'permissions'))
+    lms_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'lms_instructor_logout', url = 'logout'))
     lms_instructor.init_app(app)
 

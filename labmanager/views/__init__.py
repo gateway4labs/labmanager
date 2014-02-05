@@ -17,6 +17,7 @@ import urllib2
 # 
 from flask import request, redirect, url_for
 from flask.ext.admin import BaseView, expose
+from labmanager.babel import gettext
 
 ###################
 # 
@@ -45,8 +46,8 @@ def get_json():
                 data = keys[0]
             return json.loads(data)
         except:
-            print "Invalid JSON found"
-            print "Suggested JSON: %r" % data
+            print gettext("Invalid JSON found")
+            print gettext(u"Suggested JSON: %(rdata)r", rdata=data)
             traceback.print_exc()
             return None
 
@@ -72,13 +73,13 @@ def retrieve_courses(url, user, password):
         json_results= opener.open(req).read()
     except:
         traceback.print_exc()
-        return "Error opening provided URL"
+        return gettext("Error opening provided URL")
 
     try:
         return json.loads(json_results)
     except:
-        print "Invalid JSON", json_results
-        return "Invalid JSON"
+        print gettext("Invalid JSON"), json_results
+        return gettext("Invalid JSON")
 
 ###############################################################################
 # 
