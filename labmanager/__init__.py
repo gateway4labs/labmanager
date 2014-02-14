@@ -47,6 +47,9 @@ def load_rlms_modules():
         print >> sys.stderr, "Warning: config.py indicating which extensions should be loaded"
         print >> sys.stderr, "Warning: (e.g. weblabdeusto)" # TODO: add more whenever implemented
 
+    import labmanager.rlms.ext.virtual as virtual
+    assert virtual is not None # pyflakes warning
+
     for _rlms in _config.RLMS:
         __import__('labmanager.rlms.ext.%s' % _rlms)
 
