@@ -18,6 +18,7 @@ Will internally do:
 
 We use the flask.exthook to do this.
 """
+import http
 
 def setup():
     from flask.exthook import ExtensionImporter
