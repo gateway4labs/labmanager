@@ -102,6 +102,17 @@ class RLMS(Base, SBBase):
     url = Column(Unicode(300), nullable = False)
     version = Column(Unicode(50), nullable = False)
 
+
+    # validated: true or false. True means that the last time that the validation process took place it was a success. The validation process involves that the labmanager admin checks the correctness of the credentials provided during the RLMS creation. False means that the last time that the validation took place, it did not succeed.
+
+
+    # completed: true or false. This is, if all the steps in the creation of the RLMS have already been taken, then completed=true. At present, completed can only be false for HTTP RLMSs (because the creation process takes more than one step, as opposed to Weblab...)
+
+
+    validated = Column(Boolean, default = False)
+
+    completed = Column(Boolean, default = True)
+
     configuration = Column(Unicode(10 * 1024))
 
     def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
@@ -110,6 +121,26 @@ class RLMS(Base, SBBase):
         self.url = url
         self.version = version
         self.configuration = configuration
+        self.validated = False
+
+        
+#        if kind is "HTTP": 
+#            self.completed  = Falseththt
+#        else: 
+#            self.completed  = Truethth  
+
+#        
+#        raise Exception(self.url)
+#        if "HTTP"  in kind:
+#            self.completed  = Falseththt
+#            
+#        else: 
+#                    
+##            raise Exception("http not in kind %s", kind )
+#            self.completed  = Truethth 
+#               
+
+
 
     def __repr__(self):
         return "RLMS(kind = %r, url=%r, location=%r, version=%r, configuration=%r)" % (self.kind, self.url, self.location, self.version, self.configuration)
