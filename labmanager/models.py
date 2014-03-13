@@ -116,11 +116,12 @@ class RLMS(Base, SBBase):
     configuration = Column(Unicode(10 * 1024))
 
     def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
-        self.kind = kind
-        self.location = location
-        self.url = url
-        self.version = version
+        self.kind = "saaskind" # kind
+        self.location = "saasloc" # location
+        self.url = "saasurl" # url
+        self.version = "saasver" # version
         self.configuration = configuration
+
         self.validated = False
 
         
