@@ -30,13 +30,6 @@ from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 
 
-import requests
-import re
-
-from requests.auth import HTTPBasicAuth
-
-
-
 config = yload(open('labmanager/config/config.yml'))
 
 #####################################################################
@@ -315,6 +308,43 @@ def _generate_choices():
             sel_choices.append(("%s<>%s" % (ins_rlms, ver),"%s - %s" % (ins_rlms.title(), ver)) )
     return sel_choices
 
+
+def newrlms_formatter(v, c, rlms, p):
+
+    if rlms.kind in ("HTTP"): 
+
+        if rlms.newrlms == True:
+
+            currently = 'This RLMS is NOT complete'
+            klass = 'btn-danger'
+            msg = 'Complete'
+
+        else:
+
+            currently = 'This RLMS IS complete'
+            klass = 'btn-success'
+            msg = 'Change properties'
+
+    else:
+        # for RLMS other than HTTP, the properties can be modified just editing the RLMS as usually
+        currently = 'This RLMS IS complete'
+        klass = ''
+        msg = ''
+
+
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                    %(currently)s <BR>
+                    <input type='hidden' name='rlms_id' value='%(rlms_id)s'/>
+                    <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                </form>""" % dict(
+                    url                      = url_for('.change_properties'),                     
+                    rlms_id                  = rlms.id,
+                    klass                    = klass,
+                    msg                      = msg,
+                ))
+
+
+
 class RLMSPanel(L4lModelView):
 
     # For editing
@@ -322,11 +352,17 @@ class RLMSPanel(L4lModelView):
     form_overrides = dict(kind=DynamicSelectField)
 
     # For listing 
-    column_list  = ['kind', 'version', 'location', 'url', 'labs']
+    column_list  = ['kind', 'version', 'location', 'url', 'validated', 'newrlms', 'labs']
+
+    column_labels = dict(newrlms='Completed')
+
     column_exclude_list = ('version','configuration')
 
-    column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.restlabs', id=rlms.id)))
+    column_formatters = dict( labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id))), newrlms = newrlms_fomatter )
+
+    column_descriptions = dict(
+        newrlms = "This RLMS has all its properties properly configured",
+        validated = "This RLMS has been validated in the past. This shows the outcome of the last validation procesthat was conducted on it."
         )
 
     def __init__(self, session, **kwargs):
@@ -429,8 +465,7 @@ class RLMSPanel(L4lModelView):
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
         labs = rlms.get_laboratories()
-        
-        
+
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
         if request.method == 'POST':
@@ -466,128 +501,6 @@ class RLMSPanel(L4lModelView):
                 self.session.commit()
 
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-
-        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
-
-
-    def get_user(self,id):
-        # returns the user needed to access a ReLMS
-        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
-        l=rlms_db.configuration.split()
-        raw_user = l[3]
-        # raw_user would be, for example: "agus-uned",
-        # So, remove the uneeded characters in order to get: agus-uned
-        user = re.split('[",]+', raw_user) 
-        #user = ['', 'agus-uned', '']
-        return user[1]       
-        
-   
-    def get_password(self,id):
-        # returns the password needed to access a ReLMS
-        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
-        l=rlms_db.configuration.split()
-        raw_passwd = l[1]
-        # raw_passwd would be, for example: "12345",
-        # So, remove the uneeded characters in order to get: 12345
-        passwd = re.split('[",]+', raw_passwd) 
-        #passwd = ['', '12345', '']
-        return passwd[1]       
-                
-
-
-
-    @expose('/restlabs/<id>/', methods = ['GET','POST'])
-    def restlabs(self, id):
-        # 
-        # TODO: CSRF is not used here. Security hole
-        # 
-
-        rlms_db = self.session.query(RLMS).filter_by(id = id).first()
-        
-
-        if rlms_db is None:
-            return abort(404)
-
-        user = self.get_user(id)
-        passwd = self.get_password(id)
-        url = rlms_db.url + "/labs"
-        r=requests.get(url, auth=(user, passwd))
-
-        jsonresponse = json.loads(r.text)
-        # Check the following "for" loop before reaching production, since actual servers may use different format. 
-        # The response format used here is:
-        #
-        #{
-        #  "labs": [
-        #    {
-        #      ...
-        #      "laboratory_id": "Submarine@Aquatic experiments", 
-        #      "name": "ACH_Submarine", 
-        #      ...
-        #    }, 
-        #    {
-        #      ...
-        #      "laboratory_id": "Aircraft@Aeronautical experiments", 
-        #      "name": "ACH_Aircraft", 
-        #      ...
-        #    }
-        #  ]
-        #}        
-
-        labs = []
-        #jsonresponse['labs'][0]['name']     
-        for json_lab in jsonresponse['labs']:  
-            labname = json_lab['name']
-            lab_id = json_lab['laboratory_id']
-            tmplab = Laboratory(labname, lab_id)
-            labs.append(tmplab)
-       
-
-
-        registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-        
-
-        if request.method == 'POST':
-            selected = []
-            for name, value in request.form.items():
-                if name != 'action' and value == 'on':
-                    for lab in labs:
-                        if lab.laboratory_id == name:
-                            selected.append(lab)
-            changes = False
-
-            if request.form['action'] == 'register':
-                for lab in selected:
-                    if not lab.laboratory_id in registered_labs:
-                        self.session.add(Laboratory(name = lab.name, laboratory_id = lab.laboratory_id, rlms = rlms_db))
-                        changes = True
-
-            elif request.form['action'] == 'unregister':
-
-                for lab in selected:
-                    if lab.laboratory_id in registered_labs:
-                        cur_lab_db = None
-                        for lab_db in rlms_db.laboratories:
-                            if lab_db.laboratory_id == lab.laboratory_id:
-                                cur_lab_db = lab_db
-                                break
-
-                        if cur_lab_db is not None:
-                            self.session.delete(cur_lab_db)
-                            changes = True
-
-            if changes:
-                self.session.commit()
-
-
-
-
-
-
-
-
-        registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-        
 
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
 
@@ -699,8 +612,6 @@ class LaboratoryPanel(L4lModelView):
         return redirect(url_for('.index_view'))
 
 
-
-
 def scorm_formatter(v, c, permission, p):
     
     if permission.lt.basic_http_authentications:
@@ -770,7 +681,6 @@ def init_admin(app, db_session):
     admin.add_view(LabRequestsPanel(db_session,   category = u"LT Management", name = u"LT Requests",        endpoint = 'lt/requests'))
 
     admin.add_view(RLMSPanel(db_session,       category = u"ReLMS Management", name = u"RLMS",            endpoint = 'rlms/rlms'))
-
     admin.add_view(LaboratoryPanel(db_session, category = u"ReLMS Management", name = u"Registered labs", endpoint = 'rlms/labs'))
 
     admin.add_view(UsersPanel(db_session,      category = u"Users", name = u"Labmanager Users", endpoint = 'users/labmanager'))
@@ -779,4 +689,5 @@ def init_admin(app, db_session):
     admin.add_view(RedirectView('logout',      name = u"Log out", endpoint = 'admin/logout'))
 
     admin.init_app(app)
+
 

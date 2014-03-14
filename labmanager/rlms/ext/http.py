@@ -4,7 +4,7 @@ import sys
 import json
 
 from flask import request, Blueprint
-from flask.ext.wtf import TextField, PasswordField, Required, URL, ValidationError
+from flask.ext.wtf import TextField, PasswordField, Required, URL, ValidationError, BooleanField
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.rlms import register, Laboratory, BaseRLMS, BaseFormCreator, register_blueprint, Capabilities, Versions
@@ -27,6 +27,7 @@ class HTTPAddForm(AddForm):
     password     = PasswordField("Password")
 
     base_url     = TextField("Base URL",    validators = [Required(), URL() ])
+    # completed     = BooleanField('This RLMS is completed')
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(HTTPAddForm, self).__init__(*args, **kwargs)

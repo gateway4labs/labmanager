@@ -19,7 +19,8 @@ def upgrade():
     op.add_column('laboratories', sa.Column('public_identifier', sa.Unicode(length=50), nullable=False))
     op.add_column('laboratories', sa.Column('publicly_available', sa.Boolean(), nullable=False))
     op.add_column('rlmss', sa.Column('validated', sa.Boolean(), nullable=False))
-    op.add_column('rlmss', sa.Column('completed', sa.Boolean(), nullable=False))
+#    op.add_column('rlmss', sa.Column('completed', sa.Boolean(), nullable=False))
+    op.add_column('rlmss', sa.Column('newrlms', sa.Boolean(), nullable=False))
     ### end Alembic commands ###
 
 
@@ -28,5 +29,6 @@ def downgrade():
     op.drop_column('laboratories', 'publicly_available')
     op.drop_column('laboratories', 'public_identifier')
     op.drop_column('rlmss', 'validated')
-    op.drop_column('rlmss', 'completed')
+#    op.drop_column('rlmss', 'completed')
+    op.drop_column('rlmss', 'newrlms')
     ### end Alembic commands ###

@@ -106,39 +106,42 @@ class RLMS(Base, SBBase):
     # validated: true or false. True means that the last time that the validation process took place it was a success. The validation process involves that the labmanager admin checks the correctness of the credentials provided during the RLMS creation. False means that the last time that the validation took place, it did not succeed.
 
 
-    # completed: true or false. This is, if all the steps in the creation of the RLMS have already been taken, then completed=true. At present, completed can only be false for HTTP RLMSs (because the creation process takes more than one step, as opposed to Weblab...)
-
 
     validated = Column(Boolean, default = False)
 
-    completed = Column(Boolean, default = True)
+
+
+    # completed: true or false. This is, if all the steps in the creation of the RLMS have already been taken, then completed=true. At present, completed can only be false for HTTP RLMSs (because the creation process takes more than one step, as opposed to Weblab...)
+
+#    completed = Column(Boolean, default = True)
+
+    # newrlms is true for all the rlms when they are created. After the completion process (for HTTP RLMSs) or validation process (for all RLMSs), newrlms = false. newrlms is only usefull for HTTP, not for any of the other RLMS kinds.
+    
+    newrlms = Column(Boolean, default = True)
 
     configuration = Column(Unicode(10 * 1024))
 
-    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
-        self.kind = "saaskind" # kind
-        self.location = "saasloc" # location
-        self.url = "saasurl" # url
-        self.version = "saasver" # version
+    def __init__(self, kind = None, url = None, location = None, version = None, newrlms = True, configuration = '{}'):
+        
+     
+        self.kind = kind
+        self.location =  location
+        self.url =   url
+        self.version =   version
         self.configuration = configuration
 
         self.validated = False
 
-        
-#        if kind is "HTTP": 
-#            self.completed  = Falseththt
-#        else: 
-#            self.completed  = Truethth  
+        self.newrlms = True
 
-#        
-#        raise Exception(self.url)
-#        if "HTTP"  in kind:
-#            self.completed  = Falseththt
+#        self.completed  = False
+
+#        if self.kind in ("HTTP"):
+#            self.completed  = False
 #            
 #        else: 
 #                    
-##            raise Exception("http not in kind %s", kind )
-#            self.completed  = Truethth 
+#            self.completed  = True
 #               
 
 
