@@ -315,34 +315,35 @@ def newrlms_formatter(v, c, rlms, p):
 
         if rlms.newrlms == True:
 
-            currently = 'This RLMS is NOT complete'
+            currently = 'UNCOMPLETE'
             klass = 'btn-danger'
-            msg = 'Complete'
+            msg = 'Click to complete'
 
         else:
 
-            currently = 'This RLMS IS complete'
+            currently = 'UNCOMPLETE'
             klass = 'btn-success'
-            msg = 'Change properties'
+            msg = 'Click to change properties'
 
+   
+        return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        %(currently)s <BR>
+                        <input type='hidden' name='rlms_id' value='%(rlms_id)s'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        currently                = currently,
+                        url                      = url_for('.change_properties'),                     
+                        rlms_id                  = rlms.id,
+                        klass                    = klass,
+                        msg                      = msg,
+                    ))
     else:
+
         # for RLMS other than HTTP, the properties can be modified just editing the RLMS as usually
-        currently = 'This RLMS IS complete'
-        klass = ''
-        msg = ''
+        currently = 'Complete'
 
-
-    return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
-                    %(currently)s <BR>
-                    <input type='hidden' name='rlms_id' value='%(rlms_id)s'/>
-                    <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
-                </form>""" % dict(
-                    url                      = url_for('.change_properties'),                     
-                    rlms_id                  = rlms.id,
-                    klass                    = klass,
-                    msg                      = msg,
-                ))
-
+        return Markup(currently)
+ 
 
 
 class RLMSPanel(L4lModelView):
@@ -358,7 +359,7 @@ class RLMSPanel(L4lModelView):
 
     column_exclude_list = ('version','configuration')
 
-    column_formatters = dict( labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id))), newrlms = newrlms_fomatter )
+    column_formatters = dict( labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id))), newrlms = newrlms_formatter )
 
     column_descriptions = dict(
         newrlms = "This RLMS has all its properties properly configured",
@@ -503,6 +504,27 @@ class RLMSPanel(L4lModelView):
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
 
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
+
+    
+    @expose('/change_properties', methods = ['POST'])
+    def change_properties(self):
+
+        rlms_id = request.form['rlms_id']
+        sasa
+
+        isaccessible = unicode(request.form['accessible_value']).lower() == 'true'
+
+        lt = current_user.lt
+
+        permission_id = int(request.form['permission_to_lt_id'])
+        permission = self.session.query(PermissionToLt).filter_by(id = permission_id, lt = lt).first()
+
+        if permission:
+            permission.accessible = isaccessible
+            self.session.commit()
+     
+        return redirect(url_for('.index_view'))
+
 
 def accessibility_formatter(v, c, lab, p):
 
