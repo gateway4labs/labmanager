@@ -115,16 +115,7 @@ class RLMS(BaseRLMS):
 
     def get_http_user(self):
         return self.http_user
-
-    @app.route('/get_properties/<mself>')
-    def get_properties(mself):
-        # 
-        # TODO: CSRF is not used here. Security hole
-        # 
-        
-        http_user = mself.get_http_user()
-    
-        asasa
+ 
           
 
 

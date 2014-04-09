@@ -21,6 +21,18 @@ def upgrade():
     op.add_column('rlmss', sa.Column('validated', sa.Boolean(), nullable=False))
 #    op.add_column('rlmss', sa.Column('completed', sa.Boolean(), nullable=False))
     op.add_column('rlmss', sa.Column('newrlms', sa.Boolean(), nullable=False))
+
+    op.create_table('http_rlms_property',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('rlms_id', sa.Integer(), nullable=False),
+    sa.Column('prop_id', sa.Unicode(length=50), nullable=False),
+    sa.Column('name', sa.Unicode(length=50), nullable=False),
+    sa.Column('value', sa.Unicode(length=50), nullable=False),
+    sa.ForeignKeyConstraint(['rlms_id'], ['rlmss.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('prop_id','rlms_id')
+    )
+    
     ### end Alembic commands ###
 
 
@@ -31,4 +43,6 @@ def downgrade():
     op.drop_column('rlmss', 'validated')
 #    op.drop_column('rlmss', 'completed')
     op.drop_column('rlmss', 'newrlms')
+
+    op.drop_table('http_rlms_property')
     ### end Alembic commands ###
