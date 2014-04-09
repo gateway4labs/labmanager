@@ -27,7 +27,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 
 from labmanager.models import LabManagerUser, LtUser
 
-from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
+from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT, HTTP_RLMS_Property
 from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
@@ -531,11 +531,21 @@ class RLMSPanel(L4lModelView):
         changes = False
 
         if request.method == 'POST':
-            if request.form['action'] == 'savechanges':
-                for prop, value in request.form.items():
-                    self.session.add(HTTP_RLMS_Property(prop_id = prop_id, name = name, value = value , rlms = myrlms))
-                    
+
+            for name, value in request.form.items():
+
+                trt
+                if name != 'action':
+                    self.session.add(HTTP_RLMS_Property(name = prop_name, value = value , rlms = myrlms))
+                    asasas    
                     changes = True
+
+            if request.form['action'] == 'savechanges':
+                ssss
+                if changes:
+                    self.session.commit()
+
+                        
 
 
 #        if request.form['action'] == 'register':
@@ -543,13 +553,6 @@ class RLMSPanel(L4lModelView):
 #                    if not lab.laboratory_id in registered_labs:
 #                        self.session.add(Laboratory(name = lab.name, laboratory_id = lab.laboratory_id, rlms = rlms_db))
 #                        changes = True
-
-
-
-
-
-        if changes:
-                self.session.commit()
 
         base_url = jsonconfig['base_url']
 
@@ -574,26 +577,43 @@ class RLMSPanel(L4lModelView):
 def create_values_list(self, properties_list, rlms_id):
 
     prop_value_list = []
-    rlms = self.session.query(RLMS).filter_by(id = rlms_id).first()      
-    configuration = json.loads(rlms.configuration)
-
-
-    prop_list_db = configuration.keys()
-
+    db_properties = self.session.query(HTTP_RLMS_Property).filter_by(rlms_id = rlms_id)
+    value = ""
+    
     for prop in properties_list:
-    
-        if prop in prop_list_db:
-    
-            value = configuration.get(prop)
-
-        else: 
-            value = ""
+        for db_prop in db_properties:
+            if prop ==db_prop.name:
+                value = db_prop.value
+        
+            else: 
+                value = ""
 
         prop_value = (prop, value)           
 
         prop_value_list.append(prop_value) 
-            
+
     return prop_value_list              
+            
+#    rlms = self.session.query(RLMS).filter_by(id = rlms_id).first()      
+#    configuration = json.loads(rlms.configuration)
+
+
+#    prop_list_db = configuration.keys()
+
+#    for prop in properties_list:
+#    
+#        if prop in prop_list_db:
+#    
+#            value = configuration.get(prop)
+
+#        else: 
+#            value = ""
+
+#        prop_value = (prop, value)           
+
+#        prop_value_list.append(prop_value) 
+#            
+#    return prop_value_list              
     
 
 def create_properties_list(properties_list_json):

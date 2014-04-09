@@ -149,21 +149,18 @@ class RLMS(Base, SBBase):
 
 class HTTP_RLMS_Property(Base, SBBase):
     __tablename__ = 'http_rlms_property'
-    __table_args__ = (UniqueConstraint('prop_id', 'rlms_id'), )
+    __table_args__ = (UniqueConstraint('name', 'rlms_id'), )
 
     id                       = Column(Integer, primary_key = True)
     rlms_id                  = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
-    prop_id                  = Column(Integer, nullable = False)
-
     name                     = Column(Unicode(50), nullable = False)
     value                    = Column(Unicode(50), nullable = False, default = u"")
 
     rlms                     = relation(RLMS.__name__, backref = backref('http_properties', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, rlms_id = None, name = None, value = None, prop_id = None, rlms = None):
+    def __init__(self,  name = None, value = None, rlms = None):
        
-        self.rlms_id       = rlms_id
-        self.prop_id       = prop_id
+
         self.name          = name
         self.value         = value
         self.rlms          = rlms
