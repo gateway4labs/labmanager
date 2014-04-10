@@ -14,11 +14,11 @@
             </tr>
         </thead>
         <tbody>
-
+            <!-- prop_value[0] is the property name, prop_value[1] is the value currently stored-->
             {% for prop_value in prop_value_list %}
             <tr>
                 <td>{{ prop_value[0] }}</td> 
-                <td><input type="text" value=" {{ prop_value[1] }}"><br>   </td>
+                <td><input type="text" name="{{ prop_value[0] }}" value="{{prop_value[1]}}"><br>   </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -26,7 +26,9 @@
     </table>
     <div class="form-actions" align="center">
         <button class="btn btn-primary" name="action" type="submit" value="savechanges">Change properties</button>
-        <button class="btn btn-danger"  name="action" type="submit" value="cancelchanges">Cancel</button>
+        <button class="btn btn-danger"  name="action" type="submit" value="return">Return</button>
+
+<!--        <a href="{{ this_url }}">Webpage</a>-->
     </div>
 </form>
 {% else %}

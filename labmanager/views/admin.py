@@ -378,6 +378,8 @@ class RLMSPanel(L4lModelView):
         validated = "This RLMS has been validated in the past. This shows the outcome of the last validation process that was conducted on it."
         )
 
+
+
     def __init__(self, session, **kwargs):
         super(RLMSPanel, self).__init__(RLMS, session, **kwargs)
         
@@ -484,6 +486,7 @@ class RLMSPanel(L4lModelView):
         if request.method == 'POST':
             selected = []
             for name, value in request.form.items():
+
                 if name != 'action' and value == 'on':
                     for lab in labs:
                         if lab.laboratory_id == name:
@@ -532,27 +535,32 @@ class RLMSPanel(L4lModelView):
 
         if request.method == 'POST':
 
-            for name, value in request.form.items():
-
-                trt
-                if name != 'action':
-                    self.session.add(HTTP_RLMS_Property(name = prop_name, value = value , rlms = myrlms))
-                    asasas    
-                    changes = True
-
             if request.form['action'] == 'savechanges':
-                ssss
+                    
+                for prop_name, value in request.form.items():
+     
+                    if prop_name != 'action' and value != '':
+                        
+                        old_prop_value =self.session.query(HTTP_RLMS_Property).filter_by(name = prop_name, rlms = myrlms).first()
+                        
+                        if old_prop_value:
+                            self.session.delete(old_prop_value)
+                            self.session.commit()
+
+                        self.session.add(HTTP_RLMS_Property(name = prop_name, value = value , rlms = myrlms))
+                        myrlms.newrlms = False
+                        changes = True
+
+
                 if changes:
+                    changes = False
                     self.session.commit()
 
-                        
+            if request.form['action'] == 'return':        
+                return redirect(url_for('.index_view'))
 
 
-#        if request.form['action'] == 'register':
-#                for lab in selected:
-#                    if not lab.laboratory_id in registered_labs:
-#                        self.session.add(Laboratory(name = lab.name, laboratory_id = lab.laboratory_id, rlms = rlms_db))
-#                        changes = True
+
 
         base_url = jsonconfig['base_url']
 
@@ -571,6 +579,7 @@ class RLMSPanel(L4lModelView):
         prop_value_list = create_values_list(self, properties_list, myrlms.id)
         
         
+        
         return self.render('labmanager_admin/rlms_properties_list.html', rlms = myrlms, prop_value_list = prop_value_list )
 
 
@@ -582,15 +591,14 @@ def create_values_list(self, properties_list, rlms_id):
     
     for prop in properties_list:
         for db_prop in db_properties:
-            if prop ==db_prop.name:
+            if prop == db_prop.name:
                 value = db_prop.value
         
-            else: 
-                value = ""
-
         prop_value = (prop, value)           
 
         prop_value_list.append(prop_value) 
+
+        value=""
 
     return prop_value_list              
             

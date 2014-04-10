@@ -25,12 +25,11 @@ def upgrade():
     op.create_table('http_rlms_property',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('rlms_id', sa.Integer(), nullable=False),
-    sa.Column('prop_id', sa.Unicode(length=50), nullable=False),
     sa.Column('name', sa.Unicode(length=50), nullable=False),
     sa.Column('value', sa.Unicode(length=50), nullable=False),
     sa.ForeignKeyConstraint(['rlms_id'], ['rlmss.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('prop_id','rlms_id')
+    sa.UniqueConstraint('name','rlms_id')
     )
     
     ### end Alembic commands ###
