@@ -26,6 +26,9 @@ class Laboratory(object):
         self.name          = name
         self.laboratory_id = laboratory_id
 
+    def __repr__(self):
+        return "Laboratory(%r, %r)" % (self.name, self.laboratory_id)
+
     def __hash__(self):
         return hash(self.laboratory_id)
 
