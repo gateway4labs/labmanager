@@ -286,7 +286,12 @@ class RLMSPanel(L4lModelView):
     # column_list  = [lazy_gettext('kind'), lazy_gettext('version'), lazy_gettext('location'), lazy_gettext('url'), lazy_gettext('labs')]
     column_list  = ['kind', 'version', 'location', 'url', 'labs']
     column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
-    column_exclude_list = (lazy_gettext('version'), lazy_gettext('configuration'))
+    column_exclude_list = ('version','configuration')
+    column_descriptions = {
+        'location' : 'City and country where the RLMS is hosted',
+        'url'      : 'Main URL of the RLMS',
+    }
+
     column_formatters = dict(
             labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), list))
         )

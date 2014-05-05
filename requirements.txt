@@ -11,8 +11,9 @@ PyMySQL==0.5
 pymysql-sa==1.0
 PyYAML==3.10
 SQLAlchemy==0.7.10
-alembic==0.6.0
+alembic==0.6.4
 
 git+https://github.com/gateway4labs/rlms_unr.git
 git+https://github.com/gateway4labs/rlms_weblabdeusto.git
 git+https://github.com/gateway4labs/rlms_ilabs.git
+git+https://github.com/gateway4labs/rlms_phet.git

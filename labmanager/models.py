@@ -120,8 +120,8 @@ class Laboratory(Base, SBBase):
     __tablename__ = 'laboratories'
     __table_args__ = (UniqueConstraint('laboratory_id', 'rlms_id'), )
     id = Column(Integer, primary_key = True)
-    name                     = Column(Unicode(50), nullable = False)
-    laboratory_id            = Column(Unicode(50), nullable = False)
+    name                     = Column(Unicode(350), nullable = False)
+    laboratory_id            = Column(Unicode(350), nullable = False)
     rlms_id                  = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
     visibility               = Column(Unicode(50), nullable = False, index = True, default = u'private')
     available                = Column(Boolean, nullable = False, index = True, default = False)
