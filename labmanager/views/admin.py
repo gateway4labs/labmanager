@@ -317,6 +317,10 @@ class RLMSPanel(L4lModelView):
     # For listing 
     column_list  = ['kind', 'version', 'location', 'url', 'labs']
     column_exclude_list = ('version','configuration')
+    column_descriptions = {
+        'location' : 'City and country where the RLMS is hosted',
+        'url'      : 'Main URL of the RLMS',
+    }
 
     column_formatters = dict(
             labs = lambda v, c, rlms, p: Markup('<a href="%s">List</a>' % (url_for('.labs', id=rlms.id)))
