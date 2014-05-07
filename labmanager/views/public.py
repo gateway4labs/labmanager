@@ -12,7 +12,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import Laboratory
 from labmanager.views import RedirectView
 from labmanager.rlms import get_manager_class
-from labmanager.babel import lazy_gettext
+from labmanager.babel import lazy_gettext, gettext
  
 ##############################################
 # 
@@ -33,7 +33,7 @@ def public_id_formatter(v, c, laboratory, p):
     return laboratory.public_identifier or 'N/A'
 
 def list_widgets_formatter(v, c, laboratory, p):
-    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', public_identifier = public_id_formatter(v, c, laboratory, p)))
+    return Markup('<a href="%s">%s</a>' % (url_for('.list_widgets', public_identifier = public_id_formatter(v, c, laboratory, p)), gettext("list")))
 
 class PublicLaboratoriesPanel(ModelView):
     can_delete = False

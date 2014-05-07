@@ -95,14 +95,8 @@ class RegistrationPermissionForm(RetrospectiveForm):
 def school_full_name_validator(form, field):
     if len(field.data) < 4 or len(field.data) > 50:
         raise ValidationError(gettext('Oficial name must be between 4 and 50 characters long'))
-    else:
-        invalid_chars = [ c
-                                for c in field.data
-                                if not c.isalnum() and c not in ' ' ]
-    if invalid_chars:
-         raise ValidationError(gettext('Invalid characters found: %(char)s', char=', '.join(invalid_chars)))
         
-SCHOOL_FULL_NAME_VALIDATORS = [validators.Regexp("^[A-Za-z\. ]{4,50}$"), school_full_name_validator]
+SCHOOL_FULL_NAME_VALIDATORS = [school_full_name_validator]
         
 def school_short_name_validator(form, field):
     if len(field.data) < 4 or len(field.data) > 15:
@@ -119,11 +113,5 @@ SCHOOL_SHORT_NAME_VALIDATORS = [validators.Regexp("^[a-z0-9\.]{4,15}$"), school_
 def user_full_name_validator(form, field):
     if len(field.data) < 4 or len(field.data) > 15:
         raise ValidationError(gettext('Oficial name must be between 4 and 15 characters long'))
-    else:
-        invalid_chars = [ c
-                                for c in field.data 
-                                    if not c.isalnum() and c not in ' ']
-    if invalid_chars:
-         raise ValidationError(gettext('Invalid characters found: %(char)s', char=', '.join(invalid_chars)))
 
-USER_FULL_NAME_VALIDATORS = [validators.Regexp("^[a-zA-Z\ ]{4,15}$"), user_full_name_validator]
+USER_FULL_NAME_VALIDATORS = [user_full_name_validator]

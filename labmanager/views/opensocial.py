@@ -219,10 +219,10 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     return redirect(widget_contents_url)
     
 class RegistrationForm(Form):
-    full_name  = TextField(lazy_gettext('School name'), [validators.Required()] + forms.SCHOOL_FULL_NAME_VALIDATORS, description = lazy_gettext('School name.'))
+    full_name  = TextField(lazy_gettext('School name'), [validators.Required(), validators.Length(min=4)] + forms.SCHOOL_FULL_NAME_VALIDATORS, description = lazy_gettext('School name.'))
     short_name = TextField(lazy_gettext('Short name'), [validators.Required()] + forms.SCHOOL_SHORT_NAME_VALIDATORS, description = lazy_gettext('Short name (lower case, all letters, dots and numbers).'))
     url        = TextField(lazy_gettext('School URL'), [validators.Length(min=6, max=200), validators.URL(), validators.Required()], description = lazy_gettext('Address of your school.'))
-    user_full_name  = TextField(lazy_gettext('User name'), [validators.Required()] + forms.USER_FULL_NAME_VALIDATORS, description = lazy_gettext('Your name and last name.'))
+    user_full_name  = TextField(lazy_gettext('User name'), [validators.Required(), validators.Length(min=4)] + forms.USER_FULL_NAME_VALIDATORS, description = lazy_gettext('Your name and last name.'))
     user_login      = TextField(lazy_gettext('Login'), [validators.Required()] + forms.USER_LOGIN_DEFAULT_VALIDATORS, description = lazy_gettext('Your new login (you can create more later).'))
     user_password   = PasswordField(lazy_gettext('Password'), [validators.Required()] + forms.USER_PASSWORD_DEFAULT_VALIDATORS, description = lazy_gettext('Your access password.'))
 
