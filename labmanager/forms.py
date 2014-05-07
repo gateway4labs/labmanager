@@ -71,7 +71,6 @@ def login_validator(form, field):
         raise ValidationError(gettext('login lenght must be at least 5 characters long'))
 
 USER_LOGIN_DEFAULT_VALIDATORS = [validators.Regexp("^[a-z0-9\.\_]{5,}$"), login_validator]
-print USER_LOGIN_DEFAULT_VALIDATORS
 
 def password_validator(form, field):
     if len(field.data) > 0:

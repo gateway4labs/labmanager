@@ -58,7 +58,7 @@ else:
                 locale = request.accept_languages.best_match(supported_languages)
             if locale is None:
                 locale = 'en'
-            print "Locale requested. Got: ", locale
+            # print "Locale requested. Got: ", locale
             return locale 
         else:
             return 'en'
