@@ -27,6 +27,5 @@ def setup():
     importer = ExtensionImporter(['g4l_rlms_%s'], __name__)
     importer.install()
 
-
 setup()
 del setup

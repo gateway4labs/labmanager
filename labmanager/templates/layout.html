@@ -20,10 +20,10 @@
         <a class="brand" href="{{ url_for('index') }}">LabManager</a>
         <div class="nav-collapse">
           <ul class="nav">
-            <li {% if current_link == 'home' %}    class="active" {% endif %}><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('admin.index') }}">Admin</a></li>
-            <li {% if current_link == 'developers' %} class="active" {% endif %}><a href="{{ url_for('developers') }}">Developers</a></li>
-            <li {% if current_link == 'about' %} class="active" {% endif %}><a href="{{ url_for('about') }}">About</a></li>
+            <li {% if current_link == 'home' %}    class="active" {% endif %}><a href="{{ url_for('index') }}">{{gettext('Home')}}</a></li>
+            <li><a href="{{ url_for('admin.index') }}">{{gettext('Admin')}}</a></li>
+            <li {% if current_link == 'developers' %} class="active" {% endif %}><a href="{{ url_for('developers') }}">{{gettext('Developers')}}</a></li>
+            <li {% if current_link == 'about' %} class="active" {% endif %}><a href="{{ url_for('about') }}">{{gettext('About')}}</a></li>
           </ul>
         </div><!-- /.nav-collapse -->
       </div>

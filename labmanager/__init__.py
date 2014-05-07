@@ -6,7 +6,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-import os, sys
+import os
+import sys
 import optparse
 
 # 
@@ -32,7 +33,6 @@ if hasattr(os, 'uname') and os.uname()[1] in ('plunder','scabb'): # TODO: Deusto
     opener = urllib2.build_opener(proxy)
     urllib2.install_opener(opener)
     print "done"
-
 
 def load_rlms_modules():
     """
@@ -95,6 +95,7 @@ def run():
     parser.add_option('--testing', dest='testing', help="Enter in testing mode", default=False, action='store_true')
     
     args, _ = parser.parse_args() 
+    
     if args.register_fake_rlms:
         from labmanager.tests.unit.fake_rlms import register_fake
         register_fake()
@@ -103,7 +104,7 @@ def run():
         app.config['TESTING'] = True
         app.config['CSRF_ENABLED'] = False
         app.config['DEBUG'] = False
+        app.config['TRANSLATE_LABMANAGER'] = False
 
     port = int(os.environ.get('PORT', args.port))
     app.run(host='0.0.0.0', port=port, threaded = True)
-

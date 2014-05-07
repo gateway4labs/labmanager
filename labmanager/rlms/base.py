@@ -70,6 +70,7 @@ The RLMS may also need to access the RLMS.
 
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
+assert Blueprint or None # Avoid pyflakes warning
 
 # 
 # This is the list of versions. The BaseRLMS has a method
@@ -80,7 +81,6 @@ from flask import Blueprint
 #
 class Versions(object):
     VERSION_1 = "version1"
-
 
 class Capabilities(object):
     """ 
@@ -103,7 +103,6 @@ class Capabilities(object):
     that the UI is splitted. This is useful for its inclusion in 
     widgets (e.g., in the Graasp OpenSocial widgets).
     """
-
 
 class BaseRLMS(object):
     """
@@ -275,7 +274,6 @@ _BLUEPRINTS = {
 
 def register_blueprint(blueprint, url):
     if url in _BLUEPRINTS:
-        raise Exception("Attempt to register %r for url %r, but %r was already registered for that URL" % (_BLUEPRINTS[blueprint], url, blueprint))
+        raise Exception("Attempt to register %(blueprints)r for url %(url)r, but %(blueprint)r was already registered for that URL" % dict(blueprints=_BLUEPRINTS[blueprint], url=url, blueprint=blueprint))
 
     _BLUEPRINTS[url] = blueprint
-

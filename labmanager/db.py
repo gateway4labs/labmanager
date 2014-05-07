@@ -13,9 +13,6 @@ from alembic.script import ScriptDirectory
 from alembic.migration import MigrationContext
 from alembic.config import Config
 from alembic import command
-
-
-
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,7 +35,6 @@ alembic_config.set_main_option("script_location", os.path.abspath('alembic'))
 alembic_config.set_main_option("url", SQLALCHEMY_ENGINE_STR)
 alembic_config.set_main_option("sqlalchemy.url", SQLALCHEMY_ENGINE_STR)
 
-
 def init_db(drop = False):
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
@@ -48,7 +44,6 @@ def init_db(drop = False):
     if drop:
         print "Droping Database"
         Base.metadata.drop_all(bind=engine)
-
         meta = MetaData(engine)
         meta.reflect()
         if 'alembic_version' in meta.tables:

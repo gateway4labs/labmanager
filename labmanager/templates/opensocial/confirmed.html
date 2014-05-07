@@ -23,10 +23,10 @@
     </script>
 </head>
 <body onload="init();">
+{{gettext('Confirmed. Reservation id:')}} {{ reservation_id }}. 
 <div id="error_message" style="display: none; color: red; font-weight: bold">
     <p>There was an error when reporting the the rest of the widgets the reservation identifier.</p>
     <p>The laboratory will not work. This usually means that {{ shindig_url }} is not the valid URL (check http vs https).</p>
 </div>
-Confirmed. Reservation id: {{ reservation_id }}. 
 </body>
 </html>

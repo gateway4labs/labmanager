@@ -25,12 +25,10 @@ def labmanager_lt_login(testcase, from_scratch = False):
 
 from labmanager.tests.integration.admin import labmanager_admin_create_lt
 
-
 class LmsIntegrationTestCase(IntegrationTestCase, unittest.TestCase):
     def test_login_lt(self):
         labmanager_admin_create_lt(self)
         labmanager_lt_login(self)
-
 
 if __name__ == '__main__':
     unittest.main()

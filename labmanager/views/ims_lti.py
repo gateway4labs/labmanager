@@ -13,11 +13,10 @@
 
 from time import time
 from ims_lti_py import ToolProvider
-
 from flask import request, Blueprint, session, Response, render_template, redirect
-
 from labmanager.models import PermissionToLtUser
 from labmanager.rlms import get_manager_class
+from labmanager.babel import gettext
 
 lti_blueprint = Blueprint('lti', __name__)
 
@@ -26,15 +25,12 @@ def verify_credentials():
     if 'oauth_consumer_key' in request.form:
         consumer_key = request.form['oauth_consumer_key']
         permission_to_lt_user = PermissionToLtUser.find(key = consumer_key)
-
         # TODO: check for nonce
         # TODO: check for old requests
-
         if permission_to_lt_user is None:
-            response = Response(render_template('lti/errors.html', message = "Invalid consumer key. Please check it again."))
+            response = Response(render_template('lti/errors.html', message = gettext("Invalid consumer key. Please check it again.")))
             # response.status_code = 412
             return response
-
         secret = permission_to_lt_user.secret
         # The original dict is in unicode, which does not work with ToolProvider
         USE_UNICODE = False
@@ -45,32 +41,27 @@ def verify_credentials():
             for key, value in request.form.to_dict().iteritems():
                 data_dict[key.encode('utf8')] = value.encode('utf8')
         tool_provider = ToolProvider(consumer_key, secret, data_dict)
-
         try:
             return_value = tool_provider.valid_request(request)
         except:
-            response = Response(render_template('lti/errors.html', message = "Invalid secret: could not validate request."))
+            response = Response(render_template('lti/errors.html', message = gettext("Invalid secret: could not validate request.")))
             # response.status_code = 403
             return response
         else:
             if return_value == False:
-                response = Response(render_template('lti/errors.html', message = "Request checked and failed. Please check that the 'secret' is correct."))
+                response = Response(render_template('lti/errors.html', message = gettext("Request checked and failed. Please check that the 'secret' is correct.")))
                 # response.status_code = 403
                 return response
-
         session['author_identifier']  = request.form['user_id']
         session['consumer'] = consumer_key
         session['last_request'] = time()
-
         return
-
     elif 'consumer' in session:
         if float(session['last_request']) - time() < 60 * 60 * 5: # Five Hours
             session['last_request'] = time()
             return
-
     else:
-        response = Response(render_template('lti/errors.html', message = "Session not initialized. Are you a LMS?"))
+        response = Response(render_template('lti/errors.html', message = gettext("Session not initialized. Are you a LMS?")))
         # response.status_code = 403
         return response
 
@@ -93,21 +84,17 @@ def start_ims():
 
     laboratory       = permission_to_lt_user.permission_to_lt.laboratory
     local_identifier = permission_to_lt_user.permission_to_lt.local_identifier
-
     return render_template('lti/display_lab.html', laboratory = laboratory, local_identifier = local_identifier)
 
 @lti_blueprint.route("/experiment/", methods = ['GET', 'POST'])
 def launch_experiment():
     consumer_key = session.get('consumer')
     if consumer_key is None:
-        return "consumer key not found"
-
+        return gettext("consumer key not found")
     permission_to_lt_user = PermissionToLtUser.find(key = consumer_key)
     if permission_to_lt_user is None:
-        return "permission not found"
-
+        return gettext("permission not found")
     p_to_lt = permission_to_lt_user.permission_to_lt
-
     courses_configurations = [] # No such concept in the LTI version
     request_payload = {} # This could be populated in the HTML. Pending.
     lt_configuration = p_to_lt.configuration
@@ -115,7 +102,6 @@ def launch_experiment():
     db_rlms           = db_laboratory.rlms
     author            = session.get('author_identifier', '(not in session)')
     referer           = request.referrer
-
     ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
 
@@ -132,4 +118,3 @@ def launch_experiment():
                                         })
     load_url = response['load_url']
     return redirect(load_url)
-

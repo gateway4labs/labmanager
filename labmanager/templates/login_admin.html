@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <title>LabManager login</title>
+    <title>{{gettext('LabManager login')}}</title>
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css") }}" rel="stylesheet">
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css") }}" rel="stylesheet">
     <script src="{{ url_for('static', filename="bootstrap/js/bootstrap.js") }}"></script>
@@ -53,20 +53,20 @@
           <div class="login-form">
             <form action="{{url_for('login_admin', next=next)}}" method="POST" class="form-horizontal">
                 <div id="legend">
-                      <legend class="">LabManager Login</legend>
+                      <legend class="">{{gettext('LabManager Login')}}</legend>
                 </div>
 
                 <div class="control-group">        
-                    <label class="control-label" for="username"> Username </label>
+                    <label class="control-label" for="username"> {{gettext('Username')}} </label>
                     <div class="controls">
-                        <input type="text" name="username" placeholder="Username" id="username">
+                        <input type="text" name="username" placeholder="{{gettext('Username')}}" id="username">
                     </div>
                 </div>
 
                 <div class="control-group">        
-                    <label class="control-label" for="password"> Password </label>
+                    <label class="control-label" for="password"> {{gettext('Password')}} </label>
                     <div class="controls">
-                        <input type="password" name="password" placeholder="Password" id="password">
+                        <input type="password" name="password" placeholder="{{gettext('Password')}}" id="password">
                     </div>
                 </div>
 
@@ -82,10 +82,10 @@
 
                 <div class="control-group">        
                     <div class="controls">
-                        <button type="submit" class="btn btn-success">Log in</button>
+                        <button type="submit" class="btn btn-success">{{gettext('Log in')}}</button>
                     </div>
                 </div>
-                <a href="{{ url_for('index') }}" class="btn">Back</a>
+                <a href="{{ url_for('index') }}" class="btn">{{gettext('Back')}}</a>
           </form>
           </div>
          </div>

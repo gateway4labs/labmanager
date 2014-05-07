@@ -1,12 +1,12 @@
 {% extends 'admin/master.html' %}
 {% block body %}
-<h1>Graasp Instructor Dashboard</h1>
+<h1>{{gettext('Graasp Instructor Dashboard')}}</h1>
 
 <div class="row">
     <div class="span8">
-        <p>Hi {{ current_user.full_name }} (of {{ current_user.lt.name }})!</p>
+        <p>{{gettext('Hi')}} {{ current_user.full_name }} ({{gettext('of')}} {{ current_user.lt.name }})!</p>
 
-        <p>This is the Graasp instructor tool. Here you can see which permissions you have in which laboratories.</p>
+        <p>{{gettext('This is the Graasp instructor tool. Here you can see which permissions you have in which laboratories.')}}</p>
     </div>
 </div>
 
