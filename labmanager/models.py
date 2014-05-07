@@ -274,7 +274,7 @@ class LtUser(Base, SBBase, UserMixin):
         self.access_level = access_level
 
     def __unicode__(self):
-        return "%(lmslogin)s@%(lmsname)s" % dict(lmslogin=self.login, lmsname=self.lt.name)
+        return u"%(lmslogin)s@%(lmsname)s" % dict(lmslogin=self.login, lmsname=self.lt.name)
     
     def get_id(self):
         return u"lt_user::%s::%s" %  (self.lt.name, self.login)
