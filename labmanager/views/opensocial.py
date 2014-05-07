@@ -81,6 +81,11 @@ def smartgateway(institution_id, lab_name):
 def public_smartgateway(lab_name):
     return render_template("opensocial/smartgateway.js", public = True, lab_name = lab_name)
 
+@opensocial_blueprint.route("/reload")
+def reload():
+    return render_template("opensocial/reload.html")
+
+
 @opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/")
 def reserve(institution_id, lab_name):
     return _reserve_impl(lab_name, False, institution_id)
@@ -179,7 +184,8 @@ def _reserve_impl(lab_name, public, institution_id):
                                                     'user_agent' : user_agent,
                                                     'from_ip'    : origin_ip,
                                                     'referer'    : referer
-                                                })
+                                                },
+                                                back = url_for('.reload', _external = True))
     return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
@@ -208,7 +214,7 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
     reservation_id = request.args.get('reservation_id') or 'reservation-id-not-found'
-    response = remote_laboratory.load_widget(reservation_id, widget_name)
+    response = remote_laboratory.load_widget(reservation_id, widget_name, back = url_for('.reload', _external = True))
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
     

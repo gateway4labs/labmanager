@@ -111,6 +111,10 @@ function SmartGateway(container) {
 
             me._onUpdateBgColor(envelope, message);
 
+        } else if (message["labmanager-msg"] == 'labmanager::reload') {
+
+            location.reload();
+
         }
         return true;
     }
@@ -223,6 +227,16 @@ function SmartGateway(container) {
                 
             me._reservation_id = reservation_id;
             me._loadCallback(reservation_id);
+        } else if((e.origin == 'http://{{ request.host }}' || e.origin == 'https://{{ request.host }}') && new String(e.data).indexOf("reload::") == 0) {
+            gadgets.openapp.publish({
+                event: "select",
+                type: "json",
+                message: {
+                    'srclabid'                   : _mylabid,
+                    'labmanager-msg'             : 'labmanager::reload',
+                }
+            });
+            location.reload();
         }
     }
 
