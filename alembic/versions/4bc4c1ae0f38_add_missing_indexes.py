@@ -1,14 +1,14 @@
 """Add missing indexes
 
 Revision ID: 4bc4c1ae0f38
-Revises: 2003c675a267
+Revises: 105c1c44ff70
 Create Date: 2014-04-29 21:28:23.149125
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '4bc4c1ae0f38'
-down_revision = '2003c675a267'
+down_revision = '105c1c44ff70'
 
 from alembic import op
 import sqlalchemy as sa
