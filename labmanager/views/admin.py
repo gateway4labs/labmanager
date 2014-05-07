@@ -511,9 +511,7 @@ class LaboratoryPanel(L4lModelView):
                     return redirect(url_for('.index_view'))
             lab.publicly_available = not activate
             lab.public_identifier = request.form['public_identifier']
-            print "testing..."
             if lab.publicly_available and len(lab.public_identifier) == 0:
-                print "shait..."
                 flash(gettext("Invalid public identifier (empty)"))
             else:
                 self.session.add(lab)
