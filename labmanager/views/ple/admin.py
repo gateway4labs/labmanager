@@ -134,7 +134,7 @@ def local_id_formatter(v, c, laboratory, p):
     return gettext('N/A')
 
 def list_widgets_formatter(v, c, laboratory, p):
-    return Markup('<a href="%s">list</a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+    return Markup('<a href="%s">%s</a>' % (url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)), gettext("list")))
 
 def accessibility_formatter(v, c, lab, p):
     mylt = current_user.lt
@@ -143,12 +143,12 @@ def accessibility_formatter(v, c, lab, p):
         return gettext(u"Invalid permission")
     if permission.accessible:
         currently = gettext('This lab IS accesible')
-        labaccessible = gettext('false')
+        labaccessible = 'false'
         klass = 'btn-danger'
         msg = gettext('Make not accessible')
     else:
         currently = gettext(u'This lab is NOT accesible')
-        labaccessible = gettext('true')
+        labaccessible = 'true'
         klass = 'btn-success'
         msg = gettext('Make accessible')
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
@@ -231,7 +231,7 @@ class PleInstructorLaboratoriesPanel(L4lPleModelView):
                                     local_identifier = lazy_gettext('local_identifier'),
                                     widgets = lazy_gettext('widgets'),
                                     accessible = lazy_gettext('accesible'))
-    column_descriptions = dict( accessible = gettext("Make this laboratory automatically accessible by any Graasp space belonging to the institution represented by this Learning Tool"))
+    column_descriptions = dict( accessible = lazy_gettext("Make this laboratory automatically accessible by any Graasp space belonging to the institution represented by this Learning Tool"))
 
     def __init__(self, session, **kwargs):
         super(PleInstructorLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -330,7 +330,7 @@ def format_space_url(v, c, space, p):
     # shindig_space_url = '%s/rest/spaces/%s' % (shindig_url, space.context_id)
     # contents = urllib2.urlopen(shindig_space_url).read()
     # return json.loads(contents)['urls'][0]['value']
-    return Markup('<a target="_blank" href="https://graasp.epfl.ch/#item=space_%s">link</a>' % space.context_id)
+    return Markup('<a target="_blank" href="https://graasp.epfl.ch/#item=space_%s">%s</a>' % (space.context_id, gettext('link')))
 
 class PleSpacesPanel(L4lPleModelView):
 
@@ -457,6 +457,7 @@ class PlePermissionToSpacePanel(L4lPleModelView):
     column_labels = dict(
         permission_to_lt = lazy_gettext('Permission'),
         course = lazy_gettext('Space'),
+        configuration = lazy_gettext('Configuration'),
     )
 
     def __init__(self, session, **kwargs):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-05-07 16:00+0200\n"
+"POT-Creation-Date: 2014-05-07 16:21+0200\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -71,8 +71,7 @@ msgstr "Contraseña"
 msgid "Identifier"
 msgstr "Identificador"
 
-#: labmanager/forms.py:69 labmanager/forms.py:103 labmanager/forms.py:115
-#: labmanager/forms.py:127
+#: labmanager/forms.py:69 labmanager/forms.py:109
 #, fuzzy, python-format
 msgid "Invalid characters found: %(char)s"
 msgstr "Se ha encontrado un carácter no válido: %(char)s"
@@ -93,11 +92,11 @@ msgstr "La contraseña debe tener al menos 8 caracteres de longitud"
 msgid "Oficial name must be between 4 and 50 characters long"
 msgstr "El nombre oficial debe tener entre 4 y 50 caracteres de longitud"
 
-#: labmanager/forms.py:109
+#: labmanager/forms.py:103
 msgid "Short name must be between 4 and 15 characters long"
 msgstr "El nombre corto debe tener entre 4 y 15 caracteres de longitud"
 
-#: labmanager/forms.py:121
+#: labmanager/forms.py:115
 msgid "Oficial name must be between 4 and 15 characters long"
 msgstr "El nombre oficial debe tener entre 4 y 15 caracteres de longitud"
 
@@ -977,7 +976,7 @@ msgid "Registered labs"
 msgstr "Laboratorios registrados"
 
 #: labmanager/views/admin.py:580 labmanager/views/lms/admin.py:386
-#: labmanager/views/lms/admin.py:387 labmanager/views/ple/admin.py:489
+#: labmanager/views/lms/admin.py:387 labmanager/views/ple/admin.py:490
 msgid "Users"
 msgstr "Usuarios"
 
@@ -986,7 +985,7 @@ msgid "Labmanager Users"
 msgstr "Usuarios del gestor de laboratorios"
 
 #: labmanager/views/admin.py:581 labmanager/views/lms/admin.py:389
-#: labmanager/views/lms/instructor.py:86 labmanager/views/ple/admin.py:490
+#: labmanager/views/lms/instructor.py:86 labmanager/views/ple/admin.py:491
 #: labmanager/views/ple/instructor.py:156
 msgid "Log out"
 msgstr "Finalizar la sesión"
@@ -1201,7 +1200,7 @@ msgstr "Su contraseña de acceso"
 msgid "This name is already taken"
 msgstr "Este nombre ya ha sido registrado"
 
-#: labmanager/views/public.py:36
+#: labmanager/views/public.py:36 labmanager/views/ple/admin.py:137
 msgid "list"
 msgstr "lista"
 
@@ -1295,7 +1294,7 @@ msgstr ""
 msgid "Invalid action found (add or delete expected)"
 msgstr "La acción requerida no es válida (se espera añadir o eliminar)"
 
-#: labmanager/views/lms/admin.py:353
+#: labmanager/views/lms/admin.py:353 labmanager/views/ple/admin.py:460
 msgid "Configuration"
 msgstr "Configuración"
 
@@ -1316,7 +1315,7 @@ msgid "Discover"
 msgstr "Buscar"
 
 #: labmanager/views/lms/admin.py:385 labmanager/views/lms/admin.py:388
-#: labmanager/views/lms/instructor.py:85 labmanager/views/ple/admin.py:488
+#: labmanager/views/lms/instructor.py:85 labmanager/views/ple/admin.py:489
 #: labmanager/views/ple/instructor.py:155
 msgid "Permissions"
 msgstr "Permisos"
@@ -1341,10 +1340,6 @@ msgstr "El permiso no es válido"
 msgid "This lab IS accesible"
 msgstr "El laboratorio está accesible"
 
-#: labmanager/views/ple/admin.py:146 labmanager/views/ple/admin.py:184
-msgid "false"
-msgstr "falso"
-
 #: labmanager/views/ple/admin.py:148
 msgid "Make not accessible"
 msgstr "Marcar como inaccesible"
@@ -1352,10 +1347,6 @@ msgstr "Marcar como inaccesible"
 #: labmanager/views/ple/admin.py:150
 msgid "This lab is NOT accesible"
 msgstr "Este laboratorio no es accesible"
-
-#: labmanager/views/ple/admin.py:151 labmanager/views/ple/admin.py:177
-msgid "true"
-msgstr "verdadero"
 
 #: labmanager/views/ple/admin.py:153
 msgid "Make accessible"
@@ -1365,6 +1356,10 @@ msgstr "Marcar como accesible"
 msgid "Available for request"
 msgstr "Disponible para realizar una solicitud"
 
+#: labmanager/views/ple/admin.py:177
+msgid "true"
+msgstr "verdadero"
+
 #: labmanager/views/ple/admin.py:179
 msgid "Request laboratory"
 msgstr "Solicitud de laboratorio"
@@ -1372,6 +1367,10 @@ msgstr "Solicitud de laboratorio"
 #: labmanager/views/ple/admin.py:183
 msgid "Ready to use"
 msgstr "Preparado para ser utilizado"
+
+#: labmanager/views/ple/admin.py:184
+msgid "false"
+msgstr "falso"
 
 #: labmanager/views/ple/admin.py:186
 msgid "Delete laboratory"
@@ -1402,6 +1401,10 @@ msgstr ""
 #, fuzzy
 msgid "request_access"
 msgstr "solicitud de acceso "
+
+#: labmanager/views/ple/admin.py:333
+msgid "link"
+msgstr "enlace"
 
 #: labmanager/views/ple/admin.py:343
 msgid "context_id"
@@ -1445,21 +1448,21 @@ msgstr "Permiso"
 msgid "Space"
 msgstr "Espacios"
 
-#: labmanager/views/ple/admin.py:483
+#: labmanager/views/ple/admin.py:484
 msgid "PLE admin"
 msgstr "Administrador del PLE"
 
-#: labmanager/views/ple/admin.py:484
+#: labmanager/views/ple/admin.py:485
 msgid "Available labs"
 msgstr "Laboratorios disponibles"
 
-#: labmanager/views/ple/admin.py:485 labmanager/views/ple/admin.py:487
+#: labmanager/views/ple/admin.py:486 labmanager/views/ple/admin.py:488
 #: labmanager/views/ple/instructor.py:152
 #: labmanager/views/ple/instructor.py:154
 msgid "Spaces"
 msgstr "Espacios"
 
-#: labmanager/views/ple/admin.py:486 labmanager/views/ple/instructor.py:153
+#: labmanager/views/ple/admin.py:487 labmanager/views/ple/instructor.py:153
 msgid "New"
 msgstr "Nuevo"
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gateway4labs VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-05-07 16:00+0200\n"
+"POT-Creation-Date: 2014-05-07 16:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,8 +71,7 @@ msgstr ""
 msgid "Identifier"
 msgstr ""
 
-#: labmanager/forms.py:69 labmanager/forms.py:103 labmanager/forms.py:115
-#: labmanager/forms.py:127
+#: labmanager/forms.py:69 labmanager/forms.py:109
 #, python-format
 msgid "Invalid characters found: %(char)s"
 msgstr ""
@@ -93,11 +92,11 @@ msgstr ""
 msgid "Oficial name must be between 4 and 50 characters long"
 msgstr ""
 
-#: labmanager/forms.py:109
+#: labmanager/forms.py:103
 msgid "Short name must be between 4 and 15 characters long"
 msgstr ""
 
-#: labmanager/forms.py:121
+#: labmanager/forms.py:115
 msgid "Oficial name must be between 4 and 15 characters long"
 msgstr ""
 
@@ -917,7 +916,7 @@ msgid "Registered labs"
 msgstr ""
 
 #: labmanager/views/admin.py:580 labmanager/views/lms/admin.py:386
-#: labmanager/views/lms/admin.py:387 labmanager/views/ple/admin.py:489
+#: labmanager/views/lms/admin.py:387 labmanager/views/ple/admin.py:490
 msgid "Users"
 msgstr ""
 
@@ -926,7 +925,7 @@ msgid "Labmanager Users"
 msgstr ""
 
 #: labmanager/views/admin.py:581 labmanager/views/lms/admin.py:389
-#: labmanager/views/lms/instructor.py:86 labmanager/views/ple/admin.py:490
+#: labmanager/views/lms/instructor.py:86 labmanager/views/ple/admin.py:491
 #: labmanager/views/ple/instructor.py:156
 msgid "Log out"
 msgstr ""
@@ -1131,7 +1130,7 @@ msgstr ""
 msgid "This name is already taken"
 msgstr ""
 
-#: labmanager/views/public.py:36
+#: labmanager/views/public.py:36 labmanager/views/ple/admin.py:137
 msgid "list"
 msgstr ""
 
@@ -1217,7 +1216,7 @@ msgstr ""
 msgid "Invalid action found (add or delete expected)"
 msgstr ""
 
-#: labmanager/views/lms/admin.py:353
+#: labmanager/views/lms/admin.py:353 labmanager/views/ple/admin.py:460
 msgid "Configuration"
 msgstr ""
 
@@ -1238,7 +1237,7 @@ msgid "Discover"
 msgstr ""
 
 #: labmanager/views/lms/admin.py:385 labmanager/views/lms/admin.py:388
-#: labmanager/views/lms/instructor.py:85 labmanager/views/ple/admin.py:488
+#: labmanager/views/lms/instructor.py:85 labmanager/views/ple/admin.py:489
 #: labmanager/views/ple/instructor.py:155
 msgid "Permissions"
 msgstr ""
@@ -1263,20 +1262,12 @@ msgstr ""
 msgid "This lab IS accesible"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:146 labmanager/views/ple/admin.py:184
-msgid "false"
-msgstr ""
-
 #: labmanager/views/ple/admin.py:148
 msgid "Make not accessible"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:150
 msgid "This lab is NOT accesible"
-msgstr ""
-
-#: labmanager/views/ple/admin.py:151 labmanager/views/ple/admin.py:177
-msgid "true"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:153
@@ -1287,12 +1278,20 @@ msgstr ""
 msgid "Available for request"
 msgstr ""
 
+#: labmanager/views/ple/admin.py:177
+msgid "true"
+msgstr ""
+
 #: labmanager/views/ple/admin.py:179
 msgid "Request laboratory"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:183
 msgid "Ready to use"
+msgstr ""
+
+#: labmanager/views/ple/admin.py:184
+msgid "false"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:186
@@ -1319,6 +1318,10 @@ msgstr ""
 
 #: labmanager/views/ple/admin.py:278
 msgid "request_access"
+msgstr ""
+
+#: labmanager/views/ple/admin.py:333
+msgid "link"
 msgstr ""
 
 #: labmanager/views/ple/admin.py:343
@@ -1361,21 +1364,21 @@ msgstr ""
 msgid "Space"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:483
+#: labmanager/views/ple/admin.py:484
 msgid "PLE admin"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:484
+#: labmanager/views/ple/admin.py:485
 msgid "Available labs"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:485 labmanager/views/ple/admin.py:487
+#: labmanager/views/ple/admin.py:486 labmanager/views/ple/admin.py:488
 #: labmanager/views/ple/instructor.py:152
 #: labmanager/views/ple/instructor.py:154
 msgid "Spaces"
 msgstr ""
 
-#: labmanager/views/ple/admin.py:486 labmanager/views/ple/instructor.py:153
+#: labmanager/views/ple/admin.py:487 labmanager/views/ple/instructor.py:153
 msgid "New"
 msgstr ""
 

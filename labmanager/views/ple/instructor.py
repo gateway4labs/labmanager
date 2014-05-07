@@ -85,7 +85,7 @@ def local_id_formatter(v, c, laboratory, p):
     return gettext('N/A')
 
 def list_widgets_formatter(v, c, laboratory, p):
-    return Markup('<a href="%s"> list </a>' % url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)))
+    return Markup('<a href="%s"> %s </a>' % (url_for('.list_widgets', local_identifier = local_id_formatter(v, c, laboratory, p)), gettext("list")))
 
 class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
 
