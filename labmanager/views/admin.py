@@ -169,6 +169,7 @@ class LabRequestsPanel(L4lModelView):
     # 
     # TODO: manage configuration
     # 
+    can_create = can_delete = can_edit = False
     column_list = ['laboratory', 'local_identifier', 'lt', 'accept', 'reject']
     column_labels = dict(laboratory=lazy_gettext('laboratory'), local_identifier=lazy_gettext('local_identifier'), lt=lazy_gettext('lt'), accept=lazy_gettext('accept'), reject=lazy_gettext('reject'))
     column_formatters = dict( accept = accept_formatter, reject  = reject_formatter )
@@ -283,17 +284,16 @@ class RLMSPanel(L4lModelView):
     form_columns = ('kind', 'location', 'url')
     form_overrides = dict(kind=DynamicSelectField)
     # For listing 
-    # column_list  = [lazy_gettext('kind'), lazy_gettext('version'), lazy_gettext('location'), lazy_gettext('url'), lazy_gettext('labs')]
     column_list  = ['kind', 'version', 'location', 'url', 'labs']
     column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
     column_exclude_list = ('version','configuration')
     column_descriptions = {
-        'location' : 'City and country where the RLMS is hosted',
-        'url'      : 'Main URL of the RLMS',
+        'location' : lazy_gettext('City and country where the RLMS is hosted'),
+        'url'      : lazy_gettext('Main URL of the RLMS'),
     }
 
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), list))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list")))
         )
 
     def __init__(self, session, **kwargs):

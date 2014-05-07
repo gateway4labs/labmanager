@@ -174,14 +174,14 @@ def request_formatter(v, c, lab, p):
     if not request:
         if not permission:
             currently = gettext(u'Available for request')
-            lab_request = gettext(u'true')
+            lab_request = 'true'
             klass = 'btn-success'
             msg = gettext(u'Request laboratory')
             permission_to_lt_id = ''
             lab_id = lab.id
         else:
             currently = gettext(u'Ready to use')
-            lab_request = gettext(u'false')
+            lab_request = 'false'
             klass = 'btn-danger'
             msg = gettext(u'Delete laboratory')
             permission_to_lt_id = permission.id
@@ -277,7 +277,7 @@ class PleInstructorRequestLaboratoriesPanel(L4lPleModelView):
     column_list = ['rlms', 'name', 'laboratory_id', 'request_access']
     column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), request_access=lazy_gettext('request_access'))
     column_formatters = dict(request_access = request_formatter)
-    column_descriptions = dict( request_access = "Request access to a lab. The Labmanager admin must accept or deny your request.")
+    column_descriptions = dict( request_access = lazy_gettext("Request access to a lab. The Labmanager admin must accept or deny your request."))
    
     def __init__(self, session, **kwargs):
         super(PleInstructorRequestLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -481,14 +481,19 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 # 
 def init_ple_admin(app, db_session):
     ple_admin_url = '/ple_admin'
+    i18n_labs = lazy_gettext(u'Labs')
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = lazy_gettext(u'PLE admin'), url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
+    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = i18n_labs, name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
+    ple_admin.add_view(PleInstructorRequestLaboratoriesPanel( db_session, category = i18n_labs, name = lazy_gettext(u"Request new labs"), endpoint = 'ple_admin_request_labs', url = 'labs/request'))
+
     i18n_spaces = lazy_gettext(u'Spaces')
     ple_admin.add_view(PleNewSpacesPanel(db_session,             category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
     ple_admin.add_view(PleSpacesPanel(db_session,                   category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_admin_courses', url = 'spaces'))
     ple_admin.add_view(PlePermissionToSpacePanel(db_session,  category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
+
     ple_admin.add_view(PleUsersPanel(db_session,      name = lazy_gettext(u'Users'), endpoint = 'ple_admin_users', url = 'users'))
     ple_admin.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
+
     # Uncomment for debugging purposes
     # app.config['TRAP_BAD_REQUEST_ERRORS'] = True
