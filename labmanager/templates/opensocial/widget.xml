@@ -29,6 +29,13 @@
     }
 
     function init() {
+        var prefs = new gadgets.Prefs();
+        var localeString = "";
+        if (prefs.getLang() != undefined && prefs.getLang() != null && prefs.getCountry() != undefined && prefs.getCountry() != null) {
+            if (prefs.getLang().length > 0 && prefs.getCountry().length > 0) {
+                localeString = "&locale=" + prefs.getLang() + "_" + prefs.getCountry();
+            }
+        }
         // Create SmartGateway
         trace("Initializing SmartGateway...");
         sg = new SmartGateway($('#container'));
@@ -37,9 +44,9 @@
         sg.registerOnLoad( function(reservationId) {
             
             {% if public %}
-            var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId;
+            var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + localeString;
             {% else %}
-            var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId;
+            var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + localeString;
             {% endif %}
 
             $("#container").html("");

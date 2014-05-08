@@ -173,7 +173,12 @@ def _reserve_impl(lab_name, public, institution_id):
     # Load the plug-in for the current RLMS, and instanciate it
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
-  
+
+    locale = request.args.get('locale') or None
+    kwargs = {}
+    if locale:
+        kwargs['locale'] = locale
+
     response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
                                                 institution               = institution_name,
@@ -185,7 +190,8 @@ def _reserve_impl(lab_name, public, institution_id):
                                                     'from_ip'    : origin_ip,
                                                     'referer'    : referer
                                                 },
-                                                back = url_for('.reload', _external = True))
+                                                back = url_for('.reload', _external = True),
+                                                **kwargs)
     return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
