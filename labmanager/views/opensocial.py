@@ -220,7 +220,11 @@ def _open_widget_impl(lab_name, widget_name, public, institution_id):
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
     reservation_id = request.args.get('reservation_id') or 'reservation-id-not-found'
-    response = remote_laboratory.load_widget(reservation_id, widget_name, back = url_for('.reload', _external = True))
+    locale = request.args.get('locale') or None
+    kwargs = {}
+    if locale:
+        kwargs['locale'] = locale
+    response = remote_laboratory.load_widget(reservation_id, widget_name, back = url_for('.reload', _external = True), **kwargs)
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
     
