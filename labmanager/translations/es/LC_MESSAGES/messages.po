@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: labmanager VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-05-07 16:52+0200\n"
+"POT-Creation-Date: 2014-05-16 14:47+0200\n"
 "PO-Revision-Date: 2013-10-22 10:12+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -46,12 +46,12 @@ msgid "Labmanager password"
 msgstr "Contraseña del gestor de laboratorios"
 
 #: labmanager/forms.py:38 labmanager/forms.py:42 labmanager/forms.py:55
-#: labmanager/views/admin.py:91 labmanager/views/admin.py:122
+#: labmanager/views/admin.py:94 labmanager/views/admin.py:125
 #: labmanager/views/lms/admin.py:106
 msgid "This field is required."
 msgstr "Es obligatorio introducir un valor en este campo"
 
-#: labmanager/forms.py:46 labmanager/views/opensocial.py:226
+#: labmanager/forms.py:46 labmanager/views/opensocial.py:236
 #: labmanager/views/lms/admin.py:81
 msgid "Login"
 msgstr "Usuario"
@@ -61,17 +61,17 @@ msgstr "Usuario"
 #: labmanager/templates/login_lms.html:84
 #: labmanager/templates/login_lms.html:86
 #: labmanager/templates/login_ple.html:84
-#: labmanager/templates/login_ple.html:86 labmanager/views/opensocial.py:227
+#: labmanager/templates/login_ple.html:86 labmanager/views/opensocial.py:237
 #: labmanager/views/lms/admin.py:84
 msgid "Password"
 msgstr "Contraseña"
 
-#: labmanager/forms.py:62 labmanager/forms.py:93
+#: labmanager/forms.py:62 labmanager/forms.py:92
 #: labmanager/templates/labmanager_admin/lab-list.html:12
 msgid "Identifier"
 msgstr "Identificador"
 
-#: labmanager/forms.py:69 labmanager/forms.py:109
+#: labmanager/forms.py:69 labmanager/forms.py:108
 #, fuzzy, python-format
 msgid "Invalid characters found: %(char)s"
 msgstr "Se ha encontrado un carácter no válido: %(char)s"
@@ -80,62 +80,62 @@ msgstr "Se ha encontrado un carácter no válido: %(char)s"
 msgid "login lenght must be at least 5 characters long"
 msgstr "El nombre de usuario debe tener al menos 5 caracteres"
 
-#: labmanager/forms.py:82
+#: labmanager/forms.py:81
 msgid "Passwords can not contain a space"
 msgstr "Las contraseñas no pueden contener espacios en blanco"
 
-#: labmanager/forms.py:84
+#: labmanager/forms.py:83
 msgid "password lenght must be at least 8 characters long"
 msgstr "La contraseña debe tener al menos 8 caracteres de longitud"
 
-#: labmanager/forms.py:97
+#: labmanager/forms.py:96
 msgid "Oficial name must be between 4 and 50 characters long"
 msgstr "El nombre oficial debe tener entre 4 y 50 caracteres de longitud"
 
-#: labmanager/forms.py:103
+#: labmanager/forms.py:102
 msgid "Short name must be between 4 and 15 characters long"
 msgstr "El nombre corto debe tener entre 4 y 15 caracteres de longitud"
 
-#: labmanager/forms.py:115
+#: labmanager/forms.py:114
 msgid "Oficial name must be between 4 and 15 characters long"
 msgstr "El nombre oficial debe tener entre 4 y 15 caracteres de longitud"
 
-#: labmanager/models.py:110
+#: labmanager/models.py:123
 #, python-format
 msgid "%(kind)s on %(location)s"
 msgstr "%(kind)s en %(location)s"
 
-#: labmanager/models.py:142
+#: labmanager/models.py:186
 #, python-format
 msgid "%(name)s at %(rlms)s"
 msgstr "%(name)s en %(rlms)s"
 
-#: labmanager/models.py:207
+#: labmanager/models.py:251
 #, python-format
 msgid "Basic HTTP auth for %(name)s"
 msgstr "Autorización HTTP básica para %(name)s"
 
-#: labmanager/models.py:239
+#: labmanager/models.py:283
 #, python-format
 msgid "ShindigCredentials for %(lmsname)s"
 msgstr "Credenciales de Shindig para %(lmsname)s"
 
-#: labmanager/models.py:312
+#: labmanager/models.py:356
 #, python-format
 msgid "%(coursename)s on %(courselms)s"
 msgstr "%(coursename)s en %(courselms)s"
 
-#: labmanager/models.py:354
+#: labmanager/models.py:398
 #, python-format
 msgid "%(identifier)s: lab %(labname)s to %(lmsname)s"
 msgstr "%(identifier)s: laboratorio %(labname)s en %(lmsname)s"
 
-#: labmanager/models.py:410
+#: labmanager/models.py:454
 #, python-format
 msgid "%(coursename)s from %(lmsname)s on %(permission)s"
 msgstr "%(coursename)s de %(lmsname)s en %(permission)s"
 
-#: labmanager/models.py:440
+#: labmanager/models.py:484
 #, python-format
 msgid "'%(localidentifier)s': lab %(labname)s to %(ltname)s"
 msgstr "'%(localidentifier)s': laboratorio %(labname)s en %(ltname)s"
@@ -423,6 +423,7 @@ msgid "Available labs for "
 msgstr "Laboratorios disponibles para "
 
 #: labmanager/templates/labmanager_admin/lab-list.html:3
+#: labmanager/templates/labmanager_admin/rlms_properties_list.html:3
 msgid "at"
 msgstr "en"
 
@@ -441,6 +442,28 @@ msgstr "Eliminar el registro"
 #: labmanager/templates/labmanager_admin/lab-list.html:40
 msgid "No laboratory found"
 msgstr "No se ha encontrado el laboratorio"
+
+#: labmanager/templates/labmanager_admin/rlms_properties_list.html:3
+msgid "Properties for"
+msgstr "Propiedades de"
+
+#: labmanager/templates/labmanager_admin/rlms_properties_list.html:11
+#: labmanager/templates/lti/display_lab.html:20
+msgid "Property"
+msgstr "Propiedad"
+
+#: labmanager/templates/labmanager_admin/rlms_properties_list.html:12
+#: labmanager/templates/lti/display_lab.html:21
+msgid "Value"
+msgstr "Valor"
+
+#: labmanager/templates/labmanager_admin/rlms_properties_list.html:28
+msgid "Save and return"
+msgstr "Guardar y volver"
+
+#: labmanager/templates/labmanager_admin/rlms_properties_list.html:30
+msgid "Return"
+msgstr "Volver"
 
 #: labmanager/templates/lms_admin/discover-errors.html:3
 #: labmanager/templates/lms_admin/discover.html:3
@@ -520,7 +543,7 @@ msgstr ""
 
 #: labmanager/templates/lti/display_lab.html:5
 #: labmanager/templates/lti/errors.html:5
-#: labmanager/templates/opensocial/errors.html:5 labmanager/views/admin.py:572
+#: labmanager/templates/opensocial/errors.html:5 labmanager/views/admin.py:746
 #, fuzzy
 msgid "Lab Manager"
 msgstr "LabManager"
@@ -529,19 +552,11 @@ msgstr "LabManager"
 msgid "Access the laboratory"
 msgstr "Acceder al laboratorio"
 
-#: labmanager/templates/lti/display_lab.html:20
-msgid "Property"
-msgstr "Propiedad"
-
-#: labmanager/templates/lti/display_lab.html:21
-msgid "Value"
-msgstr "Valor"
-
-#: labmanager/templates/lti/display_lab.html:26 labmanager/views/admin.py:536
+#: labmanager/templates/lti/display_lab.html:26 labmanager/views/admin.py:710
 msgid "Laboratory"
 msgstr "Laboratorio"
 
-#: labmanager/templates/lti/display_lab.html:31 labmanager/views/admin.py:579
+#: labmanager/templates/lti/display_lab.html:31 labmanager/views/admin.py:753
 #: labmanager/views/ple/instructor.py:98
 msgid "RLMS"
 msgstr "RLMS"
@@ -736,181 +751,234 @@ msgstr "Error al abrir la URL proporcionada"
 msgid "Invalid JSON"
 msgstr "El JSON es válido"
 
-#: labmanager/views/admin.py:81 labmanager/views/admin.py:225
-#: labmanager/views/admin.py:470 labmanager/views/public.py:43
+#: labmanager/views/admin.py:84 labmanager/views/admin.py:228
+#: labmanager/views/admin.py:646 labmanager/views/public.py:43
 #: labmanager/views/ple/admin.py:229 labmanager/views/ple/admin.py:278
 #: labmanager/views/ple/admin.py:342
 msgid "name"
 msgstr "Nombre"
 
-#: labmanager/views/admin.py:81 labmanager/views/admin.py:109
+#: labmanager/views/admin.py:84 labmanager/views/admin.py:112
 #: labmanager/views/ple/admin.py:86
 msgid "login"
 msgstr "Usuario"
 
-#: labmanager/views/admin.py:81 labmanager/views/ple/admin.py:89
+#: labmanager/views/admin.py:84 labmanager/views/ple/admin.py:89
 msgid "password"
 msgstr "Contraseña"
 
-#: labmanager/views/admin.py:109 labmanager/views/admin.py:174
-#: labmanager/views/admin.py:534
+#: labmanager/views/admin.py:112 labmanager/views/admin.py:177
+#: labmanager/views/admin.py:708
 msgid "lt"
 msgstr "LT"
 
-#: labmanager/views/admin.py:109 labmanager/views/admin.py:225
+#: labmanager/views/admin.py:112 labmanager/views/admin.py:228
 #: labmanager/views/ple/admin.py:87
 msgid "full_name"
 msgstr "Nombre completo"
 
-#: labmanager/views/admin.py:109 labmanager/views/ple/admin.py:88
+#: labmanager/views/admin.py:112 labmanager/views/ple/admin.py:88
 msgid "access_level"
 msgstr "Nivel de acceso"
 
-#: labmanager/views/admin.py:144
+#: labmanager/views/admin.py:147
 #, fuzzy
 msgid "Accept request"
 msgstr "Aceptar la solicitud"
 
-#: labmanager/views/admin.py:157
+#: labmanager/views/admin.py:160
 #, fuzzy
 msgid "Reject request"
 msgstr "Rechazar la solicitud"
 
-#: labmanager/views/admin.py:174 labmanager/views/admin.py:534
+#: labmanager/views/admin.py:177 labmanager/views/admin.py:708
 msgid "laboratory"
 msgstr "Laboratorio"
 
-#: labmanager/views/admin.py:174 labmanager/views/admin.py:534
+#: labmanager/views/admin.py:177 labmanager/views/admin.py:708
 #: labmanager/views/ple/admin.py:231
 msgid "local_identifier"
 msgstr "Identificador local"
 
-#: labmanager/views/admin.py:174
+#: labmanager/views/admin.py:177
 msgid "accept"
 msgstr "Aceptar"
 
-#: labmanager/views/admin.py:174
+#: labmanager/views/admin.py:177
 msgid "reject"
 msgstr "Rechazar"
 
-#: labmanager/views/admin.py:177
+#: labmanager/views/admin.py:180
 msgid "The laboratory that has been requested"
 msgstr "El laboratorio solicitado"
 
-#: labmanager/views/admin.py:178
+#: labmanager/views/admin.py:181
 msgid "Learning Management System which created each request"
 msgstr "LT que creó cada solicitud"
 
-#: labmanager/views/admin.py:179
+#: labmanager/views/admin.py:182
 msgid "Unique identifier for a LT to access a laboratory"
 msgstr "Identificador único que permite a un LT acceder a un laboratorio"
 
-#: labmanager/views/admin.py:211
+#: labmanager/views/admin.py:214
 msgid "Login of the LT when contacting the LabManager"
 msgstr "Usuario del LT que contacta con el LabManager"
 
-#: labmanager/views/admin.py:220 labmanager/views/lms/admin.py:196
+#: labmanager/views/admin.py:223 labmanager/views/lms/admin.py:196
 #: labmanager/views/lms/admin.py:204 labmanager/views/ple/admin.py:134
 #: labmanager/views/ple/instructor.py:85
 msgid "N/A"
 msgstr "N / A"
 
-#: labmanager/views/admin.py:225 labmanager/views/admin.py:289
+#: labmanager/views/admin.py:228 labmanager/views/admin.py:339
 #: labmanager/views/ple/admin.py:344
 msgid "url"
 msgstr "URL"
 
-#: labmanager/views/admin.py:225
+#: labmanager/views/admin.py:228
 msgid "download"
 msgstr "Descargar"
 
-#: labmanager/views/admin.py:227
+#: labmanager/views/admin.py:230
 msgid "Institution short name (lower case, all letters, dots and numbers)"
 msgstr "Nombre corto de la escuela: en minúsculas, a-z, 0-9 y '.'"
 
-#: labmanager/views/admin.py:227
+#: labmanager/views/admin.py:230
 msgid "Name of the institution."
 msgstr "Nombre oficial de la escuela"
 
-#: labmanager/views/admin.py:289
+#: labmanager/views/admin.py:293
+msgid "UNCOMPLETE"
+msgstr "INCOMPLETO"
+
+#: labmanager/views/admin.py:295
+msgid "Click to complete"
+msgstr "Clica para completar"
+
+#: labmanager/views/admin.py:301
+#, fuzzy
+msgid "COMPLETE"
+msgstr "Completo"
+
+#: labmanager/views/admin.py:303
+msgid "Click to modify"
+msgstr "Clica para modificar"
+
+#: labmanager/views/admin.py:339
 msgid "kind"
 msgstr "Tipo"
 
-#: labmanager/views/admin.py:289
+#: labmanager/views/admin.py:339
 msgid "version"
 msgstr "Versión"
 
-#: labmanager/views/admin.py:289
+#: labmanager/views/admin.py:339
 msgid "location"
 msgstr "Ubicación"
 
-#: labmanager/views/admin.py:289
+#: labmanager/views/admin.py:339
 msgid "labs"
 msgstr "Laboratorios"
 
-#: labmanager/views/admin.py:292
+#: labmanager/views/admin.py:339
+msgid "validated"
+msgstr "Validado"
+
+#: labmanager/views/admin.py:339
+msgid "completed"
+msgstr "Completo"
+
+#: labmanager/views/admin.py:344
 msgid "City and country where the RLMS is hosted"
 msgstr "Ciudad y país donde está el RLMS"
 
-#: labmanager/views/admin.py:293
+#: labmanager/views/admin.py:345
 msgid "Main URL of the RLMS"
 msgstr "URL principal del RLMS"
 
-#: labmanager/views/admin.py:422
+#: labmanager/views/admin.py:346
+msgid ""
+"This is of interest to HTTP RLMSs only. This column means that this HTTP "
+"RLMS has all its advanced properties properly configured. The basic "
+"properties of HTTP RLMSs (base_url, user, and password) and all the "
+"properties of the other RLMSs can be set just normally through the Edit "
+"button"
+msgstr ""
+"De interés solamente para los RLMSs de tipo HTTP. Esta columna significa "
+"que este RLMS HTTP tiene todas sus propiedades avanzadas configuradas. "
+"Las propiedades básicas de un RLMS HTTP (base_url, user, y password) y el"
+" resto de propiedades de los otros tipos de RLMSs se pueden ajustar a "
+"través del botón Editar"
+
+#: labmanager/views/admin.py:347
+msgid ""
+"This RLMS has been validated in the past. This shows the outcome of the "
+"last validation process that was conducted on it"
+msgstr ""
+"Este RLMS ha sido validado en algún momento. Esta columna muestra el "
+"resultado de la última vez que se realizó el proceso de validación sobre "
+"este RLMS"
+
+#: labmanager/views/admin.py:353 labmanager/views/public.py:36
+#: labmanager/views/ple/admin.py:137 labmanager/views/ple/instructor.py:88
+msgid "list"
+msgstr "lista"
+
+#: labmanager/views/admin.py:598
 msgid "Make not available"
 msgstr "Marcar como no accesible"
 
-#: labmanager/views/admin.py:425
+#: labmanager/views/admin.py:601
 msgid "Make available"
 msgstr "Marcar como accesible"
 
-#: labmanager/views/admin.py:436
+#: labmanager/views/admin.py:612
 #, fuzzy
 msgid "Default local identifier:"
 msgstr "Identificador local por defecto"
 
-#: labmanager/views/admin.py:445
+#: labmanager/views/admin.py:621
 msgid "Make not publicly available"
 msgstr "Marcar como no disponible al público"
 
-#: labmanager/views/admin.py:448
+#: labmanager/views/admin.py:624
 msgid "Make publicly available"
 msgstr "Marcar como disponible al público"
 
-#: labmanager/views/admin.py:459
+#: labmanager/views/admin.py:635
 #, fuzzy
 msgid "Public identifier:"
 msgstr "Identificador público"
 
-#: labmanager/views/admin.py:470 labmanager/views/public.py:43
+#: labmanager/views/admin.py:646 labmanager/views/public.py:43
 #: labmanager/views/ple/admin.py:228 labmanager/views/ple/admin.py:278
 msgid "rlms"
 msgstr "RLMS"
 
-#: labmanager/views/admin.py:470 labmanager/views/public.py:43
+#: labmanager/views/admin.py:646 labmanager/views/public.py:43
 #: labmanager/views/ple/admin.py:230 labmanager/views/ple/admin.py:278
 msgid "laboratory_id"
 msgstr "Identificador del laboratorio"
 
-#: labmanager/views/admin.py:470
+#: labmanager/views/admin.py:646
 msgid "visibility"
 msgstr "Visibilidad"
 
-#: labmanager/views/admin.py:470
+#: labmanager/views/admin.py:646
 msgid "availability"
 msgstr "Disponibilidad"
 
-#: labmanager/views/admin.py:470
+#: labmanager/views/admin.py:646
 msgid "public_availability"
 msgstr "Público"
 
-#: labmanager/views/admin.py:473
+#: labmanager/views/admin.py:649
 msgid "Make this laboratory automatically available for the Learning Tools"
 msgstr ""
 "Marcar este laboratorio como accesible automáticamente para las "
 "herramientas de aprendizaje"
 
-#: labmanager/views/admin.py:474
+#: labmanager/views/admin.py:650
 msgid ""
 "Make this laboratory automatically available even from outside the "
 "registered Learning Tools"
@@ -918,80 +986,80 @@ msgstr ""
 "Marcar este laboratorio accesible de forma automática, incluso desde "
 "fuera de las herramientas de aprendizaje registradas"
 
-#: labmanager/views/admin.py:490
+#: labmanager/views/admin.py:666
 #, python-format
 msgid "Local identifier '%(localidentifier)s' already exists"
 msgstr "El identificador local '%(localidentifier)s' ya existe"
 
-#: labmanager/views/admin.py:495
+#: labmanager/views/admin.py:671
 msgid "Invalid local identifier (empty)"
 msgstr "El identificador local no es válido (vacío)"
 
-#: labmanager/views/admin.py:511
+#: labmanager/views/admin.py:687
 #, python-format
 msgid "Public identifier '%(publicidentifier)s' already exists"
 msgstr "El identificador público '%(publicidentifier)s' ya existe"
 
-#: labmanager/views/admin.py:518
+#: labmanager/views/admin.py:692
 msgid "Invalid public identifier (empty)"
 msgstr "El identificador público no es válido (vacío)"
 
-#: labmanager/views/admin.py:534
+#: labmanager/views/admin.py:708
 msgid "configuration"
 msgstr "Configuración"
 
-#: labmanager/views/admin.py:534
+#: labmanager/views/admin.py:708
 msgid "SCORM"
 msgstr "SCORM"
 
-#: labmanager/views/admin.py:537
+#: labmanager/views/admin.py:711
 msgid "Learning Management System"
 msgstr "Sistema de gestión del aprendizaje (Learning Tool - LT)"
 
-#: labmanager/views/admin.py:538
+#: labmanager/views/admin.py:712
 msgid "Unique identifier for a Learning Tool to access a laboratory"
 msgstr ""
 "Identificador único para una herramienta de aprendizaje para acceder a un"
 " laboratorio"
 
-#: labmanager/views/admin.py:573
+#: labmanager/views/admin.py:747
 msgid "LT Management"
 msgstr "Gestión del LT"
 
-#: labmanager/views/admin.py:574
+#: labmanager/views/admin.py:748
 msgid "LT"
 msgstr "LT"
 
-#: labmanager/views/admin.py:575
+#: labmanager/views/admin.py:749
 msgid "LT Permissions"
 msgstr "Permisos del LT"
 
-#: labmanager/views/admin.py:576
+#: labmanager/views/admin.py:750
 msgid "LT Users"
 msgstr "Usuarios del LT"
 
-#: labmanager/views/admin.py:577
+#: labmanager/views/admin.py:751
 msgid "LT Requests"
 msgstr "Peticiones al LT"
 
-#: labmanager/views/admin.py:578
+#: labmanager/views/admin.py:752
 msgid "ReLMS Management"
 msgstr "Gestión del RLMS"
 
-#: labmanager/views/admin.py:580
+#: labmanager/views/admin.py:754
 msgid "Registered labs"
 msgstr "Laboratorios registrados"
 
-#: labmanager/views/admin.py:581 labmanager/views/lms/admin.py:386
+#: labmanager/views/admin.py:755 labmanager/views/lms/admin.py:386
 #: labmanager/views/lms/admin.py:387 labmanager/views/ple/admin.py:494
 msgid "Users"
 msgstr "Usuarios"
 
-#: labmanager/views/admin.py:581
+#: labmanager/views/admin.py:755
 msgid "Labmanager Users"
 msgstr "Usuarios del gestor de laboratorios"
 
-#: labmanager/views/admin.py:582 labmanager/views/lms/admin.py:389
+#: labmanager/views/admin.py:756 labmanager/views/lms/admin.py:389
 #: labmanager/views/lms/instructor.py:86 labmanager/views/ple/admin.py:495
 #: labmanager/views/ple/instructor.py:156
 msgid "Log out"
@@ -1154,63 +1222,58 @@ msgstr ""
 msgid "Could not connect to %(urlshindig)s."
 msgstr "No se pudo conectar a %(urlshindig)s."
 
-#: labmanager/views/opensocial.py:205
+#: labmanager/views/opensocial.py:211
 msgid "Institution not found or it does not support Shindig"
 msgstr "No se ha encontrado la escuela o no soporta Shindig"
 
-#: labmanager/views/opensocial.py:210 labmanager/views/ple/admin.py:253
+#: labmanager/views/opensocial.py:216 labmanager/views/ple/admin.py:253
 #: labmanager/views/ple/instructor.py:121
 msgid "Laboratory not found"
 msgstr "No se ha encontrado el laboratorio"
 
-#: labmanager/views/opensocial.py:222
+#: labmanager/views/opensocial.py:232
 msgid "School name"
 msgstr "Nombre oficial de la escuela"
 
-#: labmanager/views/opensocial.py:222
+#: labmanager/views/opensocial.py:232
 msgid "School name."
 msgstr "Nombre oficial de la escuela"
 
-#: labmanager/views/opensocial.py:223
+#: labmanager/views/opensocial.py:233
 msgid "Short name"
 msgstr "Nombre corto de la escuela"
 
-#: labmanager/views/opensocial.py:223
+#: labmanager/views/opensocial.py:233
 msgid "Short name (lower case, all letters, dots and numbers)."
 msgstr "Nombre corto de la escuela: en minúsculas, a-z, 0-9 y '.'"
 
-#: labmanager/views/opensocial.py:224
+#: labmanager/views/opensocial.py:234
 msgid "School URL"
 msgstr "URL"
 
-#: labmanager/views/opensocial.py:224
+#: labmanager/views/opensocial.py:234
 msgid "Address of your school."
 msgstr "Página web de la escuela"
 
-#: labmanager/views/opensocial.py:225
+#: labmanager/views/opensocial.py:235
 msgid "User name"
 msgstr "Nombre de usuario"
 
-#: labmanager/views/opensocial.py:225
+#: labmanager/views/opensocial.py:235
 msgid "Your name and last name."
 msgstr "Nombre y apellidos"
 
-#: labmanager/views/opensocial.py:226
+#: labmanager/views/opensocial.py:236
 msgid "Your new login (you can create more later)."
 msgstr "El nombre de usuario. Pueden crearse más usuarios posteriormente"
 
-#: labmanager/views/opensocial.py:227
+#: labmanager/views/opensocial.py:237
 msgid "Your access password."
 msgstr "Su contraseña de acceso"
 
-#: labmanager/views/opensocial.py:235 labmanager/views/opensocial.py:238
+#: labmanager/views/opensocial.py:245 labmanager/views/opensocial.py:248
 msgid "This name is already taken"
 msgstr "Este nombre ya ha sido registrado"
-
-#: labmanager/views/public.py:36 labmanager/views/ple/admin.py:137
-#: labmanager/views/ple/instructor.py:88
-msgid "list"
-msgstr "lista"
 
 #: labmanager/views/public.py:43
 #, fuzzy
@@ -1569,4 +1632,16 @@ msgstr "Laboratorios"
 
 #~ msgid "false"
 #~ msgstr "falso"
+
+#~ msgid "Properties for"
+#~ msgstr "Propiedades de"
+
+#~ msgid "Change properties"
+#~ msgstr "Cambia propiedades"
+
+#~ msgid "Return"
+#~ msgstr "Volver"
+
+#~ msgid "Retur"
+#~ msgstr ""
 

@@ -21,6 +21,7 @@ We use the flask.exthook to do this.
 
 import virtual
 assert virtual is not None # pyflakes warning
+import http
 
 def setup():
     from flask.exthook import ExtensionImporter

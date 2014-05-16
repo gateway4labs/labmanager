@@ -94,20 +94,64 @@ class RLMS(Base, SBBase):
     location = Column(Unicode(50), nullable = False)
     url = Column(Unicode(300), nullable = False)
     version = Column(Unicode(50), nullable = False)
+
+    # validated: true or false. True means that the last time that the validation process took place it was a success. The validation process involves that the labmanager admin checks the correctness of the credentials provided during the RLMS creation. False means that the last time that the validation took place, it did not succeed.
+
+    validated = Column(Boolean, default = False)
+
+    # newrlms is true for all the rlms when they are created. After the completion process (for HTTP RLMSs) or validation process (for all RLMSs), newrlms = false. newrlms is only usefull for HTTP, not for any of the other RLMS kinds.
+    
+    newrlms = Column(Boolean, default = True)
+
+
     configuration = Column(Unicode(10 * 1024))
 
-    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
+    def __init__(self, kind = None, url = None, location = None, version = None, newrlms = True, configuration = '{}'):
         self.kind = kind
         self.location = location
         self.url = url
         self.version = version
         self.configuration = configuration
 
+        self.validated = False
+        self.newrlms = True
+
     def __repr__(self):
-        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rmlsversion)r, configuration=%(rmlsconfiguration)r)" % dict(rmlskind=self.kind, rmlsurl=self.url, rmlslocation=self.location, rlmsversion=self.version, rmlsconfiguration=self.configuration)
+        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rmlsversion)r, validated=%(rlmsvalidated)r, newrlms=%(newrlms)r , configuration=%(rmlsconfiguration)r)" % dict(rmlskind=self.kind, rmlsurl=self.url, rmlslocation=self.location, rlmsversion=self.version, rlmsvalidated=self.validated, newrlms=self.newrlms,  rmlsconfiguration=self.configuration)
 
     def __unicode__(self):
         return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)
+
+#########################################################
+#
+# HTTP_RLMS_Property: Properties that a HTTP RLMS may have
+#
+# 1 RLMS (of HTTP kind) may have 1 or multiple HTTP_RLMS_Properties
+#
+
+class HTTP_RLMS_Property(Base, SBBase):
+    __tablename__ = 'http_rlms_property'
+    __table_args__ = (UniqueConstraint('name', 'rlms_id'), )
+
+    id = Column(Integer, primary_key = True)
+    rlms_id = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
+    name = Column(Unicode(50), nullable = False)
+    value = Column(Unicode(50), nullable = False, default = u"")
+
+    rlms = relation(RLMS.__name__, backref = backref('http_properties', order_by=id, cascade = 'all,delete'))
+
+    def __init__(self, name = None, value = None, rlms = None):
+       
+
+        self.name = name
+        self.value = value
+        self.rlms = rlms
+
+    def __unicode__(self):
+        return u'%s with value %s at %s' % (self.name, self.value, self.rlms)
+
+
+
 
 #######################################################################
 # 

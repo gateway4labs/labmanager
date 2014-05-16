@@ -1,0 +1,41 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<h3> {{gettext('Properties for')}} <a href="{{rlms.url}}">{{ rlms.kind }} ({{rlms.version }})</a> {{gettext('at')}} {{ rlms.location }} </h3>
+
+
+{% if prop_value_list %}
+<form action="." method="POST">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>{{gettext('Property')}}</th>
+                <th>{{gettext('Value')}}</th>
+             
+            </tr>
+        </thead>
+        <tbody>
+            <!-- prop_value[0] is the property name, prop_value[1] is the value currently stored-->
+            {% for prop_value in prop_value_list %}
+            <tr>
+                <td>{{ prop_value[0] }}</td> 
+                <td><input type="text" name="{{ prop_value[0] }}" value="{{prop_value[1]}}"><br>   </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </form>
+    </table>
+    <div class="form-actions" align="center">
+        <button class="btn btn-primary" name="action" type="submit" value="savechangesreturn"> {{gettext('Save and return')}} </button>
+
+        <button class="btn btn-danger"  name="action" type="submit" value="return"> {{gettext('Return')}} </button>
+
+<!--        <a href="{{ this_url }}">Webpage</a>-->
+    </div>
+</form>
+{% else %}
+<div class="alert">
+    No property found
+</div>
+{% endif %}
+
+{% endblock %}

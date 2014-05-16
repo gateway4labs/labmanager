@@ -4,6 +4,9 @@ import json
 import urlparse
 import threading
 
+import requests
+import re
+
 from hashlib import new as new_hash
 from yaml import load as yload
 from wtforms.fields import PasswordField
@@ -16,7 +19,7 @@ from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LabManagerUser, LtUser
-from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
+from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT, HTTP_RLMS_Property
 from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
@@ -279,22 +282,78 @@ def _generate_choices():
             sel_choices.append(("%s<>%s" % (ins_rlms, ver),"%s - %s" % (ins_rlms.title(), ver)) )
     return sel_choices
 
+
+
+def newrlms_formatter(v, c, rlms, p):
+
+    if rlms.kind in ("HTTP"):
+
+        if rlms.newrlms == True:
+
+            currently = lazy_gettext('UNCOMPLETE')
+            # klass = 'btn-danger'
+            msg = lazy_gettext('Click to complete')
+            color = 'white'
+            bgcolor='red'
+            
+        else:
+
+            currently = lazy_gettext('COMPLETE')
+            # klass = 'btn-success'
+            msg = lazy_gettext('Click to modify')
+            color = 'white'
+            bgcolor = 'green'
+    
+
+
+        return Markup('<p style="BACKGROUND-COLOR:%s"><b><font color=%s>%s</font></b></p> <a href="%s">%s</a>' % (bgcolor, color, currently, url_for('.change_properties', id=rlms.id), msg))
+
+   
+        # return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+        # %(currently)s <BR>
+        # <input type='hidden' name='rlms_id' value='%(rlms_id)s'/>
+        # <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+        # </form>""" % dict(
+        # currently = currently,
+        # url = url_for('.change_properties'),
+        # rlms_id = rlms.id,
+        # klass = klass,
+        # msg = msg,
+        # ))
+    else:
+
+        # for RLMS other than HTTP, the properties can be modified just editing the RLMS as usually
+        currently = '---'
+
+        return Markup(currently)
+ 
+
+
+
 class RLMSPanel(L4lModelView):
     # For editing
     form_columns = ('kind', 'location', 'url')
     form_overrides = dict(kind=DynamicSelectField)
     # For listing 
-    column_list  = ['kind', 'version', 'location', 'url', 'labs']
-    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
+    column_list  = ['kind', 'version', 'location', 'url', 'validated', 'newrlms', 'labs']
+    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'), validated=lazy_gettext('validated'), newrlms=lazy_gettext('completed'))
+
+
     column_exclude_list = ('version','configuration')
     column_descriptions = {
         'location' : lazy_gettext('City and country where the RLMS is hosted'),
         'url'      : lazy_gettext('Main URL of the RLMS'),
+        'newrlms'  : lazy_gettext('This is of interest to HTTP RLMSs only. This column means that this HTTP RLMS has all its advanced properties properly configured. The basic properties of HTTP RLMSs (base_url, user, and password) and all the properties of the other RLMSs can be set just normally through the Edit button'),
+        'validated': lazy_gettext('This RLMS has been validated in the past. This shows the outcome of the last validation process that was conducted on it')
+       
     }
 
+
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list")))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list"))), newrlms = newrlms_formatter
         )
+
+
 
     def __init__(self, session, **kwargs):
         super(RLMSPanel, self).__init__(RLMS, session, **kwargs)
@@ -414,6 +473,124 @@ class RLMSPanel(L4lModelView):
                 self.session.commit()
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
         return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
+
+
+    @expose('/change_properties/<id>/', methods = ['GET','POST'])
+    def change_properties(self, id):
+
+
+        myrlms = self.session.query(RLMS).filter_by(id = id).first()
+
+        configuration = myrlms.configuration
+        
+        jsonconfig = json.loads(configuration)
+        
+        changes = False
+
+        if request.method == 'POST':
+
+            if request.form['action'] == 'savechangesreturn':
+                    
+                for prop_name, value in request.form.items():
+     
+                    if prop_name != 'action' and value != '':
+                        
+                        old_prop_value =self.session.query(HTTP_RLMS_Property).filter_by(name = prop_name, rlms = myrlms).first()
+                        
+                        if old_prop_value:
+                            self.session.delete(old_prop_value)
+                            self.session.commit()
+
+                        self.session.add(HTTP_RLMS_Property(name = prop_name, value = value , rlms = myrlms))
+                        myrlms.newrlms = False
+                        changes = True
+
+
+                if changes:
+                    changes = False
+                    self.session.commit()
+
+                
+                return redirect(url_for('.index_view'))
+            
+
+            if request.form['action'] == 'return':
+                return redirect(url_for('.index_view'))
+
+
+        base_url = jsonconfig['base_url']
+
+        remote_login = jsonconfig['remote_login']
+
+        password = jsonconfig['password']
+
+        url = base_url + "/get_properties"
+
+        r=requests.get(url, auth=(remote_login, password))
+        
+        properties_list_json = r.json()
+
+        properties_list = create_properties_list(properties_list_json)
+
+        prop_value_list = create_values_list(self, properties_list, myrlms.id)
+        
+        
+        
+        return self.render('labmanager_admin/rlms_properties_list.html', rlms = myrlms, prop_value_list = prop_value_list )
+
+
+def create_values_list(self, properties_list, rlms_id):
+
+    prop_value_list = []
+    db_properties = self.session.query(HTTP_RLMS_Property).filter_by(rlms_id = rlms_id)
+    value = ""
+    
+    for prop in properties_list:
+        for db_prop in db_properties:
+            if prop == db_prop.name:
+                value = db_prop.value
+        
+        prop_value = (prop, value)
+
+        prop_value_list.append(prop_value)
+
+        value=""
+
+    return prop_value_list
+                
+    # rlms = self.session.query(RLMS).filter_by(id = rlms_id).first()
+    # configuration = json.loads(rlms.configuration)
+
+
+    # prop_list_db = configuration.keys()
+
+    # for prop in properties_list:
+    #
+    # if prop in prop_list_db:
+    #
+    # value = configuration.get(prop)
+
+    # else:
+    # value = ""
+
+    # prop_value = (prop, value)
+
+    # prop_value_list.append(prop_value)
+    #
+    # return prop_value_list
+    
+
+def create_properties_list(properties_list_json):
+
+    prop_list = []
+    for prop in properties_list_json["properties"]:
+        prop_name_list = prop.keys()
+        prop_name = prop_name_list[0]
+
+        prop_list.append(prop_name)
+
+    return prop_list 
+
 
 def accessibility_formatter(v, c, lab, p):
     if lab.available:
