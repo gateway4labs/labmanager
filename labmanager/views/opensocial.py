@@ -178,10 +178,15 @@ def _reserve_impl(lab_name, public, institution_id):
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
 
-    locale = request.args.get('locale') or None
     kwargs = {}
+
+    locale = request.args.get('locale') or None
     if locale:
         kwargs['locale'] = locale
+
+    lab_config = request.args.get('lab_config')
+    if lab_config:
+        kwargs['lab_config'] = lab_config
 
     response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
