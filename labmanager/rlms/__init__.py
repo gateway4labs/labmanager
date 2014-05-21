@@ -23,12 +23,13 @@ _RLMSs = {
 }
 
 class Laboratory(object):
-    def __init__(self, name, laboratory_id):
+    def __init__(self, name, laboratory_id, description = None):
         self.name          = name
         self.laboratory_id = laboratory_id
+        self.description   = description
 
     def __repr__(self):
-        return "Laboratory(%r, %r)" % (self.name, self.laboratory_id)
+        return "Laboratory(%r, %r, %r)" % (self.name, self.laboratory_id, self.description)
 
     def __hash__(self):
         return hash(self.laboratory_id)
