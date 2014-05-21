@@ -170,7 +170,6 @@ def _reserve_impl(lab_name, public, institution_id):
     db_rlms           = db_laboratory.rlms
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
-    request_payload = {} # This could be populated in the HTML. Pending.
     user_agent = unicode(request.user_agent)
     origin_ip  = request.remote_addr
     referer    = request.referrer
@@ -186,7 +185,9 @@ def _reserve_impl(lab_name, public, institution_id):
 
     lab_config = request.args.get('lab_config')
     if lab_config:
-        kwargs['lab_config'] = lab_config
+        request_payload = lab_config
+    else:
+        request_payload = '{}'
 
     response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
