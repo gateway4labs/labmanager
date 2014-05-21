@@ -1,4 +1,5 @@
 import json
+import urllib
 import urllib2
 import hashlib
 import traceback
@@ -159,14 +160,17 @@ def _reserve_impl(lab_name, public, institution_id):
             db_laboratory     = public_lab
             institution_name  = institution.name            
     # Obtain user data
-    try:
-        current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
-        current_user_data = json.loads(current_user_str)
-    except:
-        traceback.print_exc()
-        return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
-    # name    = current_user_data['entry'].get('displayName') or 'anonymous'
-    user_id = current_user_data['entry'].get('id') or 'no-id'
+    if st == 'null' and public:
+        user_id = 'no-id'
+    else:
+        try:
+            current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
+            current_user_data = json.loads(current_user_str)
+        except:
+            traceback.print_exc()
+            return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
+        # name    = current_user_data['entry'].get('displayName') or 'anonymous'
+        user_id = current_user_data['entry'].get('id') or 'no-id'
     db_rlms           = db_laboratory.rlms
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
@@ -184,12 +188,18 @@ def _reserve_impl(lab_name, public, institution_id):
         kwargs['locale'] = locale
 
     lab_config = request.args.get('lab_config')
+    try:
+        lab_config = urllib.unquote(lab_config)
+        json.loads(lab_config) # Verify that it's a valid JSON
+    except:
+        lab_config = '{}'
     if lab_config:
-        request_payload = lab_config
+        request_payload = { 'initial' : lab_config }
     else:
-        request_payload = '{}'
+        request_payload = {}
 
-    response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+    try:
+        response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
                                                 institution               = institution_name,
                                                 general_configuration_str = ple_configuration,
@@ -202,7 +212,11 @@ def _reserve_impl(lab_name, public, institution_id):
                                                 },
                                                 back = url_for('.reload', _external = True),
                                                 **kwargs)
-    return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
+    except:
+        traceback.print_exc()
+        return render_template("opensocial/errors.html", message = gettext("There was an error performing the reservation to the final laboratory."))
+    else:
+        return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
