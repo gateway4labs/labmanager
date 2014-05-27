@@ -484,3 +484,4 @@ class RequestPermissionLT(Base, SBBase):
         return gettext(u"'%(localidentifier)s': lab %(labname)s to %(ltname)s", localidentifier=self.local_identifier, 
                                                                                                                             labname = self.laboratory.name, 
                                                                                                                             ltname = self.lt.name)
+
