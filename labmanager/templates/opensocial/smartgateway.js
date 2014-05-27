@@ -258,10 +258,15 @@ function SmartGateway(container) {
 
             // Then, take the token
             var token = shindig.auth.getSecurityToken();
-            {% if public %}
-            var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token;
+            {% if request.args.get('lab_config') %}
+            var lab_config = "&lab_config={{ request.args.get('lab_config') }}";
             {% else %}
-            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token;
+            var lab_config = "";
+            {% endif %}
+            {% if public %}
+            var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
+            {% else %}
+            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
             {% endif %}
 
             trace("Loading... " + url);

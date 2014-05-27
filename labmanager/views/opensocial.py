@@ -1,10 +1,11 @@
 import json
+import urllib
 import urllib2
 import hashlib
 import traceback
 import threading
 
-from flask import Blueprint, request, redirect, render_template, url_for
+from flask import Blueprint, request, redirect, render_template, url_for, Response
 from flask.ext.wtf import Form, validators, TextField, PasswordField, ValidationError
 from labmanager.db import db_session
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
@@ -65,21 +66,25 @@ def widget_xml(institution_id, lab_name, widget_name):
             if permission:
                 widget_config = _extract_widget_config(permission.laboratory, widget_name)
 
-    return render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
+    contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
+    return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml")
 def public_widget_xml(lab_name, widget_name):
     laboratory = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     widget_config = _extract_widget_config(laboratory, widget_name)
-    return render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
+    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
+    return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
-    return render_template("opensocial/smartgateway.js", public = False, institution_id = institution_id, lab_name = lab_name)
+    contents = render_template("opensocial/smartgateway.js", public = False, institution_id = institution_id, lab_name = lab_name)
+    return Response(contents, mimetype="application/javascript")
 
 @opensocial_blueprint.route("/public/smartgateway/<lab_name>/sg.js")
 def public_smartgateway(lab_name):
-    return render_template("opensocial/smartgateway.js", public = True, lab_name = lab_name)
+    contents = render_template("opensocial/smartgateway.js", public = True, lab_name = lab_name)
+    return Response(contents, mimetype="application/javascript")
 
 @opensocial_blueprint.route("/reload")
 def reload():
@@ -155,18 +160,20 @@ def _reserve_impl(lab_name, public, institution_id):
             db_laboratory     = public_lab
             institution_name  = institution.name            
     # Obtain user data
-    try:
-        current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
-        current_user_data = json.loads(current_user_str)
-    except:
-        traceback.print_exc()
-        return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
-    # name    = current_user_data['entry'].get('displayName') or 'anonymous'
-    user_id = current_user_data['entry'].get('id') or 'no-id'
+    if st == 'null' and public:
+        user_id = 'no-id'
+    else:
+        try:
+            current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
+            current_user_data = json.loads(current_user_str)
+        except:
+            traceback.print_exc()
+            return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
+        # name    = current_user_data['entry'].get('displayName') or 'anonymous'
+        user_id = current_user_data['entry'].get('id') or 'no-id'
     db_rlms           = db_laboratory.rlms
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
-    request_payload = {} # This could be populated in the HTML. Pending.
     user_agent = unicode(request.user_agent)
     origin_ip  = request.remote_addr
     referer    = request.referrer
@@ -174,12 +181,25 @@ def _reserve_impl(lab_name, public, institution_id):
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
     remote_laboratory = ManagerClass(db_rlms.configuration)
 
-    locale = request.args.get('locale') or None
     kwargs = {}
+
+    locale = request.args.get('locale') or None
     if locale:
         kwargs['locale'] = locale
 
-    response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+    lab_config = request.args.get('lab_config')
+    try:
+        lab_config = urllib.unquote(lab_config)
+        json.loads(lab_config) # Verify that it's a valid JSON
+    except:
+        lab_config = '{}'
+    if lab_config:
+        request_payload = { 'initial' : lab_config }
+    else:
+        request_payload = {}
+
+    try:
+        response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
                                                 username                  = user_id,
                                                 institution               = institution_name,
                                                 general_configuration_str = ple_configuration,
@@ -192,7 +212,11 @@ def _reserve_impl(lab_name, public, institution_id):
                                                 },
                                                 back = url_for('.reload', _external = True),
                                                 **kwargs)
-    return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
+    except:
+        traceback.print_exc()
+        return render_template("opensocial/errors.html", message = gettext("There was an error performing the reservation to the final laboratory."))
+    else:
+        return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
