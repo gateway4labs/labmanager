@@ -71,7 +71,7 @@ class RLMS(BaseRLMS):
         # TODO
         return None
 
-    def get_laboratories(self):
+    def get_laboratories(self, **kwargs):
         return [ Laboratory(self.name, self.name) ]
 
     def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
@@ -80,12 +80,12 @@ class RLMS(BaseRLMS):
             'load_url' : self.web
         }
 
-    def load_widget(self, reservation_id, widget_name):
+    def load_widget(self, reservation_id, widget_name, **kwargs):
         return {
             'url' : self.web
         }
 
-    def list_widgets(self, laboratory_id):
+    def list_widgets(self, laboratory_id, **kwargs):
         default_widget = dict( name = 'default', description = 'Default widget')
         return [ default_widget ]
 
