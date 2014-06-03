@@ -24,8 +24,9 @@ from labmanager.views import RedirectView
 from labmanager.db import db_session
 from labmanager.rlms import get_manager_class
 import labmanager.forms as forms
+from labmanager.utils import data_filename
 
-config = yload(open('labmanager/config/config.yml'))
+config = yload(open(data_filename('labmanager/config/config.yml')))
 
 #################################################################
 # 

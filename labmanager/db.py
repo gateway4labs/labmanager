@@ -17,6 +17,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from config import SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
+from labmanager.utils import data_filename
 
 if USE_PYMYSQL:
     import pymysql_sa
@@ -30,10 +31,12 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
-alembic_config = Config("alembic.ini")
-alembic_config.set_main_option("script_location", os.path.abspath('alembic'))
-alembic_config.set_main_option("url", SQLALCHEMY_ENGINE_STR)
-alembic_config.set_main_option("sqlalchemy.url", SQLALCHEMY_ENGINE_STR)
+def create_alembic_config():
+    alembic_config = Config("alembic.ini")
+    alembic_config.set_main_option("script_location", os.path.abspath(data_filename('alembic')))
+    alembic_config.set_main_option("url", SQLALCHEMY_ENGINE_STR)
+    alembic_config.set_main_option("sqlalchemy.url", SQLALCHEMY_ENGINE_STR)
+    return alembic_config
 
 def init_db(drop = False):
     # import all modules here that might define models so that
@@ -49,6 +52,8 @@ def init_db(drop = False):
         if 'alembic_version' in meta.tables:
             meta.drop_all()
 
+    alembic_config = create_alembic_config()
+
     command.upgrade(alembic_config, "head")
 
     password = unicode(hashlib.new('sha', 'password').hexdigest())
@@ -57,6 +62,7 @@ def init_db(drop = False):
     db_session.commit()
 
 def check_version():
+    alembic_config = create_alembic_config()
     script = ScriptDirectory.from_config(alembic_config)
     head = script.get_current_head()
 

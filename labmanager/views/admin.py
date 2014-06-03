@@ -22,8 +22,9 @@ from labmanager.rlms import get_form_class, get_supported_types, get_supported_v
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 import labmanager.forms as forms
+from labmanager.utils import data_filename
 
-config = yload(open('labmanager/config/config.yml'))
+config = yload(open(data_filename('labmanager/config/config.yml')))
 
 #####################################################################
 # 

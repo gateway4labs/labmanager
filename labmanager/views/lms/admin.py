@@ -23,8 +23,9 @@ from labmanager.scorm import get_scorm_object
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToLtUser, PermissionToCourse
 from labmanager.views import RedirectView, retrieve_courses
 import labmanager.forms as forms
+from labmanager.utils import data_filename
 
-config = yload(open('labmanager/config/config.yml'))
+config = yload(open(data_filename('labmanager/config/config.yml')))
 
 #################################################################
 # 
