@@ -19,8 +19,9 @@ def get_module(version):
 
 class VirtualAddForm(AddForm):
 
-    web  = TextField("Web",    validators = [Required(), URL() ])
-    name = TextField("Name",    validators = [Required() ])
+    web    = TextField("Web",    validators = [Required(), URL() ])
+    name   = TextField("Name",    validators = [Required() ])
+    height = TextField("Height")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(VirtualAddForm, self).__init__(*args, **kwargs)
