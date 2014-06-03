@@ -47,11 +47,19 @@ def _extract_widget_config(laboratory, widget_name):
     RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
     rlms = RLMS_CLASS(rlms_db.configuration)
 
+    labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory.laboratory_id ]
+    if not labs:
+        # The laboratory has changed
+        return None
+
+    autoload = labs[0].autoload
+
     widgets = rlms.list_widgets(laboratory.laboratory_id)
     for widget in widgets:
         if widget['name'] == widget_name:
+            widget['autoload'] = autoload
             return widget
-    return {}
+    return { 'autoload' : autoload }
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
@@ -66,14 +74,20 @@ def widget_xml(institution_id, lab_name, widget_name):
             if permission:
                 widget_config = _extract_widget_config(permission.laboratory, widget_name)
 
-    contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
+    if widget_config is None:
+        return "Error: widget does not exist anymore" # TODO
+    
+    contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml")
 def public_widget_xml(lab_name, widget_name):
     laboratory = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     widget_config = _extract_widget_config(laboratory, widget_name)
-    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config)
+    if widget_config is None:
+        return "Error: widget does not exist anymore" # TODO
+
+    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")

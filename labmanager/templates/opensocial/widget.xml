@@ -65,6 +65,9 @@
             setTimeout(adjustIframeHeight,10000);
         });
         trace("Callback registered.");
+        {% if autoload %}
+        sg.startReservation();
+        {% endif %}
     }
 
     trace("Registering...");

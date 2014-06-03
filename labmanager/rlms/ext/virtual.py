@@ -56,6 +56,7 @@ class RLMS(BaseRLMS):
         config = json.loads(configuration or '{}')
         self.web  = config.get('web')
         self.name = config.get('name')
+        self.height = config.get('height')
 
         if not self.web or not self.name:
             raise Exception("Laboratory misconfigured: fields missing" )
@@ -72,7 +73,7 @@ class RLMS(BaseRLMS):
         return None
 
     def get_laboratories(self, **kwargs):
-        return [ Laboratory(self.name, self.name) ]
+        return [ Laboratory(self.name, self.name, autoload = True) ]
 
     def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
         return {
@@ -87,6 +88,8 @@ class RLMS(BaseRLMS):
 
     def list_widgets(self, laboratory_id, **kwargs):
         default_widget = dict( name = 'default', description = 'Default widget')
+        if self.height is not None:
+            default_widget['height'] = self.height
         return [ default_widget ]
 
 
