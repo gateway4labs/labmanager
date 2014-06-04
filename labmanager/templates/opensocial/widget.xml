@@ -10,6 +10,7 @@
     <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
 
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
 {% if public %}
     <script type="text/javascript" src="{{ url_for('.public_smartgateway', lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
@@ -63,6 +64,14 @@
             setTimeout(adjustIframeHeight,3000);
             // 10 seconds
             setTimeout(adjustIframeHeight,10000);
+
+            iFrameResize({
+                log : false,
+                enablePublicMethods : true,
+                resizedCallback         : function(messageData){ // Callback fn when resize is received
+                    gadgets.window.adjustHeight();
+                }
+            }, "#final_widget_iframe");
         });
         trace("Callback registered.");
         {% if autoload %}
