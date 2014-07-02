@@ -1,8 +1,9 @@
 import os
+import uuid
 import json
 import datetime
 import requests
-from flask import Flask, Response, request, Blueprint
+from flask import Flask, Response, request, Blueprint, url_for, render_template
 
 app = Flask(__name__)
 
@@ -54,13 +55,13 @@ def test_plugin():
     return json.dumps({
         'valid' : True,
         'g4l-api-version' : VERSION
-    })
+    }, indent = 4)
 
 @plugin.route('/capabilities')
 def capabilities():
     return json.dumps({
         'capabilities' : ['widget']
-    })
+    }, indent = 4)
 
 @plugin.route('/labs')
 def labs():
@@ -75,7 +76,7 @@ def labs():
                   'laboratory_id' : LAB_ID,
               }
            ]
-        })
+        }, indent = 4)
 
 # OPTIONAL: support for widgets
 @plugin.route('/widgets')
@@ -96,7 +97,7 @@ def widgets():
                    'description' : 'Right camera'
                 },
            ]
-        })
+        }, indent = 4)
 
 @plugin.route('/widget')
 def widget():
@@ -105,11 +106,11 @@ def widget():
     if widget_name == 'camera1':
         return json.dumps({
                 'url' : '%s/camera1/?reservation_id=%s' % (LAB_URL, reservation_id)
-            })
+            }, indent = 4)
     elif widget_name == 'camera2':
         return json.dumps({
                 'url' : '%s/camera2/?reservation_id=%s' % (LAB_URL, reservation_id)
-            })
+            }, indent = 4)
     return "widget not found", 404
 
 
@@ -133,11 +134,11 @@ def test_config():
     if r.text == 'ok':
         return json.dumps({
            'valid' : True
-        })
+        }, indent = 4)
     return json.dumps({
         'valid' : False,
         'error-messages' : [r.text]
-    })
+    }, indent = 4)
 
 @plugin.route('/reserve', methods = ['GET', 'POST'])
 def reserve():
@@ -157,10 +158,8 @@ def reserve():
     return json.dumps({
             'load_url' : response['url'],
             'reservation_id' : response['reservation_id']
-        })
+        }, indent = 4)
 
-
-app.register_blueprint(plugin, url_prefix = '/plugin')
 
 #################################
 # 
@@ -175,8 +174,8 @@ def setup():
     if back_url:
         RESERVATIONS[reservation_id]['back_url'] = back_url
     return json.dumps({
-        'url' : url_for(setup_app, reservation_id = reservation_id, _external = True)
-    })
+        'url' : url_for('setup_app', reservation_id = reservation_id, _external = True)
+    }, indent = 4)
 
 
 # memcached, redis, database or whatever. For the sake of simplicity memory is used
@@ -201,7 +200,11 @@ def setup_app():
         password = request.form.get('password')
         save_config({ 'password' : password })
 
-    return render_template('plugin-form.html')
+    current_password = get_config().get('password', '')
+    return render_template('plugin_form.html', reservation_id = reservation_id, current_password = current_password)
+
+
+app.register_blueprint(plugin, url_prefix = '/plugin')
 
 if __name__ == '__main__':
     app.run(port=5002, debug = True)
