@@ -140,12 +140,37 @@ def test_config():
         'error-messages' : [r.text]
     }, indent = 4)
 
+def get_json():
+    if request.json is not None:
+        return request.json
+    else:
+        try:
+            if request.data:
+                data = request.data
+            else:
+                keys = request.form.keys() or ['']
+                data = keys[0]
+            return json.loads(data)
+        except:
+            print "Invalid JSON found"
+            print "Suggested JSON:", data
+            traceback.print_exc()
+            return None
+
 @plugin.route('/reserve', methods = ['GET', 'POST'])
 def reserve():
     config = get_config()
-    # TODO
-    username = ''
-    back_url = ''
+    if request.method == 'POST':
+        request_json = get_json()
+        # a dictionary including: laboratory_id, username, institution, general_configuration, particular_configuration, request_payload (if any), user_properties (full name, from ip, etc.), etc.
+        if not request_json:
+            return "Invalid JSON document", 400
+        username = u'%s@%s' % (request_json.get('username'), request_json.get('institution'))
+        back_url = request_json.get('back')
+    else:
+        username = 'username not provided'
+        back_url = 'https://github.com/gateway4labs/'
+
     reservation_url = '%(url)s/reserve/?system_login=%(login)s&system_password=%(password)s&username=%(username)s&back_url=%(back_url)s' % {
                             'url' : LAB_URL,
                             'login' : LAB_LOGIN,
