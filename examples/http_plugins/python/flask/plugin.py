@@ -1,6 +1,6 @@
 import json
 import requests
-from flask import Flask, Response, request
+from flask import Flask, Response, request, Blueprint
 
 app = Flask(__name__)
 
@@ -21,9 +21,10 @@ def save_config(config):
 
 # 
 # First, the credentials management. In Flask, this is applied to all the
-# web methods.
+# web methods of this Blueprint.
 # 
-@app.before_request
+plugin = Blueprint('plugin', __name__)
+@plugin.before_request
 def check_credentials():
     UNAUTHORIZED = Response(response="Could not verify your credentials", status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
     auth = request.authorization
@@ -39,43 +40,53 @@ def check_credentials():
 # Static methods (e.g., 
 # 
 
-@app.route('/plugin/test-plugin')
+@plugin.route('/test-plugin')
 def test_plugin():
     return json.dumps({
         'valid' : True,
         'g4l-api-version' : VERSION
     })
 
-@app.route('/plugin/capabilities')
+@plugin.route('/capabilities')
 def capabilities():
     return json.dumps({
         'capabilities' : ['widget']
     })
 
-@app.route('/plugin/setup')
+@plugin.route('/setup')
 def setup():
     pass # TODO
 
-@app.route('/plugin/test-config')
+@plugin.route('/test-config')
 def test_config():
     pass # TODO
 
-@app.route('/plugin/labs')
+@plugin.route('/labs')
 def labs():
     pass # TODO
 
-@app.route('/plugins/reserve', methods = ['GET', 'POST'])
+@plugin.route('/reserve', methods = ['GET', 'POST'])
 def reserve():
     pass # TODO
 
 # OPTIONAL: support for widgets
-@app.route('/plugin/widgets')
+@plugin.route('/widgets')
 def widgets():
     pass # TODO
 
-@app.route('/plugins/widget')
+@plugin.route('/widget')
 def widget():
     pass # TODO
+
+app.register_blueprint(plugin, url_prefix = '/plugin')
+
+#################################
+# 
+# Setup application
+# 
+@app.route('/setup/')
+def setup_app():
+    return ":-)"
 
 if __name__ == '__main__':
     app.run(port=5002, debug = True)
