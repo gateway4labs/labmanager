@@ -103,5 +103,15 @@ def reserve():
         'error' : 'invalid credentials'
     })
 
+@app.route('/lab/test/')
+def test():
+    system_login    = request.args.get('system_login')
+    system_password = request.args.get('system_password')
+    
+    if system_login == SYSTEM_LOGIN and system_password == SYSTEM_PASSWORD:
+        return 'ok'
+
+    return 'Invalid credentials'
+
 if __name__ == '__main__':
     app.run(port = 5001, debug = True)
