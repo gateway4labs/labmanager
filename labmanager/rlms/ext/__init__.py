@@ -22,6 +22,9 @@ We use the flask.exthook to do this.
 import virtual
 assert virtual is not None # pyflakes warning
 
+import rest
+assert rest is not None # pyflakes warning
+
 def setup():
     from flask.exthook import ExtensionImporter
     importer = ExtensionImporter(['g4l_rlms_%s'], __name__)
