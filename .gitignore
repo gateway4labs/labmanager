@@ -1,6 +1,9 @@
 # Selenium files
 C:\\nppdf32Log*
 
+# Vagrant files
+.vagrant
+
 # Test database
 test_db.sqlite3
 
