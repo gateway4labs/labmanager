@@ -24,7 +24,7 @@ class HttpAddForm(AddForm):
 
     base_url = TextField("Base URL",    validators = [Required(), URL() ])
     login    = TextField("Login",    validators = [Required() ])
-    password = PasswordField("Login",    validators = [Required() ])
+    password = PasswordField("Password",    validators = [Required() ])
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(HttpAddForm, self).__init__(*args, **kwargs)
@@ -72,6 +72,13 @@ class RLMS(BaseRLMS):
         r = requests.get('%s%s' % (self.base_url, remaining), auth = (self.login, self.passwod), headers = headers)
         return r.json()
 
+    def _request_post(self, remaining, data, headers = None):
+        if headers is None:
+            headers = {}
+        headers['Content-Type'] = 'application/json'
+        r = requests.post('%s%s' % (self.base_url, remaining), data = json.dumps(data), auth = (self.login, self.passwod), headers = headers)
+        return r.json()
+
     def get_version(self):
         return Versions.VERSION_1
 
@@ -91,10 +98,20 @@ class RLMS(BaseRLMS):
         return laboratories
 
     def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
-        # TODO
+        request = {
+            'laboratory_id' :  laboratory_id,
+            'username'    : username,
+            'institution' : institution,
+            'general_configuration_str' : general_configuration_str,
+            'particular_configurations' : particular_configurations,
+            'request_payload' : request_payload,
+            'user_properties' : user_properties,
+        }
+        request.update(kwargs)
+        response = self._request_post('/reserve', request)
         return {
-            'reservation_id' : 'not-required',
-            'load_url' : self.web
+            'reservation_id' : response['reservation_id'],
+            'load_url' : response['load_url']
         }
 
     def load_widget(self, reservation_id, widget_name, **kwargs):
