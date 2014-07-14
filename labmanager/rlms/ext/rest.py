@@ -69,14 +69,14 @@ class RLMS(BaseRLMS):
             raise Exception("Laboratory misconfigured: fields missing" )
 
     def _request(self, remaining, headers = {}):
-        r = requests.get('%s%s' % (self.base_url, remaining), auth = (self.login, self.passwod), headers = headers)
+        r = requests.get('%s%s' % (self.base_url, remaining), auth = (self.login, self.password), headers = headers)
         return r.json()
 
     def _request_post(self, remaining, data, headers = None):
         if headers is None:
             headers = {}
         headers['Content-Type'] = 'application/json'
-        r = requests.post('%s%s' % (self.base_url, remaining), data = json.dumps(data), auth = (self.login, self.passwod), headers = headers)
+        r = requests.post('%s%s' % (self.base_url, remaining), data = json.dumps(data), auth = (self.login, self.password), headers = headers)
         return r.json()
 
     def get_version(self):
@@ -94,7 +94,7 @@ class RLMS(BaseRLMS):
         laboratories = []
         for lab in labs:
             laboratory = Laboratory(name = lab['name'], laboratory_id = lab['laboratory_id'], description = lab.get('description'), autoload = lab.get('autoload'))
-            laboratories.append(lab)
+            laboratories.append(laboratory)
         return laboratories
 
     def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
