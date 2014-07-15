@@ -10,6 +10,9 @@ import os
 import sys
 import optparse
 
+import labmanager.utils as labmanager_utils
+assert labmanager_utils is not None # pyflakes warning
+
 # 
 # Import the Flask global application and the configuration
 # 

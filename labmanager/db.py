@@ -54,7 +54,10 @@ def init_db(drop = False):
 
     alembic_config = create_alembic_config()
 
-    command.upgrade(alembic_config, "head")
+    alembic_config.set_section_option('logger_alembic', 'level', 'WARN')
+
+    Base.metadata.create_all(engine)
+    command.stamp(alembic_config, "head")
 
     password = unicode(hashlib.new('sha', 'password').hexdigest())
     admin_user = LabManagerUser(u'admin', u'Administrator', password)
