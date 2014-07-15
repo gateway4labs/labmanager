@@ -15,7 +15,6 @@
 import os
 
 from flask import Flask, render_template, redirect, url_for
-from labmanager.db import db_session
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -74,6 +73,8 @@ else:
 # 
 # Initialize administration panels
 # 
+from labmanager.db import db_session
+
 from .views.admin import init_admin
 init_admin(app, db_session)
 

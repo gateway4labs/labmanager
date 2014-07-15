@@ -12,6 +12,5 @@ os.chdir(LABMANAGER_DIR)
 
 import config
 
-from labmanager import app as application, bootstrap
-bootstrap()
+from labmanager import app as application
 application.config.from_object('config')

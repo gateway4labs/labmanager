@@ -16,14 +16,14 @@ from alembic import command
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from config import SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
 from labmanager.utils import data_filename
+from labmanager.application import app
 
-if USE_PYMYSQL:
+if app.config.get('USE_PYMYSQL', False):
     import pymysql_sa
     pymysql_sa.make_default_mysql_dialect()
 
-engine = create_engine(SQLALCHEMY_ENGINE_STR, convert_unicode=True, pool_recycle=3600)
+engine = create_engine(app.config['SQLALCHEMY_ENGINE_STR'], convert_unicode=True, pool_recycle=3600)
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
@@ -34,8 +34,8 @@ Base.query = db_session.query_property()
 def create_alembic_config():
     alembic_config = Config("alembic.ini")
     alembic_config.set_main_option("script_location", os.path.abspath(data_filename('alembic')))
-    alembic_config.set_main_option("url", SQLALCHEMY_ENGINE_STR)
-    alembic_config.set_main_option("sqlalchemy.url", SQLALCHEMY_ENGINE_STR)
+    alembic_config.set_main_option("url", app.config['SQLALCHEMY_ENGINE_STR'])
+    alembic_config.set_main_option("sqlalchemy.url", app.config['SQLALCHEMY_ENGINE_STR'])
     return alembic_config
 
 def init_db(drop = False):
@@ -66,7 +66,7 @@ def check_version():
     script = ScriptDirectory.from_config(alembic_config)
     head = script.get_current_head()
 
-    engine = create_engine(SQLALCHEMY_ENGINE_STR)
+    engine = create_engine(app.config['SQLALCHEMY_ENGINE_STR'])
 
     context = MigrationContext.configure(engine)
     current_rev = context.get_current_revision()

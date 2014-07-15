@@ -14,7 +14,6 @@ import optparse
 # Import the Flask global application and the configuration
 # 
 from application import app
-import config as _config
 
 # 
 # Blueprints (application modules). The following are present:
@@ -40,7 +39,7 @@ def load_rlms_modules():
 
     Expand documentation on how to add a new one.
     """
-    if len(_config.RLMS) == 0:
+    if len(app.config['RLMS']) == 0:
         print >> sys.stderr, "Warning: RLMS configuration variable empty or not found."
         print >> sys.stderr, "Warning: This means that this LabManager can not handle any remote lab, which"
         print >> sys.stderr, "Warning: does not make sense. You should add a RLMS = [] variable in your "
@@ -50,7 +49,7 @@ def load_rlms_modules():
     import labmanager.rlms.ext.virtual as virtual
     assert virtual is not None # pyflakes warning
 
-    for _rlms in _config.RLMS:
+    for _rlms in app.config['RLMS']:
         __import__('labmanager.rlms.ext.%s' % _rlms)
 
 # This will register all the RLMSs in the global registry. So it will
@@ -69,11 +68,13 @@ def register_blueprints():
     for url, blueprint in _BLUEPRINTS.items():
         app.register_blueprint(blueprint, url_prefix='/rlms' + url)
 
-def bootstrap():
-    load_views()
-    load_rlms_modules()
-    register_blueprints()
-    # print app.url_map
+load_views()
+load_rlms_modules()
+register_blueprints()
+# print app.url_map
+
+# Maintained for compatibility (it might be deployed in certain .wsgi files in other servers)
+def bootstrap(): pass
 
 def run():
     from .db import check_version
@@ -82,8 +83,6 @@ def run():
         print >> sys.stderr, "  alembic upgrade head"
         print >> sys.stderr, "And then run this script again"
         sys.exit(-1)
-
-    bootstrap()
 
     parser = optparse.OptionParser(usage =  "Run in development mode the LabManager. In production, please use WSGI.")
 
