@@ -20,10 +20,10 @@
         <tr>
             <td rowspan="3">{{ widget['name'] }}</td>
             <td>{{ widget['description'] }}</td>
-            <td><a href="{{ url_for('opensocial.public_widget_xml', lab_name = lab_name, widget_name = widget['name'], _external = True) }}">widget_{{ widget['name'] }}.xml</a></td>
+            <td><a href="{{ links[widget['name']] }}">widget_{{ widget['name'] }}.xml</a></td>
         </tr>
         <tr>
-            <td colspan="2"><input type="text" value="{{ url_for('opensocial.public_widget_xml', lab_name = lab_name, widget_name = widget['name'], _external = True) }}" style="width: 95%"></td>
+            <td colspan="2"><input type="text" value="{{ links[widget['name']] }}" style="width: 95%"></td>
         </tr>
         <tr>
             <td colspan="2"><div class="text-center" id="widget_container_{{ loop.index0 }}" style="width: 100%"><button id="widget_{{ loop.index0 }}" type="button" class="btn btn-success">{{ gettext("Preview widget") }}</button></div></td>
