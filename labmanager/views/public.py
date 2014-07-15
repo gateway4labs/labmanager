@@ -71,7 +71,7 @@ class PublicLaboratoriesPanel(ModelView):
         for widget in widgets:
             link = url_for('opensocial.public_widget_xml', lab_name = public_identifier, widget_name = widget['name'], _external = True)
             if link.startswith('https://'):
-                link = link.replace('https://', 'http://', max = 1)
+                link = link.replace('https://', 'http://', 1)
             links[widget['name']] = link
 
         return self.render("public/list_widgets.html", widgets = widgets, lab_name = public_identifier, links = links)
