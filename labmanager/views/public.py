@@ -65,7 +65,16 @@ class PublicLaboratoriesPanel(ModelView):
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
         widgets = rlms.list_widgets(laboratory.laboratory_id)
-        return self.render("public/list_widgets.html", widgets = widgets, lab_name = public_identifier)
+        links = {
+            # widget-name : link
+        }
+        for widget in widgets:
+            link = url_for('opensocial.public_widget_xml', lab_name = public_identifier, widget_name = widget['name'], _external = True)
+            if link.startswith('https://'):
+                link = link.replace('https://', 'http://', max = 1)
+            links[widget['name']] = link
+
+        return self.render("public/list_widgets.html", widgets = widgets, lab_name = public_identifier, links = links)
 
 ############################################## 
 # 
