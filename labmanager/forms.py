@@ -9,6 +9,7 @@
 from flask.ext.wtf import Form, TextField, Required, PasswordField, ValidationError, validators
 from labmanager.babel import gettext, lazy_gettext
 
+
 class RetrospectiveForm(Form):
 
     def get_field_names(self):
@@ -19,7 +20,9 @@ class RetrospectiveForm(Form):
         return field_names
 
 class AddForm(RetrospectiveForm):
-    pass
+    url       = TextField(lazy_gettext('URL'), validators = [ validators.URL(require_tld = False), validators.Required() ])
+    location  = TextField(lazy_gettext('Location'), validators = [ validators.Required() ])
+
 
 class AddLmsForm(RetrospectiveForm):
     name      = TextField(lazy_gettext("Name"), validators = [ Required() ])

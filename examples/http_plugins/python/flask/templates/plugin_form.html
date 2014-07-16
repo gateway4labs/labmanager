@@ -1,6 +1,6 @@
 <html>
 <body>
-<h1>Plug-in setup</h1>
+<h1>Plug-in setup (<a href="{{ back_url }}">back</a>)</h1>
 <p>This is just a demo of how the plug-in can be configured in its own screen. This screen is only accessed by the LabManager administrator to configure the screen. It's not even needed in most scenarios, but sometimes the plug-in could have more than one user (e.g., different LabManagers), and different setups for different LabManager.</p>
 <p>This case is simpler, though. You only need to put a password, which by default is password, so the HTTP plug-in can interact with the final laboratory.</p>
 <form method="POST" action="{{ url_for('setup_app', reservation_id = reservation_id) }}">

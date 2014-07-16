@@ -50,7 +50,7 @@ def check_credentials():
 # Static methods (e.g., plug-in capabilities or version) 
 # 
 
-@plugin.route('/test-plugin')
+@plugin.route('/test_plugin')
 def test_plugin():
     return json.dumps({
         'valid' : True,
@@ -123,7 +123,7 @@ def widget():
 # 
 
 
-@plugin.route('/test-config')
+@plugin.route('/test_config')
 def test_config():
     config = get_config()
     r = requests.get('%(base_url)s/test/?system_login=%(login)s&system_password=%(password)s' % {
@@ -207,6 +207,7 @@ def setup():
 RESERVATIONS = {
     # 'reservation_identifier' : {
     #     'expires' : datetime.datetime.now() + 5 minutes
+    #     'back_url' : 'url-to-go'
     # }
 }
 
@@ -226,7 +227,7 @@ def setup_app():
         save_config({ 'password' : password })
 
     current_password = get_config().get('password', '')
-    return render_template('plugin_form.html', reservation_id = reservation_id, current_password = current_password)
+    return render_template('plugin_form.html', reservation_id = reservation_id, current_password = current_password, back_url = reservation['back_url'])
 
 
 app.register_blueprint(plugin, url_prefix = '/plugin')

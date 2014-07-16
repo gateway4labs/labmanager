@@ -1,0 +1,29 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+
+<div class="row">
+    <div class="span8 offset2 text-center">
+        <h3>{{gettext('Create RLMS')}}</h3>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Version</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, version in rlmss %}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>{{ version }}</td>
+                    <td><a href="{{ url_for('.create_rlms', rlms = name, version = version) }}" class="btn btn-primary">{{ gettext("Create") }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

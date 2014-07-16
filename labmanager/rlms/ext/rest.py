@@ -22,7 +22,7 @@ def get_module(version):
 
 class HttpAddForm(AddForm):
 
-    base_url = TextField("Base URL",    validators = [Required(), URL() ])
+    base_url = TextField("Base URL",    validators = [Required(), URL(False) ])
     login    = TextField("Login",    validators = [Required() ])
     password = PasswordField("Password",    validators = [Required() ])
 
@@ -86,8 +86,15 @@ class RLMS(BaseRLMS):
         capabilities = self._request('/capabilities')
         return capabilities['capabilities']
 
+    def setup(self, back_url):
+        setup_url = self._request('/setup?back_url=%s' % back_url)
+        return setup_url['url']
+
     def test(self):
-        return self._request('/test-plugin').get('valid', False)
+        response = self._request('/test_plugin')
+        valid = response.get('valid', False)
+        if not valid:
+            return response.get('error_messages', ['Invalid error message'])
 
     def get_laboratories(self, **kwargs):
         labs = self._request('/labs')['labs']
@@ -132,4 +139,8 @@ class RLMS(BaseRLMS):
 
         return widgets
 
-register("HTTP plug-in", ['1.0'], __name__)
+PLUGIN_NAME = "HTTP plug-in"
+PLUGIN_VERSIONS = ['1.0']
+
+register(PLUGIN_NAME, PLUGIN_VERSIONS, __name__)
+
