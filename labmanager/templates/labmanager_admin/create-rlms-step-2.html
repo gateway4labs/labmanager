@@ -27,10 +27,11 @@
             {% endfor %}
 
             <div class="form-actions">
+                <a href="{{ url_for('.index_view') }}" class="btn btn-danger" name="action" type="submit" value="register">{{gettext('Back')}}</a>
                 <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Create RLMS')}}</button>
             </div>
         </form>
-               
+        
     </div>
 </div>
 

@@ -64,12 +64,18 @@ class RLMS(BaseRLMS):
 
         self.login    = config.get('login')
         self.password = config.get('password')
+        self.context_id = str(config.get('context_id', ''))
 
         if not self.base_url or not self.login or not self.password:
             raise Exception("Laboratory misconfigured: fields missing" )
 
     def _request(self, remaining, headers = {}):
-        r = requests.get('%s%s' % (self.base_url, remaining), auth = (self.login, self.password), headers = headers)
+        if '?' in remaining:
+            context_remaining = remaining + '&context_id=' + self.context_id
+        else:
+            context_remaining = remaining + '?context_id=' + self.context_id
+        r = requests.get('%s%s' % (self.base_url, context_remaining), auth = (self.login, self.password), headers = headers)
+        r.raise_for_status()
         return r.json()
 
     def _request_post(self, remaining, data, headers = None):

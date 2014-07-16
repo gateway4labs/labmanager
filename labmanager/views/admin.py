@@ -277,7 +277,8 @@ class RLMSPanel(L4lModelView):
     }
 
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list")))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list"))),
+            url = lambda v, c, rlms, p: Markup('<a href="%s" target="_blank">%s</a>' % (rlms.url, rlms.url))
         )
 
     def __init__(self, session, **kwargs):
@@ -333,6 +334,19 @@ class RLMSPanel(L4lModelView):
                 rlms_id = new_rlms.id
                 labs_url = url_for('.labs', id = rlms_id, _external = True)
                 if rlms == http_plugin.PLUGIN_NAME:
+                    # First, store the rlms identifier in the database in the context_id
+                    configuration['context_id'] = rlms_id
+                    config_json = json.dumps(configuration)
+                    new_rlms.configuration = config_json
+                    try:
+                        self.session.commit()
+                    except:
+                        self.session.rollback()
+                        raise
+                    
+                    # Then, re-create the manager class and call setup
+                    rlms_instance = ManagerClass(config_json)
+
                     setup_url = rlms_instance.setup(back_url = labs_url)
                     return redirect(setup_url)
 
