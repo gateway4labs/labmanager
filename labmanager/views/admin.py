@@ -265,6 +265,7 @@ class CoursePanel(L4lModelView):
 # 
 #                   RLMS views
 # 
+class RLMSObject(object): pass
 
 class RLMSPanel(L4lModelView):
     # For listing 
@@ -301,11 +302,14 @@ class RLMSPanel(L4lModelView):
         if version not in supported_versions:
             return "RLMS version not found", 404
 
+        return self.add_or_edit(rlms, version, True, None, {})
+
+    def add_or_edit(self, rlms, version, add_or_edit, obj, config):
         form_class = get_form_class(rlms, version)
-        form = form_class(add_or_edit=True)
+        form = form_class(add_or_edit=add_or_edit, obj = obj)
         error_messages = []
         if form.validate_on_submit():
-            configuration = {}
+            configuration = config
             for key in form.get_field_names():
                 if key not in dir(forms.AddForm):
                     configuration[key] = getattr(form, key).data
@@ -354,29 +358,23 @@ class RLMSPanel(L4lModelView):
 
         return self.render('labmanager_admin/create-rlms-step-2.html', name = rlms, version = version, form = form, fields = form.get_field_names(), error_messages = error_messages )
 
-    @expose('/edit/')
+    @expose('/edit/', methods = ['GET', 'POST'])
     def edit_view(self):
-        model_id = request.args.get('id')
-        return "%s :-O" % model_id
+        rlms_id = request.args.get('id')
+        if not rlms_id:
+            return "RLMS id not found", 404
+        rlms = self.session.query(RLMS).filter_by(id = rlms_id).first()
+        if not rlms:
+            return "RLMS not found", 404
 
-    def on_model_change(self, form, model):
-        if model.kind == '':
-            abort(406)
-        if '<>' in model.kind:
-            rlms_ver = model.kind.split('<>')
-            model.kind, model.version = rlms_ver[0], rlms_ver[1]
-        if not model.configuration:
-            other_data = {}
-        else:
-            other_data = json.loads(model.configuration)
-        for key in form.get_field_names():
-            if key not in RLMSPanel.form_columns:
-                # TODO: this should be RLMS specific
-                if 'password' in key and getattr(form, key).data == '':
-                    pass # Passwords can be skipped
-                else:
-                    other_data[key] = getattr(form, key).data
-        model.configuration = json.dumps(other_data)
+        config = json.loads(rlms.configuration)
+        rlms_obj = RLMSObject()
+        rlms_obj.url = rlms.url
+        rlms_obj.location = rlms.location
+        for key in config:
+            setattr(rlms_obj, key, config[key])
+
+        return self.add_or_edit(rlms.kind, rlms.version, False, rlms_obj, {})
 
     @expose('/labs/<id>/', methods = ['GET','POST'])
     def labs(self, id):
