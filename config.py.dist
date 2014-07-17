@@ -25,6 +25,7 @@ if SQLALCHEMY_DATABASE_URI is None:
 DEBUG      = True
 SECRET_KEY = 'secret'
 DEBUGGING_REQUESTS = False
+SESSION_COOKIE_PATH = '/' # To avoid conflicts with other deployments
 
 WEBLABDEUSTO_LABS = {
 

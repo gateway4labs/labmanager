@@ -28,6 +28,9 @@ if 'SQLALCHEMY_POOL_RECYCLE' not in app.config and app.config['SQLALCHEMY_DATABA
     print "WARNING: SQLALCHEMY_POOL_RECYCLE not set. Defaults to 3600. Put it in the configuration file"
     app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
 
+if 'SESSION_COOKIE_PATH' not in app.config or not app.config.get('SESSION_COOKIE_PATH'):
+    print "WARNING: You should always set SESSION_COOKIE_PATH to / or /whatever, wherever the application is, to avoid conflicts between different deployments"
+
 if app.config['DEBUG']:
     app.secret_key = 'secret'
     import labmanager.views.fake_lms as fake_lms
