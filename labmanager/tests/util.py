@@ -13,7 +13,7 @@ class G4lTestCase(TestCase):
         return app
 
     def setUp(self):
-        add_sample_users()
+        add_sample_users(silence = True)
 
     def tearDown(self):
         db.session.remove()

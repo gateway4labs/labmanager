@@ -13,9 +13,9 @@ from .db import db, init_db, app
 from .models import LtUser, PermissionToLt, Laboratory, PermissionToLtUser
 from .models import LearningTool, RLMS, PermissionToCourse, BasicHttpCredentials, ShindigCredentials, Course
 
-def add_sample_users():
+def add_sample_users(silence = False):
 
-    init_db(drop = True)
+    init_db(drop = True, silence = silence)
 
     with app.app_context():
         #################################################

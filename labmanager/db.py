@@ -29,14 +29,17 @@ db.init_app(app)
 
 Base = db.Model
 
-def create_alembic_config():
-    alembic_config = Config("alembic.ini")
+def create_alembic_config(silence = False):
+    if silence:
+        alembic_config = Config("alembic_test.ini")
+    else:
+        alembic_config = Config("alembic.ini")
     alembic_config.set_main_option("script_location", os.path.abspath(data_filename('alembic')))
     alembic_config.set_main_option("url", app.config['SQLALCHEMY_DATABASE_URI'])
     alembic_config.set_main_option("sqlalchemy.url", app.config['SQLALCHEMY_DATABASE_URI'])
     return alembic_config
 
-def init_db(drop = False):
+def init_db(drop = False, silence = False):
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
@@ -52,7 +55,7 @@ def init_db(drop = False):
         if 'alembic_version' in meta.tables:
             meta.drop_all()
 
-    alembic_config = create_alembic_config()
+    alembic_config = create_alembic_config(silence)
 
     alembic_config.set_section_option('logger_alembic', 'level', 'WARN')
 
