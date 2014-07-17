@@ -8,6 +8,11 @@ from flask.ext.login import UserMixin
 from labmanager.db import db
 from labmanager.babel import gettext
 
+TABLE_KWARGS = {
+    'mysql_engine' : 'InnoDB',
+    # Complete me
+}
+
 class SBBase(object):
     @classmethod
     def find(klass, query_id = None, **kwargs):
@@ -57,6 +62,8 @@ class SBBase(object):
 
 class LabManagerUser(db.Model, SBBase, UserMixin):
     __tablename__ = 'labmanager_users'
+    __table_args__ = (TABLE_KWARGS)
+
     id = db.Column(db.Integer, primary_key=True)
     login    = db.Column(db.Unicode(50), unique = True, nullable = False)
     name     = db.Column(db.Unicode(50), nullable = False)
@@ -89,6 +96,8 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
 
 class RLMS(db.Model, SBBase):
     __tablename__ = 'rlmss'
+    __table_args__ = (TABLE_KWARGS)
+
     id = db.Column(db.Integer, primary_key = True)
     kind = db.Column(db.Unicode(50), nullable = False)
     location = db.Column(db.Unicode(50), nullable = False)
@@ -118,10 +127,12 @@ class RLMS(db.Model, SBBase):
 
 class Laboratory(db.Model, SBBase):
     __tablename__ = 'laboratories'
-    __table_args__ = (db.UniqueConstraint('laboratory_id', 'rlms_id'), )
+    __table_args__ = (db.UniqueConstraint('laboratory_id', 'rlms_id'), TABLE_KWARGS)
+
     id = db.Column(db.Integer, primary_key = True)
-    name                     = db.Column(db.Unicode(350), nullable = False)
-    laboratory_id            = db.Column(db.Unicode(350), nullable = False)
+
+    name                     = db.Column(db.Unicode(255), nullable = False)
+    laboratory_id            = db.Column(db.Unicode(255), nullable = False)
     rlms_id                  = db.Column(db.Integer, db.ForeignKey('rlmss.id'), nullable = False)
     visibility               = db.Column(db.Unicode(50), nullable = False, index = True, default = u'private')
     available                = db.Column(db.Boolean, nullable = False, index = True, default = False)
@@ -151,7 +162,7 @@ class Laboratory(db.Model, SBBase):
 
 class LearningTool(db.Model, SBBase):
     __tablename__  = 'learning_tools'
-    __table_args__ = (db.UniqueConstraint('name'), db.UniqueConstraint('full_name'))
+    __table_args__ = (db.UniqueConstraint('name'), db.UniqueConstraint('full_name'), TABLE_KWARGS)
     id = db.Column(db.Integer, primary_key = True)
     name      = db.Column(db.Unicode(50), nullable = False, index = True)
     full_name = db.Column(db.Unicode(50), nullable = False, index = True)
@@ -177,7 +188,7 @@ class LearningTool(db.Model, SBBase):
 
 class BasicHttpCredentials(db.Model, SBBase):
     __tablename__  = 'basic_http_credentials'
-    __table_args__ = (db.UniqueConstraint('lt_login'), db.UniqueConstraint('lt_id'))
+    __table_args__ = (db.UniqueConstraint('lt_login'), db.UniqueConstraint('lt_id'), TABLE_KWARGS)
     id        = db.Column(db.Integer, primary_key = True)
     lt_id        = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
 
@@ -219,7 +230,7 @@ class BasicHttpCredentials(db.Model, SBBase):
 
 class ShindigCredentials(db.Model, SBBase):
     __tablename__  = 'shindig_credentials'
-    __table_args__ = (db.UniqueConstraint('lt_id'),)
+    __table_args__ = (db.UniqueConstraint('lt_id'), TABLE_KWARGS)
     id        = db.Column(db.Integer, primary_key = True)
     lt_id        = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
 
@@ -253,7 +264,7 @@ users2courses_relation = db.Table('users2courses',
 
 class LtUser(db.Model, SBBase, UserMixin):
     __tablename__  = 'lt_users'
-    __table_args__ = (db.UniqueConstraint('login','lt_id'), )
+    __table_args__ = (db.UniqueConstraint('login','lt_id'), TABLE_KWARGS)
     id           = db.Column(db.Integer, primary_key = True)
     login        = db.Column(db.Unicode(50), nullable = False, index = True)
     full_name    = db.Column(db.Unicode(50), nullable = False)
@@ -292,7 +303,7 @@ class LtUser(db.Model, SBBase, UserMixin):
 
 class Course(db.Model, SBBase):
     __tablename__ = 'courses'
-    __table_args__ = (db.UniqueConstraint('lt_id','context_id'), )
+    __table_args__ = (db.UniqueConstraint('lt_id','context_id'), TABLE_KWARGS)
     id = db.Column(db.Integer, primary_key = True)
     lt_id = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
     name = db.Column(db.Unicode(50), nullable = False)
@@ -332,7 +343,7 @@ class Course(db.Model, SBBase):
 
 class PermissionToLt(db.Model, SBBase):
     __tablename__ = 'permissions2lt'
-    __table_args__ = (db.UniqueConstraint('laboratory_id', 'lt_id'), db.UniqueConstraint('local_identifier', 'lt_id'))
+    __table_args__ = (db.UniqueConstraint('laboratory_id', 'lt_id'), db.UniqueConstraint('local_identifier', 'lt_id'), TABLE_KWARGS)
     id = db.Column(db.Integer, primary_key = True)
     local_identifier     = db.Column(db.Unicode(100), nullable = False, index = True)
     laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable = False)
@@ -362,7 +373,7 @@ class PermissionToLt(db.Model, SBBase):
 
 class PermissionToLtUser(db.Model, SBBase):
     __tablename__  = 'permissions2ltuser'
-    __table_args__ = (db.UniqueConstraint('permission_to_lt_id', 'lt_user_id'),)
+    __table_args__ = (db.UniqueConstraint('permission_to_lt_id', 'lt_user_id'), TABLE_KWARGS)
     id = db.Column(db.Integer, primary_key = True)
     permission_to_lt_id = db.Column(db.Integer, db.ForeignKey('permissions2lt.id'), nullable = False, index = True)
     lt_user_id          = db.Column(db.Integer, db.ForeignKey('lt_users.id'), nullable = False, index = True)
@@ -389,7 +400,7 @@ class PermissionToLtUser(db.Model, SBBase):
 
 class PermissionToCourse(db.Model, SBBase):
     __tablename__  = 'permissions2course'
-    __table_args__ = (db.UniqueConstraint('permission_to_lt_id', 'course_id'),)
+    __table_args__ = (db.UniqueConstraint('permission_to_lt_id', 'course_id'), TABLE_KWARGS)
     id = db.Column(db.Integer, primary_key = True)
     configuration = db.Column(db.Unicode(10 * 1024), nullable = True)
     permission_to_lt_id = db.Column(db.Integer, db.ForeignKey('permissions2lt.id'), nullable = False)
@@ -418,7 +429,7 @@ class PermissionToCourse(db.Model, SBBase):
 
 class RequestPermissionLT(db.Model, SBBase):
     __tablename__ = 'request_permissions_lt'
-    __table_args__ = (db.UniqueConstraint('laboratory_id', 'lt_id'), db.UniqueConstraint('local_identifier', 'lt_id'))
+    __table_args__ = (db.UniqueConstraint('laboratory_id', 'lt_id'), db.UniqueConstraint('local_identifier', 'lt_id'), TABLE_KWARGS)
     id = db.Column(db.Integer, primary_key = True)
     local_identifier     = db.Column(db.Unicode(100), nullable = False, index = True)
     laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable = False)
