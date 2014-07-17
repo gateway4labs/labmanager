@@ -302,61 +302,7 @@ class RLMSPanel(L4lModelView):
         if version not in supported_versions:
             return "RLMS version not found", 404
 
-        return self.add_or_edit(rlms, version, True, None, {})
-
-    def add_or_edit(self, rlms, version, add_or_edit, obj, config):
-        form_class = get_form_class(rlms, version)
-        form = form_class(add_or_edit=add_or_edit, obj = obj)
-        error_messages = []
-        if form.validate_on_submit():
-            configuration = config
-            for key in form.get_field_names():
-                if key not in dir(forms.AddForm):
-                    configuration[key] = getattr(form, key).data
-            config_json = json.dumps(configuration)
-
-            ManagerClass = get_manager_class(rlms, version)
-            rlms_instance = ManagerClass(config_json)
-            if hasattr(rlms_instance, 'test'):
-                try:
-                    error_messages = rlms_instance.test()
-                except Exception as e:
-                    error_messages = ["Error testing the RLMS: %s" % e]
-                    traceback.print_exc()
-
-            if not error_messages:
-                new_rlms = RLMS(kind = rlms, version = version,
-                                url = form.url.data, location = form.location.data,
-                                configuration = config_json)
-                self.session.add(new_rlms)
-                try:
-                    self.session.commit()
-                except:
-                    self.session.rollback()
-                    raise
-
-                rlms_id = new_rlms.id
-                labs_url = url_for('.labs', id = rlms_id, _external = True)
-                if rlms == http_plugin.PLUGIN_NAME:
-                    # First, store the rlms identifier in the database in the context_id
-                    configuration['context_id'] = rlms_id
-                    config_json = json.dumps(configuration)
-                    new_rlms.configuration = config_json
-                    try:
-                        self.session.commit()
-                    except:
-                        self.session.rollback()
-                        raise
-                    
-                    # Then, re-create the manager class and call setup
-                    rlms_instance = ManagerClass(config_json)
-
-                    setup_url = rlms_instance.setup(back_url = labs_url)
-                    return redirect(setup_url)
-
-                return redirect(labs_url)
-
-        return self.render('labmanager_admin/create-rlms-step-2.html', name = rlms, version = version, form = form, fields = form.get_field_names(), error_messages = error_messages )
+        return self._add_or_edit(rlms, version, True, None, {})
 
     @expose('/edit/', methods = ['GET', 'POST'])
     def edit_view(self):
@@ -374,7 +320,100 @@ class RLMSPanel(L4lModelView):
         for key in config:
             setattr(rlms_obj, key, config[key])
 
-        return self.add_or_edit(rlms.kind, rlms.version, False, rlms_obj, {})
+        return self._add_or_edit(rlms.kind, rlms.version, False, rlms_obj, config)
+
+    def _add_or_edit(self, rlms, version, add_or_edit, obj, config):
+        edit_id = request.args.get('id')
+        form_class = get_form_class(rlms, version)
+        form = form_class(add_or_edit=add_or_edit, obj = obj)
+        error_messages = []
+        if form.validate_on_submit():
+            configuration = config
+            for key in form.get_field_names():
+                if key not in dir(forms.AddForm):
+                    field = getattr(form, key)
+                    is_password = 'password' in unicode(field.type).lower()
+                    # If we're editing, and this field is a password, do not change it
+                    if is_password and not add_or_edit and field.data == '':
+                        continue
+                    configuration[key] = field.data
+            config_json = json.dumps(configuration)
+
+            ManagerClass = get_manager_class(rlms, version)
+            rlms_instance = ManagerClass(config_json)
+            if hasattr(rlms_instance, 'test'):
+                try:
+                    error_messages = rlms_instance.test()
+                except Exception as e:
+                    error_messages = ["Error testing the RLMS: %s" % e]
+                    traceback.print_exc()
+
+            if not error_messages:
+                if add_or_edit:
+                    rlms_obj = RLMS(kind = rlms, version = version,
+                                url = form.url.data, location = form.location.data,
+                                configuration = config_json)
+                else:
+                    rlms_obj = self.session.query(RLMS).filter_by(id = edit_id).first()
+                    rlms_obj.url = form.url.data
+                    rlms_obj.location = form.location.data
+                    rlms_obj.configuration = config_json
+
+                self.session.add(rlms_obj)
+                try:
+                    self.session.commit()
+                except:
+                    self.session.rollback()
+                    raise
+                
+                if add_or_edit:
+                    rlms_id = rlms_obj.id
+                else:
+                    rlms_id = edit_id
+    
+                labs_url = url_for('.labs', id = rlms_id, _external = True)
+                if rlms == http_plugin.PLUGIN_NAME:
+                    if add_or_edit:
+                        # First, store the rlms identifier in the database in the context_id
+                        configuration['context_id'] = rlms_id
+                        config_json = json.dumps(configuration)
+                        rlms_obj.configuration = config_json
+                        try:
+                            self.session.commit()
+                        except:
+                            self.session.rollback()
+                            raise
+                    
+                    # Then, re-create the manager class and call setup
+                    rlms_instance = ManagerClass(config_json)
+
+                    setup_url = rlms_instance.setup(back_url = labs_url)
+                    return redirect(setup_url)
+
+                return redirect(labs_url)
+
+        if not add_or_edit and rlms == http_plugin.PLUGIN_NAME:
+            setup_url = url_for('.plugin_setup', rlms_id = edit_id)
+        else:
+            setup_url = None
+
+        return self.render('labmanager_admin/create-rlms-step-2.html', name = rlms, version = version, form = form, fields = form.get_field_names(), error_messages = error_messages, edit_id = edit_id, setup_url = setup_url)
+
+    @expose('/plugin-setup/<rlms_id>/', methods = ['GET', 'POST'])
+    def plugin_setup(self, rlms_id):
+        rlms_obj = self.session.query(RLMS).filter_by(id = rlms_id).first()
+        if not rlms_obj:
+            return "RLMS not found", 404
+        if rlms_obj.kind != http_plugin.PLUGIN_NAME:
+            return "RLMS is not HTTP", 400
+
+        ManagerClass = get_manager_class(rlms_obj.kind, rlms_obj.version)
+        rlms_instance = ManagerClass(rlms_obj.configuration)
+        back_url = url_for('.edit_view', id = rlms_id, _external = True)
+        setup_url = rlms_instance.setup(back_url = back_url)
+        return redirect(setup_url)
+
+
 
     @expose('/labs/<id>/', methods = ['GET','POST'])
     def labs(self, id):

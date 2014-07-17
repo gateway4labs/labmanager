@@ -17,8 +17,12 @@
 
 
         {% from "_form_helpers.html" import render_field %}
-
+        
+        {% if edit_id %}
+        <form action=".?id={{ edit_id }}" method="POST"  class="form-horizontal">
+        {% else %}
         <form action="." method="POST"  class="form-horizontal">
+        {% endif %}
 
             {{ form.hidden_tag() }}
 
@@ -27,8 +31,11 @@
             {% endfor %}
 
             <div class="form-actions">
-                <a href="{{ url_for('.index_view') }}" class="btn btn-danger" name="action" type="submit" value="register">{{gettext('Back')}}</a>
+                <a href="{{ url_for('.index_view') }}" class="btn btn-danger">{{gettext('Back')}}</a>
                 <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Create RLMS')}}</button>
+                {% if setup_url %}
+                    <a href="{{ setup_url }}" class="btn btn-info">{{ gettext("Setup") }}</a>
+                {% endif %}
             </div>
         </form>
         

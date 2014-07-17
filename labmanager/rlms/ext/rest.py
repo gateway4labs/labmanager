@@ -24,7 +24,7 @@ class HttpAddForm(AddForm):
 
     base_url = TextField("Base URL",    validators = [Required(), URL(False) ])
     login    = TextField("Login",    validators = [Required() ])
-    password = PasswordField("Password",    validators = [Required() ])
+    password = PasswordField("Password",    validators = [])
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(HttpAddForm, self).__init__(*args, **kwargs)
