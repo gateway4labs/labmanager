@@ -44,14 +44,11 @@ if heroku is None:
     else:
         print >> sys.stderr, "Unsupported engine %s. You will have to create the database and the users by your own." % config.ENGINE
 
-    ROOT_USERNAME = None
-    ROOT_PASSWORD = None
-
 from labmanager.db import init_db
 from labmanager.sample_data import add_sample_users
 
 
-def create_user():
+def create_user(db_user, db_password):
     if config.ENGINE == 'mysql':
         sentences = (
             "DROP USER '%s'@'localhost'" % config.USERNAME,
@@ -59,13 +56,9 @@ def create_user():
             "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (config.DBNAME, config.USERNAME, config.PASSWORD),
         )
 
-        global ROOT_USERNAME, ROOT_PASSWORD
-        ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
-        ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
-
         for num, sentence in enumerate(sentences):
             try:
-                connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD)
+                connection = dbi.connect(user=db_user, passwd=db_password)
                 cursor = connection.cursor()
                 cursor.execute(sentence)
                 connection.commit()
@@ -74,15 +67,10 @@ def create_user():
                 if num != 0: # If user does not exist
                     raise
 
-def create_db():
+def create_db(db_user, db_password):
     if config.ENGINE == 'mysql':
-        global ROOT_USERNAME, ROOT_PASSWORD
-        if ROOT_USERNAME is None or ROOT_PASSWORD is None:
-            ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
-            ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
-
         try:
-            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = config.DBNAME, host = config.HOST)
+            connection = dbi.connect(user=db_user, passwd=db_password, db = config.DBNAME, host = config.HOST)
         except:
             pass # DB does not exist
         else:
@@ -91,7 +79,7 @@ def create_db():
             connection.commit()
             connection.close()
 
-        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = config.HOST)
+        connection = dbi.connect(user=db_user, passwd=db_password, host = config.HOST)
         cursor = connection.cursor()
         cursor.execute("CREATE DATABASE %s" % config.DBNAME)
         connection.commit()
@@ -109,13 +97,28 @@ if __name__ == '__main__':
                     action="store_true", dest="add_sample_users", default=False,
                     help="Adds sample users")
 
+    parser.add_option("--db-user",
+                    dest="db_user", default="root",
+                    help="Database user")
+    parser.add_option("--db-password",
+                    dest="db_password", default=None,
+                    help="Database password")
+
     (options, args) = parser.parse_args()
 
+    if config.ENGINE == 'mysql':
+        db_user     = options.db_user
+        db_password = options.db_password
+        if db_password is None:
+            db_password = getpass.getpass( "MySQL administrator password: " )
+    else:
+        db_user = db_password = ""
+
     if options.create_user:
-        create_user()
+        create_user(db_user, db_password)
 
     if options.create_db:
-        create_db()
+        create_db(db_user, db_password)
 
     if options.add_sample_users:
         add_sample_users()

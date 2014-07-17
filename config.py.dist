@@ -15,6 +15,7 @@ if SQLALCHEMY_DATABASE_URI is None:
 
     if ENGINE == 'mysql':
         SQLALCHEMY_DATABASE_URI = "mysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
+        SQLALCHEMY_POOL_RECYCLE = 3600
     else:
         SQLALCHEMY_DATABASE_URI = "sqlite:///%s" % DBNAME
 
