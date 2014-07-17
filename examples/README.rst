@@ -1,7 +1,7 @@
 Examples
 ========
 
-You can see examples of the HTTP plug-ins in the 'http_plugins' directory. Regarding the Python plug-ins, you can see them at the following repositories:
+You can see examples of the HTTP plug-ins in the `http_plugins <https://github.com/gateway4labs/labmanager/tree/master/examples/http_plugins>`_ directory. Regarding the Python plug-ins, you can see them at the following repositories:
 
  - `WebLab-Deusto <https://github.com/gateway4labs/rlms_weblabdeusto>`_
  - `iLab Shared Architecture <https://github.com/gateway4labs/rlms_ilabs>`_
