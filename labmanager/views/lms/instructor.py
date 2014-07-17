@@ -12,6 +12,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 from labmanager.views import RedirectView
 from labmanager.babel import lazy_gettext
+from labmanager.db import db
 
 #################################################################
 # 
@@ -79,9 +80,9 @@ class PermissionToLmsUserPanel(L4lLmsInstructorModelView):
 #              Initialization
 # 
 
-def init_instructor_admin(app, db_session):
+def init_instructor_admin(app):
     lms_instructor_url = '/lms_instructor'
     lms_instructor = Admin(index_view = LmsInstructorPanel(url=lms_instructor_url, endpoint = 'lms_instructor'), name = lazy_gettext(u'LMS instructor'), url = lms_instructor_url, endpoint = 'lms-instructor')
-    lms_instructor.add_view(PermissionToLmsUserPanel(db_session, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_instructor_permissions', url = 'permissions'))
+    lms_instructor.add_view(PermissionToLmsUserPanel(db.session, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_instructor_permissions', url = 'permissions'))
     lms_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'lms_instructor_logout', url = 'logout'))
     lms_instructor.init_app(app)

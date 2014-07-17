@@ -51,6 +51,30 @@ def forbidden(e):
 def precondition_failed(e):
     return "412 precondition failed", 412
 
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='favicon.ico'))
+
+@app.route("/")
+def index():
+    """Global index for the whole application."""
+    return render_template("index.html")
+
+@app.route("/developers")
+def developers():
+    """Developer information about gateway4labs."""
+    return render_template("developers.html")
+
+@app.route("/about")
+def about():
+    """Global information about gateway4labs."""
+    return render_template("about.html")
+
+@app.teardown_request
+def shutdown_session(exception = None):
+    db.session.remove()
+
+
 from labmanager.babel import Babel
 from flask import request
 
@@ -86,24 +110,25 @@ else:
 # Initialize administration panels
 # 
 from labmanager.db import db
+assert db is not None
 
 from .views.admin import init_admin
-init_admin(app, db.session)
+init_admin(app)
 
 from .views.public import init_public_admin
-init_public_admin(app, db.session)
+init_public_admin(app)
 
 from .views.lms.admin import init_lms_admin
-init_lms_admin(app, db.session)
+init_lms_admin(app)
 
 from .views.lms.instructor import init_instructor_admin
-init_instructor_admin(app, db.session)
+init_instructor_admin(app)
 
 from .views.ple.admin import init_ple_admin
-init_ple_admin(app, db.session)
+init_ple_admin(app)
 
 from .views.ple.instructor import init_ple_instructor_admin
-init_ple_instructor_admin(app, db.session)
+init_ple_instructor_admin(app)
 
 # 
 # Initialize login subsystem
@@ -111,25 +136,3 @@ init_ple_instructor_admin(app, db.session)
 from .views import authn
 assert authn is not None # Avoid warnings
 
-@app.route('/favicon.ico')
-def favicon():
-    return redirect(url_for('static', filename='favicon.ico'))
-
-@app.route("/")
-def index():
-    """Global index for the whole application."""
-    return render_template("index.html")
-
-@app.route("/developers")
-def developers():
-    """Developer information about gateway4labs."""
-    return render_template("developers.html")
-
-@app.route("/about")
-def about():
-    """Global information about gateway4labs."""
-    return render_template("about.html")
-
-@app.teardown_request
-def shutdown_session(exception = None):
-    db.session.remove()

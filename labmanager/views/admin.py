@@ -22,6 +22,7 @@ from labmanager.models import BasicHttpCredentials, LearningTool, Course, Permis
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
+from labmanager.db import db
 import labmanager.forms as forms
 from labmanager.utils import data_filename
 import labmanager.rlms.ext.rest as http_plugin
@@ -606,17 +607,17 @@ class PermissionPanel(L4lModelView):
 #                     Initialization
 # 
 
-def init_admin(app, db_session):
+def init_admin(app):
     admin_url = '/admin'
     admin = Admin(index_view = AdminPanel(url=admin_url), name = lazy_gettext(u"Lab Manager"), url = admin_url, endpoint = admin_url)
     i18n_LMSmngmt = lazy_gettext(u'LT Management')
-    admin.add_view(LTPanel(db_session,        category = i18n_LMSmngmt, name = lazy_gettext(u"LT"),     endpoint = 'lt/lt'))
-    admin.add_view(PermissionToLtPanel(db_session, category = i18n_LMSmngmt, name = lazy_gettext(u"LT Permissions"),    endpoint = 'lt/permissions'))
-    admin.add_view(LtUsersPanel(db_session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Users"),        endpoint = 'lt/users'))
-    admin.add_view(LabRequestsPanel(db_session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Requests"),        endpoint = 'lt/requests'))
+    admin.add_view(LTPanel(db.session,        category = i18n_LMSmngmt, name = lazy_gettext(u"LT"),     endpoint = 'lt/lt'))
+    admin.add_view(PermissionToLtPanel(db.session, category = i18n_LMSmngmt, name = lazy_gettext(u"LT Permissions"),    endpoint = 'lt/permissions'))
+    admin.add_view(LtUsersPanel(db.session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Users"),        endpoint = 'lt/users'))
+    admin.add_view(LabRequestsPanel(db.session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Requests"),        endpoint = 'lt/requests'))
     i18n_ReLMSmngmt = lazy_gettext(u'ReLMS Management')
-    admin.add_view(RLMSPanel(db_session,       category = i18n_ReLMSmngmt, name = lazy_gettext(u"RLMS"),            endpoint = 'rlms/rlms'))
-    admin.add_view(LaboratoryPanel(db_session, category = i18n_ReLMSmngmt, name = lazy_gettext(u"Registered labs"), endpoint = 'rlms/labs'))
-    admin.add_view(UsersPanel(db_session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
+    admin.add_view(RLMSPanel(db.session,       category = i18n_ReLMSmngmt, name = lazy_gettext(u"RLMS"),            endpoint = 'rlms/rlms'))
+    admin.add_view(LaboratoryPanel(db.session, category = i18n_ReLMSmngmt, name = lazy_gettext(u"Registered labs"), endpoint = 'rlms/labs'))
+    admin.add_view(UsersPanel(db.session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
     admin.add_view(RedirectView('logout',      name = lazy_gettext(u"Log out"), endpoint = 'admin/logout'))
     admin.init_app(app)

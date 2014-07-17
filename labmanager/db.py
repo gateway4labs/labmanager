@@ -26,7 +26,6 @@ if app.config.get('USE_PYMYSQL', False):
 
 db = SQLAlchemy()
 db.init_app(app)
-db_session = db.session
 
 Base = db.Model
 
@@ -57,12 +56,15 @@ def init_db(drop = False):
 
     alembic_config.set_section_option('logger_alembic', 'level', 'WARN')
 
-    Base.metadata.create_all(engine)
+    with app.app_context():
+        db.create_all()
+
     command.stamp(alembic_config, "head")
 
-    password = unicode(hashlib.new('sha', 'password').hexdigest())
-    admin_user = LabManagerUser(u'admin', u'Administrator', password)
     with app.app_context():
+        password = unicode(hashlib.new('sha', 'password').hexdigest())
+        admin_user = LabManagerUser(u'admin', u'Administrator', password)
+
         db.session.add(admin_user)
         db.session.commit()
 
