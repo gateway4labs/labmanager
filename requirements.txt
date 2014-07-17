@@ -14,6 +14,8 @@ pymysql-sa==1.0
 PyYAML==3.10
 SQLAlchemy==0.7.10
 alembic==0.6.4
+requests==2.1.0
+Flask-Testing==0.4.1
 
 git+https://github.com/gateway4labs/rlms_unr.git
 git+https://github.com/gateway4labs/rlms_weblabdeusto.git

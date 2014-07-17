@@ -21,7 +21,7 @@ from flask.ext.login import current_user
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToCourse, RequestPermissionLT
 from labmanager.views import RedirectView
-from labmanager.db import db_session
+from labmanager.db import db
 from labmanager.rlms import get_manager_class
 import labmanager.forms as forms
 from labmanager.utils import data_filename
@@ -139,7 +139,7 @@ def list_widgets_formatter(v, c, laboratory, p):
 
 def accessibility_formatter(v, c, lab, p):
     mylt = current_user.lt
-    permission = db_session.query(PermissionToLt).filter_by(lt = mylt, laboratory = lab).first()
+    permission = db.session.query(PermissionToLt).filter_by(lt = mylt, laboratory = lab).first()
     if not permission:
         return gettext(u"Invalid permission")
     if permission.accessible:
@@ -168,9 +168,9 @@ def accessibility_formatter(v, c, lab, p):
 
 def request_formatter(v, c, lab, p):
     mylt = current_user.lt
-    laboratory_available = db_session.query(Laboratory).filter_by(available = '1', id = lab.id).first()
-    permission = db_session.query(PermissionToLt).filter_by(lt = mylt, laboratory = laboratory_available).first()
-    request = db_session.query(RequestPermissionLT).filter_by(lt = mylt, laboratory = laboratory_available).first()
+    laboratory_available = db.session.query(Laboratory).filter_by(available = '1', id = lab.id).first()
+    permission = db.session.query(PermissionToLt).filter_by(lt = mylt, laboratory = laboratory_available).first()
+    request = db.session.query(RequestPermissionLT).filter_by(lt = mylt, laboratory = laboratory_available).first()
     # if there is not a pending request ...
     if not request:
         if not permission:
@@ -378,7 +378,7 @@ def create_new_space(numeric_identifier, space_name):
     context_id = unicode(numeric_identifier)
     course = Course(name = space_name, lt = current_user.lt, context_id = context_id)
     # Add it to the database
-    db_session.add(course)
+    db.session.add(course)
     return course
 
 def parse_space_url(url):
@@ -442,8 +442,8 @@ class PleNewSpacesPanel(L4lPleView):
                         for lab_to_grant in labs_to_grant:
                             permission = [ permission for permission in permissions if permission.local_identifier == lab_to_grant ][0]
                             permission_to_course = PermissionToCourse(course = course, permission_to_lt = permission)
-                            db_session.add(permission_to_course)
-                        db_session.commit()
+                            db.session.add(permission_to_course)
+                        db.session.commit()
                         return redirect(url_for('%s.index_view' % self.courses_panel_endpoint))
                     # But if it was not possible to add it, add a new field called space_name
                     else:
@@ -480,19 +480,19 @@ class PlePermissionToSpacePanel(L4lPleModelView):
 # 
 #    Initialization
 # 
-def init_ple_admin(app, db_session):
+def init_ple_admin(app):
     ple_admin_url = '/ple_admin'
     i18n_labs = lazy_gettext(u'Labs')
     ple_admin = Admin(index_view = PleAdminPanel(url=ple_admin_url, endpoint = 'ple_admin'), name = lazy_gettext(u'PLE admin'), url = ple_admin_url, endpoint = 'ple-admin')
-    ple_admin.add_view(PleInstructorLaboratoriesPanel( db_session,  category = i18n_labs, name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
-    ple_admin.add_view(PleInstructorRequestLaboratoriesPanel( db_session, category = i18n_labs, name = lazy_gettext(u"Request new labs"), endpoint = 'ple_admin_request_labs', url = 'labs/request'))
+    ple_admin.add_view(PleInstructorLaboratoriesPanel( db.session,  category = i18n_labs, name = lazy_gettext(u"Available labs"), endpoint = 'ple_admin_labs', url = 'labs/available'))
+    ple_admin.add_view(PleInstructorRequestLaboratoriesPanel( db.session, category = i18n_labs, name = lazy_gettext(u"Request new labs"), endpoint = 'ple_admin_request_labs', url = 'labs/request'))
 
     i18n_spaces = lazy_gettext(u'Spaces')
-    ple_admin.add_view(PleNewSpacesPanel(db_session,             category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
-    ple_admin.add_view(PleSpacesPanel(db_session,                   category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_admin_courses', url = 'spaces'))
-    ple_admin.add_view(PlePermissionToSpacePanel(db_session,  category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
+    ple_admin.add_view(PleNewSpacesPanel(db.session,             category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_admin_new_courses', url = 'spaces/create'))
+    ple_admin.add_view(PleSpacesPanel(db.session,                   category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_admin_courses', url = 'spaces'))
+    ple_admin.add_view(PlePermissionToSpacePanel(db.session,  category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_admin_course_permissions', url = 'spaces/permissions'))
 
-    ple_admin.add_view(PleUsersPanel(db_session,      name = lazy_gettext(u'Users'), endpoint = 'ple_admin_users', url = 'users'))
+    ple_admin.add_view(PleUsersPanel(db.session,      name = lazy_gettext(u'Users'), endpoint = 'ple_admin_users', url = 'users'))
     ple_admin.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_admin_logout', url = 'logout'))
     ple_admin.init_app(app)
 

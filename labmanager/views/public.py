@@ -13,6 +13,7 @@ from labmanager.models import Laboratory
 from labmanager.views import RedirectView
 from labmanager.rlms import get_manager_class
 from labmanager.babel import lazy_gettext, gettext
+from labmanager.db import db
  
 ##############################################
 # 
@@ -81,9 +82,9 @@ class PublicLaboratoriesPanel(ModelView):
 #    Initialization
 # 
 
-def init_public_admin(app, db_session):
+def init_public_admin(app):
     public_admin_url = '/public'
     public_admin = Admin(index_view = PublicAdminPanel(url=public_admin_url, endpoint = 'public_admin'), name = lazy_gettext(u"Public laboratories"), url = public_admin_url, endpoint = 'public-admin')
-    public_admin.add_view(PublicLaboratoriesPanel( db_session, name = lazy_gettext(u"Show public labs"), endpoint = 'public_admin_labs', url = 'labs/public'))
+    public_admin.add_view(PublicLaboratoriesPanel( db.session, name = lazy_gettext(u"Show public labs"), endpoint = 'public_admin_labs', url = 'labs/public'))
     public_admin.add_view(RedirectView('index', name = lazy_gettext(u"Back"), endpoint = 'public_admin_logout', url = 'back'))
     public_admin.init_app(app)

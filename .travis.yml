@@ -1,14 +1,8 @@
 language: python
-
-env:
-  - LAB_ENV=test
-
+python: 2.7
 install:
-  - "pip install -r requirements.txt --use-mirrors --quiet"
-  - "pip install -r requirements-test.txt --use-mirrors --quiet"
-
-before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-
-script: "python tests/integration_tests.py"
+    - pip install -r requirements.txt -r requirements-test.txt
+    - cp config.py.dist config.py
+    - python deploy.py -cdu --db-password=""
+script:
+    - nosetests labmanager

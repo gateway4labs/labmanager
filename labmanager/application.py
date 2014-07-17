@@ -15,10 +15,21 @@
 import os
 
 from flask import Flask, render_template, redirect, url_for
-from labmanager.db import db_session
 
 app = Flask(__name__)
 app.config.from_object('config')
+
+# Try to support SQLALCHEMY_ENGINE_STR
+if 'SQLALCHEMY_DATABASE_URI' not in app.config and 'SQLALCHEMY_ENGINE_STR' in app.config:
+    print "WARNING: SQLALCHEMY_ENGINE_STR is deprecated. Change it for SQLALCHEMY_DATABASE_URI"
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_ENGINE_STR']
+
+if 'SQLALCHEMY_POOL_RECYCLE' not in app.config and app.config['SQLALCHEMY_DATABASE_URI'].startswith('mysql'):
+    print "WARNING: SQLALCHEMY_POOL_RECYCLE not set. Defaults to 3600. Put it in the configuration file"
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
+
+if 'SESSION_COOKIE_PATH' not in app.config or not app.config.get('SESSION_COOKIE_PATH'):
+    print "WARNING: You should always set SESSION_COOKIE_PATH to / or /whatever, wherever the application is, to avoid conflicts between different deployments"
 
 if app.config['DEBUG']:
     app.secret_key = 'secret'
@@ -39,6 +50,30 @@ def forbidden(e):
 @app.errorhandler(412)
 def precondition_failed(e):
     return "412 precondition failed", 412
+
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='favicon.ico'))
+
+@app.route("/")
+def index():
+    """Global index for the whole application."""
+    return render_template("index.html")
+
+@app.route("/developers")
+def developers():
+    """Developer information about gateway4labs."""
+    return render_template("developers.html")
+
+@app.route("/about")
+def about():
+    """Global information about gateway4labs."""
+    return render_template("about.html")
+
+@app.teardown_request
+def shutdown_session(exception = None):
+    db.session.remove()
+
 
 from labmanager.babel import Babel
 from flask import request
@@ -74,23 +109,26 @@ else:
 # 
 # Initialize administration panels
 # 
+from labmanager.db import db
+assert db is not None
+
 from .views.admin import init_admin
-init_admin(app, db_session)
+init_admin(app)
 
 from .views.public import init_public_admin
-init_public_admin(app, db_session)
+init_public_admin(app)
 
 from .views.lms.admin import init_lms_admin
-init_lms_admin(app, db_session)
+init_lms_admin(app)
 
 from .views.lms.instructor import init_instructor_admin
-init_instructor_admin(app, db_session)
+init_instructor_admin(app)
 
 from .views.ple.admin import init_ple_admin
-init_ple_admin(app, db_session)
+init_ple_admin(app)
 
 from .views.ple.instructor import init_ple_instructor_admin
-init_ple_instructor_admin(app, db_session)
+init_ple_instructor_admin(app)
 
 # 
 # Initialize login subsystem
@@ -98,25 +136,3 @@ init_ple_instructor_admin(app, db_session)
 from .views import authn
 assert authn is not None # Avoid warnings
 
-@app.route('/favicon.ico')
-def favicon():
-    return redirect(url_for('static', filename='favicon.ico'))
-
-@app.route("/")
-def index():
-    """Global index for the whole application."""
-    return render_template("index.html")
-
-@app.route("/developers")
-def developers():
-    """Developer information about gateway4labs."""
-    return render_template("developers.html")
-
-@app.route("/about")
-def about():
-    """Global information about gateway4labs."""
-    return render_template("about.html")
-
-@app.teardown_request
-def shutdown_session(exception = None):
-    db_session.remove()

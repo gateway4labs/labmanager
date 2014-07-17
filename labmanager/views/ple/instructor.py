@@ -12,9 +12,10 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
-from labmanager.models import LearningTool,Laboratory, PermissionToLt
+from labmanager.models import Laboratory, PermissionToLt
 from labmanager.rlms import get_manager_class
 from labmanager.babel import gettext, lazy_gettext
+from labmanager.db import db
 
 #################################################################
 # 
@@ -145,13 +146,13 @@ class PleInstructorPermissionToSpacesPanel(PleAuthManagerMixin, PlePermissionToS
 #              Initialization
 #
 
-def init_ple_instructor_admin(app, db_session):
+def init_ple_instructor_admin(app):
     ple_instructor_url = '/ple_instructor'
     ple_instructor = Admin(index_view = PleInstructorPanel(url=ple_instructor_url, endpoint = 'ple_instructor'), name = lazy_gettext(u'PLEinstructor'), url = ple_instructor_url, endpoint = 'ple_instructor')
-    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db_session, name = lazy_gettext(u'Laboratories'), endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
+    ple_instructor.add_view(PleInstructorLaboratoriesPanel(db.session, name = lazy_gettext(u'Laboratories'), endpoint = 'ple_instructor_laboratories', url = 'laboratories'))
     i18n_spaces=lazy_gettext(u'Spaces')
-    ple_instructor.add_view(PleInstructorNewSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
-    ple_instructor.add_view(PleInstructorSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
-    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db_session,    category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
+    ple_instructor.add_view(PleInstructorNewSpacesPanel(db.session,    category = i18n_spaces, name     = lazy_gettext(u'New'), endpoint = 'ple_instructor_new_courses', url = 'spaces/create'))
+    ple_instructor.add_view(PleInstructorSpacesPanel(db.session,    category = i18n_spaces, name     = lazy_gettext(u'Spaces'), endpoint = 'ple_instructor_courses', url = 'spaces'))
+    ple_instructor.add_view(PleInstructorPermissionToSpacesPanel(db.session,    category = i18n_spaces, name     = lazy_gettext(u'Permissions'), endpoint = 'ple_instructor_course_permissions', url = 'spaces/permissions'))
     ple_instructor.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'ple_instructor_logout', url = 'logout'))
     ple_instructor.init_app(app)

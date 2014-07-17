@@ -20,14 +20,29 @@ LAB_LOGIN = 'myplugin'
 
 CONFIG_FILE = 'plugin_config.json'
 
+def get_context_id():
+    context_id = request.args.get('context_id')
+    if not context_id:
+        raise Exception("context_id is mandatory")
+    return str(context_id)
+
+
 def get_config():
     if os.path.exists(CONFIG_FILE):
-        return json.load(open(CONFIG_FILE))
+        all_configuration = json.load(open(CONFIG_FILE))
+        context_id = get_context_id()        
+        return all_configuration.get(context_id, {})
     else:
         return {}
 
 def save_config(config):
-    json.dump(config, open(CONFIG_FILE, 'w'))
+    if os.path.exists(CONFIG_FILE):
+        all_configuration = json.load(open(CONFIG_FILE))
+    else:
+        all_configuration = {}
+    context_id = get_context_id()
+    all_configuration[context_id] = config
+    json.dump(all_configuration, open(CONFIG_FILE, 'w'))
 
 # 
 # First, the credentials management. In Flask, this is applied to all the
@@ -50,7 +65,7 @@ def check_credentials():
 # Static methods (e.g., plug-in capabilities or version) 
 # 
 
-@plugin.route('/test-plugin')
+@plugin.route('/test_plugin')
 def test_plugin():
     return json.dumps({
         'valid' : True,
@@ -123,7 +138,7 @@ def widget():
 # 
 
 
-@plugin.route('/test-config')
+@plugin.route('/test_config')
 def test_config():
     config = get_config()
     r = requests.get('%(base_url)s/test/?system_login=%(login)s&system_password=%(password)s' % {
@@ -199,7 +214,7 @@ def setup():
     if back_url:
         RESERVATIONS[reservation_id]['back_url'] = back_url
     return json.dumps({
-        'url' : url_for('setup_app', reservation_id = reservation_id, _external = True)
+        'url' : url_for('setup_app', reservation_id = reservation_id, context_id = request.args.get('context_id'), _external = True)
     }, indent = 4)
 
 
@@ -207,6 +222,7 @@ def setup():
 RESERVATIONS = {
     # 'reservation_identifier' : {
     #     'expires' : datetime.datetime.now() + 5 minutes
+    #     'back_url' : 'url-to-go'
     # }
 }
 
@@ -218,6 +234,7 @@ def setup_app():
         return "Missing reservation_id"
     if reservation_id not in RESERVATIONS:
         return "reservation identifier not registered"
+    context_id = request.args.get('context_id')
    
     reservation = RESERVATIONS[reservation_id]
     if request.method == 'POST':
@@ -226,7 +243,8 @@ def setup_app():
         save_config({ 'password' : password })
 
     current_password = get_config().get('password', '')
-    return render_template('plugin_form.html', reservation_id = reservation_id, current_password = current_password)
+    current_password_correct = ( current_password == PLUGIN_PASSWORD ) 
+    return render_template('plugin_form.html', reservation_id = reservation_id, current_password = current_password, current_password_correct = current_password_correct, back_url = reservation['back_url'], context_id = context_id)
 
 
 app.register_blueprint(plugin, url_prefix = '/plugin')

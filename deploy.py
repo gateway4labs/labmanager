@@ -17,43 +17,48 @@ if not os.path.exists('config.py'):
     print >> sys.stderr, "Missing config.py. Copy config.py.dist into config.py"
     sys.exit(-1)
 
-from config import env_config, SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
-ENGINE = env_config.get('engine')
+try:
+    from config import SQLALCHEMY_DATABASE_URI
+except ImportError:
+    try:
+        from config import SQLALCHEMY_ENGINE_STR as SQLALCHEMY_DATABASE_URI
+    except ImportError:
+        raise Exception("SQLALCHEMY_DATABASE_URI not found in the configuration file" )
+
+try:
+    from config import USE_PYMYSQL
+except ImportError:
+    USE_PYMYSQL = True
+
+import config
 heroku = os.environ.get('HEROKU', None)
 
 if heroku is None:
-    if ENGINE == 'mysql':
+    if config.ENGINE == 'mysql':
         if USE_PYMYSQL:
             import pymysql as dbi
         else:
             import MySQLdb as dbi
-    elif ENGINE == 'sqlite':
+    elif config.ENGINE == 'sqlite':
         import sqlite3 as dbi
     else:
-        print >> sys.stderr, "Unsupported engine %s. You will have to create the database and the users by your own." % ENGINE
+        print >> sys.stderr, "Unsupported engine %s. You will have to create the database and the users by your own." % config.ENGINE
 
-    ROOT_USERNAME = None
-    ROOT_PASSWORD = None
-
-from labmanager.db import init_db, db_session
+from labmanager.db import init_db
 from labmanager.sample_data import add_sample_users
 
 
-def create_user():
-    if ENGINE == 'mysql':
+def create_user(db_user, db_password):
+    if config.ENGINE == 'mysql':
         sentences = (
-            "DROP USER '%s'@'localhost'" % env_config['username'],
-            "CREATE USER '%s'@'localhost' IDENTIFIED BY '%s'" % (env_config['username'], env_config['password']),
-            "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (env_config['dbname'], env_config['username'], env_config['password']),
+            "DROP USER '%s'@'localhost'" % config.USERNAME,
+            "CREATE USER '%s'@'localhost' IDENTIFIED BY '%s'" % (config.USERNAME, config.PASSWORD),
+            "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost' IDENTIFIED BY '%s'"  % (config.DBNAME, config.USERNAME, config.PASSWORD),
         )
-
-        global ROOT_USERNAME, ROOT_PASSWORD
-        ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
-        ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
 
         for num, sentence in enumerate(sentences):
             try:
-                connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD)
+                connection = dbi.connect(user=db_user, passwd=db_password)
                 cursor = connection.cursor()
                 cursor.execute(sentence)
                 connection.commit()
@@ -62,26 +67,21 @@ def create_user():
                 if num != 0: # If user does not exist
                     raise
 
-def create_db():
-    if ENGINE == 'mysql':
-        global ROOT_USERNAME, ROOT_PASSWORD
-        if ROOT_USERNAME is None or ROOT_PASSWORD is None:
-            ROOT_USERNAME = raw_input("MySQL administrator username (default 'root'): ") or "root"
-            ROOT_PASSWORD = getpass.getpass( "MySQL administrator password: " )
-
+def create_db(db_user, db_password):
+    if config.ENGINE == 'mysql':
         try:
-            connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, db = env_config['dbname'], host = env_config['host'])
+            connection = dbi.connect(user=db_user, passwd=db_password, db = config.DBNAME, host = config.HOST)
         except:
             pass # DB does not exist
         else:
             cursor = connection.cursor()
-            cursor.execute("DROP DATABASE IF EXISTS %s" % env_config['dbname'])
+            cursor.execute("DROP DATABASE IF EXISTS %s" % config.DBNAME)
             connection.commit()
             connection.close()
 
-        connection = dbi.connect(user=ROOT_USERNAME, passwd=ROOT_PASSWORD, host = env_config['host'])
+        connection = dbi.connect(user=db_user, passwd=db_password, host = config.HOST)
         cursor = connection.cursor()
-        cursor.execute("CREATE DATABASE %s" % env_config['dbname'])
+        cursor.execute("CREATE DATABASE %s" % config.DBNAME)
         connection.commit()
         connection.close()
 
@@ -97,13 +97,28 @@ if __name__ == '__main__':
                     action="store_true", dest="add_sample_users", default=False,
                     help="Adds sample users")
 
+    parser.add_option("--db-user",
+                    dest="db_user", default="root",
+                    help="Database user")
+    parser.add_option("--db-password",
+                    dest="db_password", default=None,
+                    help="Database password")
+
     (options, args) = parser.parse_args()
 
+    if config.ENGINE == 'mysql':
+        db_user     = options.db_user
+        db_password = options.db_password
+        if db_password is None:
+            db_password = getpass.getpass( "MySQL administrator password: " )
+    else:
+        db_user = db_password = ""
+
     if options.create_user:
-        create_user()
+        create_user(db_user, db_password)
 
     if options.create_db:
-        create_db()
+        create_db(db_user, db_password)
 
     if options.add_sample_users:
         add_sample_users()

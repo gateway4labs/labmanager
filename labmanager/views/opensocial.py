@@ -6,8 +6,8 @@ import traceback
 import threading
 
 from flask import Blueprint, request, redirect, render_template, url_for, Response
-from flask.ext.wtf import Form, validators, TextField, PasswordField, ValidationError
-from labmanager.db import db_session
+from flask.ext.wtf import Form, validators, TextField, PasswordField
+from labmanager.db import db
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
 from labmanager.rlms import get_manager_class
 import labmanager.forms as forms
@@ -63,14 +63,14 @@ def _extract_widget_config(laboratory, widget_name):
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
-    public_lab = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     if public_lab:
         widget_config = _extract_widget_config(public_lab, widget_name)
     else:
         widget_config = {} # Default value
-        institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
+        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
         if institution:
-            permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+            permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
             if permission:
                 widget_config = _extract_widget_config(permission.laboratory, widget_name)
 
@@ -82,7 +82,7 @@ def widget_xml(institution_id, lab_name, widget_name):
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml")
 def public_widget_xml(lab_name, widget_name):
-    laboratory = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     widget_config = _extract_widget_config(laboratory, widget_name)
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO
@@ -116,7 +116,7 @@ def public_reserve(lab_name):
 def _reserve_impl(lab_name, public, institution_id):
     st = request.args.get('st') or ''
     if public:
-        db_laboratory = db_session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
+        db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
         if db_laboratory is None:
             return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
 
@@ -126,7 +126,7 @@ def _reserve_impl(lab_name, public, institution_id):
         institution_name  = 'public-labs' # TODO: make sure that this name is unique
         courses_configurations = []
     else:
-        institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
+        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
         if institution is None or len(institution.shindig_credentials) < 1:
             return render_template("opensocial/errors.html", message = gettext("This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"))
 
@@ -146,13 +146,13 @@ def _reserve_impl(lab_name, public, institution_id):
         # First, check if the lab is public (e.g. the lab can be accessed by anyone)
         # Second, check accesibility permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
         # After that, in the case that there are not accesibility permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
-        public_lab = db_session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+        public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
         courses_configurations = []
         if public_lab is None:
             # No public access is granted for the lab, check accesibility permissions
-            accessible_permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
+            accessible_permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
             if accessible_permission is None:
-                permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+                permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
                 if permission is None:
                     return render_template("opensocial/errors.html", message = gettext("Your PLE is valid, but don't have permissions for the requested laboratory."))
                 for course_permission in permission.course_permissions:
@@ -242,12 +242,12 @@ def open_public_widget(lab_name, widget_name):
 
 def _open_widget_impl(lab_name, widget_name, public, institution_id):
     if public:
-        db_laboratory = db_session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
+        db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
     else:
-        institution = db_session.query(LearningTool).filter_by(name = institution_id).first()
+        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
         if institution is None or len(institution.shindig_credentials) == 0:
             return gettext("Institution not found or it does not support Shindig")
-        permission = db_session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+        permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
         db_laboratory     = permission.laboratory if permission is not None else None
 
     if db_laboratory is None:
@@ -279,10 +279,10 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         errors = False
-        if db_session.query(LearningTool).filter_by(name = form.short_name.data).first():
+        if db.session.query(LearningTool).filter_by(name = form.short_name.data).first():
             form.short_name.errors.append(gettext('This name is already taken'))
             errors = True
-        if db_session.query(LearningTool).filter_by(full_name = form.full_name.data).first():
+        if db.session.query(LearningTool).filter_by(full_name = form.full_name.data).first():
             form.full_name.errors.append(gettext('This name is already taken'))
             errors = True
         if not errors:
@@ -290,13 +290,13 @@ def register():
             shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'https://shindig.epfl.ch')
             lt_user = LtUser(login = form.user_login.data, full_name = form.user_full_name.data, lt = lt, access_level = 'admin')
             lt_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
-            for lab in db_session.query(Laboratory).filter_by(available = True).all():
+            for lab in db.session.query(Laboratory).filter_by(available = True).all():
                 permission_to_lt = PermissionToLt(lt = lt, laboratory = lab, local_identifier = lab.default_local_identifier)
-                db_session.add(permission_to_lt)
-            db_session.add(lt)
-            db_session.add(shindig_credentials)
-            db_session.add(lt_user)
-            db_session.commit()
+                db.session.add(permission_to_lt)
+            db.session.add(lt)
+            db.session.add(shindig_credentials)
+            db.session.add(lt_user)
+            db.session.commit()
             return redirect(url_for('login_ple', next = url_for('ple_admin.index')) )
             
     return render_template("opensocial/registration.html", form = form)

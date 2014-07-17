@@ -3,13 +3,14 @@
 import json
 import urlparse
 import threading
+import traceback
 
 from hashlib import new as new_hash
 from yaml import load as yload
 from wtforms.fields import PasswordField
 from flask import request, redirect, url_for, session, Markup, abort, Response, flash
 from flask.ext import wtf
-from flask.ext.wtf import validators
+from flask.ext.wtf import Form
 from flask.ext.login import current_user
 from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
 from flask.ext.admin.model import InlineFormAdmin
@@ -21,8 +22,10 @@ from labmanager.models import BasicHttpCredentials, LearningTool, Course, Permis
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
+from labmanager.db import db
 import labmanager.forms as forms
 from labmanager.utils import data_filename
+import labmanager.rlms.ext.rest as http_plugin
 
 config = yload(open(data_filename('labmanager/config/config.yml')))
 
@@ -263,27 +266,9 @@ class CoursePanel(L4lModelView):
 # 
 #                   RLMS views
 # 
-
-class DynamicSelectWidget(wtf.widgets.Select):
-    def __call__(self, *args, **kwargs):
-        html = super(DynamicSelectWidget, self).__call__(*args, **kwargs)
-        html = html.replace('<select ', '''<select onchange="document.location.replace(new String(document.location).replace(/&rlms=[^&]*/,'') + '&rlms=' + this.value)"''')
-        return html
-
-class DynamicSelectField(wtf.SelectField):
-    widget = DynamicSelectWidget()
-
-def _generate_choices():
-    sel_choices = [('','')]
-    for ins_rlms in get_supported_types():
-        for ver in get_supported_versions(ins_rlms):
-            sel_choices.append(("%s<>%s" % (ins_rlms, ver),"%s - %s" % (ins_rlms.title(), ver)) )
-    return sel_choices
+class RLMSObject(object): pass
 
 class RLMSPanel(L4lModelView):
-    # For editing
-    form_columns = ('kind', 'location', 'url')
-    form_overrides = dict(kind=DynamicSelectField)
     # For listing 
     column_list  = ['kind', 'version', 'location', 'url', 'labs']
     column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
@@ -294,85 +279,142 @@ class RLMSPanel(L4lModelView):
     }
 
     column_formatters = dict(
-            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list")))
+            labs = lambda v, c, rlms, p: Markup('<a href="%s"> %s</a>' % (url_for('.labs', id=rlms.id), gettext("list"))),
+            url = lambda v, c, rlms, p: Markup('<a href="%s" target="_blank">%s</a>' % (rlms.url, rlms.url))
         )
 
     def __init__(self, session, **kwargs):
         super(RLMSPanel, self).__init__(RLMS, session, **kwargs)
-        # 
-        # For each supported RLMS, it provides a different edition
-        # form. So as to avoid creating a new class each type for 
-        # the particular form required, we must create a cache of
-        # form classes.
-        #
-        self.__create_form_classes = {}
    
-    def _get_cached_form_class(self, rlms, form):
-        if rlms in self.__create_form_classes:
-            form_class = self.__create_form_classes[rlms]
-        else:
-            # If it does not exist, we find the RLMS creation form
-            rlmstype, rlmsversion = rlms.split('<>')
-            rlms_form_class = get_form_class(rlmstype, rlmsversion)
-            
-            # And we create and register a new class for it
-            class form_class(rlms_form_class, form.__class__):
-                pass
-            self.__create_form_classes[rlms] = form_class
-        return form_class
+    @expose('/create/')
+    def create_view(self):
+        rlmss = []
+        for ins_rlms in get_supported_types():
+            for ver in get_supported_versions(ins_rlms):
+                rlmss.append((ins_rlms, ver))
+        return self.render("labmanager_admin/create-rlms.html", rlmss = rlmss)
 
-    def _fill_form_instance(self, form, old_form, obj):
-        form.csrf_token.data = old_form.csrf_token.data
-        form.process(obj=obj)
-        form.csrf_token.data = old_form.csrf_token.data
-        for key in form.get_field_names():
-            if key in request.form:
-                getattr(form, key).data = request.form[key]
+    @expose('/create/<rlms>/<version>/', methods = ['GET', 'POST'])
+    def create_rlms(self, rlms, version):
+        supported_types = get_supported_types()
+        if rlms not in supported_types:
+            return "RLMS not found", 404
+        supported_versions = get_supported_versions(rlms)
+        if version not in supported_versions:
+            return "RLMS version not found", 404
 
-    def create_form(self, obj = None, *args, **kwargs):
-        form = super(RLMSPanel, self).create_form(*args, **kwargs)
-        rlms = request.args.get('rlms')
-        if rlms is not None and '<>' in rlms:
-            form_class = self._get_cached_form_class(rlms, form)
-            old_form = form
-            form = form_class(add_or_edit=True, fields=form._fields)
-            form.kind.default = rlms
-            self._fill_form_instance(form, old_form, obj)
-        form.kind.choices = _generate_choices()
-        return form
+        return self._add_or_edit(rlms, version, True, None, {})
 
-    def edit_form(self, obj, *args, **kwargs):
-        form = super(RLMSPanel, self).edit_form(*args, **kwargs)
-        form_class = self._get_cached_form_class(obj.kind + u'<>' + obj.version , form)
-        old_form = form
-        form = form_class(add_or_edit=False, fields=form._fields)
-        del form.kind
-        configuration = json.loads(obj.configuration)
-        for key in configuration:
-            # TODO: this should be RLMS specific
-            if 'password' not in key: 
-                setattr(obj, key, configuration[key])
-        self._fill_form_instance(form, old_form, obj )
-        return form
+    @expose('/edit/', methods = ['GET', 'POST'])
+    def edit_view(self):
+        rlms_id = request.args.get('id')
+        if not rlms_id:
+            return "RLMS id not found", 404
+        rlms = self.session.query(RLMS).filter_by(id = rlms_id).first()
+        if not rlms:
+            return "RLMS not found", 404
 
-    def on_model_change(self, form, model):
-        if model.kind == '':
-            abort(406)
-        if '<>' in model.kind:
-            rlms_ver = model.kind.split('<>')
-            model.kind, model.version = rlms_ver[0], rlms_ver[1]
-        if not model.configuration:
-            other_data = {}
-        else:
-            other_data = json.loads(model.configuration)
-        for key in form.get_field_names():
-            if key not in RLMSPanel.form_columns:
-                # TODO: this should be RLMS specific
-                if 'password' in key and getattr(form, key).data == '':
-                    pass # Passwords can be skipped
+        config = json.loads(rlms.configuration)
+        rlms_obj = RLMSObject()
+        rlms_obj.url = rlms.url
+        rlms_obj.location = rlms.location
+        for key in config:
+            setattr(rlms_obj, key, config[key])
+
+        return self._add_or_edit(rlms.kind, rlms.version, False, rlms_obj, config)
+
+    def _add_or_edit(self, rlms, version, add_or_edit, obj, config):
+        edit_id = request.args.get('id')
+        form_class = get_form_class(rlms, version)
+        form = form_class(add_or_edit=add_or_edit, obj = obj)
+        error_messages = []
+        if form.validate_on_submit():
+            configuration = config
+            for key in form.get_field_names():
+                if key not in dir(forms.AddForm):
+                    field = getattr(form, key)
+                    is_password = 'password' in unicode(field.type).lower()
+                    # If we're editing, and this field is a password, do not change it
+                    if is_password and not add_or_edit and field.data == '':
+                        continue
+                    configuration[key] = field.data
+            config_json = json.dumps(configuration)
+
+            ManagerClass = get_manager_class(rlms, version)
+            rlms_instance = ManagerClass(config_json)
+            if hasattr(rlms_instance, 'test'):
+                try:
+                    error_messages = rlms_instance.test()
+                except Exception as e:
+                    error_messages = ["Error testing the RLMS: %s" % e]
+                    traceback.print_exc()
+
+            if not error_messages:
+                if add_or_edit:
+                    rlms_obj = RLMS(kind = rlms, version = version,
+                                url = form.url.data, location = form.location.data,
+                                configuration = config_json)
                 else:
-                    other_data[key] = getattr(form, key).data
-        model.configuration = json.dumps(other_data)
+                    rlms_obj = self.session.query(RLMS).filter_by(id = edit_id).first()
+                    rlms_obj.url = form.url.data
+                    rlms_obj.location = form.location.data
+                    rlms_obj.configuration = config_json
+
+                self.session.add(rlms_obj)
+                try:
+                    self.session.commit()
+                except:
+                    self.session.rollback()
+                    raise
+                
+                if add_or_edit:
+                    rlms_id = rlms_obj.id
+                else:
+                    rlms_id = edit_id
+    
+                labs_url = url_for('.labs', id = rlms_id, _external = True)
+                if rlms == http_plugin.PLUGIN_NAME:
+                    if add_or_edit:
+                        # First, store the rlms identifier in the database in the context_id
+                        configuration['context_id'] = rlms_id
+                        config_json = json.dumps(configuration)
+                        rlms_obj.configuration = config_json
+                        try:
+                            self.session.commit()
+                        except:
+                            self.session.rollback()
+                            raise
+                    
+                    # Then, re-create the manager class and call setup
+                    rlms_instance = ManagerClass(config_json)
+
+                    setup_url = rlms_instance.setup(back_url = labs_url)
+                    return redirect(setup_url)
+
+                return redirect(labs_url)
+
+        if not add_or_edit and rlms == http_plugin.PLUGIN_NAME:
+            setup_url = url_for('.plugin_setup', rlms_id = edit_id)
+        else:
+            setup_url = None
+
+        return self.render('labmanager_admin/create-rlms-step-2.html', name = rlms, version = version, form = form, fields = form.get_field_names(), error_messages = error_messages, edit_id = edit_id, setup_url = setup_url)
+
+    @expose('/plugin-setup/<rlms_id>/', methods = ['GET', 'POST'])
+    def plugin_setup(self, rlms_id):
+        rlms_obj = self.session.query(RLMS).filter_by(id = rlms_id).first()
+        if not rlms_obj:
+            return "RLMS not found", 404
+        if rlms_obj.kind != http_plugin.PLUGIN_NAME:
+            return "RLMS is not HTTP", 400
+
+        ManagerClass = get_manager_class(rlms_obj.kind, rlms_obj.version)
+        rlms_instance = ManagerClass(rlms_obj.configuration)
+        back_url = url_for('.edit_view', id = rlms_id, _external = True)
+        setup_url = rlms_instance.setup(back_url = back_url)
+        return redirect(setup_url)
+
+
 
     @expose('/labs/<id>/', methods = ['GET','POST'])
     def labs(self, id):
@@ -565,17 +607,17 @@ class PermissionPanel(L4lModelView):
 #                     Initialization
 # 
 
-def init_admin(app, db_session):
+def init_admin(app):
     admin_url = '/admin'
     admin = Admin(index_view = AdminPanel(url=admin_url), name = lazy_gettext(u"Lab Manager"), url = admin_url, endpoint = admin_url)
     i18n_LMSmngmt = lazy_gettext(u'LT Management')
-    admin.add_view(LTPanel(db_session,        category = i18n_LMSmngmt, name = lazy_gettext(u"LT"),     endpoint = 'lt/lt'))
-    admin.add_view(PermissionToLtPanel(db_session, category = i18n_LMSmngmt, name = lazy_gettext(u"LT Permissions"),    endpoint = 'lt/permissions'))
-    admin.add_view(LtUsersPanel(db_session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Users"),        endpoint = 'lt/users'))
-    admin.add_view(LabRequestsPanel(db_session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Requests"),        endpoint = 'lt/requests'))
+    admin.add_view(LTPanel(db.session,        category = i18n_LMSmngmt, name = lazy_gettext(u"LT"),     endpoint = 'lt/lt'))
+    admin.add_view(PermissionToLtPanel(db.session, category = i18n_LMSmngmt, name = lazy_gettext(u"LT Permissions"),    endpoint = 'lt/permissions'))
+    admin.add_view(LtUsersPanel(db.session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Users"),        endpoint = 'lt/users'))
+    admin.add_view(LabRequestsPanel(db.session,   category = i18n_LMSmngmt, name = lazy_gettext(u"LT Requests"),        endpoint = 'lt/requests'))
     i18n_ReLMSmngmt = lazy_gettext(u'ReLMS Management')
-    admin.add_view(RLMSPanel(db_session,       category = i18n_ReLMSmngmt, name = lazy_gettext(u"RLMS"),            endpoint = 'rlms/rlms'))
-    admin.add_view(LaboratoryPanel(db_session, category = i18n_ReLMSmngmt, name = lazy_gettext(u"Registered labs"), endpoint = 'rlms/labs'))
-    admin.add_view(UsersPanel(db_session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
+    admin.add_view(RLMSPanel(db.session,       category = i18n_ReLMSmngmt, name = lazy_gettext(u"RLMS"),            endpoint = 'rlms/rlms'))
+    admin.add_view(LaboratoryPanel(db.session, category = i18n_ReLMSmngmt, name = lazy_gettext(u"Registered labs"), endpoint = 'rlms/labs'))
+    admin.add_view(UsersPanel(db.session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
     admin.add_view(RedirectView('logout',      name = lazy_gettext(u"Log out"), endpoint = 'admin/logout'))
     admin.init_app(app)

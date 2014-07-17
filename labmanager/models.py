@@ -2,16 +2,16 @@
 
 import hashlib
 
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, UniqueConstraint, sql, Table, Boolean
+from sqlalchemy import sql
 from sqlalchemy.orm import relation, backref, relationship
 from flask.ext.login import UserMixin
-from labmanager.db import Base, db_session as DBS
+from labmanager.db import db
 from labmanager.babel import gettext
 
 class SBBase(object):
     @classmethod
     def find(klass, query_id = None, **kwargs):
-        query_obj = DBS.query(klass)
+        query_obj = db.session.query(klass)
         if query_id is not None:
             query_obj = query_obj.filter(klass.id == query_id)
         if kwargs:
@@ -20,7 +20,7 @@ class SBBase(object):
 
     @classmethod
     def all(klass, **kwargs):
-        query_obj = DBS.query(klass)
+        query_obj = db.session.query(klass)
         if kwargs:
             query_obj = query_obj.filter_by(**kwargs)
         return query_obj.all()
@@ -28,8 +28,8 @@ class SBBase(object):
     @classmethod
     def new(klass, **params):
         instance = klass(**params)
-        DBS.add(instance)
-        DBS.commit()
+        db.session.add(instance)
+        db.session.commit()
         return instance
 
 ######################################################################################
@@ -55,12 +55,12 @@ class SBBase(object):
 #   add RLMSs, LTs, etc.
 # 
 
-class LabManagerUser(Base, SBBase, UserMixin):
+class LabManagerUser(db.Model, SBBase, UserMixin):
     __tablename__ = 'labmanager_users'
-    id = Column(Integer, primary_key=True)
-    login    = Column(Unicode(50), unique = True, nullable = False)
-    name     = Column(Unicode(50), nullable = False)
-    password = Column(Unicode(50), nullable = False) # hash
+    id = db.Column(db.Integer, primary_key=True)
+    login    = db.Column(db.Unicode(50), unique = True, nullable = False)
+    name     = db.Column(db.Unicode(50), nullable = False)
+    password = db.Column(db.Unicode(50), nullable = False) # hash
 
     def __init__(self, login = None, name = None, password = None):
         self.login    = login
@@ -78,7 +78,7 @@ class LabManagerUser(Base, SBBase, UserMixin):
 
     @classmethod
     def exists(self, login, word):
-        return DBS.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
+        return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
 #########################################################
 # 
@@ -87,14 +87,14 @@ class LabManagerUser(Base, SBBase, UserMixin):
 #   1 RLMS is composed of 1 or multiple Laboratories
 # 
 
-class RLMS(Base, SBBase):
+class RLMS(db.Model, SBBase):
     __tablename__ = 'rlmss'
-    id = Column(Integer, primary_key = True)
-    kind = Column(Unicode(50), nullable = False)
-    location = Column(Unicode(50), nullable = False)
-    url = Column(Unicode(300), nullable = False)
-    version = Column(Unicode(50), nullable = False)
-    configuration = Column(Unicode(10 * 1024))
+    id = db.Column(db.Integer, primary_key = True)
+    kind = db.Column(db.Unicode(50), nullable = False)
+    location = db.Column(db.Unicode(50), nullable = False)
+    url = db.Column(db.Unicode(300), nullable = False)
+    version = db.Column(db.Unicode(50), nullable = False)
+    configuration = db.Column(db.Unicode(10 * 1024))
 
     def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
         self.kind = kind
@@ -104,7 +104,7 @@ class RLMS(Base, SBBase):
         self.configuration = configuration
 
     def __repr__(self):
-        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rmlsversion)r, configuration=%(rmlsconfiguration)r)" % dict(rmlskind=self.kind, rmlsurl=self.url, rmlslocation=self.location, rlmsversion=self.version, rmlsconfiguration=self.configuration)
+        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration)
 
     def __unicode__(self):
         return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)
@@ -116,18 +116,18 @@ class RLMS(Base, SBBase):
 #  1 Laboratory is the minimum representation that can be reserved.
 # 
 
-class Laboratory(Base, SBBase):
+class Laboratory(db.Model, SBBase):
     __tablename__ = 'laboratories'
-    __table_args__ = (UniqueConstraint('laboratory_id', 'rlms_id'), )
-    id = Column(Integer, primary_key = True)
-    name                     = Column(Unicode(350), nullable = False)
-    laboratory_id            = Column(Unicode(350), nullable = False)
-    rlms_id                  = Column(Integer, ForeignKey('rlmss.id'), nullable = False)
-    visibility               = Column(Unicode(50), nullable = False, index = True, default = u'private')
-    available                = Column(Boolean, nullable = False, index = True, default = False)
-    default_local_identifier = Column(Unicode(50), nullable = False, default = u"")
-    publicly_available       = Column(Boolean, nullable = False, index = True, default = False)
-    public_identifier        = Column(Unicode(50), nullable = False, default = u"")
+    __table_args__ = (db.UniqueConstraint('laboratory_id', 'rlms_id'), )
+    id = db.Column(db.Integer, primary_key = True)
+    name                     = db.Column(db.Unicode(350), nullable = False)
+    laboratory_id            = db.Column(db.Unicode(350), nullable = False)
+    rlms_id                  = db.Column(db.Integer, db.ForeignKey('rlmss.id'), nullable = False)
+    visibility               = db.Column(db.Unicode(50), nullable = False, index = True, default = u'private')
+    available                = db.Column(db.Boolean, nullable = False, index = True, default = False)
+    default_local_identifier = db.Column(db.Unicode(50), nullable = False, default = u"")
+    publicly_available       = db.Column(db.Boolean, nullable = False, index = True, default = False)
+    public_identifier        = db.Column(db.Unicode(50), nullable = False, default = u"")
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
@@ -149,13 +149,13 @@ class Laboratory(Base, SBBase):
 # authorization. It is divided into multiple courses (see below).
 # 
 
-class LearningTool(Base, SBBase):
+class LearningTool(db.Model, SBBase):
     __tablename__  = 'learning_tools'
-    __table_args__ = (UniqueConstraint('name'), UniqueConstraint('full_name'))
-    id = Column(Integer, primary_key = True)
-    name      = Column(Unicode(50), nullable = False, index = True)
-    full_name = Column(Unicode(50), nullable = False, index = True)
-    url       = Column(Unicode(300), nullable = False)
+    __table_args__ = (db.UniqueConstraint('name'), db.UniqueConstraint('full_name'))
+    id = db.Column(db.Integer, primary_key = True)
+    name      = db.Column(db.Unicode(50), nullable = False, index = True)
+    full_name = db.Column(db.Unicode(50), nullable = False, index = True)
+    url       = db.Column(db.Unicode(300), nullable = False)
 
     def __init__(self, name = None, full_name = None, url = None):
         self.name = name
@@ -175,20 +175,20 @@ class LearningTool(Base, SBBase):
 #   Used by LTs to authenticate in the system
 # 
 
-class BasicHttpCredentials(Base, SBBase):
+class BasicHttpCredentials(db.Model, SBBase):
     __tablename__  = 'basic_http_credentials'
-    __table_args__ = (UniqueConstraint('lt_login'), UniqueConstraint('lt_id'))
-    id        = Column(Integer, primary_key = True)
-    lt_id        = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
+    __table_args__ = (db.UniqueConstraint('lt_login'), db.UniqueConstraint('lt_id'))
+    id        = db.Column(db.Integer, primary_key = True)
+    lt_id        = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
 
     # Arguments for the LT to connect the LabManager
-    lt_login     = Column(Unicode(50), nullable = False)
-    lt_password  = Column(Unicode(50), nullable = False)
+    lt_login     = db.Column(db.Unicode(50), nullable = False)
+    lt_password  = db.Column(db.Unicode(50), nullable = False)
 
     # Arguments for the LabManager to connect the LT. Might be null
-    lt_url       = Column(Unicode(300), nullable = True)
-    labmanager_login    = Column(Unicode(50), nullable = True)
-    labmanager_password = Column(Unicode(50), nullable = True)
+    lt_url       = db.Column(db.Unicode(300), nullable = True)
+    labmanager_login    = db.Column(db.Unicode(50), nullable = True)
+    labmanager_password = db.Column(db.Unicode(50), nullable = True)
 
     lt = relation('LearningTool', backref=backref('basic_http_authentications', order_by=id, cascade='all, delete'))
 
@@ -217,14 +217,14 @@ class BasicHttpCredentials(Base, SBBase):
 #   Used by LTs to authenticate in the system
 # 
 
-class ShindigCredentials(Base, SBBase):
+class ShindigCredentials(db.Model, SBBase):
     __tablename__  = 'shindig_credentials'
-    __table_args__ = (UniqueConstraint('lt_id'),)
-    id        = Column(Integer, primary_key = True)
-    lt_id        = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
+    __table_args__ = (db.UniqueConstraint('lt_id'),)
+    id        = db.Column(db.Integer, primary_key = True)
+    lt_id        = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
 
     # The URL of the Shindig server. Example: http://shindig.epfl.ch (no trailing slash)
-    shindig_url   = Column(Unicode(50), nullable = False)
+    shindig_url   = db.Column(db.Unicode(50), nullable = False)
 
     lt = relation('LearningTool', backref=backref('shindig_credentials', order_by=id, cascade='all, delete'))
 
@@ -246,20 +246,20 @@ class ShindigCredentials(Base, SBBase):
 #   authenticate and change stuff at LT level.
 #  
 
-users2courses_relation = Table('users2courses', Base.metadata,
-    Column('course_id',   Integer, ForeignKey('courses.id')),
-    Column('lt_user_id', Integer, ForeignKey('lt_users.id'))
+users2courses_relation = db.Table('users2courses',
+    db.Column('course_id',  db.Integer, db.ForeignKey('courses.id')),
+    db.Column('lt_user_id', db.Integer, db.ForeignKey('lt_users.id'))
 )
 
-class LtUser(Base, SBBase, UserMixin):
+class LtUser(db.Model, SBBase, UserMixin):
     __tablename__  = 'lt_users'
-    __table_args__ = (UniqueConstraint('login','lt_id'), )
-    id           = Column(Integer, primary_key = True)
-    login        = Column(Unicode(50), nullable = False, index = True)
-    full_name    = Column(Unicode(50), nullable = False)
-    password     = Column(Unicode(128), nullable = False)
-    access_level = Column(Unicode(50), nullable = False)
-    lt_id    = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
+    __table_args__ = (db.UniqueConstraint('login','lt_id'), )
+    id           = db.Column(db.Integer, primary_key = True)
+    login        = db.Column(db.Unicode(50), nullable = False, index = True)
+    full_name    = db.Column(db.Unicode(50), nullable = False)
+    password     = db.Column(db.Unicode(128), nullable = False)
+    access_level = db.Column(db.Unicode(50), nullable = False)
+    lt_id    = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
 
     lt       = relation('LearningTool', backref = backref('users', order_by=id, cascade = 'all,delete'))
 
@@ -281,7 +281,7 @@ class LtUser(Base, SBBase, UserMixin):
 
     @classmethod
     def exists(self, login, word, lt_id):
-        return DBS.query(self).filter_by(login = login, password = word, lt_id = int(lt_id)).first()    
+        return db.session.query(self).filter_by(login = login, password = word, lt_id = int(lt_id)).first()    
 
 #####################################################################################
 # 
@@ -290,13 +290,13 @@ class LtUser(Base, SBBase, UserMixin):
 #  1 Course is part of a LT and it will have permission on certain laboratories
 # 
 
-class Course(Base, SBBase):
+class Course(db.Model, SBBase):
     __tablename__ = 'courses'
-    __table_args__ = (UniqueConstraint('lt_id','context_id'), )
-    id = Column(Integer, primary_key = True)
-    lt_id = Column(Integer, ForeignKey('learning_tools.id'), nullable = False)
-    name = Column(Unicode(50), nullable = False)
-    context_id = Column(Unicode(50), nullable = False)
+    __table_args__ = (db.UniqueConstraint('lt_id','context_id'), )
+    id = db.Column(db.Integer, primary_key = True)
+    lt_id = db.Column(db.Integer, db.ForeignKey('learning_tools.id'), nullable = False)
+    name = db.Column(db.Unicode(50), nullable = False)
+    context_id = db.Column(db.Unicode(50), nullable = False)
 
     lt = relation('LearningTool', backref=backref('courses', order_by=id, cascade='all, delete'))
 
@@ -330,15 +330,15 @@ class Course(Base, SBBase):
 # Defines that a LT has permission on a Laboratory.
 #
 
-class PermissionToLt(Base, SBBase):
+class PermissionToLt(db.Model, SBBase):
     __tablename__ = 'permissions2lt'
-    __table_args__ = (UniqueConstraint('laboratory_id', 'lt_id'), UniqueConstraint('local_identifier', 'lt_id'))
-    id = Column(Integer, primary_key = True)
-    local_identifier     = Column(Unicode(100), nullable = False, index = True)
-    laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
-    lt_id        = Column(Integer, ForeignKey('learning_tools.id'),  nullable = False)
-    configuration = Column(Unicode(10 * 1024)) # JSON document
-    accessible    = Column(Boolean, nullable = False, index = True, default = False)
+    __table_args__ = (db.UniqueConstraint('laboratory_id', 'lt_id'), db.UniqueConstraint('local_identifier', 'lt_id'))
+    id = db.Column(db.Integer, primary_key = True)
+    local_identifier     = db.Column(db.Unicode(100), nullable = False, index = True)
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable = False)
+    lt_id        = db.Column(db.Integer, db.ForeignKey('learning_tools.id'),  nullable = False)
+    configuration = db.Column(db.Unicode(10 * 1024)) # JSON document
+    accessible    = db.Column(db.Boolean, nullable = False, index = True, default = False)
 
     laboratory = relation(Laboratory.__name__,  backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
     lt        = relation(LearningTool.__name__, backref = backref('lab_permissions', order_by=id, cascade = 'all,delete'))
@@ -360,16 +360,16 @@ class PermissionToLt(Base, SBBase):
 # Defines that a LT User has permission on a Laboratory.
 #
 
-class PermissionToLtUser(Base, SBBase):
+class PermissionToLtUser(db.Model, SBBase):
     __tablename__  = 'permissions2ltuser'
-    __table_args__ = (UniqueConstraint('permission_to_lt_id', 'lt_user_id'),)
-    id = Column(Integer, primary_key = True)
-    permission_to_lt_id = Column(Integer, ForeignKey('permissions2lt.id'), nullable = False, index = True)
-    lt_user_id          = Column(Integer, ForeignKey('lt_users.id'), nullable = False, index = True)
+    __table_args__ = (db.UniqueConstraint('permission_to_lt_id', 'lt_user_id'),)
+    id = db.Column(db.Integer, primary_key = True)
+    permission_to_lt_id = db.Column(db.Integer, db.ForeignKey('permissions2lt.id'), nullable = False, index = True)
+    lt_user_id          = db.Column(db.Integer, db.ForeignKey('lt_users.id'), nullable = False, index = True)
     
     # LTI data
-    key                  = Column(Unicode(100), nullable = False, unique = True)
-    secret               = Column(Unicode(100), nullable = False)
+    key                  = db.Column(db.Unicode(100), nullable = False, unique = True)
+    secret               = db.Column(db.Unicode(100), nullable = False)
 
     permission_to_lt = relation('PermissionToLt', backref=backref('lt_user_permissions', order_by=id, cascade='all, delete'))
     lt_user = relation('LtUser', backref=backref('lt_user_permissions', order_by=id, cascade='all, delete'))
@@ -387,13 +387,13 @@ class PermissionToLtUser(Base, SBBase):
 # Defines that a Course has permission on a Laboratory.
 #
 
-class PermissionToCourse(Base, SBBase):
+class PermissionToCourse(db.Model, SBBase):
     __tablename__  = 'permissions2course'
-    __table_args__ = (UniqueConstraint('permission_to_lt_id', 'course_id'),)
-    id = Column(Integer, primary_key = True)
-    configuration = Column(Unicode(10 * 1024), nullable = True)
-    permission_to_lt_id = Column(Integer, ForeignKey('permissions2lt.id'), nullable = False)
-    course_id            = Column(Integer, ForeignKey('courses.id'), nullable = False)
+    __table_args__ = (db.UniqueConstraint('permission_to_lt_id', 'course_id'),)
+    id = db.Column(db.Integer, primary_key = True)
+    configuration = db.Column(db.Unicode(10 * 1024), nullable = True)
+    permission_to_lt_id = db.Column(db.Integer, db.ForeignKey('permissions2lt.id'), nullable = False)
+    course_id            = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable = False)
 
     permission_to_lt = relation('PermissionToLt', backref=backref('course_permissions', order_by=id, cascade='all, delete'))
     course            = relation('Course', backref=backref('permissions', order_by=id, cascade='all, delete'))
@@ -416,15 +416,15 @@ class PermissionToCourse(Base, SBBase):
 #     When a school requests permission to use a lab, and the labmanager admin must grant or reject this request.
 #     If the request is granted, a new entry is created in PermissionToLt
 
-class RequestPermissionLT(Base, SBBase):
+class RequestPermissionLT(db.Model, SBBase):
     __tablename__ = 'request_permissions_lt'
-    __table_args__ = (UniqueConstraint('laboratory_id', 'lt_id'), UniqueConstraint('local_identifier', 'lt_id'))
-    id = Column(Integer, primary_key = True)
-    local_identifier     = Column(Unicode(100), nullable = False, index = True)
-    laboratory_id = Column(Integer, ForeignKey('laboratories.id'), nullable = False)
-    lt_id        = Column(Integer, ForeignKey('learning_tools.id'),  nullable = False)
-    configuration = Column(Unicode(10 * 1024)) # JSON document
-    accessible    = Column(Boolean, nullable = False, index = True, default = False)
+    __table_args__ = (db.UniqueConstraint('laboratory_id', 'lt_id'), db.UniqueConstraint('local_identifier', 'lt_id'))
+    id = db.Column(db.Integer, primary_key = True)
+    local_identifier     = db.Column(db.Unicode(100), nullable = False, index = True)
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable = False)
+    lt_id        = db.Column(db.Integer, db.ForeignKey('learning_tools.id'),  nullable = False)
+    configuration = db.Column(db.Unicode(10 * 1024)) # JSON document
+    accessible    = db.Column(db.Boolean, nullable = False, index = True, default = False)
 
     laboratory = relation(Laboratory.__name__,  backref = backref('lab_requestpermissions', order_by=id, cascade = 'all,delete'))
     lt        = relation(LearningTool.__name__, backref = backref('lab_requestpermissions', order_by=id, cascade = 'all,delete'))

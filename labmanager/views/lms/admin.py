@@ -24,6 +24,7 @@ from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, Permis
 from labmanager.views import RedirectView, retrieve_courses
 import labmanager.forms as forms
 from labmanager.utils import data_filename
+from labmanager.db import db
 
 config = yload(open(data_filename('labmanager/config/config.yml')))
 
@@ -376,16 +377,16 @@ class LmsPermissionToCoursesPanel(L4lLmsModelView):
 # 
 #    Initialization
 # 
-def init_lms_admin(app, db_session):
+def init_lms_admin(app):
     lms_admin_url = '/lms_admin'
     lms_admin = Admin(index_view = LmsAdminPanel(url=lms_admin_url, endpoint = 'lms_admin'), name = lazy_gettext(u'LMS admin'), url = lms_admin_url, endpoint = 'lms-admin')
-    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db_session, name = lazy_gettext(u"Lab"), endpoint = 'lms_admin_labs', url = 'labs'))
+    lms_admin.add_view(LmsInstructorLaboratoriesPanel( db.session, name = lazy_gettext(u"Lab"), endpoint = 'lms_admin_labs', url = 'labs'))
     i18n_courses=lazy_gettext(u"Courses")
-    lms_admin.add_view(LmsCoursesPanel(db_session,    category = i18n_courses, name     = lazy_gettext(u"Courses"), endpoint = 'lms_admin_courses', url = 'courses'))
-    lms_admin.add_view(LmsCourseDiscoveryPanel(db_session,    category = i18n_courses, name     = lazy_gettext(u'Discover'), endpoint = 'lms_admin_course_discover', url = 'courses/discover'))
-    lms_admin.add_view(LmsPermissionToCoursesPanel(db_session,    category =i18n_courses, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_admin_course_permissions', url = 'courses/permissions'))
+    lms_admin.add_view(LmsCoursesPanel(db.session,    category = i18n_courses, name     = lazy_gettext(u"Courses"), endpoint = 'lms_admin_courses', url = 'courses'))
+    lms_admin.add_view(LmsCourseDiscoveryPanel(db.session,    category = i18n_courses, name     = lazy_gettext(u'Discover'), endpoint = 'lms_admin_course_discover', url = 'courses/discover'))
+    lms_admin.add_view(LmsPermissionToCoursesPanel(db.session,    category =i18n_courses, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_admin_course_permissions', url = 'courses/permissions'))
     i18n_users=lazy_gettext(u'Users')
-    lms_admin.add_view(LmsUsersPanel(db_session,      category = i18n_users, name     = lazy_gettext(u'Users'), endpoint = 'lms_admin_users', url = 'users'))
-    lms_admin.add_view(PermissionToLmsUserPanel(db_session,      category = i18n_users, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
+    lms_admin.add_view(LmsUsersPanel(db.session,      category = i18n_users, name     = lazy_gettext(u'Users'), endpoint = 'lms_admin_users', url = 'users'))
+    lms_admin.add_view(PermissionToLmsUserPanel(db.session,      category = i18n_users, name     = lazy_gettext(u'Permissions'), endpoint = 'lms_admin_user_permissions', url = 'user_permissions'))
     lms_admin.add_view(RedirectView('logout',         name = lazy_gettext(u'Log out'), endpoint = 'lms_admin_logout', url = 'logout'))
     lms_admin.init_app(app)

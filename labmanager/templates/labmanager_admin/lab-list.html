@@ -31,8 +31,9 @@
         </form>
     </table>
     <div class="form-actions" align="center">
-        <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Register')}}</button>
         <button class="btn btn-danger"  name="action" type="submit" value="unregister">{{gettext('Unregister')}}</button>
+        <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Register')}}</button>
+        <a href="{{ url_for('rlms/labs.index_view') }}" class="btn btn-info">{{gettext('See registered labs')}}</a>
     </div>
 </form>
 {% else %}

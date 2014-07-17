@@ -1,0 +1,45 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+
+<div class="row">
+    <div class="span8 offset2 text-center">
+        <h3>{{gettext('Create {name}').format(name = name) }} ({{ version }})</h3>
+
+        {% if error_messages %}
+            <div class="alert alert-error">
+                <ul>
+                    {% for error in error_messages %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+
+        {% from "_form_helpers.html" import render_field %}
+        
+        {% if edit_id %}
+        <form action=".?id={{ edit_id }}" method="POST"  class="form-horizontal">
+        {% else %}
+        <form action="." method="POST"  class="form-horizontal">
+        {% endif %}
+
+            {{ form.hidden_tag() }}
+
+            {% for field in fields %}
+                {{ render_field(form|attr(field)) }}
+            {% endfor %}
+
+            <div class="form-actions">
+                <a href="{{ url_for('.index_view') }}" class="btn btn-danger">{{gettext('Back')}}</a>
+                <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Create RLMS')}}</button>
+                {% if setup_url %}
+                    <a href="{{ setup_url }}" class="btn btn-info">{{ gettext("Setup") }}</a>
+                {% endif %}
+            </div>
+        </form>
+        
+    </div>
+</div>
+
+{% endblock %}
