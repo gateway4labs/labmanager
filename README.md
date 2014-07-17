@@ -1,7 +1,9 @@
 .. image:: https://travis-ci.org/gateway4labs/labmanager.svg?branch=master
         :target: https://travis-ci.org/gateway4labs/labmanager/
 
-# Documentation
+
+Labmanager
+==========
 
 The documentation of the labmanager is available here:
 
