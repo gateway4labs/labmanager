@@ -19,6 +19,15 @@ from flask import Flask, render_template, redirect, url_for
 app = Flask(__name__)
 app.config.from_object('config')
 
+# Try to support SQLALCHEMY_ENGINE_STR
+if 'SQLALCHEMY_DATABASE_URI' not in app.config and 'SQLALCHEMY_ENGINE_STR' in app.config:
+    print "WARNING: SQLALCHEMY_ENGINE_STR is deprecated. Change it for SQLALCHEMY_DATABASE_URI"
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_ENGINE_STR']
+
+if 'SQLALCHEMY_POOL_RECYCLE' not in app.config and app.config['SQLALCHEMY_DATABASE_URI'].startswith('mysql'):
+    print "WARNING: SQLALCHEMY_POOL_RECYCLE not set. Defaults to 3600. Put it in the configuration file"
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
+
 if app.config['DEBUG']:
     app.secret_key = 'secret'
     import labmanager.views.fake_lms as fake_lms
@@ -73,25 +82,25 @@ else:
 # 
 # Initialize administration panels
 # 
-from labmanager.db import db_session
+from labmanager.db import db
 
 from .views.admin import init_admin
-init_admin(app, db_session)
+init_admin(app, db.session)
 
 from .views.public import init_public_admin
-init_public_admin(app, db_session)
+init_public_admin(app, db.session)
 
 from .views.lms.admin import init_lms_admin
-init_lms_admin(app, db_session)
+init_lms_admin(app, db.session)
 
 from .views.lms.instructor import init_instructor_admin
-init_instructor_admin(app, db_session)
+init_instructor_admin(app, db.session)
 
 from .views.ple.admin import init_ple_admin
-init_ple_admin(app, db_session)
+init_ple_admin(app, db.session)
 
 from .views.ple.instructor import init_ple_instructor_admin
-init_ple_instructor_admin(app, db_session)
+init_ple_instructor_admin(app, db.session)
 
 # 
 # Initialize login subsystem
@@ -120,4 +129,4 @@ def about():
 
 @app.teardown_request
 def shutdown_session(exception = None):
-    db_session.remove()
+    db.session.remove()

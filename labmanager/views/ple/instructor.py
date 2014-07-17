@@ -12,7 +12,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
 from labmanager.views import RedirectView
 from labmanager.views.ple.admin import PlePermissionToSpacePanel, PleNewSpacesPanel, PleSpacesPanel
-from labmanager.models import LearningTool,Laboratory, PermissionToLt
+from labmanager.models import Laboratory, PermissionToLt
 from labmanager.rlms import get_manager_class
 from labmanager.babel import gettext, lazy_gettext
 

@@ -4,7 +4,7 @@ import traceback
 import hashlib
  
 from flask import Response, render_template, request, g, Blueprint
-from labmanager.db import db_session
+from labmanager.db import db
 from labmanager.models import BasicHttpCredentials
 from labmanager.models   import LearningTool, PermissionToLt
 from labmanager.rlms     import get_manager_class
@@ -37,7 +37,7 @@ def requires_lms_auth():
         password = auth.password
     hash_password = hashlib.new('sha', password).hexdigest()
     # TODO: check if there could be a conflict between two LTs with same key??
-    credential = db_session.query(BasicHttpCredentials).filter_by(lt_login = username, lt_password = hash_password).first()
+    credential = db.session.query(BasicHttpCredentials).filter_by(lt_login = username, lt_password = hash_password).first()
     if credential is None:
         return UNAUTHORIZED
     g.lt = credential.lt.name
@@ -47,7 +47,7 @@ def requests():
     """SCORM packages will perform requests to this method, which will
     interact with the permitted laboratories"""
     
-    db_lt = db_session.query(LearningTool).filter_by(name = g.lt).first()
+    db_lt = db.session.query(LearningTool).filter_by(name = g.lt).first()
     if request.method == 'GET':
         local_identifiers = [ permission.local_identifier for permission in  db_lt.lab_permissions ]
         return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr, courses = db_lt.courses)
@@ -79,7 +79,7 @@ def requests():
         traceback.print_exc()
         return messages_codes["ERROR_invalid"]
     # reserving...
-    permission_to_lt = db_session.query(PermissionToLt).filter_by(lt = db_lt, local_identifier = experiment_identifier).first()
+    permission_to_lt = db.session.query(PermissionToLt).filter_by(lt = db_lt, local_identifier = experiment_identifier).first()
     good_msg  = messages_codes["ERROR_no_good"]
     error_msg = None
     reservation_url = ""

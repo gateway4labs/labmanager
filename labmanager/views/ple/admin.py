@@ -21,7 +21,7 @@ from flask.ext.login import current_user
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToCourse, RequestPermissionLT
 from labmanager.views import RedirectView
-from labmanager.db import db_session
+from labmanager.db import db
 from labmanager.rlms import get_manager_class
 import labmanager.forms as forms
 from labmanager.utils import data_filename
@@ -139,7 +139,7 @@ def list_widgets_formatter(v, c, laboratory, p):
 
 def accessibility_formatter(v, c, lab, p):
     mylt = current_user.lt
-    permission = db_session.query(PermissionToLt).filter_by(lt = mylt, laboratory = lab).first()
+    permission = db.session.query(PermissionToLt).filter_by(lt = mylt, laboratory = lab).first()
     if not permission:
         return gettext(u"Invalid permission")
     if permission.accessible:
@@ -168,9 +168,9 @@ def accessibility_formatter(v, c, lab, p):
 
 def request_formatter(v, c, lab, p):
     mylt = current_user.lt
-    laboratory_available = db_session.query(Laboratory).filter_by(available = '1', id = lab.id).first()
-    permission = db_session.query(PermissionToLt).filter_by(lt = mylt, laboratory = laboratory_available).first()
-    request = db_session.query(RequestPermissionLT).filter_by(lt = mylt, laboratory = laboratory_available).first()
+    laboratory_available = db.session.query(Laboratory).filter_by(available = '1', id = lab.id).first()
+    permission = db.session.query(PermissionToLt).filter_by(lt = mylt, laboratory = laboratory_available).first()
+    request = db.session.query(RequestPermissionLT).filter_by(lt = mylt, laboratory = laboratory_available).first()
     # if there is not a pending request ...
     if not request:
         if not permission:
@@ -378,7 +378,7 @@ def create_new_space(numeric_identifier, space_name):
     context_id = unicode(numeric_identifier)
     course = Course(name = space_name, lt = current_user.lt, context_id = context_id)
     # Add it to the database
-    db_session.add(course)
+    db.session.add(course)
     return course
 
 def parse_space_url(url):
@@ -442,8 +442,8 @@ class PleNewSpacesPanel(L4lPleView):
                         for lab_to_grant in labs_to_grant:
                             permission = [ permission for permission in permissions if permission.local_identifier == lab_to_grant ][0]
                             permission_to_course = PermissionToCourse(course = course, permission_to_lt = permission)
-                            db_session.add(permission_to_course)
-                        db_session.commit()
+                            db.session.add(permission_to_course)
+                        db.session.commit()
                         return redirect(url_for('%s.index_view' % self.courses_panel_endpoint))
                     # But if it was not possible to add it, add a new field called space_name
                     else:

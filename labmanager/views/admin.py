@@ -7,10 +7,10 @@ import traceback
 
 from hashlib import new as new_hash
 from yaml import load as yload
-from wtforms.fields import PasswordField, TextField
+from wtforms.fields import PasswordField
 from flask import request, redirect, url_for, session, Markup, abort, Response, flash
 from flask.ext import wtf
-from flask.ext.wtf import validators, Form
+from flask.ext.wtf import Form
 from flask.ext.login import current_user
 from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
 from flask.ext.admin.model import InlineFormAdmin

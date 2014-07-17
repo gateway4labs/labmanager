@@ -3,10 +3,10 @@ import os
 # Have you run... "pip install git+https://github.com/gateway4labs/rlms_weblabdeusto.git" first?
 RLMS = ['weblabdeusto','unr','ilabs','phet']
 
-SQLALCHEMY_ENGINE_STR = os.environ.get('DATABASE_URL', None)
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
 USE_PYMYSQL = os.environ.get('USE_PYMYSQL', True)
 
-if SQLALCHEMY_ENGINE_STR is None:
+if SQLALCHEMY_DATABASE_URI is None:
     ENGINE = 'mysql'
     USERNAME = 'labmanager'
     PASSWORD = 'labmanager'
@@ -14,9 +14,9 @@ if SQLALCHEMY_ENGINE_STR is None:
     HOST = 'localhost'
 
     if ENGINE == 'mysql':
-        SQLALCHEMY_ENGINE_STR = "mysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
+        SQLALCHEMY_DATABASE_URI = "mysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
     else:
-        SQLALCHEMY_ENGINE_STR = "sqlite:///%s" % DBNAME
+        SQLALCHEMY_DATABASE_URI = "sqlite:///%s" % DBNAME
 
 #
 # Flask configuration

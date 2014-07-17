@@ -15,7 +15,7 @@ import requests
 from flask.ext.wtf import TextField, Required, URL, PasswordField
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
-from labmanager.rlms import register, Laboratory, BaseRLMS, BaseFormCreator, Capabilities, Versions
+from labmanager.rlms import register, Laboratory, BaseRLMS, BaseFormCreator, Versions
 
 def get_module(version):
     return sys.modules[__name__]

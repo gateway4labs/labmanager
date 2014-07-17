@@ -17,7 +17,19 @@ if not os.path.exists('config.py'):
     print >> sys.stderr, "Missing config.py. Copy config.py.dist into config.py"
     sys.exit(-1)
 
-from config import SQLALCHEMY_ENGINE_STR, USE_PYMYSQL
+try:
+    from config import SQLALCHEMY_DATABASE_URI
+except ImportError:
+    try:
+        from config import SQLALCHEMY_ENGINE_STR as SQLALCHEMY_DATABASE_URI
+    except ImportError:
+        raise Exception("SQLALCHEMY_DATABASE_URI not found in the configuration file" )
+
+try:
+    from config import USE_PYMYSQL
+except ImportError:
+    USE_PYMYSQL = True
+
 import config
 heroku = os.environ.get('HEROKU', None)
 
@@ -35,7 +47,7 @@ if heroku is None:
     ROOT_USERNAME = None
     ROOT_PASSWORD = None
 
-from labmanager.db import init_db, db_session
+from labmanager.db import init_db
 from labmanager.sample_data import add_sample_users
 
 
