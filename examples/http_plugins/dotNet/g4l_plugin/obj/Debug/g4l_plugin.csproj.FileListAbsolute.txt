@@ -1,0 +1,7 @@
+C:\go-lab\g4l_plugin\g4l_plugin\obj\Debug\g4l_plugin.csprojResolveAssemblyReference.cache
+C:\go-lab\g4l_plugin\g4l_plugin\bin\g4l_plugin.dll
+C:\go-lab\g4l_plugin\g4l_plugin\bin\g4l_plugin.pdb
+C:\go-lab\g4l_plugin\g4l_plugin\bin\Newtonsoft.Json.dll
+C:\go-lab\g4l_plugin\g4l_plugin\bin\Newtonsoft.Json.xml
+C:\go-lab\g4l_plugin\g4l_plugin\obj\Debug\g4l_plugin.dll
+C:\go-lab\g4l_plugin\g4l_plugin\obj\Debug\g4l_plugin.pdb
