@@ -1,3 +1,4 @@
+from flask import Flask, session
 from flask.ext.testing import TestCase
 from labmanager import app
 from labmanager.sample_data import add_sample_users
