@@ -107,7 +107,7 @@ class LmsUsersPanel(L4lLmsModelView):
         if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
             return False
-        form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
+        form.password.data = unicode(new_hash("sha", form.password.data.encode('utf8')).hexdigest())
         return super(LmsUsersPanel, self).create_model(form)
 
     def on_model_change(self, form, model):
@@ -116,7 +116,7 @@ class LmsUsersPanel(L4lLmsModelView):
     def update_model(self, form, model):
         old_password = model.password
         if form.password.data != '':
-            form.password.data = unicode(new_hash("sha", form.password.data).hexdigest())
+            form.password.data = unicode(new_hash("sha", form.password.data.encode('utf8')).hexdigest())
         return_value = super(LmsUsersPanel, self).update_model(form, model)
         if form.password.data == '':
             model.password = old_password

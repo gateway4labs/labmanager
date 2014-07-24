@@ -219,7 +219,7 @@ class BasicHttpCredentials(db.Model, SBBase):
 
     def update_password(self, old_password):
         if self.lt_password != old_password:
-            self.lt_password = hashlib.new('sha', self.lt_password).hexdigest()
+            self.lt_password = hashlib.new('sha', self.lt_password.encode('utf8')).hexdigest()
 
 ##################################################
 # 

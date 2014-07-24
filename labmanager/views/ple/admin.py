@@ -111,7 +111,7 @@ class PleUsersPanel(L4lPleModelView):
         # TODO: don't update password always 
         # Edit is false, so there is no possibility of changing data
         model.lt   = current_user.lt
-        model.password = unicode(hashlib.new('sha',model.password).hexdigest())
+        model.password = unicode(hashlib.new('sha',model.password.encode('utf8')).hexdigest())
 
 def create_permission_to_lms_filter(session):
     def filter():
