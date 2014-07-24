@@ -16,5 +16,6 @@ class G4lTestCase(TestCase):
         add_sample_users(silence = True)
 
     def tearDown(self):
+        db.drop_all()
         db.session.remove()
 
