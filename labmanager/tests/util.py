@@ -19,4 +19,3 @@ class G4lTestCase(TestCase):
     def tearDown(self):
         db.drop_all()
         db.session.remove()
-
