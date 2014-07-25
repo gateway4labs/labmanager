@@ -1,3 +1,4 @@
+from flask import Flask, session
 from flask.ext.testing import TestCase
 from labmanager import app
 from labmanager.sample_data import add_sample_users
@@ -16,5 +17,6 @@ class G4lTestCase(TestCase):
         add_sample_users(silence = True)
 
     def tearDown(self):
+        db.drop_all()
         db.session.remove()
 
