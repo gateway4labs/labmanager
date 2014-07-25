@@ -35,7 +35,8 @@ def requires_lms_auth():
     else:
         username = auth.username
         password = auth.password
-    hash_password = hashlib.new('sha', password).hexdigest()
+    password = unicode(password)
+    hash_password = hashlib.new('sha', password.encode('utf8')).hexdigest()
     # TODO: check if there could be a conflict between two LTs with same key??
     credential = db.session.query(BasicHttpCredentials).filter_by(lt_login = username, lt_password = hash_password).first()
     if credential is None:

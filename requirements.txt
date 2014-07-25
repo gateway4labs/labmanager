@@ -16,6 +16,7 @@ SQLAlchemy==0.7.10
 alembic==0.6.4
 requests==2.1.0
 Flask-Testing==0.4.1
+Flask-DebugToolbar==0.9.0
 
 git+https://github.com/gateway4labs/rlms_unr.git
 git+https://github.com/gateway4labs/rlms_weblabdeusto.git

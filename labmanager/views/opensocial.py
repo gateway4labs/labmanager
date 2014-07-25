@@ -289,7 +289,7 @@ def register():
             lt = LearningTool(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)
             shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'https://shindig.epfl.ch')
             lt_user = LtUser(login = form.user_login.data, full_name = form.user_full_name.data, lt = lt, access_level = 'admin')
-            lt_user.password = unicode(hashlib.new('sha', form.user_password.data).hexdigest())
+            lt_user.password = unicode(hashlib.new('sha', form.user_password.data.encode('utf8')).hexdigest())
             for lab in db.session.query(Laboratory).filter_by(available = True).all():
                 permission_to_lt = PermissionToLt(lt = lt, laboratory = lab, local_identifier = lab.default_local_identifier)
                 db.session.add(permission_to_lt)
