@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/antonioIrizar/labmanager.svg?branch=master
-        :target: https://travis-ci.org/antonioIrizar/labmanager/
+.. image:: https://travis-ci.org/gateway4labs/labmanager.svg?branch=master
+        :target: https://travis-ci.org/gateway4labs/labmanager/
 
 
 Labmanager
