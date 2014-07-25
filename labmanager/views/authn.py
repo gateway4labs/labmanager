@@ -47,7 +47,6 @@ def login_admin():
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
         hashed = unicode(new_hash("sha", request.form['password'].encode('utf8')).hexdigest())
-        #hashed = unicode(new_hash("sha", request.form['password']).hexdigest())
         user = LabManagerUser.exists(username, hashed)
         if user is not None:
             if login_user(user):
