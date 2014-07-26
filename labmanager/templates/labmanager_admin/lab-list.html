@@ -2,7 +2,9 @@
 {% block body %}
 <h3>{{gettext('Available labs for ')}}<a href="{{rlms.url}}">{{ rlms.kind }} ({{rlms.version }})</a> {{gettext('at')}} {{ rlms.location }}</h3>
 
-<div class="text-center">
+<p><i>{{ gettext("Results:") }} {{ labs|length }}</i></p>
+
+<div class="pull-right">
     <form action="." method="GET" class="form-search">
         <div class="input-prepend">
             <button type="submit" class="btn"><i class="icon-search"></i></button>
