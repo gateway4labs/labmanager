@@ -29,7 +29,7 @@
             <td colspan="2">
             {% if url_for('.list_widgets', public_identifier = lab_name, _external = True).startswith('https://') %}
             <div class="alert alert-error text-center">
-                <p>{{ gettext("Preview not available when using HTTPS.") }}<a href="{{ url_for('.list_widgets', public_identifier = lab_name, _external = True).replace('https://', 'http://', 1) }}" class="btn btn-default">{{ gettext("Use HTTP") }}</a></p>
+                <p><b>{{ gettext("Preview not available when using HTTPS.") }}</b></p><a href="{{ url_for('.list_widgets', public_identifier = lab_name, _external = True).replace('https://', 'http://', 1) }}" class="btn btn-default">{{ gettext("Use HTTP") }}</a>
             </div>
             {% else %}
             <div class="text-center" id="widget_container_{{ loop.index0 }}" style="width: 100%"><button id="widget_{{ loop.index0 }}" type="button" class="btn btn-success">{{ gettext("Preview widget") }}</button></div>
