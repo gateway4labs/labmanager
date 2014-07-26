@@ -6,3 +6,6 @@ install:
     - python deploy.py -cdu --db-password=""
 script:
     - nosetests labmanager
+notifications:
+    email:
+        - on_success: always
