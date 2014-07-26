@@ -71,6 +71,7 @@ The RLMS may also need to access the RLMS.
 from abc import ABCMeta, abstractmethod
 from flask import Blueprint
 assert Blueprint or None # Avoid pyflakes warning
+from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 
 # 
 # This is the list of versions. The BaseRLMS has a method
@@ -242,9 +243,6 @@ class BaseFormCreator(object):
     custom fields required by that RLMS to work.
     """
 
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
     def get_add_form(self):
         """get_add_form() -> AddForm
 
@@ -252,15 +250,21 @@ class BaseFormCreator(object):
         The purpose of this class is to request RLMS specific parameters, validate them, and
         generate a RLMS dependent JSON file.
         """
+        if not hasattr(self, '_add_form'):
+            class NewAddForm(AddForm):
+                def __init__(self, add_or_edit, *args, **kwargs):
+                    super(ViSHAddForm, self).__init__(*args, **kwargs)
+                    self.add_or_edit = add_or_edit
+            self._add_form = NewAddForm
+        return self._add_form
 
-    @abstractmethod
     def get_permission_form(self):
         """get_permission_form() -> PermissionForm
 
         Returns a RLMS dependent form for managing course-level permissions.
         """
+        return RetrospectiveForm
 
-    @abstractmethod
     def get_lms_permission_form(self):
         """get_lms_permission_form() -> LmsPermissionForm
         
@@ -268,6 +272,12 @@ class BaseFormCreator(object):
         with get_permission_form is that they must have an identifier, so it should inherit from
         labmanager.forms.GenericPermissionForm.
         """
+        if not hasattr(self, '_lms_permission_form'):
+            class NewLmsPermissionForm(self.get_permission_form(), GenericPermissionForm):
+                pass
+            self._lms_permission_form = LmsPermissionForm
+        return self._lms_permission_form
+            
 
 _BLUEPRINTS = {
     # url : blueprint
