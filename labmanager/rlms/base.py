@@ -98,11 +98,18 @@ class Capabilities(object):
     (such as what their students did or so).
     """
 
-    WIDGET        = 'widget'
+    WIDGET = 'widget'
     """
     Providing this capability reports that the RLMS plug-in supports
     that the UI is splitted. This is useful for its inclusion in 
     widgets (e.g., in the Graasp OpenSocial widgets).
+    """
+
+    FORCE_SEARCH = 'force_search'
+    """
+    Providing this capability reports that the RLMS plug-in does not 
+    list laboratories automatically. It forces the user to make a query
+    to provide labs. The Labmanager will report this to the user.
     """
 
 class BaseRLMS(object):
@@ -199,6 +206,39 @@ class BaseRLMS(object):
          - 'load_url' : An independent URL where the LMS can redirect the user to and complete the 
                         reservation.
         """
+
+    def search(self, query, page, **kwargs):
+        """
+        This method is optional. If provided, it must return:
+
+        {
+            'total_results' : 50,
+            'pages' : 3,
+            'laboratories' : [ Laboratory( ... ), Laboratory( ... ) ]
+        }
+        
+        Otherwise, it will be implemented by calling get_laboratories() and searching there.
+        """
+        tokens = query.lower().split(' ')
+        
+        results = []
+        laboratories = self.get_laboratories()
+        for lab in laboratories:
+            total_lab = '%s %s %s' % (lab.name, lab.laboratory_id, lab.description or '')
+            total_lab = total_lab.lower()
+            valid = True
+            for token in tokens:
+                if token not in total_lab:
+                    valid = False
+                    break
+            if valid:
+                results.append(lab)
+
+        return {
+                'total_results' : len(results),
+                'pages' : 1,
+                'laboratories' : results
+            }
 
     def load_widget(self, reservation_id, widget_name):
         """

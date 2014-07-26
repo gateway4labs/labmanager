@@ -2,6 +2,14 @@
 {% block body %}
 <h3>{{gettext('Available labs for ')}}<a href="{{rlms.url}}">{{ rlms.kind }} ({{rlms.version }})</a> {{gettext('at')}} {{ rlms.location }}</h3>
 
+<div class="text-center">
+    <form action="." method="GET" class="form-search">
+        <div class="input-prepend">
+            <button type="submit" class="btn"><i class="icon-search"></i></button>
+            <input id="query" class="input-medium search-query" type="text" name="q" value="{{ query or '' }}"/>
+        </div>
+    </form>
+</div>
 
 {% if labs|length > 0 %}
 <form action="." method="POST">
@@ -30,16 +38,41 @@
         </tbody>
         </form>
     </table>
+
+    {% if pages %}
+        <div class="text-center">
+            <div class="pagination">
+                <ul>
+                    {% for page in pages %}
+                        <li class="{% if not page['active'] %}disabled{% endif %}"><a href="{{ page['link'] }}">{{ page['label'] }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+    
     <div class="form-actions" align="center">
         <button class="btn btn-danger"  name="action" type="submit" value="unregister">{{gettext('Unregister')}}</button>
         <button class="btn btn-primary" name="action" type="submit" value="register">{{gettext('Register')}}</button>
         <a href="{{ url_for('rlms/labs.index_view') }}" class="btn btn-info">{{gettext('See registered labs')}}</a>
     </div>
 </form>
+{% elif force_search %}
+<div class="alert">
+    {{ gettext('You need to search for retrieving results') }}
+</div>
 {% else %}
 <div class="alert">
     {{gettext('No laboratory found')}}
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script>
+        $('#query').focus();
+        $("#query").val($("#query").val());
+    </script>
 {% endblock %}

@@ -19,7 +19,7 @@ from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LabManagerUser, LtUser
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
 from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials
-from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class
+from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class, Capabilities
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 from labmanager.db import db
@@ -425,9 +425,39 @@ class RLMSPanel(L4lModelView):
         if rlms_db is None:
             return abort(404)
 
+        query = request.args.get('q')
+        if query is not None:
+            page = request.args.get('p', '1')
+            try:
+                page = int(page)
+            except:
+                page = 1
+        else:
+            page = 1
+
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
-        labs = rlms.get_laboratories()
+        if query:
+            query_results = rlms.search(query = query, page = page)
+            labs = query_results['laboratories']
+            force_search = False
+            number_of_pages = query_results.get('pages', 1)
+            pages = []
+            if number_of_pages > 1:
+                for p in xrange(1, number_of_pages + 1):
+                    obj = {
+                        'label' : unicode(p),
+                        'link'  : url_for('.labs', id = id, q = query, p = p)
+                    }
+                    obj['active'] = (p != page)
+                    pages.append(obj)
+        else:
+            query_results = {}
+            labs = rlms.get_laboratories()
+            capabilities = rlms.get_capabilities()
+            force_search = Capabilities.FORCE_SEARCH in capabilities
+            pages = []
+
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
         if request.method == 'POST':
             selected = []
@@ -456,7 +486,7 @@ class RLMSPanel(L4lModelView):
             if changes:
                 self.session.commit()
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs)
+        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs, query = query, force_search = force_search, pages = pages, page = page)
 
 def accessibility_formatter(v, c, lab, p):
     if lab.available:
