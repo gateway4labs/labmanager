@@ -133,7 +133,8 @@ class BaseRLMS(object):
 
         """
 
-    @abstractmethod
+    # Not required.
+    # @abstractmethod
     def test(self):
         """test()
         
