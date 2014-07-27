@@ -486,7 +486,7 @@ class RLMSPanel(L4lModelView):
             if changes:
                 self.session.commit()
         registered_labs = [ lab.laboratory_id for lab in rlms_db.laboratories ]
-        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs, query = query, force_search = force_search, pages = pages, page = page)
+        return self.render('labmanager_admin/lab-list.html', rlms = rlms_db, labs = labs, registered_labs = registered_labs, query = query, force_search = force_search, pages = pages, page = page, id = id)
 
 def accessibility_formatter(v, c, lab, p):
     if lab.available:

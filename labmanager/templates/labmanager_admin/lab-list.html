@@ -14,7 +14,7 @@
 </div>
 
 {% if labs|length > 0 %}
-<form action="." method="POST">
+<form action="{{ url_for('.labs', id = id, q = query or '') }}" method="POST">
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
