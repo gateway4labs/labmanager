@@ -9,7 +9,7 @@ from flask import Blueprint, request, redirect, render_template, url_for, Respon
 from flask.ext.wtf import Form, validators, TextField, PasswordField
 from labmanager.db import db
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
-from labmanager.rlms import get_manager_class
+from labmanager.rlms import get_manager_class, Capabilities
 import labmanager.forms as forms
 from labmanager.babel import gettext, lazy_gettext
 
@@ -47,12 +47,15 @@ def _extract_widget_config(laboratory, widget_name):
     RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
     rlms = RLMS_CLASS(rlms_db.configuration)
 
-    labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory.laboratory_id ]
-    if not labs:
-        # The laboratory has changed
-        return None
+    if Capabilities.FORCE_SEARCH in rlms.get_capabilities():
+        autoload = True # By default in those cases where a search is mandatory
+    else:
+        labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory.laboratory_id ]
+        if not labs:
+            # The laboratory has changed
+            return None
 
-    autoload = labs[0].autoload
+        autoload = labs[0].autoload
 
     widgets = rlms.list_widgets(laboratory.laboratory_id)
     for widget in widgets:
