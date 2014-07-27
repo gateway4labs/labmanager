@@ -28,14 +28,6 @@ from .views.ims_lti import lti_blueprint
 from .views.basic_http import basic_http_blueprint
 from .views.opensocial import opensocial_blueprint
 
-if hasattr(os, 'uname') and os.uname()[1] in ('plunder','scabb'): # TODO: Deusto servers
-    print "Installing proxy handler...",
-    import urllib2
-    proxy = urllib2.ProxyHandler({'http': 'http://proxy-s-priv.deusto.es:3128/'})
-    opener = urllib2.build_opener(proxy)
-    urllib2.install_opener(opener)
-    print "done"
-
 def load_rlms_modules():
     """
     Load all the RLMS modules that we are going to use.
