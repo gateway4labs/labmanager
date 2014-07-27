@@ -5,6 +5,11 @@
 
 <p>{{gettext('The laboratory')}} {{ lab_name }} {{gettext('provides the following widgets. Copy the link for each particular widget and locate it in Graasp.')}}</p>
 
+<div class="alert alert-info text-center offset4 span4">
+    <h4>Note</h4>
+    <p>{{ gettext("You can change the height of the widget by adding <pre>?height=900</pre> at the end of the following URLs. This does not work in the Preview mode, but you can test it in Graasp.") }}</p>
+</div>
+
 {% if widgets %}
 
 <table class="table table-striped table-bordered">

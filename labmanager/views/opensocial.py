@@ -40,29 +40,52 @@ def get_parent_spaces(space_id, spaces):
 opensocial_blueprint = Blueprint('opensocial', __name__)
 
 def _extract_widget_config(laboratory, widget_name):
+    autoload = None
+    if request.args.get('autoload'):
+        autoload = request.args['autoload'].lower() == 'true'
+
+    height = None
+    if request.args.get('height'):
+        try:
+            height = '%spx' % int(request.args['height'])
+        except:
+            pass
+    
+    base_data = {}
+    if height is not None:
+        base_data['height'] = height
     if not laboratory:
-        return {}
+        return base_data
 
     rlms_db = laboratory.rlms
     RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
     rlms = RLMS_CLASS(rlms_db.configuration)
 
+
     if Capabilities.FORCE_SEARCH in rlms.get_capabilities():
-        autoload = True # By default in those cases where a search is mandatory
+        if autoload is None:
+            autoload = True # By default in those cases where a search is mandatory
     else:
         labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory.laboratory_id ]
         if not labs:
             # The laboratory has changed
             return None
 
-        autoload = labs[0].autoload
+        if autoload is None:
+            autoload = labs[0].autoload
 
     widgets = rlms.list_widgets(laboratory.laboratory_id)
     for widget in widgets:
         if widget['name'] == widget_name:
             widget['autoload'] = autoload
+
+            if height is not None:
+                widget['height'] = height
+
             return widget
-    return { 'autoload' : autoload }
+
+    base_data['autoload'] = autoload
+    return base_data
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
