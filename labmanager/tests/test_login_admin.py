@@ -25,17 +25,16 @@ class BaseTestLogin(G4lTestCase):
     def logout(self):
         return self.client.get(self.logout_path, follow_redirects=True)
 
-
-class TestLoginAdmin(BaseTestLogin):
-    login_path = '/login/admin/'
-    logout_path = '/logout'
+class MethodsLogin(BaseTestLogin):
 
     def test_login_admin_works(self):
-        rv = self.login(username='admin', password='password')
-        self.assert_200(rv)
-        self.assertEquals('admin', session['loggeduser'])
-        self.assertEquals('labmanager', session['usertype'])
-
+        rv = self.login(username=self.username, password=self.password)
+        print session['loggeduser']
+        print "hello"
+        #self.assert_200(rv)
+        #self.assertEquals('admin', session['loggeduser'])
+        #self.assertEquals('labmanager', session['usertype'])
+    """
     def test_login_admin_fails_wrong_form(self):
         rv = self.login(does_not_exist="admin", password="password")
         self.assert_200(rv)
@@ -75,13 +74,22 @@ class TestLoginAdmin(BaseTestLogin):
                         password="password", redirect=False)
         self.assertNotEqual(rv.status_code, 302)
         self.assertNotEqual(rv.location, "http://localhost/admin/")
+    """
+class TestLoginAdmin(MethodsLogin):
+    login_path = '/login/admin/'
+    logout_path = '/logout'
+    username = 'admin'
+    password = 'password'
 
+    
 
 """
 class TestLoginLms(BaseTestLogin, G4lTestCase):
     login_path = '/login/lms/'
-    logout_path = '/logout/'
+    logout_path = '/logout'
+
 """
+
 """
 class TestLoginPle(BaseTestLogin, G4lTestCase):
     login_path = '/login/ple/'
