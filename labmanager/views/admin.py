@@ -514,7 +514,7 @@ def accessibility_formatter(v, c, lab, p):
 def public_availability_formatter(v, c, lab, p):
     if lab.publicly_available:
         klass = 'btn-danger'
-        msg = gettext('Make not publicly available')
+        msg = gettext('Make not publicly available dsfsdsfds')
     else:
         klass = 'btn-success'
         msg = gettext('Make publicly available')
@@ -580,7 +580,7 @@ class LaboratoryPanel(L4lModelView):
             if len(existing_labs) > 0:
                 # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
                 if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists"), publicidentifier=request.form['public_identifier'])
+                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists", publicidentifier=request.form['public_identifier']))
                     return redirect(url_for('.index_view'))
             lab.publicly_available = not activate
             lab.public_identifier = request.form['public_identifier']
