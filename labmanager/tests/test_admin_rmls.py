@@ -4,6 +4,9 @@ from flask import session
 from labmanager.tests.util import G4lTestCase
 from labmanager.tests.test_login_admin import BaseTestLogin
 from flask.ext.testing import TestCase
+from labmanager.models import Laboratory
+from labmanager.db import db
+from sqlalchemy.exc import StatementError
 
 
 msg_error = "Please check the flash error, \
@@ -31,7 +34,8 @@ class TestRegisterLabsAdmin(BaseTestLogin, G4lTestCase):
                                         public_identifier="1"),
                               follow_redirects=True)
         self.assert_200(rv)
-
+        self.assertTrue(db.session.query(Laboratory).filter_by(public_identifier = 1).all(),"Error to make lab in mode availability plublic")
+        
     def test_public_availability_fail(self):
         rv = self.login(username=self.username, password=self.password)
         self.assert_200(rv)
