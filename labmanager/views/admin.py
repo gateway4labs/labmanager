@@ -611,7 +611,6 @@ class LaboratoryPanel(L4lModelView):
     def change_public_availability(self):
         lab_id   = int(request.form['lab_id'])
         activate = request.form['activate'] == "true"
-        print activate
         lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
         if lab is not None:
             if activate:
