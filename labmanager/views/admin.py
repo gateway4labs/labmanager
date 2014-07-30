@@ -590,15 +590,18 @@ class LaboratoryPanel(L4lModelView):
                 lab.available = not activate
                 lab.default_local_identifier = None
             else:
-                if not activate and len(request.form['local_identifier']) == 0:
+                local_id = request.form['local_identifier']
+                local_id = local_id.lstrip(' ')
+                local_id = local_id.strip(' ')
+                if not activate and len(local_id) == 0:
                     flash(gettext("Invalid local_identifier (empty)"))
                     return redirect(url_for('.index_view'))
-                existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier = request.form['local_identifier']).all()
+                existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier = local_id).all()
                 if len(existing_labs) > 0 and lab not in existing_labs:
-                    flash(gettext(u"local_identifier '%(localidentifier)s' already exists", localidentifier=request.form['local_identifier']))
+                    flash(gettext(u"local_identifier '%(localidentifier)s' already exists", localidentifier=rlocal_id))
                     return redirect(url_for('.index_view'))
                 lab.available = not activate
-                lab.default_local_identifier = request.form['local_identifier']
+                lab.default_local_identifier = local_id
             self.session.add(lab)
             self.session.commit()
         return redirect(url_for('.index_view'))
@@ -615,15 +618,18 @@ class LaboratoryPanel(L4lModelView):
                 lab.publicly_available = not activate
                 lab.public_identifier = None
             else:
-                if not activate and len(request.form['public_identifier']) == 0:
+                public_id = request.form['public_identifier']
+                public_id = public_id.lstrip(' ')
+                public_id = public_id.strip(' ')
+                if not activate and len(public_id) == 0:
                     flash(gettext("Invalid public identifier (empty)"))
                     return redirect(url_for('.index_view'))
-                existing_labs = self.session.query(Laboratory).filter_by(public_identifier = request.form['public_identifier']).all()
+                existing_labs = self.session.query(Laboratory).filter_by(public_identifier = public_id).all()
                 if len(existing_labs) > 0 and lab not in existing_labs:
-                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists", publicidentifier=request.form['public_identifier']))
+                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists", publicidentifier= public_id))
                     return redirect(url_for('.index_view'))
                 lab.publicly_available = not activate
-                lab.public_identifier = request.form['public_identifier']
+                lab.public_identifier = public_id
             self.session.add(lab)
             self.session.commit()
         return redirect(url_for('.index_view'))
