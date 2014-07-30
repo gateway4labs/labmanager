@@ -56,6 +56,6 @@ class TestRegisterLabsAdmin(BaseTestLogin, G4lTestCase):
             print "Public identifier '%s' already exists" % (public_identifier)
             I need put this " &#39;&#39; " to assert identify the content in public_identifier in this case is => ""
             """
-            self.assertIn("Public identifier &#39;&#39; already exists", rv.data)
+            self.assertIn("Invalid public identifier (empty)", rv.data)
         except:
             raise ExceptionAssertMsg
