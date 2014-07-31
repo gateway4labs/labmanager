@@ -496,13 +496,13 @@ def accessibility_formatter(v, c, lab, p):
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
                         <label> %(texto)s </label>
-                        <input disabled type='text' name='local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
+                        <input disabled type='text' name='default_local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
                         url                      = url_for('.change_accessibility'),
                         activate_value           = unicode(lab.available).lower(),
                         lab_id                   = lab.id,
-                        texto                     =gettext('Default local identifier:'),
+                        texto                    = gettext('Default local identifier:'),
                         klass                    = klass,
                         msg                      = msg,
                         default_local_identifier = lab.default_local_identifier,
@@ -514,13 +514,13 @@ def accessibility_formatter(v, c, lab, p):
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
                         <label> %(texto)s </label>
-                        <input type='text' name='local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
+                        <input type='text' name='default_local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
                         url                      = url_for('.change_accessibility'),
                         activate_value           = unicode(lab.available).lower(),
                         lab_id                   = lab.id,
-                        texto                     =gettext('Default local identifier:'),
+                        texto                    = gettext('Default local identifier:'),
                         klass                    = klass,
                         msg                      = msg,
                         default_local_identifier = lab.default_local_identifier,
@@ -540,7 +540,7 @@ def public_availability_formatter(v, c, lab, p):
                         url               = url_for('.change_public_availability'),
                         activate_value    = unicode(lab.publicly_available).lower(),
                         lab_id            = lab.id,
-                        texto              = gettext('Public identifier:'),
+                        texto             = gettext('Public identifier:'),
                         klass             = klass,
                         msg               = msg,
                         public_identifier = lab.public_identifier,
@@ -559,7 +559,7 @@ def public_availability_formatter(v, c, lab, p):
                         url               = url_for('.change_public_availability'),
                         activate_value    = unicode(lab.publicly_available).lower(),
                         lab_id            = lab.id,
-                        texto              = gettext('Public identifier:'),
+                        texto             = gettext('Public identifier:'),
                         klass             = klass,
                         msg               = msg,
                         public_identifier = lab.public_identifier,
@@ -588,17 +588,17 @@ class LaboratoryPanel(L4lModelView):
         if lab is not None:
             if activate:
                 lab.available = not activate
-                lab.default_local_identifier = None
+                lab.default_local_identifier = u""
             else:
-                local_id = request.form['local_identifier']
+                local_id = request.form['default_local_identifier']
                 local_id = local_id.lstrip(' ')
                 local_id = local_id.strip(' ')
                 if not activate and len(local_id) == 0:
-                    flash(gettext("Invalid local_identifier (empty)"))
+                    flash(gettext("Invalid local identifier (empty)"))
                     return redirect(url_for('.index_view'))
-                existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier = local_id).all()
+                existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier=local_id).all()
                 if len(existing_labs) > 0 and lab not in existing_labs:
-                    flash(gettext(u"local_identifier '%(localidentifier)s' already exists", localidentifier=rlocal_id))
+                    flash(gettext(u"Local identifier '%(localidentifier)s' already exists", localidentifier=local_id))
                     return redirect(url_for('.index_view'))
                 lab.available = not activate
                 lab.default_local_identifier = local_id
@@ -615,7 +615,7 @@ class LaboratoryPanel(L4lModelView):
         if lab is not None:
             if activate:
                 lab.publicly_available = not activate
-                lab.public_identifier = None
+                lab.public_identifier = u""
             else:
                 public_id = request.form['public_identifier']
                 public_id = public_id.lstrip(' ')
@@ -623,9 +623,9 @@ class LaboratoryPanel(L4lModelView):
                 if not activate and len(public_id) == 0:
                     flash(gettext("Invalid public identifier (empty)"))
                     return redirect(url_for('.index_view'))
-                existing_labs = self.session.query(Laboratory).filter_by(public_identifier = public_id).all()
+                existing_labs = self.session.query(Laboratory).filter_by(public_identifier=public_id).all()
                 if len(existing_labs) > 0 and lab not in existing_labs:
-                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists", publicidentifier= public_id))
+                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists", publicidentifier=public_id))
                     return redirect(url_for('.index_view'))
                 lab.publicly_available = not activate
                 lab.public_identifier = public_id

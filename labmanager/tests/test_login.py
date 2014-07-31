@@ -1,30 +1,8 @@
 # -*-*- encoding: utf8 -*-*-
 
 from flask import session
-from labmanager.tests.util import G4lTestCase
+from labmanager.tests.util import G4lTestCase, BaseTestLogin
 from flask.ext.testing import TestCase
-
-
-class BaseTestLogin(object):
-
-    lt_name = None
-    lt_value = None
-
-    def setUp(self):
-        super(BaseTestLogin, self).setUp()
-        self.client.__enter__()
-
-    def tearDown(self):
-        self.client.__exit__(None, None, None)
-        super(BaseTestLogin, self).tearDown()
-
-    def login(self, redirect=True, **kwargs):
-        kwargs[self.lt_name] = self.lt_value
-        return self.client.post(self.login_path, data=kwargs,
-                                follow_redirects=redirect)
-
-    def logout(self):
-        return self.client.get(self.logout_path, follow_redirects=True)
 
 
 class MethodsLogin(BaseTestLogin):
