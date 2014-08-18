@@ -565,17 +565,20 @@ def public_availability_formatter(v, c, lab, p):
                         msg               = msg,
                         public_identifier = lab.public_identifier,
                     ))
+
 def reservation_formater(v, c, lab, p):
-    Markup("""<form method='POST' style="text-align: center"> 
-                <input type='checkbox' name='reservation' value='reservation'>reservation</input>
-                </form>""")
+    return Markup("""<form method='POST' style="text-align: center"> 
+                %(texto)s<input type='checkbox' name='reservation' value='reservation'/>
+                </form>""" % dict(
+                texto = gettext('Reservation')    
+                ))
 
 class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
 
     column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','reservation']
-    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),reservation=lazy_gettext('reservation'))
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),reservation=lazy_gettext('Reservation'))
     column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, reservation = reservation_formater )
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
