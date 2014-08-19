@@ -569,8 +569,11 @@ def public_availability_formatter(v, c, lab, p):
 def reservation_formater(v, c, lab, p):
     return Markup("""<form method='POST' style="text-align: center"> 
                 %(texto)s<input type='checkbox' name='reservation' value='reservation'/>
+                <label/>
+                <input class='btn btn-success' type='submit' value="%(msg)s"></input>
                 </form>""" % dict(
-                texto = gettext('Reservation')    
+                texto = gettext('Reservation'),
+                msg = gettext('Update')  
                 ))
 
 class LaboratoryPanel(L4lModelView):
