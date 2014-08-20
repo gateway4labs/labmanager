@@ -12,6 +12,7 @@ class G4lTestCase(TestCase):
     def create_app(self):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         app.config['TESTING'] = True
+        app.config['CSRF_ENABLED'] = False
         return app
 
     def setUp(self):
