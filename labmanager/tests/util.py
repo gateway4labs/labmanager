@@ -12,13 +12,10 @@ class G4lTestCase(TestCase):
     def create_app(self):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         app.config['TESTING'] = True
-        app.config['DEBUG'] = True
         app.config['CSRF_ENABLED'] = False
-        app.config['WTF_CSRF_ENABLED'] = False
         return app
 
     def setUp(self):
-        app.config['WTF_CSRF_ENABLED'] = False
         add_sample_users(silence=True)
 
     def tearDown(self):
