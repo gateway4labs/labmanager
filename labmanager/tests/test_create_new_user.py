@@ -4,7 +4,7 @@ from flask import session
 from sqlalchemy import sql
 from labmanager.tests.util import G4lTestCase, BaseTestLogged
 from flask.ext.testing import TestCase
-from ..models import LabManagerUser,LearningTool, LtUser
+from ..models import LabManagerUser, LearningTool, LtUser
 from labmanager.db import db
 
 
@@ -25,18 +25,19 @@ class MethodsCreateNewUser(BaseTestLogged):
         rv = self.client.get(self.create_new_user_path, follow_redirects=True)
         self.assert_200(rv)
 
-    def new_user(self, redirect=True, **kwargs):  
+    def new_user(self, redirect=True, **kwargs):
         if self.access_level_name is not None:
                 kwargs[self.access_level_name] = self.access_level_value
         return self.client.post(self.create_new_user_path, data=kwargs,
                                 follow_redirects=redirect)
 
     def test_create_new_user_admin_work(self):
+        kwargs = {}
         self.access_level_value = 'admin'
         kwargs[self.name_name] = 'example'
-        kwargs['login'] = 'example' 
+        kwargs['login'] = 'example'
         kwargs['password'] = 'password'
-        rv = self.new_user(kwargs)
+        rv = self.new_user(**kwargs)
         self.assert_200(rv)
         self.assertTrue(self.query('example') is not None,
                         "Error creating new user")
@@ -66,10 +67,8 @@ class TestCreateNewUserLms(MethodsCreateNewUser, G4lTestCase):
     password = 'password'
     usertype = 'lms'
     lt_name = 'lms'
-    
-        #Use 1 because the name have associate a number.
-        #For example Deusto have id = 1
-    
+    # Use 1 because the name have associate a number.
+    # For example Deusto have id = 1
     lt_value = 1
     create_new_user_path = '/lms_admin/users/new/'
     name_name = 'full_name'
@@ -84,10 +83,8 @@ class TestCreateNewUserPle(MethodsCreateNewUser, G4lTestCase):
     password = 'password'
     usertype = 'lms'
     lt_name = 'lms'
-
-        #Use 5 because the name have associate a number.
-        #For example School have id = 5
-
+    # Use 5 because the name have associate a number.
+    # For example School have id = 5
     lt_value = 5
     create_new_user_path = '/ple_admin/users/new/'
     name_name = 'full_name'
