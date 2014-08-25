@@ -47,6 +47,25 @@ class MethodsCreateNewUser(BaseTestLogged):
         self.assert_200(rv)
         self.assertEquals('example', session['loggeduser'])
 
+    def test_create_new_user_instructor_work(self):
+        kwargs = {}
+        if self.access_level_name is not None:
+            self.access_level_value = 'instructor'
+            kwargs[self.name_name] = 'example'
+            kwargs['login'] = 'example'
+            kwargs['password'] = 'password'
+            rv = self.new_user(**kwargs)
+            self.assert_200(rv)
+            self.assertTrue(self.query('example') is not None,
+                            "Error creating new user")
+            rv = self.logout()
+            self.assertNotIn("loggeduser", session)
+            rv = self.login(username='example', password='password')
+            self.assert_200(rv)
+            self.assertEquals('example', session['loggeduser'])
+        else:
+            pass
+
 
 class TestCreateNewUserAdmin(MethodsCreateNewUser, G4lTestCase):
     login_path = '/login/admin/'
