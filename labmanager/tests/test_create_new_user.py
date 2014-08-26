@@ -6,7 +6,7 @@ from labmanager.tests.util import G4lTestCase, BaseTestLogged
 from flask.ext.testing import TestCase
 from ..models import LabManagerUser, LearningTool, LtUser
 from labmanager.db import db
-
+import unittest
 
 class MethodsCreateNewUser(BaseTestLogged):
 
@@ -66,6 +66,26 @@ class MethodsCreateNewUser(BaseTestLogged):
         else:
             pass
 
+    @unittest.skip("Until #71 fixed")
+    def test_create_new_user_admin_password_with_blanks_fail(self):
+        kwargs = {}
+        self.access_level_value = 'instructor'
+        kwargs[self.name_name] = 'example'
+        kwargs['login'] = 'example'
+        kwargs['password'] = ' '
+        rv = self.new_user(**kwargs)
+        self.assert_200(rv)
+        self.assertTrue(self.query('example') is None,
+                        "Error creating user with blanks")
+        """
+        rv = self.logout()
+        self.assertNotIn("loggeduser", session)
+        rv = self.login(username='example', password=' ')
+        self.assert_200(rv)
+        #self.assertEquals('example', session['loggeduser'])
+        self.assertNotIn("loggeduser", session)
+        #rv = self.login(username='admin', password='password')
+        """
 
 class TestCreateNewUserAdmin(MethodsCreateNewUser, G4lTestCase):
     login_path = '/login/admin/'
