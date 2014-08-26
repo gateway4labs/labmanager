@@ -4,6 +4,7 @@ import urllib2
 import hashlib
 import traceback
 import threading
+import requests
 
 from flask import Blueprint, request, redirect, render_template, url_for, Response
 from flask.ext.wtf import Form, validators, TextField, PasswordField
@@ -106,12 +107,19 @@ def widget_xml(institution_id, lab_name, widget_name):
     contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
-@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml")
+@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET','POST'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
-    widget_config = _extract_widget_config(laboratory, widget_name)
+    widget_config = _extract_widget_config(laboratory, widget_name)     
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO
+    if laboratory.go_lab_reservation:
+        token = request.args.get('token')
+        url = 'https://www.weblab.deusto.es/golab/booking/verify/verify_token?token='+token
+        r =requests.get(url)
+        response = r.json()
+        if not response:
+            return render_template('opensocial/errors.html',message="Invalid token")
 
     contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
