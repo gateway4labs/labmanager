@@ -566,13 +566,13 @@ def public_availability_formatter(v, c, lab, p):
                         public_identifier = lab.public_identifier,
                     ))
 
-def reservation_formater(v, c, lab, p):
+def go_lab_reservation_formater(v, c, lab, p):
     return Markup("""<form method='POST' style="text-align: center"> 
-                %(texto)s<input type='checkbox' name='reservation' value='reservation'/>
+                %(texto)s<input type='checkbox' name='goLabReservation' value='goLabReservation'/>
                 <label/>
                 <input class='btn btn-success' type='submit' value="%(msg)s"></input>
                 </form>""" % dict(
-                texto = gettext('Reservation'),
+                texto = gettext('Go-Lab Reservation'),
                 msg = gettext('Update')  
                 ))
 
@@ -580,12 +580,13 @@ class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
 
-    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','reservation']
-    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),reservation=lazy_gettext('Reservation'))
-    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, reservation = reservation_formater )
+    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','go_lab_reservation']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),go_lab_reservation=lazy_gettext('Go-Lab reservation'))
+    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, go_lab_reservation = go_lab_reservation_formater )
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
-                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools")
+                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools"),
+                            go_lab_reservation = lazy_gettext("Make this laboratory available to Go-Lab booking system")
                     )
 
     def __init__(self, session, **kwargs):
