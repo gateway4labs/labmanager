@@ -536,7 +536,6 @@ def public_availability_formatter(v, c, lab, p):
                         <label> %(texto)s </label>
                         <input disabled type='text' name='public_identifier' value='%(public_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
-                        <input type='checkbox' name='reservation' value='reservation'></input>
                     </form>""" % dict(
                         url               = url_for('.change_public_availability'),
                         activate_value    = unicode(lab.publicly_available).lower(),
@@ -567,13 +566,25 @@ def public_availability_formatter(v, c, lab, p):
                     ))
 
 def go_lab_reservation_formater(v, c, lab, p):
-    return Markup("""<form method='POST' style="text-align: center"> 
-                %(texto)s<input type='checkbox' name='goLabReservation' value='goLabReservation'/>
-                <label/>
-                <input class='btn btn-success' type='submit' value="%(msg)s"></input>
+    if lab.go_lab_reservation:
+        klass = 'btn-danger'
+        msg = gettext('Desactivate')
+    else:
+        klass = 'btn-success'
+        msg = gettext('Activate')
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center"> 
+                <input type='hidden' name='activate' value='%(activate_value)s'/>
+                <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                <label> %(texto)s <label/>
+                <br>
+                <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                 </form>""" % dict(
-                texto = gettext('Go-Lab Reservation'),
-                msg = gettext('Update')  
+                    url = url_for('.change_go_lab_reservation'),
+                    texto = gettext('Go-Lab Reservation'),
+                    activate_value    = unicode(lab.go_lab_reservation).lower(),
+                    lab_id            = lab.id,
+                    klass = klass,
+                    msg = msg  
                 ))
 
 class LaboratoryPanel(L4lModelView):
@@ -644,6 +655,21 @@ class LaboratoryPanel(L4lModelView):
             self.session.add(lab)
             self.session.commit()
         return redirect(url_for('.index_view'))
+
+    @expose('/lab/golabreservation', methods = ['POST'])
+    def change_go_lab_reservation(self):
+        lab_id = int(request.form['lab_id'])
+        activate = request.form['activate'] == 'true'
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is not None:
+            if activate:
+                lab.go_lab_reservation = not activate
+            else:
+                lab.go_lab_reservation = not activate
+            self.session.add(lab)
+            self.session.commit()
+        return redirect(url_for('.index_view'))
+
 
 def scorm_formatter(v, c, permission, p):
     if permission.lt.basic_http_authentications:
