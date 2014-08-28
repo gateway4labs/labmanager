@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+	<web-app>
+	 
+	    <servlet>
+	        <servlet-name>JCG Snippets Application</servlet-name>
+	        <servlet-class>com.javacodegeeks.snippets.enterprise.GetAllRequestParametersInServlet</servlet-class>
+	    </servlet>
+	 
+	    <servlet-mapping>
+	        <servlet-name>JCG Snippets Application</servlet-name>
+	        <url-pattern>/jcgservlet</url-pattern>
+	    </servlet-mapping>
+	 
+	</web-app>
