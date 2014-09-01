@@ -35,7 +35,7 @@ public abstract class LaboratoryInterfaz extends LabBase{
 			if (deadLine > now){
 				response.setContentType("text/html;charset=UTF-8");
 		        PrintWriter out = response.getWriter();
-		        device = request.getRequestURI().replace("/java_plugin/lab/", "");
+		        device = request.getRequestURI().replace("/java_lab/lab/", "");
 		        try {
 		            out.println("<html>");
 		            out.println("<head>");
