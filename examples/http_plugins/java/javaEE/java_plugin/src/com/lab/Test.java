@@ -29,7 +29,7 @@ public class Test extends LabBase {
 					response.getWriter().write("ok");
 				}		
 			}else{ 
-				myJson.put("Error", "invalid credentials'");
+				myJson.put("Error", "invalid credentials");
 				response.getWriter().write(myJson.toString());
 			}
 		}

@@ -13,7 +13,8 @@ import org.json.*;
 
 public class Reserve extends LabBase {
 
-	
+// For use reserve put this url in browser
+// http://localhost:8080/java_plugin/reserve?username=jsmith&system_login=myplugin&system_password=password&back_url=http://www.google.com/
 	/**
 	 * 
 	 */
@@ -32,13 +33,12 @@ public class Reserve extends LabBase {
 				String reservationId = UUID.randomUUID().toString();
 				HttpSession s = request.getSession();
 				s.setAttribute("logged", true);
-				s.setAttribute("deadline", now + SESSION_SECONDS);
+				s.setAttribute("deadline", now + SESSION_SECONDS*1000);
 				s.setAttribute("username", username);
 				s.setAttribute("back", backUrl);
 				s.setAttribute("reservationId", reservationId);
-				
+				myJson.put("url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/lab/" + "?reservation_id=" + reservationId);
 				myJson.put("reservation_id", reservationId);
-				myJson.put("url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "?reservation_id=" + reservationId);
 				response.getWriter().write(myJson.toString());
 			}		
 		}else{ 
