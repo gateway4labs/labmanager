@@ -7,7 +7,7 @@ public abstract class LabBase extends HttpServlet{
 	/**
 	 * default serial
 	 */
-	protected static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	protected static final String SYSTEM_LOGIN = "myplugin";
 
