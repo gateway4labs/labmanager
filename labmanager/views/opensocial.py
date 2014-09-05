@@ -91,8 +91,9 @@ def _extract_widget_config(laboratory, widget_name):
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
     public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    laboratory = public_lab
     if public_lab:
-        widget_config = _extract_widget_config(public_lab, widget_name)
+        widget_config = _extract_widget_config(public_lab, widget_name) 
     else:
         widget_config = {} # Default value
         institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
@@ -100,11 +101,14 @@ def widget_xml(institution_id, lab_name, widget_name):
             permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
             if permission:
                 widget_config = _extract_widget_config(permission.laboratory, widget_name)
+                laboratory = permission.laboratory 
 
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO
+    if not laboratory:
+        return render_template('opensocial/errors.html',message="Lab %s not found or not public" % lab_name)
     try:
-        if not booking_system(public_lab):    
+        if not booking_system(laboratory):    
             return render_template('opensocial/errors.html',message="Invalid Credentials, token isn't correct")
     except Exception, e:
         return render_template('opensocial/errors.html',message=e)
@@ -114,6 +118,8 @@ def widget_xml(institution_id, lab_name, widget_name):
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    if not laboratory:
+        return render_template('opensocial/errors.html',message="Lab %s not found or not public" % lab_name)
     widget_config = _extract_widget_config(laboratory, widget_name)     
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO  
@@ -136,7 +142,7 @@ def booking_system(laboratory):
                 return False
         except Exception, e:
             raise ValueError('Error in request with url',url)
-        return True
+    return True
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
