@@ -17,7 +17,7 @@
     <servlet-name>setup</servlet-name>
     <url-pattern>/setup</url-pattern>
   </servlet-mapping>
-      <servlet>
+  <servlet>
     <servlet-name>setup2</servlet-name>
     <servlet-class>com.plugin.Setup2</servlet-class>
   </servlet>
@@ -25,6 +25,15 @@
     <servlet-name>setup2</servlet-name>
     <url-pattern>/setup/</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>testConfig</servlet-name>
+    <servlet-class>com.plugin.TestConfig</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>testConfig</servlet-name>
+    <url-pattern>/test_config</url-pattern>
+  </servlet-mapping>
+  
   <session-config>
         <session-timeout>1</session-timeout>
   </session-config>

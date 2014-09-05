@@ -27,11 +27,14 @@ public class Test extends LabBase {
 			if (systemLogin != null && systemPassword != null){
 				if (systemLogin.equals(SYSTEM_LOGIN) && systemPassword.equals(SYSTEM_PASSWORD)){
 					response.getWriter().write("ok");
-				}		
-			}else{ 
-				myJson.put("Error", "invalid credentials");
-				response.getWriter().write(myJson.toString());
+					return;
+				}
 			}
+			myJson.put("Error", "invalid credentials");
+			response.getWriter().write(myJson.toString());
+	
+				
+			return;
 		}
 }
 	

@@ -1,4 +1,4 @@
-package com.plugin;
+package util;
 
 public class InfoReservation {
 	
