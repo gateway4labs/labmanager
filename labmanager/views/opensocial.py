@@ -103,26 +103,40 @@ def widget_xml(institution_id, lab_name, widget_name):
 
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO
-    
+    try:
+        if not booking_system(public_lab):    
+            return render_template('opensocial/errors.html',message="Invalid Credentials, token isn't correct")
+    except Exception, e:
+        return render_template('opensocial/errors.html',message=e)
     contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
-@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET','POST'])
+@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     widget_config = _extract_widget_config(laboratory, widget_name)     
     if widget_config is None:
-        return "Error: widget does not exist anymore" # TODO
+        return "Error: widget does not exist anymore" # TODO  
+    try:
+        if not booking_system(laboratory):    
+            return render_template('opensocial/errors.html',message="Invalid Credentials, token isn't correct")
+    except Exception, e:
+        return render_template('opensocial/errors.html',message=e)
+    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    return Response(contents, mimetype="application/xml")
+
+def booking_system(laboratory):
     if laboratory.go_lab_reservation:
         token = request.args.get('token')
         url = 'https://www.weblab.deusto.es/golab/booking/verify/verify_token?token='+token
-        r =requests.get(url)
-        response = r.json()
-        if not response:
-            return render_template('opensocial/errors.html',message="Invalid token")
-
-    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
-    return Response(contents, mimetype="application/xml")
+        try:
+            r =requests.get(url)
+            response = r.json()
+            if not response:
+                return False
+        except Exception, e:
+            raise ValueError('Error in request with url',url)
+        return True
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
