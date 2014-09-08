@@ -5,6 +5,7 @@
 	<jsp:useBean id="currentPassword" scope="session" class="Xbean.TextBean" />
 	<jsp:useBean id="currentPasswordCorrect" scope="session" class="Xbean.TextBean" />
 	<jsp:useBean id="urlBack" scope="session" class="Xbean.TextBean" />
+	<jsp:useBean id="urlTest" scope="session" class="Xbean.TextBean" />
 </head>
 <body>
 	<h1>Plug-in setup (<a href="<jsp:getProperty name="urlBack" property="text" />" >back</a>)</h1>
@@ -25,7 +26,7 @@
 	<p>You can test if the configuration is valid or not using the /test-config method here:</p>
 	
 	<ul>
-	    <li><a href=""></a>
+	    <li><a href="<jsp:getProperty name="urlTest" property="text" />"><jsp:getProperty name="urlTest" property="text" /></a>
 	</ul>
 
 </body>

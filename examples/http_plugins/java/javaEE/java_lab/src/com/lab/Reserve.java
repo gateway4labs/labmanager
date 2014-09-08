@@ -11,10 +11,12 @@ import javax.servlet.http.HttpSession;
 import org.json.*;
 
 
+
+
 public class Reserve extends LabBase {
 
 // For use reserve put this url in browser
-// http://localhost:8080/java_lab/reserve?username=jsmith&system_login=myplugin&system_password=password&back_url=http://www.google.com/
+// http://localhost:8080/java_lab/reserve/?username=jsmith&system_login=myplugin&system_password=password&back_url=http://www.google.com/
 	/**
 	 * 
 	 */

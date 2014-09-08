@@ -24,6 +24,7 @@ public class Setup2 extends PluginBase {
 	private TextBean currentPasswordBean;
 	private TextBean currentPasswordCorrectBean;
 	private TextBean urlBackBean;
+	private TextBean urlTestBean;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -63,6 +64,9 @@ public class Setup2 extends PluginBase {
 						urlBackBean = new TextBean();
 						urlBackBean.setText(info.getBackUrl());
 						request.setAttribute("urlBack", urlBackBean);
+						urlTestBean = new TextBean();
+						urlTestBean.setText("http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/test_config?context_id=" + contextId);
+						request.setAttribute("urlTest", urlTestBean);
 						RequestDispatcher rd =context.getRequestDispatcher("/plugin_form.jsp");
 						rd.forward(request,response);
 					}
