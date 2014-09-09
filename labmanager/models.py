@@ -139,6 +139,7 @@ class Laboratory(db.Model, SBBase):
     default_local_identifier = db.Column(db.Unicode(50), nullable = False, default = u"")
     publicly_available       = db.Column(db.Boolean, nullable = False, index = True, default = False)
     public_identifier        = db.Column(db.Unicode(50), nullable = False, default = u"")
+    go_lab_reservation       = db.Column(db.Boolean, nullable = False, index = True, default = False)
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 
