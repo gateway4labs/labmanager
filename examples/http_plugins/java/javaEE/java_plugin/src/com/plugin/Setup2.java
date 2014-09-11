@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import util.Config;
 import util.InfoReservation;
@@ -17,9 +17,7 @@ import Xbean.TextBean;
 
 public class Setup2 extends PluginBase {
 	
-	/**
-	 * 
-	 */
+	// example the use: http://localhost:8081/java_plugin/setup/?reservation_id="reservation id"&context_id="your id"
 	private static final long serialVersionUID = -2667171259010002771L;
 	private TextBean currentPasswordBean;
 	private TextBean currentPasswordCorrectBean;
@@ -44,10 +42,10 @@ public class Setup2 extends PluginBase {
 						response.getWriter().write("Reservation identifier not registered");
 					else {
 						Config config = new Config();
-						JSONObject currentPassword = (JSONObject) config.getConfig(contextId);
+						JSONObject currentPassword =  config.getConfig(contextId);
 						currentPasswordBean = new TextBean();
-						if (currentPassword != null)
-							currentPasswordBean.setText(currentPassword.get("password").toString());
+						if (currentPassword != null) 
+							currentPasswordBean.setText((String) currentPassword.get("password"));
 						request.setAttribute("currentPassword", currentPasswordBean);
 						boolean currentPasswordCorrect;
 						if (currentPassword !=null)

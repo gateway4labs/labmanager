@@ -4,9 +4,6 @@ import javax.servlet.http.HttpServlet;
 
 public abstract class PluginBase extends HttpServlet {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1784707071462582503L;
 
 	protected static final int VERSION = 1;

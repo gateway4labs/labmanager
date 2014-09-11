@@ -11,15 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.*;
 
-import util.Config;
 import util.InfoReservation;
 
 
 public class Setup extends PluginBase{
-
-	/**
-	 * 
-	 */
+	
+	// Example the use: http://localhost:8081/java_plugin/setup?back_url=http://www.google.es
 	private static final long serialVersionUID = -8936131953307542923L;
 	
 	@Override

@@ -3,12 +3,15 @@ package com.lab;
 import java.io.IOException;
 import java.util.UUID;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.json.*;
+
+import util.InfoReservation;
 
 
 
@@ -33,12 +36,9 @@ public class Reserve extends LabBase {
 			if (systemLogin.equals(SYSTEM_LOGIN) && systemPassword.equals(SYSTEM_PASSWORD)){
 				long now = System.currentTimeMillis();
 				String reservationId = UUID.randomUUID().toString();
-				HttpSession s = request.getSession();
-				s.setAttribute("logged", true);
-				s.setAttribute("deadline", now + SESSION_SECONDS*1000);
-				s.setAttribute("username", username);
-				s.setAttribute("back", backUrl);
-				s.setAttribute("reservationId", reservationId);
+				ServletContext context = request.getServletContext();
+				InfoReservation info = new InfoReservation(now + SESSION_SECONDS*1000,backUrl,username);
+				context.setAttribute(reservationId,info);
 				myJson.put("url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/lab/" + "?reservation_id=" + reservationId);
 				myJson.put("reservation_id", reservationId);
 				response.getWriter().write(myJson.toString());

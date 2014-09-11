@@ -2,34 +2,21 @@ package com.plugin;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
-
-
-
-
-
-
-import org.apache.*;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import util.Config;
 
 public class TestConfig extends PluginBase{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6703669684532242222L;
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -53,14 +40,21 @@ public class TestConfig extends PluginBase{
 	            result += line;
 	        }
 	        rd.close();
-	        JSONObject resultJson = (JSONObject) JSONValue.parse(result);
+	        System.out.println(result);
+	        JSONObject resultJson;
+	        try{
+	        	resultJson = new JSONObject(result);
+	        }
+	        catch (JSONException e ){
+	        	resultJson = new JSONObject();
+	        }
      		JSONObject json = new JSONObject();
 	        if (result.equals("ok")){
 	        	json.put("valid", true);
 	        }
 	        else{
 	        	json.put("valid", false);
-	        	json.put("error-messages", resultJson.values());
+	        	json.put("error-messages", resultJson.getString("Error"));
 	        }
 	        response.getWriter().write(json.toString());
          }
