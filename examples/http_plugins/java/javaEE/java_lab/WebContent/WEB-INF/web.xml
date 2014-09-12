@@ -6,6 +6,9 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Reserve</servlet-name>
-    <url-pattern>/reserve</url-pattern>
+    <url-pattern>/reserve/</url-pattern>
   </servlet-mapping>
+    <session-config>
+        <session-timeout>30</session-timeout>
+  </session-config>
 </web-app>

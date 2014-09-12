@@ -17,7 +17,7 @@
     <servlet-name>setup</servlet-name>
     <url-pattern>/setup</url-pattern>
   </servlet-mapping>
-      <servlet>
+  <servlet>
     <servlet-name>setup2</servlet-name>
     <servlet-class>com.plugin.Setup2</servlet-class>
   </servlet>
@@ -25,8 +25,64 @@
     <servlet-name>setup2</servlet-name>
     <url-pattern>/setup/</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>testConfig</servlet-name>
+    <servlet-class>com.plugin.TestConfig</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>testConfig</servlet-name>
+    <url-pattern>/test_config</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>reserve</servlet-name>
+    <servlet-class>com.plugin.Reserve</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>reserve</servlet-name>
+    <url-pattern>/reserve</url-pattern>
+  </servlet-mapping>
+  <servlet>
+   <servlet-name>labs</servlet-name>
+    <servlet-class>com.plugin.Labs</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>labs</servlet-name>
+    <url-pattern>/labs</url-pattern>
+  </servlet-mapping>
+  <servlet>
+   <servlet-name>test_plugin</servlet-name>
+    <servlet-class>com.plugin.TestPlugin</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>test_plugin</servlet-name>
+    <url-pattern>/test_plugin</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  <servlet-name>capabilities</servlet-name>
+    <servlet-class>com.plugin.Capabilities</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>capabilities</servlet-name>
+    <url-pattern>/capabilities</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>widgets</servlet-name>
+    <servlet-class>com.plugin.Widgets</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>widgets</servlet-name>
+    <url-pattern>/widgets</url-pattern>
+  </servlet-mapping>
+    <servlet>
+  <servlet-name>widget</servlet-name>
+    <servlet-class>com.plugin.Widget</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>widget</servlet-name>
+    <url-pattern>/widget</url-pattern>
+  </servlet-mapping>
   <session-config>
-        <session-timeout>1</session-timeout>
+        <session-timeout>30</session-timeout>
   </session-config>
   <security-constraint>
 		<web-resource-collection>

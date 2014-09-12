@@ -3,9 +3,12 @@
 <html>
 <head>
 	<jsp:useBean id="currentPassword" scope="session" class="Xbean.TextBean" />
+	<jsp:useBean id="currentPasswordCorrect" scope="session" class="Xbean.TextBean" />
+	<jsp:useBean id="urlBack" scope="session" class="Xbean.TextBean" />
+	<jsp:useBean id="urlTest" scope="session" class="Xbean.TextBean" />
 </head>
 <body>
-	<h1>Plug-in setup (<a href="">back</a>)</h1>
+	<h1>Plug-in setup (<a href="<jsp:getProperty name="urlBack" property="text" />" >back</a>)</h1>
 	
 	<p>This is just a demo of how the plug-in can be configured in its own screen. This screen is only accessed by the LabManager administrator to configure the screen. It's not even needed in most scenarios, but sometimes the plug-in could have more than one user (e.g., different LabManagers), and different setups for different LabManager.</p>
 	
@@ -13,7 +16,7 @@
 	
 	<form method="POST" action="">
 	    <ul>
-	        <li>Current password: <i><jsp:getProperty name="currentPassword" property="text" /> </i></li>
+	        <li>Current password: <i><jsp:getProperty name="currentPassword" property="text" /> </i> <b><jsp:getProperty name="currentPasswordCorrect" property="text" /></b></li>
 	        <li>Password: <input type="text" name="password"></input><br>
 	        <button type="submit">Submit</button>
 	        </li>
@@ -23,7 +26,7 @@
 	<p>You can test if the configuration is valid or not using the /test-config method here:</p>
 	
 	<ul>
-	    <li><a href=""></a>
+	    <li><a href="<jsp:getProperty name="urlTest" property="text" />"><jsp:getProperty name="urlTest" property="text" /></a>
 	</ul>
 
 </body>

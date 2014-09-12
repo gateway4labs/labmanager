@@ -8,9 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 public class Login extends PluginBase{
-	 /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 7126632216119361709L;
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)

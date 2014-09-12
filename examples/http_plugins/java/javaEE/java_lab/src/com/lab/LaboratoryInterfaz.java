@@ -3,10 +3,13 @@ package com.lab;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import util.InfoReservation;
 
 public abstract class LaboratoryInterfaz extends LabBase{
 		
@@ -26,13 +29,13 @@ public abstract class LaboratoryInterfaz extends LabBase{
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String reservationId = request.getParameter("reservation_id");
-		HttpSession s = request.getSession();
+		ServletContext context = request.getServletContext();
 		//auto reload web page
 		response.setIntHeader("Refresh", 2);
-		if (reservationId.equals(s.getAttribute("reservationId"))){
+		InfoReservation info = (InfoReservation) context.getAttribute(reservationId);
+		if (info!= null){
 			long now = System.currentTimeMillis();
-			long deadLine = (long) s.getAttribute("deadline");
-			if (deadLine > now){
+			if (info.getDeadLine() > now){
 				response.setContentType("text/html;charset=UTF-8");
 		        PrintWriter out = response.getWriter();
 		        device = request.getRequestURI().replace("/java_lab/lab/", "");
@@ -45,18 +48,20 @@ public abstract class LaboratoryInterfaz extends LabBase{
 		            out.println("<body>");
 		            out.println("<h2>This would be a widget of the laboratory interface " + device + "!</h2>");
 		            out.println("<ul>");
-		            out.println("<li>Your username: " + s.getAttribute("username") + "</li>");
-		            out.println("<li>Remaining time: " + Long.toString((deadLine-now)/1000) + "seconds (refresh to see it change)</li>");
+		            out.println("<li>Your username: " + info.getUsername() + "</li>");
+		            out.println("<li>Remaining time: " + Long.toString((info.getDeadLine()-now)/1000) + " seconds (refresh to see it change)</li>");
 		            out.println("</ul>");
 		            out.println("</body>");
 		            out.println("</html>");
 		        } finally {
 		            out.close();
 		        }
-			}else
-				response.sendRedirect((String) s.getAttribute("back"));
+			}else{
+			 	context.removeAttribute(reservationId);
+				response.sendRedirect(info.getBack());
+			}
 		}else
-			response.getWriter().write("Error, invalid credentials");
+			response.getWriter().write("You must provide a valid reservation identifier");
 			
 	}
 
