@@ -16,7 +16,9 @@ public class Widget extends PluginBase{
 		String widgetName = request.getParameter("widget_name");
 		String s;
 		//TODO this line I don't understand  reservation_id = request.headers.get('X-G4L-reservation-id')
-		String reservationId = "None";
+		String reservationId = request.getHeader("X-G4L-reservation-id");
+		if (reservationId == null)
+			reservationId = "None";
 		if (widgetName != null){
 			if (widgetName.equals("camera1")){
 					s = "{\"url\" : \"" + LAB_URL + "/camera1/?reservation_id=" + reservationId + "\"}";
