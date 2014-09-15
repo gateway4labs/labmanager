@@ -1,0 +1,25 @@
+<Module>
+ <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
+ <Require feature="opensocial-0.9" />
+ <Require feature="osapi" />
+ <Require feature="pubsub" />
+ </ModulePrefs>
+ <Content type="html" view="home,canvas">
+ <![CDATA[
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet"></link>
+    <div class="container">
+        <div class="">
+            <div>
+                <legend class="">{{gettext('Error while processing the request')}}</legend>
+            </div>
+
+            <div class="alert alert-error">
+                {{ message }}
+            </div>
+
+        </div>
+    </div>
+
+ ]]>
+</Content>
+</Module>

@@ -565,16 +565,39 @@ def public_availability_formatter(v, c, lab, p):
                         public_identifier = lab.public_identifier,
                     ))
 
+
+def go_lab_reservation_formater(v, c, lab, p):
+    if lab.go_lab_reservation:
+        klass = 'btn-danger'
+        msg = gettext('Desactivate')
+    else:
+        klass = 'btn-success'
+        msg = gettext('Activate')
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center"> 
+                <input type='hidden' name='activate' value='%(activate_value)s'/>
+                <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                <label> %(texto)s <label/>
+                <br>
+                <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                </form>""" % dict(
+                    url = url_for('.change_go_lab_reservation'),
+                    texto = gettext('Go-Lab Reservation'),
+                    activate_value    = unicode(lab.go_lab_reservation).lower(),
+                    lab_id            = lab.id,
+                    klass = klass,
+                    msg = msg  
+                ))
+
 class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
-
-    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability']
-    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'))
-    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter)
+    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','go_lab_reservation']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),go_lab_reservation=lazy_gettext('Go-Lab reservation'))
+    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, go_lab_reservation = go_lab_reservation_formater )
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
-                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools")
+                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools"),
+                            go_lab_reservation = lazy_gettext("Make this laboratory available to Go-Lab booking system")
                     )
 
     def __init__(self, session, **kwargs):
@@ -632,6 +655,21 @@ class LaboratoryPanel(L4lModelView):
             self.session.add(lab)
             self.session.commit()
         return redirect(url_for('.index_view'))
+
+    @expose('/lab/golabreservation', methods = ['POST'])
+    def change_go_lab_reservation(self):
+        lab_id = int(request.form['lab_id'])
+        activate = request.form['activate'] == 'true'
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is not None:
+            if activate:
+                lab.go_lab_reservation = not activate
+            else:
+                lab.go_lab_reservation = not activate
+            self.session.add(lab)
+            self.session.commit()
+        return redirect(url_for('.index_view'))
+
 
 def scorm_formatter(v, c, permission, p):
     if permission.lt.basic_http_authentications:

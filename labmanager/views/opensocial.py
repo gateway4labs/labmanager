@@ -4,6 +4,7 @@ import urllib2
 import hashlib
 import traceback
 import threading
+import requests
 
 from flask import Blueprint, request, redirect, render_template, url_for, Response
 from flask.ext.wtf import Form, validators, TextField, PasswordField
@@ -90,8 +91,9 @@ def _extract_widget_config(laboratory, widget_name):
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
     public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    laboratory = public_lab
     if public_lab:
-        widget_config = _extract_widget_config(public_lab, widget_name)
+        widget_config = _extract_widget_config(public_lab, widget_name) 
     else:
         widget_config = {} # Default value
         institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
@@ -99,22 +101,48 @@ def widget_xml(institution_id, lab_name, widget_name):
             permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
             if permission:
                 widget_config = _extract_widget_config(permission.laboratory, widget_name)
+                laboratory = permission.laboratory 
 
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO
-    
+    if not laboratory:
+        return render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
+    try:
+        if not booking_system(laboratory):    
+            return render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+    except Exception, e:
+        return render_template('opensocial/widget-error.xml',message=e)
     contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
-@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml")
+@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
-    widget_config = _extract_widget_config(laboratory, widget_name)
+    if not laboratory:
+        return render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
+    widget_config = _extract_widget_config(laboratory, widget_name)     
     if widget_config is None:
-        return "Error: widget does not exist anymore" # TODO
-
+        return "Error: widget does not exist anymore" # TODO  
+    try:
+        if not booking_system(laboratory):    
+            return render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+    except Exception, e:
+        return render_template('opensocial/widget-error.xml',message=e)
     contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
+
+def booking_system(laboratory):
+    if laboratory.go_lab_reservation:
+        token = request.args.get('token')
+        url = 'https://www.weblab.deusto.es/golab/booking/verify/verify_token?token=%s' % token
+        try:
+            r =requests.get(url)
+            response = r.json()
+            if not response:
+                return False
+        except Exception, e:
+            raise ValueError('Error in request with url',url)
+    return True
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
