@@ -133,7 +133,7 @@ class RLMS(BaseRLMS):
         }
 
     def load_widget(self, reservation_id, widget_name, **kwargs):
-        response = self._request('/widget?widget_name=bar_foo', headers = { 'X-G4L-reservation-id' : reservation_id })
+        response = self._request('/widget?widget_name=%s' % widget_name, headers = { 'X-G4L-reservation-id' : reservation_id })
         return {
             'url' : response['url']
         }
