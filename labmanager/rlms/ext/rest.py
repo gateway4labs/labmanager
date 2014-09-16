@@ -81,8 +81,13 @@ class RLMS(BaseRLMS):
     def _request_post(self, remaining, data, headers = None):
         if headers is None:
             headers = {}
+        if '?' in remaining:
+            context_remaining = remaining + '&context_id=' + self.context_id
+        else:
+            context_remaining = remaining + '?context_id=' + self.context_id
+
         headers['Content-Type'] = 'application/json'
-        r = requests.post('%s%s' % (self.base_url, remaining), data = json.dumps(data), auth = (self.login, self.password), headers = headers)
+        r = requests.post('%s%s' % (self.base_url, context_remaining), data = json.dumps(data), auth = (self.login, self.password), headers = headers)
         return r.json()
 
     def get_version(self):
