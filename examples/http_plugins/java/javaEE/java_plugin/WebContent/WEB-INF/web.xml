@@ -87,9 +87,17 @@
   <security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Wildcard means whole app requires authentication</web-resource-name>
-			<url-pattern>/*</url-pattern>
+			<url-pattern>/test_plugin</url-pattern>
+			<url-pattern>/capabilities</url-pattern>
+			<url-pattern>/labs</url-pattern>
+			<url-pattern>/widgets</url-pattern>
+			<url-pattern>/widget</url-pattern>
+			<url-pattern>/test_config</url-pattern>
+			<url-pattern>/reserve</url-pattern>
+			<url-pattern>/setup</url-pattern>
 			<http-method>GET</http-method>
 			<http-method>POST</http-method>
+			<http-method>*</http-method>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>tomcat</role-name>
