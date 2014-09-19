@@ -57,7 +57,6 @@ public abstract class LaboratoryInterfaz extends LabBase{
 		            out.close();
 		        }
 			}else{
-				System.out.println(info.getBack());
 			 	context.removeAttribute(reservationId);
 				response.sendRedirect(info.getBack());
 			}

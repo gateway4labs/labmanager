@@ -33,7 +33,6 @@ public class Reserve extends PluginBase {
 			JSONObject currentPassword = config.getConfig(contextId);
 			String reservationUrl = LAB_URL + "/reserve/?system_login=" + LAB_LOGIN + "&system_password=" + currentPassword.get("password").toString() + 
 					"&username=" + username + "&back_url=" + backUrl;
-			System.out.println(reservationUrl);
 			URL url = new URL(reservationUrl);
 			HttpURLConnection conn =  (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
