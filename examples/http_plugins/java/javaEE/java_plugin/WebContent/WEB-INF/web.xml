@@ -95,9 +95,6 @@
 			<url-pattern>/test_config</url-pattern>
 			<url-pattern>/reserve</url-pattern>
 			<url-pattern>/setup</url-pattern>
-			<http-method>GET</http-method>
-			<http-method>POST</http-method>
-			<http-method>*</http-method>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>tomcat</role-name>
