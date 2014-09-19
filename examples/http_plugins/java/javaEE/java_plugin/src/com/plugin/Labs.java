@@ -15,7 +15,7 @@ public class Labs extends PluginBase {
 	//This can be retrieved from a database, or by contacting the laboratory
     // in case it manages more than one laboratory.
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String s= "{\"labs\": [{\"name\" : \"Sample laboratory\",\"description\" : \"This is an example of laboratory\",\"autoload\" : \"False\",\"laboratory_id\" :" + LAB_ID + ",}]}";
+		String s= "{\"labs\": [{\"name\" : \"Sample laboratory\",\"description\" : \"This is an example of laboratory\",\"autoload\" : false ,\"laboratory_id\" :" + LAB_ID + ",}]}";
 		
 		JSONObject myJson = new JSONObject(s);
 		response.getWriter().write(myJson.toString());

@@ -44,10 +44,11 @@ public class Reserve extends PluginBase {
 	        }
 	        rd.close();
 	        JSONObject resultJson = new JSONObject(result);
-	        System.out.println(result);
-	        System.out.println(resultJson);
 	        response.getWriter().write(resultJson.toString());
 		}
 	}
 
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+	}
 }

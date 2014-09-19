@@ -103,7 +103,7 @@
 	
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>/tusmuertos.xml</realm-name>
+		<realm-name>/users.xml</realm-name>
 	</login-config>
 	
 

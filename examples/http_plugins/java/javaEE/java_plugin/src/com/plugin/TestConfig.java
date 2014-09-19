@@ -41,20 +41,18 @@ public class TestConfig extends PluginBase{
 	        }
 	        rd.close();
 	        System.out.println(result);
-	        JSONObject resultJson;
-	        try{
-	        	resultJson = new JSONObject(result);
-	        }
-	        catch (JSONException e ){
-	        	resultJson = new JSONObject();
-	        }
      		JSONObject json = new JSONObject();
 	        if (result.equals("ok")){
 	        	json.put("valid", true);
 	        }
 	        else{
 	        	json.put("valid", false);
-	        	json.put("error-messages", resultJson.getString("Error"));
+		        try{
+		        	JSONObject resultJson = new JSONObject(result);
+		        	json.put("error-messages", resultJson.getString("Error"));
+		        } catch (JSONException e ){
+		        	json.put("error-messages", "Error and laboratory did not provide a proper JSON error message.");
+		        }
 	        }
 	        response.getWriter().write(json.toString());
          }

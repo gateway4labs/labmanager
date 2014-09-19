@@ -22,6 +22,7 @@ public class Setup extends PluginBase{
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String backUrl = request.getParameter("back_url");
+			String contextId = request.getParameter("context_id");
 			if (backUrl == null)
 				response.getWriter().write("Missing back_url");
 			else{
@@ -37,7 +38,7 @@ public class Setup extends PluginBase{
 				InfoReservation aux = new InfoReservation(backUrl,now+5*60*1000);
 				reservations.put(reservationId, aux);
 				JSONObject myJson = new JSONObject();
-				myJson.put("url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/setup/" + "?reservation_id=" + reservationId);
+				myJson.put("url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/setup/" + "?reservation_id=" + reservationId + "&context_id=" + contextId);
 				response.getWriter().write(myJson.toString());
 			}
 	}

@@ -39,7 +39,7 @@ public class Reserve extends LabBase {
 				ServletContext context = request.getServletContext();
 				InfoReservation info = new InfoReservation(now + SESSION_SECONDS*1000,backUrl,username);
 				context.setAttribute(reservationId,info);
-				myJson.put("url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/lab/" + "?reservation_id=" + reservationId);
+				myJson.put("load_url","http://" + request.getServerName()  +":" + request.getServerPort() + request.getContextPath() + "/lab/" + "?reservation_id=" + reservationId);
 				myJson.put("reservation_id", reservationId);
 				response.getWriter().write(myJson.toString());
 			}		

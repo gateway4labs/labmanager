@@ -14,6 +14,7 @@ public class Capabilities extends PluginBase {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String s= "{\"capabilities\" : [\"widget\"]}";
+		// Parse with JSON Parser to check validity
 		JSONObject myJson = new JSONObject(s);
 		response.getWriter().write(myJson.toString());
 	}
