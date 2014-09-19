@@ -55,10 +55,7 @@ public class TestConfig extends PluginBase{
 		        }
 	        }
 	        response.getWriter().write(json.toString());
-         }
-		
-	
-
+         }	
 	}
 
 }

@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import util.Config;
@@ -23,7 +24,6 @@ public class Reserve extends PluginBase {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String contextId = request.getParameter("context_id");
-		
 		if (contextId == null)
 			response.getWriter().write("context_id is mandatory");
 		else {
@@ -48,6 +48,21 @@ public class Reserve extends PluginBase {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
+		
+		String jb ="";
+		String line = null;
+		BufferedReader reader = request.getReader();
+		JSONObject jsonObject;
+		while ((line = reader.readLine()) != null)
+			jb += line;
+		
+		try{
+			jsonObject = new JSONObject(jb);
+		    username = jsonObject.getString("username") + "@" + jsonObject.getString("institution");
+		    backUrl = jsonObject.getString("back");
+		    doGet(request, response);
+		} catch (JSONException e) {
+			response.sendError(400,"Invalid JSON document");
+		}
 	}
 }
