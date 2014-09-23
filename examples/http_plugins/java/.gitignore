@@ -10,7 +10,7 @@ target/
 *.war
 *.ear
 *.db
-/Servers/
+/Servers/**
 ######################
 # Windows
 ######################
