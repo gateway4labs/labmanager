@@ -9,7 +9,12 @@
   	<property environment="env"/>
   	
   	<target name="install" description="Used to install the ivy task jar">
-	    <get dest="${env.ANT_HOME}/lib/ivy.jar" src="http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/>
+        <condition property="isWindows">
+	       <get dest="${env.ANT_HOME}/lib/ivy.jar" src="http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/>
+        </condition>
+        <condition property="isUnix">
+            <get dest="/usr/share/ant/lib/ivy.jar" src="http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/>   
+        </condition>
   	</target>
 
     <path id="master-classpath">
@@ -22,10 +27,10 @@
         <pathelement path="${build.dir}"/>
     </path>
 
-  <target name="resolve" depends="install" description="--> retrieve dependencies with ivy">
-      <ivy:retrieve  pattern="${build.lib}[artifact].[ext]" />
+    <target name="resolve" depends="install" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve  pattern="${build.lib}[artifact].[ext]" />
 
-  </target>
+
     <target name="usage">
         <echo message=""/>
         <echo message="${name} build file"/>

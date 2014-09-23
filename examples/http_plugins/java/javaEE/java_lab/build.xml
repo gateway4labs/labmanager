@@ -8,10 +8,21 @@
     <property name="name" value="java_lab"/>
   	<property environment="env"/>
   	
-  	<target name="install_ivy" description="Used to install the ivy task jar">
-		<echo message="${env.ANT_HOME}"/>
-	    <get dest="${env.ANT_HOME}/lib/ivy.jar" src="http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/>
-	</target>
+    <condition property="isWindows">
+      <os family="windows" />
+    </condition>
+
+    <condition property="isUnix">
+      <os family="unix" />
+    </condition>
+
+    <target name="install_windows" if="isWindows">
+      <get dest="${env.ANT_HOME}/lib/ivy.jar" src="http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/>
+    </target>
+    <target name="install_unix" if="isUnix">
+       <get dest="/usr/share/ant/lib/ivy.jar" src="http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/> 
+    </target>
+  	<target name="install_ivy" depends="install_windows,install_unix" description="Used to install the ivy task jar" />
 
     <path id="master-classpath">
         <fileset dir="${web.dir}/WEB-INF/lib">
@@ -23,17 +34,17 @@
         <pathelement path="${build.dir}"/>
     </path>
   	
-  	<target name="resolve" depends="install_ivy" description="--> retrieve dependencies with ivy">
+  	<target name="resolve" description="--> retrieve dependencies with ivy">
   	      <ivy:retrieve  pattern="${build.lib}[artifact].[ext]" />
 
 	</target>
 	    <target name="usage">
-	        <echo message=""/>
-	        <echo message="${name} build file"/>
-	        <echo message="-----------------------------------"/>
-	        <echo message=""/>
-	        <echo message="Available targets are:"/>
-	        <echo message=""/>
+        <echo message=""/>
+        <echo message="${name} build file"/>
+        <echo message="-----------------------------------"/>
+        <echo message=""/>
+        <echo message="Available targets are:"/>
+        <echo message=""/>
 	    	<echo message="install_ivy    --> Install ivy in ANT_HOME to can download dependences"/>
 	    	<echo message="resolve    --> Download the dependeces"/>
 	    	<echo message="deploywar    --> Deploy application as a WAR file in route os project"/>
@@ -44,7 +55,7 @@
     <target name="build" depends="resolve" description="Compile main 
       source tree java files">
         <mkdir dir="${build.dir}"/>
-        <javac destdir="${build.dir}" source="1.7" target="1.7" debug="true" deprecation="false" optimize="false" failonerror="true" includeantruntime="false">
+        <javac destdir="${build.dir}" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true" includeantruntime="false">
             <src path="${src.dir}"/>
             <classpath refid="master-classpath"/>
         </javac>
