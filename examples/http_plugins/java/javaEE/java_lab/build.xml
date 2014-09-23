@@ -7,7 +7,7 @@
     <property name="build.dir" value="${web.dir}/WEB-INF/classes"/>
     <property name="name" value="java_lab"/>
   	<property environment="env"/>
-  	
+
     <condition property="isWindows">
       <os family="windows" />
     </condition>
@@ -24,18 +24,28 @@
     </target>
   	<target name="install_ivy" depends="install_windows,install_unix" description="Used to install the ivy task jar" />
 
-    <path id="master-classpath">
-        <fileset dir="${web.dir}/WEB-INF/lib">
-            <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${env.CATALINA_HOME}/lib">
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement path="${build.dir}"/>
+    <path id="master-classpath-windows" >
+      <fileset dir="${web.dir}/WEB-INF/lib">
+          <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${env.CATALINA_HOME}/lib">
+        <include name="*.jar"/>
+      </fileset>
+      <pathelement path="${build.dir}"/>
+    </path>
+
+    <path id="master-classpath-unix" >
+      <fileset dir="${web.dir}/WEB-INF/lib">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="/usr/share/tomcat7/lib">
+        <include name="*.jar"/>
+      </fileset>
+      <pathelement path="${build.dir}"/>
     </path>
   	
   	<target name="resolve" description="--> retrieve dependencies with ivy">
-  	      <ivy:retrieve  pattern="${build.lib}[artifact].[ext]" />
+      <ivy:retrieve  pattern="${build.lib}[artifact].[ext]" />
 
 	</target>
 	    <target name="usage">
@@ -52,17 +62,25 @@
 	    	<echo message=""/>
     </target>
 
-    <target name="build" depends="resolve" description="Compile main 
-      source tree java files">
+    <target name="buildWindows" depends="resolve" if="isWindows" description="Compile main 
+      source tree java files" >
         <mkdir dir="${build.dir}"/>
-        <javac destdir="${build.dir}" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true" includeantruntime="false">
+        <javac destdir="${build.dir}" source="1.7" target="1.7" debug="true" deprecation="false" optimize="false" failonerror="true" includeantruntime="false">
             <src path="${src.dir}"/>
-            <classpath refid="master-classpath"/>
+            <classpath refid="master-classpath-windows"/>
         </javac>
-
     </target>
 
-  	<target name="deploywar" depends="build" description="Deploy application">
+    <target name="buildUnix" depends="resolve" if="isUnix" description="Compile main 
+      source tree java files" >
+        <mkdir dir="${build.dir}"/>
+        <javac destdir="${build.dir}" source="1.7" target="1.7" debug="true" deprecation="false" optimize="false" failonerror="true" includeantruntime="false">
+            <src path="${src.dir}"/>
+            <classpath refid="master-classpath-unix"/>
+        </javac>
+    </target>
+
+  	<target name="deploywar" depends="buildUnix,buildWindows" description="Deploy application">
         <war destfile="${name}.war" webxml="${web.dir}/WEB-INF/web.xml">
             <fileset dir="${web.dir}">
             	<include name="**/*.*"/>
