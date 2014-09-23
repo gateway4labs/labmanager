@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+    <info organisation="org.apache" module="java_plugin"/>
+    <dependencies>
+        <dependency org="org.json" name="json" rev="20140107" conf="default->master"/>
+    </dependencies>
+</ivy-module>

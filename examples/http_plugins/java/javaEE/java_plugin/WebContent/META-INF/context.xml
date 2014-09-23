@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
-	<!--  use in tomcat normal to export in .war file
+	<!--  use in tomcat normal to export in .war file-->
     <Realm className="org.apache.catalina.realm.MemoryRealm"
            pathname="webapps\java_plugin\WEB-INF\users.xml"/>
-     -->      
+       
      
-     <!-- Use in tomcat include in eclipse -->
+     <!-- Use in tomcat include in eclipse 
     <Realm className="org.apache.catalina.realm.MemoryRealm"
 		   pathname="wtpwebapps/java_plugin/WEB-INF/users.xml"/>
+		   -->
 </Context>
