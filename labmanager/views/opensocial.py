@@ -89,6 +89,7 @@ def _extract_widget_config(laboratory, widget_name):
     return base_data
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
+@opensocial_blueprint.route("/w/<institution_id>/<lab_name>/w_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
     public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     laboratory = public_lab
@@ -116,6 +117,7 @@ def widget_xml(institution_id, lab_name, widget_name):
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
+@opensocial_blueprint.route("/pub/<lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     if not laboratory:

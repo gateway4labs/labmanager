@@ -57,6 +57,7 @@ def register_blueprints():
     # 
     app.register_blueprint(basic_http_blueprint, url_prefix='/labmanager')
     app.register_blueprint(lti_blueprint, url_prefix='/lti')
+    app.register_blueprint(opensocial_blueprint, url_prefix='/os')
     app.register_blueprint(opensocial_blueprint, url_prefix='/opensocial')
 
     from labmanager.rlms.base import _BLUEPRINTS
