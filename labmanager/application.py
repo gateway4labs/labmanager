@@ -39,6 +39,58 @@ else:
     app.secret_key = os.urandom(32)
 app.config['SESSION_COOKIE_NAME'] = 'g4lsession'
 
+
+
+
+# Initialize the logging mechanism to send error 500 mails to the administrators
+if not app.debug and app.config.get("ADMINS") is not None and app.config.get("SMTP_SERVER") is not None:
+    import logging
+    import pprint
+    from logging.handlers import SMTPHandler
+
+    class MailLoggingFilter(logging.Filter):
+        def filter(self, record):
+            pass
+            record.environ = pprint.pformat(request.environ)
+            return True
+
+    app.logger.addFilter(MailLoggingFilter())
+
+    smtp_server = app.config.get("SMTP_SERVER")
+    from_addr = app.config.get("SENDER_ADDR")
+    to_addrs = app.config.get("ADMINS")
+    mail_handler = SMTPHandler(smtp_server,
+                                from_addr,
+                                to_addrs,
+                                "AppComposer Application Error Report")
+    formatter = logging.Formatter(
+        '''
+        Message type:       %(levelname)s
+        Location:           %(pathname)s:%(lineno)d
+        Module:             %(module)s
+        Function:           %(funcName)s
+        Time:               %(asctime)s
+
+        Message:
+
+        %(message)s
+
+        Environment:
+
+        %(environ)s
+
+        Stack Trace:
+        ''')
+    mail_handler.setFormatter(formatter)
+    mail_handler.setLevel(logging.ERROR)
+    app.logger.addHandler(mail_handler)
+
+
+@app.route("/error")
+def error():
+    return 2/0
+
+
 @app.errorhandler(404)
 def not_found(e):
     return "404 not found", 404
@@ -135,4 +187,5 @@ init_ple_instructor_admin(app)
 # 
 from .views import authn
 assert authn is not None # Avoid warnings
+
 
