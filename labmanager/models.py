@@ -146,6 +146,7 @@ class Laboratory(db.Model, SBBase):
     publicly_available       = db.Column(db.Boolean, nullable = False, index = True, default = False)
     # Not unique: otherwise there wouldn't be more than one with '' as value
     public_identifier        = db.Column(db.Unicode(50), nullable = False, default = u"")
+    go_lab_reservation       = db.Column(db.Boolean, nullable = False, index = True, default = False)
 
     rlms          = relation(RLMS.__name__, backref = backref('laboratories', order_by=id, cascade = 'all,delete'))
 

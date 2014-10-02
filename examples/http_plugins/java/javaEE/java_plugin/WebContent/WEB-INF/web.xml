@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>java_plugin</display-name>
+  <servlet>
+    <servlet-name>login</servlet-name>
+    <servlet-class>com.plugin.Login</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>login</servlet-name>
+    <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+    <servlet>
+    <servlet-name>setup</servlet-name>
+    <servlet-class>com.plugin.Setup</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>setup</servlet-name>
+    <url-pattern>/setup</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>setup2</servlet-name>
+    <servlet-class>com.plugin.Setup2</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>setup2</servlet-name>
+    <url-pattern>/setup/</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>testConfig</servlet-name>
+    <servlet-class>com.plugin.TestConfig</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>testConfig</servlet-name>
+    <url-pattern>/test_config</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>reserve</servlet-name>
+    <servlet-class>com.plugin.Reserve</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>reserve</servlet-name>
+    <url-pattern>/reserve</url-pattern>
+  </servlet-mapping>
+  <servlet>
+   <servlet-name>labs</servlet-name>
+    <servlet-class>com.plugin.Labs</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>labs</servlet-name>
+    <url-pattern>/labs</url-pattern>
+  </servlet-mapping>
+  <servlet>
+   <servlet-name>test_plugin</servlet-name>
+    <servlet-class>com.plugin.TestPlugin</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>test_plugin</servlet-name>
+    <url-pattern>/test_plugin</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  <servlet-name>capabilities</servlet-name>
+    <servlet-class>com.plugin.Capabilities</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>capabilities</servlet-name>
+    <url-pattern>/capabilities</url-pattern>
+  </servlet-mapping>
+  <servlet>
+  	<servlet-name>widgets</servlet-name>
+    <servlet-class>com.plugin.Widgets</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>widgets</servlet-name>
+    <url-pattern>/widgets</url-pattern>
+  </servlet-mapping>
+    <servlet>
+  <servlet-name>widget</servlet-name>
+    <servlet-class>com.plugin.Widget</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>widget</servlet-name>
+    <url-pattern>/widget</url-pattern>
+  </servlet-mapping>
+  <session-config>
+        <session-timeout>30</session-timeout>
+  </session-config>
+  <security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Wildcard means whole app requires authentication</web-resource-name>
+			<url-pattern>/test_plugin</url-pattern>
+			<url-pattern>/capabilities</url-pattern>
+			<url-pattern>/labs</url-pattern>
+			<url-pattern>/widgets</url-pattern>
+			<url-pattern>/widget</url-pattern>
+			<url-pattern>/test_config</url-pattern>
+			<url-pattern>/reserve</url-pattern>
+			<url-pattern>/setup</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>tomcat</role-name>
+		</auth-constraint>
+		
+		<user-data-constraint>
+			<!-- transport-guarantee can be CONFIDENTIAL, INTEGRAL, or NONE -->
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>/users.xml</realm-name>
+	</login-config>
+	
+
+</web-app>
+

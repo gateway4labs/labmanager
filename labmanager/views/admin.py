@@ -492,6 +492,21 @@ def accessibility_formatter(v, c, lab, p):
     if lab.available:
         klass = 'btn-danger'
         msg = gettext('Make not available')
+        return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        <input type='hidden' name='activate' value='%(activate_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <label> %(texto)s </label>
+                        <input disabled type='text' name='default_local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url                      = url_for('.change_accessibility'),
+                        activate_value           = unicode(lab.available).lower(),
+                        lab_id                   = lab.id,
+                        texto                    = gettext('Default local identifier:'),
+                        klass                    = klass,
+                        msg                      = msg,
+                        default_local_identifier = lab.default_local_identifier,
+                    ))
     else:
         klass = 'btn-success'
         msg = gettext('Make available')
@@ -499,13 +514,13 @@ def accessibility_formatter(v, c, lab, p):
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
                         <label> %(texto)s </label>
-                        <input type='text' name='local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
+                        <input type='text' name='default_local_identifier' value='%(default_local_identifier)s' style='width: 150px'/>
                         <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                     </form>""" % dict(
                         url                      = url_for('.change_accessibility'),
                         activate_value           = unicode(lab.available).lower(),
                         lab_id                   = lab.id,
-                        texto                     =gettext('Default local identifier:'),
+                        texto                    = gettext('Default local identifier:'),
                         klass                    = klass,
                         msg                      = msg,
                         default_local_identifier = lab.default_local_identifier,
@@ -515,9 +530,25 @@ def public_availability_formatter(v, c, lab, p):
     if lab.publicly_available:
         klass = 'btn-danger'
         msg = gettext('Make not publicly available')
+        return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
+                        <input type='hidden' name='activate' value='%(activate_value)s'/>
+                        <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                        <label> %(texto)s </label>
+                        <input disabled type='text' name='public_identifier' value='%(public_identifier)s' style='width: 150px'/>
+                        <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                    </form>""" % dict(
+                        url               = url_for('.change_public_availability'),
+                        activate_value    = unicode(lab.publicly_available).lower(),
+                        lab_id            = lab.id,
+                        texto             = gettext('Public identifier:'),
+                        klass             = klass,
+                        msg               = msg,
+                        public_identifier = lab.public_identifier,
+                    ))
     else:
         klass = 'btn-success'
         msg = gettext('Make publicly available')
+
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center">
                         <input type='hidden' name='activate' value='%(activate_value)s'/>
                         <input type='hidden' name='lab_id' value='%(lab_id)s'/>
@@ -528,22 +559,45 @@ def public_availability_formatter(v, c, lab, p):
                         url               = url_for('.change_public_availability'),
                         activate_value    = unicode(lab.publicly_available).lower(),
                         lab_id            = lab.id,
-                        texto              = gettext('Public identifier:'),
+                        texto             = gettext('Public identifier:'),
                         klass             = klass,
                         msg               = msg,
                         public_identifier = lab.public_identifier,
                     ))
 
+
+def go_lab_reservation_formater(v, c, lab, p):
+    if lab.go_lab_reservation:
+        klass = 'btn-danger'
+        msg = gettext('Desactivate')
+    else:
+        klass = 'btn-success'
+        msg = gettext('Activate')
+    return Markup("""<form method='POST' action='%(url)s' style="text-align: center"> 
+                <input type='hidden' name='activate' value='%(activate_value)s'/>
+                <input type='hidden' name='lab_id' value='%(lab_id)s'/>
+                <label> %(texto)s <label/>
+                <br>
+                <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
+                </form>""" % dict(
+                    url = url_for('.change_go_lab_reservation'),
+                    texto = gettext('Go-Lab Reservation'),
+                    activate_value    = unicode(lab.go_lab_reservation).lower(),
+                    lab_id            = lab.id,
+                    klass = klass,
+                    msg = msg  
+                ))
+
 class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
-
-    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability']
-    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'))
-    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter)
+    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','go_lab_reservation']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),go_lab_reservation=lazy_gettext('Go-Lab reservation'))
+    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, go_lab_reservation = go_lab_reservation_formater )
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
-                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools")
+                            public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools"),
+                            go_lab_reservation = lazy_gettext("Make this laboratory available to Go-Lab booking system")
                     )
 
     def __init__(self, session, **kwargs):
@@ -551,45 +605,71 @@ class LaboratoryPanel(L4lModelView):
 
     @expose('/lab/availability/local', methods = ['POST'])
     def change_accessibility(self):
-        lab_id   = int(request.form['lab_id'])
+        lab_id = int(request.form['lab_id'])
         activate = request.form['activate'] == 'true'
         lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
         if lab is not None:
-            existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier = request.form['local_identifier']).all()
-            if len(existing_labs) > 0:
-                # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
-                if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash(gettext(u"Local identifier '%(localidentifier)s' already exists", localidentifier=request.form['local_identifier']))
-                    return redirect(url_for('.index_view'))
-            lab.available = not activate
-            lab.default_local_identifier = request.form['local_identifier']
-            if lab.available and len(lab.default_local_identifier) == 0:
-                flash(gettext(u"Invalid local identifier (empty)"))
+            if activate:
+                lab.available = not activate
+                lab.default_local_identifier = u""
             else:
-                self.session.add(lab)
-                self.session.commit()
+                local_id = request.form['default_local_identifier']
+                local_id = local_id.lstrip(' ')
+                local_id = local_id.strip(' ')
+                if not activate and len(local_id) == 0:
+                    flash(gettext("Invalid local identifier (empty)"))
+                    return redirect(url_for('.index_view'))
+                existing_labs = self.session.query(Laboratory).filter_by(default_local_identifier=local_id).all()
+                if len(existing_labs) > 0 and lab not in existing_labs:
+                    flash(gettext(u"Local identifier '%(localidentifier)s' already exists", localidentifier=local_id))
+                    return redirect(url_for('.index_view'))
+                lab.available = not activate
+                lab.default_local_identifier = local_id
+            self.session.add(lab)
+            self.session.commit()
         return redirect(url_for('.index_view'))
+
 
     @expose('/lab/availability/public', methods = ['POST'])
     def change_public_availability(self):
         lab_id   = int(request.form['lab_id'])
+        activate = request.form['activate'] == "true"
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is not None:
+            if activate:
+                lab.publicly_available = not activate
+                lab.public_identifier = u""
+            else:
+                public_id = request.form['public_identifier']
+                public_id = public_id.lstrip(' ')
+                public_id = public_id.strip(' ')
+                if not activate and len(public_id) == 0:
+                    flash(gettext("Invalid public identifier (empty)"))
+                    return redirect(url_for('.index_view'))
+                existing_labs = self.session.query(Laboratory).filter_by(public_identifier=public_id).all()
+                if len(existing_labs) > 0 and lab not in existing_labs:
+                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists", publicidentifier=public_id))
+                    return redirect(url_for('.index_view'))
+                lab.publicly_available = not activate
+                lab.public_identifier = public_id
+            self.session.add(lab)
+            self.session.commit()
+        return redirect(url_for('.index_view'))
+
+    @expose('/lab/golabreservation', methods = ['POST'])
+    def change_go_lab_reservation(self):
+        lab_id = int(request.form['lab_id'])
         activate = request.form['activate'] == 'true'
         lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
         if lab is not None:
-            existing_labs = self.session.query(Laboratory).filter_by(public_identifier = request.form['public_identifier']).all()
-            if len(existing_labs) > 0:
-                # If there is more than one, then it's not only lab; and if there is only one but it's not this one, the same
-                if len(existing_labs) > 1 or lab not in existing_labs:
-                    flash(gettext(u"Public identifier '%(publicidentifier)s' already exists"), publicidentifier=request.form['public_identifier'])
-                    return redirect(url_for('.index_view'))
-            lab.publicly_available = not activate
-            lab.public_identifier = request.form['public_identifier']
-            if lab.publicly_available and len(lab.public_identifier) == 0:
-                flash(gettext("Invalid public identifier (empty)"))
+            if activate:
+                lab.go_lab_reservation = not activate
             else:
-                self.session.add(lab)
-                self.session.commit()
+                lab.go_lab_reservation = not activate
+            self.session.add(lab)
+            self.session.commit()
         return redirect(url_for('.index_view'))
+
 
 def scorm_formatter(v, c, permission, p):
     if permission.lt.basic_http_authentications:
