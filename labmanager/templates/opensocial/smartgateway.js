@@ -9,7 +9,9 @@ function SmartGateway(container) {
 
     // The _mylabid identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
     
-    {% if public %}
+    {% if public_rlms %}
+    var _mylabid = '{{ url_for(".public_rlms_smartgateway", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}';
+    {% elif public_lab %}
     var _mylabid = '{{ url_for(".public_smartgateway", lab_name = lab_name, _external = True) }}';
     {% else %}
     var _mylabid = '{{ url_for(".smartgateway", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
@@ -263,7 +265,9 @@ function SmartGateway(container) {
             {% else %}
             var lab_config = "";
             {% endif %}
-            {% if public %}
+            {% if public_rlms %}
+            var url = '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
+            {% elif public_lab %}
             var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
             {% else %}
             var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + lab_config;

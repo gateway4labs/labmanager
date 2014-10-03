@@ -162,7 +162,7 @@ class PublicSystemsPanel(ModelView):
             # widget-name : link
         }
         for widget in widgets:
-            link = url_for('opensocial.public_widget_xml', lab_name = lab_identifier, widget_name = widget['name'], _external = True)
+            link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier = rlms_identifier, lab_name = lab_identifier, widget_name = widget['name'], _external = True)
             if link.startswith('https://'):
                 link = link.replace('https://', 'http://', 1)
             links[widget['name']] = link
