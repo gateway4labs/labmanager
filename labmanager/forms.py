@@ -35,6 +35,14 @@ class AddForm(RetrospectiveForm):
         if default_url:
             kwargs.setdefault('url', default_url)
 
+        default_publicly_available = getattr(self, 'DEFAULT_PUBLICLY_AVAILABLE', None)
+        if default_publicly_available is not None:
+            kwargs.setdefault('publicly_available', default_publicly_available)
+
+        default_public_identifier = getattr(self, 'DEFAULT_PUBLIC_IDENTIFIER', '')
+        if default_public_identifier:
+            kwargs.setdefault('public_identifier', default_public_identifier)
+
         super(AddForm, self).__init__(**kwargs)
 
 
