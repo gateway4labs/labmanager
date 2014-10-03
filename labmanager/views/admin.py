@@ -270,8 +270,8 @@ class RLMSObject(object): pass
 
 class RLMSPanel(L4lModelView):
     # For listing 
-    column_list  = ['kind', 'version', 'location', 'url', 'labs']
-    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
+    column_list  = ['kind', 'version', 'location', 'url', 'labs','publicly_available']
+    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'), publicly_available = lazy_gettext('public'))
     column_exclude_list = ('version','configuration')
     column_descriptions = {
         'location' : lazy_gettext('City and country where the RLMS is hosted'),
