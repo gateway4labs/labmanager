@@ -6,7 +6,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-from flask.ext.wtf import Form, TextField, Required, PasswordField, ValidationError, validators
+from flask.ext.wtf import Form, TextField, Required, PasswordField, BooleanField, ValidationError, validators
 from labmanager.babel import gettext, lazy_gettext
 
 
@@ -22,7 +22,9 @@ class RetrospectiveForm(Form):
 class AddForm(RetrospectiveForm):
 
     url       = TextField(lazy_gettext('URL'), validators = [ validators.URL(require_tld = False), validators.Required() ], default = 'http://rlms-address/', description = lazy_gettext('Main URL of the RLMS'))
-    location  = TextField(lazy_gettext('Location'), validators = [ validators.Required() ], default = 'City, Country', description = lazy_gettext('City and country where the RLMS is hosted'))
+    location  = TextField(lazy_gettext('Location'), validators = [ validators.Required() ], default = 'City, Country', description = lazy_gettext("City and country where the RLMS is hosted"))
+    publicly_available = BooleanField(lazy_gettext('Public'), default = False, description = lazy_gettext("Do you want to provide access to this laboratory publicly?"))
+    public_identifier = TextField(lazy_gettext('Public identifier'), default = '', description = lazy_gettext("If publicly available, under what identifier?"))
 
     def __init__(self, **kwargs):
         default_location = getattr(self, 'DEFAULT_LOCATION', None)

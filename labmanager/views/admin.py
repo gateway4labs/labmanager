@@ -318,6 +318,8 @@ class RLMSPanel(L4lModelView):
         rlms_obj = RLMSObject()
         rlms_obj.url = rlms.url
         rlms_obj.location = rlms.location
+        rlms_obj.publicly_available = rlms.publicly_available
+        rlms_obj.public_identifier = rlms.public_identifier
         for key in config:
             setattr(rlms_obj, key, config[key])
 
@@ -344,21 +346,42 @@ class RLMSPanel(L4lModelView):
             rlms_instance = ManagerClass(config_json)
             if hasattr(rlms_instance, 'test'):
                 try:
-                    error_messages = rlms_instance.test()
+                    error_messages = rlms_instance.test() or []
                 except Exception as e:
-                    error_messages = ["Error testing the RLMS: %s" % e]
+                    error_messages.append(gettext("Error testing the RLMS: %s") % e)
                     traceback.print_exc()
+
+            if form.publicly_available.data and len(form.public_identifier.data) == 0:
+                form.public_identifier.errors = [gettext("If the RLMS is public, it must have a public identifier")]
+                error_messages.append(gettext("Invalid public identifier"))
+            elif form.publicly_available.data and len(form.public_identifier.data) < 4:
+                form.public_identifier.errors = [gettext("If the RLMS is public, it must have a public identifier with at least 4 characters")]
+                error_messages.append(gettext("Invalid public identifier"))
+
+            elif form.publicly_available.data: # If publicly available, retrieve existing RLMS with that public identifier
+                existing_objects = self.session.query(RLMS).filter_by(public_identifier = form.public_identifier.data).all()
+                if not add_or_edit: # If editing, don't count the one being edited
+                    existing_objects = [ existing_obj for existing_obj in existing_objects if existing_obj.id != edit_id]
+                if existing_objects:
+                    form.public_identifier.errors = [gettext("That identifier is already taken")]
+                    error_messages.append(gettext("Use other identifier or don't make the RLMS public"))
+
 
             if not error_messages:
                 if add_or_edit:
                     rlms_obj = RLMS(kind = rlms, version = version,
                                 url = form.url.data, location = form.location.data,
-                                configuration = config_json)
+                                configuration = config_json, 
+                                publicly_available = form.publicly_available.data,
+                                public_identifier = form.public_identifier.data)
                 else:
                     rlms_obj = self.session.query(RLMS).filter_by(id = edit_id).first()
                     rlms_obj.url = form.url.data
                     rlms_obj.location = form.location.data
+                    rlms_obj.publicly_available = form.publicly_available.data
+                    rlms_obj.public_identifier = form.public_identifier.data
                     rlms_obj.configuration = config_json
+
 
                 self.session.add(rlms_obj)
                 try:
