@@ -361,7 +361,7 @@ class RLMSPanel(L4lModelView):
             elif form.publicly_available.data: # If publicly available, retrieve existing RLMS with that public identifier
                 existing_objects = self.session.query(RLMS).filter_by(public_identifier = form.public_identifier.data).all()
                 if not add_or_edit: # If editing, don't count the one being edited
-                    existing_objects = [ existing_obj for existing_obj in existing_objects if existing_obj.id != edit_id]
+                    existing_objects = [ existing_obj for existing_obj in existing_objects if unicode(existing_obj.id) != unicode(edit_id)]
                 if existing_objects:
                     form.public_identifier.errors = [gettext("That identifier is already taken")]
                     error_messages.append(gettext("Use other identifier or don't make the RLMS public"))
