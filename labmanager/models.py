@@ -116,7 +116,7 @@ class RLMS(db.Model, SBBase):
         self.version = version
         self.configuration = configuration
         self.publicly_available = publicly_available
-        self.public_identifier = u''
+        self.public_identifier = public_identifier
 
     def __repr__(self):
         return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r, publicly_available=%(publicly_available)r, public_identifier = %(public_identifier)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration, publicly_available = self.publicly_available, public_identifier = self.public_identifier)

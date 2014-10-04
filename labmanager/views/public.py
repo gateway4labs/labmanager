@@ -79,7 +79,7 @@ class PublicLaboratoriesPanel(ModelView):
         return self.render("public/list_widgets.html", list_widgets_kwargs = list_widgets_kwargs, widgets = widgets, lab_name = public_identifier, links = links)
 
 def list_labs_formatter(v, c, rlms, p):
-    return Markup('<a href="%s">%s</a>' % (url_for('.list_labs', public_identifier = public_id_formatter(v, c, rlms, p)), gettext("list")))
+    return Markup('<a href="%s">%s</a>' % (url_for('.list_labs', public_identifier = rlms.public_identifier), gettext("list")))
 
 class PublicSystemsPanel(ModelView):
     can_delete = False
@@ -147,7 +147,7 @@ class PublicSystemsPanel(ModelView):
         return self.render("public/list_labs.html", rlms = rlms_db, labs = labs, query = query, force_search = force_search, pages = pages, page = page, public_identifier = public_identifier)
 
 
-    @expose("/system/<rlms_identifier>/widgets/<lab_identifier>/")
+    @expose("/system/<rlms_identifier>/widgets/<path:lab_identifier>/")
     def list_widgets(self, rlms_identifier, lab_identifier):
         rlms_db = self.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
         if rlms_db is None:

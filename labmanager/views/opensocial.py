@@ -89,7 +89,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     return base_data
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
-@opensocial_blueprint.route("/w/<institution_id>/<lab_name>/w_<widget_name>.xml")
+@opensocial_blueprint.route("/w/<institution_id>/<path:lab_name>/w_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
     public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     laboratory = public_lab
@@ -116,11 +116,11 @@ def widget_xml(institution_id, lab_name, widget_name):
     except Exception, e:
         contents = render_template('opensocial/widget-error.xml',message=e)
         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
-@opensocial_blueprint.route("/pub/<lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
+@opensocial_blueprint.route("/pub/<path:lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     if not laboratory:
@@ -136,11 +136,11 @@ def public_widget_xml(lab_name, widget_name):
     except Exception, e:
         contents = render_template('opensocial/widget-error.xml',message=e)
         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
 
-@opensocial_blueprint.route("/pub/<rlms_identifier>/<lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
+@opensocial_blueprint.route("/pub/<rlms_identifier>/<path:lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
 def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
     rlms = db.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
     if not rlms:
@@ -159,7 +159,7 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
 #     except Exception, e:
 #         contents = render_template('opensocial/widget-error.xml',message=e)
 #         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
 
@@ -176,17 +176,17 @@ def booking_system(laboratory):
             raise ValueError('Error in request with url',url)
     return True
 
-@opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
+@opensocial_blueprint.route("/smartgateway/<institution_id>/<path:lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
     contents = render_template("opensocial/smartgateway.js", public_lab = False, public_rlms = False, institution_id = institution_id, lab_name = lab_name)
     return Response(contents, mimetype="application/javascript")
 
-@opensocial_blueprint.route("/public/smartgateway/<lab_name>/sg.js")
+@opensocial_blueprint.route("/public/smartgateway/<path:lab_name>/sg.js")
 def public_smartgateway(lab_name):
     contents = render_template("opensocial/smartgateway.js", public_lab = True, public_rlms = False, lab_name = lab_name)
     return Response(contents, mimetype="application/javascript")
 
-@opensocial_blueprint.route("/public/smartgateway/<rlms_identifier>/<lab_name>/sg.js")
+@opensocial_blueprint.route("/public/smartgateway/<rlms_identifier>/<path:lab_name>/sg.js")
 def public_rlms_smartgateway(rlms_identifier, lab_name):
     contents = render_template("opensocial/smartgateway.js", public_lab = False, public_rlms = True, lab_name = lab_name, rlms_identifier = rlms_identifier)
     return Response(contents, mimetype="application/javascript")
@@ -196,15 +196,15 @@ def reload():
     return render_template("opensocial/reload.html")
 
 
-@opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/")
+@opensocial_blueprint.route("/reservations/new/<institution_id>/<path:lab_name>/")
 def reserve(institution_id, lab_name):
     return _reserve_impl(lab_name, institution_id = institution_id)
 
-@opensocial_blueprint.route("/public/reservations/new/<lab_name>/")
+@opensocial_blueprint.route("/public/reservations/new/<path:lab_name>/")
 def public_reserve(lab_name):
     return _reserve_impl(lab_name, public_lab = True)
 
-@opensocial_blueprint.route("/public/reservations/new/<rlms_identifier>/<lab_name>/")
+@opensocial_blueprint.route("/public/reservations/new/<rlms_identifier>/<path:lab_name>/")
 def public_rlms_reserve(rlms_identifier, lab_name):
     return _reserve_impl(lab_name, public_rlms = True, rlms_identifier = rlms_identifier)
 
@@ -336,15 +336,15 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
     else:
         return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
 
-@opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
+@opensocial_blueprint.route("/reservations/existing/<institution_id>/<path:lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
     return _open_widget_impl(lab_name, widget_name, institution_id = institution_id)
 
-@opensocial_blueprint.route("/public/reservations/existing/<lab_name>/<widget_name>/")
+@opensocial_blueprint.route("/public/reservations/existing/<path:lab_name>/<widget_name>/")
 def open_public_widget(lab_name, widget_name):
     return _open_widget_impl(lab_name, widget_name, public_lab = True)
 
-@opensocial_blueprint.route("/public/reservations/existing/<rlms_identifier>/<lab_name>/<widget_name>/")
+@opensocial_blueprint.route("/public/reservations/existing/<rlms_identifier>/<path:lab_name>/<widget_name>/")
 def open_public_rlms_widget(rlms_identifier, lab_name, widget_name):
     return _open_widget_impl(lab_name, widget_name, public_lab = True, rlms_identifier = rlms_identifier)
 
