@@ -211,18 +211,22 @@ def public_rlms_reserve(rlms_identifier, lab_name):
 def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None):
     # TODO XXX SECURITY BUG: THIS METHOD DOES NOT USE THE BOOKING THING
     st = request.args.get('st') or ''
+    SHINDIG.url = 'https://shindig.epfl.ch'
+
     if public_rlms:
         db_rlms = db.session.query(RLMS).filter_by(publicly_available = True, public_identifier = rlms_identifier).first()
         if db_rlms is None:
             return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
         lab_identifier = lab_name
+
+        ple_configuration = '{}'
+        institution_name  = 'public-labs' # TODO: make sure that this name is unique
+        courses_configurations = []
     else:
         if public_lab:
             db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
             if db_laboratory is None:
                 return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
-
-            SHINDIG.url = 'https://shindig.epfl.ch'
 
             ple_configuration = '{}'
             institution_name  = 'public-labs' # TODO: make sure that this name is unique
@@ -278,7 +282,7 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
         lab_identifier = db_laboratory.laboratory_id
         db_rlms = db_laboratory.rlms
     # Obtain user data
-    if st == 'null' and public_lab:
+    if st == 'null' and (public_lab or public_rlms):
         user_id = 'no-id'
     else:
         try:
