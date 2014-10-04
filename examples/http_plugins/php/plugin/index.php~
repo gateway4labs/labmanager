@@ -1,0 +1,28 @@
+<?php
+//require 'vendor/autoload.php';
+require 'Slim/Slim.php';
+require 'service.php';
+require 'Slim/Middleware.php';
+require 'Slim/Middleware/HttpBasicAuth.php';
+
+\Slim\Slim::registerAutoloader();
+
+
+$app = new \Slim\Slim(array('debug'=> true));
+
+
+$app->add(new \HttpBasicAuth());
+
+
+$app->get('/', function () {
+
+    echo "Gateway4labs PHP plugin";
+});
+$app->contentType('application/json');
+$app->get('/plugin/test_plugin', function () {
+
+    echo test_plugin();
+});
+
+$app->run();
+
