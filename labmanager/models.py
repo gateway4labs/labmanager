@@ -107,7 +107,7 @@ class RLMS(db.Model, SBBase):
 
     publicly_available = db.Column(db.Boolean, nullable = False, index = True, default = False)
     # Not unique (otherwise there couldn't be two empty names)
-    public_identifier  = db.Column(db.Unicode(50), nullable = False, default = u'', unique = True)
+    public_identifier  = db.Column(db.Unicode(50), nullable = False, default = u'')
 
     def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}', publicly_available = False, public_identifier = u''):
         self.kind = kind
