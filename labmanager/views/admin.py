@@ -348,7 +348,7 @@ class RLMSPanel(L4lModelView):
                 try:
                     error_messages = rlms_instance.test() or []
                 except Exception as e:
-                    error_messages.append(gettext("Error testing the RLMS: %s") % e)
+                    error_messages.append(u'%s%s' % (gettext("Error testing the RLMS:"), e))
                     traceback.print_exc()
 
             if form.publicly_available.data and len(form.public_identifier.data) == 0:
