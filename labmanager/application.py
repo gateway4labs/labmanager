@@ -14,9 +14,11 @@
 
 import os
 
+from labmanager.utils import FullyQuotedUrlConverter
 from flask import Flask, render_template, redirect, url_for
 
 app = Flask(__name__)
+app.url_map.converters['quoted_url'] = FullyQuotedUrlConverter
 app.config.from_object('config')
 
 # Try to support SQLALCHEMY_ENGINE_STR

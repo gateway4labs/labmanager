@@ -75,7 +75,7 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
         self.password = password
 
     def __repr__(self):
-        return "LabMUser(%(userlogin)r, %(username)r, %(userpassword)r)" % dict(userlogin=self.login, username=self.name, userpassword=self.password)
+        return "LabManagerUser(%(userlogin)r, %(username)r, %(userpassword)r)" % dict(userlogin=self.login, username=self.name, userpassword=self.password)
 
     def __unicode__(self):
         return self.name
@@ -105,15 +105,21 @@ class RLMS(db.Model, SBBase):
     version = db.Column(db.Unicode(50), nullable = False)
     configuration = db.Column(db.Unicode(10 * 1024))
 
-    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}'):
+    publicly_available = db.Column(db.Boolean, nullable = False, index = True, default = False)
+    # Not unique (otherwise there couldn't be two empty names)
+    public_identifier  = db.Column(db.Unicode(50), nullable = False, default = u'')
+
+    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}', publicly_available = False, public_identifier = u''):
         self.kind = kind
         self.location = location
         self.url = url
         self.version = version
         self.configuration = configuration
+        self.publicly_available = publicly_available
+        self.public_identifier = public_identifier
 
     def __repr__(self):
-        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration)
+        return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r, publicly_available=%(publicly_available)r, public_identifier = %(public_identifier)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration, publicly_available = self.publicly_available, public_identifier = self.public_identifier)
 
     def __unicode__(self):
         return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)
@@ -138,6 +144,7 @@ class Laboratory(db.Model, SBBase):
     available                = db.Column(db.Boolean, nullable = False, index = True, default = False)
     default_local_identifier = db.Column(db.Unicode(50), nullable = False, default = u"")
     publicly_available       = db.Column(db.Boolean, nullable = False, index = True, default = False)
+    # Not unique: otherwise there wouldn't be more than one with '' as value
     public_identifier        = db.Column(db.Unicode(50), nullable = False, default = u"")
     go_lab_reservation       = db.Column(db.Boolean, nullable = False, index = True, default = False)
 
