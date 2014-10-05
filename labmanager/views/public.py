@@ -147,7 +147,7 @@ class PublicSystemsPanel(ModelView):
         return self.render("public/list_labs.html", rlms = rlms_db, labs = labs, query = query, force_search = force_search, pages = pages, page = page, public_identifier = public_identifier)
 
 
-    @expose("/system/<rlms_identifier>/widgets/<path:lab_identifier>/")
+    @expose("/system/<rlms_identifier>/widgets/<quoted_url:lab_identifier>/")
     def list_widgets(self, rlms_identifier, lab_identifier):
         rlms_db = self.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
         if rlms_db is None:
