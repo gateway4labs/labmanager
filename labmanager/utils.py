@@ -18,7 +18,7 @@ def data_filename(fname):
 
 class FullyQuotedUrlConverter(PathConverter):
     def to_python(self, value):
-        return url_unquote(value)
+        return url_unquote(url_unquote(url_unquote(value)))
 
     def to_url(self, value):
-        return url_quote(value, self.map.charset, safe='')
+        return url_quote(url_quote(url_quote(value, self.map.charset, safe=''), self.map.charset, safe=''), self.map.charset, safe='')
