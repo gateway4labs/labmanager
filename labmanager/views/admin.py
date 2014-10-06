@@ -592,7 +592,7 @@ def public_availability_formatter(v, c, lab, p):
 def go_lab_reservation_formater(v, c, lab, p):
     if lab.go_lab_reservation:
         klass = 'btn-danger'
-        msg = gettext('Desactivate')
+        msg = gettext('Deactivate')
     else:
         klass = 'btn-success'
         msg = gettext('Activate')
