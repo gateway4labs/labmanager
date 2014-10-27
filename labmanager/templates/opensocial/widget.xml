@@ -72,6 +72,7 @@
             iFrameResize({
                 log : false,
                 enablePublicMethods : true,
+                checkOrigin: false,
                 resizedCallback         : function(messageData){ // Callback fn when resize is received
                     gadgets.window.adjustHeight();
                 }
