@@ -9,4 +9,9 @@
     <Realm className="org.apache.catalina.realm.MemoryRealm"
 		   pathname="wtpwebapps/java_plugin/WEB-INF/users.xml"/>
 		   -->
+		   
+    <!-- Use in tomcat in linux
+    <Realm className="org.apache.catalina.realm.MemoryRealm"
+		   pathname="webapps/java_plugin/WEB-INF/users.xml"/>
+		   -->
 </Context>
