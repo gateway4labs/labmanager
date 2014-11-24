@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-  <project name="java_lab" basedir="." default="usage" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <project name="java_plugin" basedir="." default="usage" xmlns:ivy="antlib:org.apache.ivy.ant">
     <property file="build.properties"/>
     <property name="src.dir" value="src"/>
     <property name="web.dir" value="WebContent"/>
     <property name="build.lib" value="${web.dir}/WEB-INF/lib/"/>
     <property name="build.dir" value="${web.dir}/WEB-INF/classes"/>
-    <property name="name" value="java_lab"/>
+    <property name="name" value="java_plugin"/>
     <property environment="env"/>
 
     <condition property="isWindows">
