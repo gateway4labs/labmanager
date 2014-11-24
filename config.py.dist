@@ -3,6 +3,17 @@ import os
 # Have you run... "pip install git+https://github.com/gateway4labs/rlms_weblabdeusto.git" first?
 RLMS = ['weblabdeusto','unr','ilabs','phet','vish']
 
+
+# Where will the admin error notification mails come from.
+SENDER_ADDR = "G4L@no-reply.com"
+
+# SMTP Server through which to send mails.
+SMTP_SERVER = None
+
+# List of Admins to send mails to when an error occurs.
+ADMINS = []
+
+
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
 USE_PYMYSQL = os.environ.get('USE_PYMYSQL', True)
 

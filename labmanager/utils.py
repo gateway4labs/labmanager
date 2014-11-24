@@ -1,5 +1,8 @@
 import os
 import sys
+from werkzeug.urls import url_quote, url_unquote
+from werkzeug.routing import PathConverter
+
 
 def data_filename(fname):
     basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -11,3 +14,11 @@ def data_filename(fname):
         return os.path.abspath(os.path.join(basedir, fname))
     else:
         return fname
+
+
+class FullyQuotedUrlConverter(PathConverter):
+    def to_python(self, value):
+        return url_unquote(url_unquote(url_unquote(value)))
+
+    def to_url(self, value):
+        return url_quote(url_quote(url_quote(value, self.map.charset, safe=''), self.map.charset, safe=''), self.map.charset, safe='')

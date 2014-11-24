@@ -12,7 +12,9 @@
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
-{% if public %}
+{% if public_rlms %}
+    <script type="text/javascript" src="{{ url_for('.public_rlms_smartgateway', rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
+{% elif public_lab %}
     <script type="text/javascript" src="{{ url_for('.public_smartgateway', lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
 {% else %}
     <script type="text/javascript" src="{{ url_for('.smartgateway', institution_id = institution_id, lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
@@ -44,7 +46,9 @@
         // Register a callback: whenever a widget has a reservationId, this method is called 
         sg.registerOnLoad( function(reservationId) {
             
-            {% if public %}
+            {% if public_rlms %}
+            var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + localeString;
+            {% elif public_lab %}
             var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + localeString;
             {% else %}
             var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + localeString;
@@ -68,6 +72,7 @@
             iFrameResize({
                 log : false,
                 enablePublicMethods : true,
+                checkOrigin: false,
                 resizedCallback         : function(messageData){ // Callback fn when resize is received
                     gadgets.window.adjustHeight();
                 }

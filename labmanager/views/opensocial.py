@@ -9,7 +9,7 @@ import requests
 from flask import Blueprint, request, redirect, render_template, url_for, Response
 from flask.ext.wtf import Form, validators, TextField, PasswordField
 from labmanager.db import db
-from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory
+from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory, RLMS
 from labmanager.rlms import get_manager_class, Capabilities
 import labmanager.forms as forms
 from labmanager.babel import gettext, lazy_gettext
@@ -40,7 +40,7 @@ def get_parent_spaces(space_id, spaces):
 
 opensocial_blueprint = Blueprint('opensocial', __name__)
 
-def _extract_widget_config(laboratory, widget_name):
+def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_found):
     autoload = None
     if request.args.get('autoload'):
         autoload = request.args['autoload'].lower() == 'true'
@@ -55,10 +55,10 @@ def _extract_widget_config(laboratory, widget_name):
     base_data = {}
     if height is not None:
         base_data['height'] = height
-    if not laboratory:
+
+    if not lab_found:
         return base_data
 
-    rlms_db = laboratory.rlms
     RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
     rlms = RLMS_CLASS(rlms_db.configuration)
 
@@ -67,7 +67,7 @@ def _extract_widget_config(laboratory, widget_name):
         if autoload is None:
             autoload = True # By default in those cases where a search is mandatory
     else:
-        labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory.laboratory_id ]
+        labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory_identifier ]
         if not labs:
             # The laboratory has changed
             return None
@@ -75,7 +75,7 @@ def _extract_widget_config(laboratory, widget_name):
         if autoload is None:
             autoload = labs[0].autoload
 
-    widgets = rlms.list_widgets(laboratory.laboratory_id)
+    widgets = rlms.list_widgets(laboratory_identifier)
     for widget in widgets:
         if widget['name'] == widget_name:
             widget['autoload'] = autoload
@@ -89,47 +89,79 @@ def _extract_widget_config(laboratory, widget_name):
     return base_data
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
+@opensocial_blueprint.route("/w/<institution_id>/<lab_name>/w_<widget_name>.xml")
 def widget_xml(institution_id, lab_name, widget_name):
     public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     laboratory = public_lab
     if public_lab:
-        widget_config = _extract_widget_config(public_lab, widget_name) 
+        widget_config = _extract_widget_config(public_lab.rlms, public_lab.laboratory_id, widget_name, True) 
     else:
         widget_config = {} # Default value
         institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
         if institution:
             permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
             if permission:
-                widget_config = _extract_widget_config(permission.laboratory, widget_name)
+                widget_config = _extract_widget_config(permission.laboratory.rlms, permission.laboratory.laboratory_id, widget_name, False)
                 laboratory = permission.laboratory 
 
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO
     if not laboratory:
-        return render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
+        contents = render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
+        return Response(contents, mimetype="application/xml")
     try:
         if not booking_system(laboratory):    
-            return render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+            contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+            return Response(contents, mimetype="application/xml")
     except Exception, e:
-        return render_template('opensocial/widget-error.xml',message=e)
-    contents = render_template('/opensocial/widget.xml', public = False, institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+        contents = render_template('opensocial/widget-error.xml',message=e)
+        return Response(contents, mimetype="application/xml")
+    contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
+@opensocial_blueprint.route("/pub/<lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     if not laboratory:
-        return render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
-    widget_config = _extract_widget_config(laboratory, widget_name)     
+        contents = render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
+        return Response(contents, mimetype="application/xml")
+    widget_config = _extract_widget_config(laboratory.rlms, laboratory.laboratory_id, widget_name, True)     
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO  
     try:
         if not booking_system(laboratory):    
-            return render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+            contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+            return Response(contents, mimetype="application/xml")
     except Exception, e:
-        return render_template('opensocial/widget-error.xml',message=e)
-    contents = render_template('/opensocial/widget.xml', public = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+        contents = render_template('opensocial/widget-error.xml',message=e)
+        return Response(contents, mimetype="application/xml")
+    contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
     return Response(contents, mimetype="application/xml")
+
+
+@opensocial_blueprint.route("/pub/<rlms_identifier>/<quoted_url:lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
+def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
+    rlms = db.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
+    if not rlms:
+        contents = render_template('opensocial/widget-error.xml',message="RLMS %s not found or not public" % rlms_identifier)
+        return Response(contents, mimetype="application/xml")
+
+    widget_config = _extract_widget_config(rlms, lab_name, widget_name, True)     
+    if widget_config is None:
+        return "Error: widget does not exist anymore" # TODO  
+
+#   XXX We do not support booking on the public labs yet
+#     try:
+#         if not booking_system(laboratory):    
+#             contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
+#             return Response(contents, mimetype="application/xml")
+#     except Exception, e:
+#         contents = render_template('opensocial/widget-error.xml',message=e)
+#         return Response(contents, mimetype="application/xml")
+    contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    return Response(contents, mimetype="application/xml")
+
 
 def booking_system(laboratory):
     if laboratory.go_lab_reservation:
@@ -146,12 +178,17 @@ def booking_system(laboratory):
 
 @opensocial_blueprint.route("/smartgateway/<institution_id>/<lab_name>/sg.js")
 def smartgateway(institution_id, lab_name):
-    contents = render_template("opensocial/smartgateway.js", public = False, institution_id = institution_id, lab_name = lab_name)
+    contents = render_template("opensocial/smartgateway.js", public_lab = False, public_rlms = False, institution_id = institution_id, lab_name = lab_name)
     return Response(contents, mimetype="application/javascript")
 
 @opensocial_blueprint.route("/public/smartgateway/<lab_name>/sg.js")
 def public_smartgateway(lab_name):
-    contents = render_template("opensocial/smartgateway.js", public = True, lab_name = lab_name)
+    contents = render_template("opensocial/smartgateway.js", public_lab = True, public_rlms = False, lab_name = lab_name)
+    return Response(contents, mimetype="application/javascript")
+
+@opensocial_blueprint.route("/public/smartgateway/<rlms_identifier>/<quoted_url:lab_name>/sg.js")
+def public_rlms_smartgateway(rlms_identifier, lab_name):
+    contents = render_template("opensocial/smartgateway.js", public_lab = False, public_rlms = True, lab_name = lab_name, rlms_identifier = rlms_identifier)
     return Response(contents, mimetype="application/javascript")
 
 @opensocial_blueprint.route("/reload")
@@ -161,74 +198,91 @@ def reload():
 
 @opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/")
 def reserve(institution_id, lab_name):
-    return _reserve_impl(lab_name, False, institution_id)
+    return _reserve_impl(lab_name, institution_id = institution_id)
 
 @opensocial_blueprint.route("/public/reservations/new/<lab_name>/")
 def public_reserve(lab_name):
-    return _reserve_impl(lab_name, True, None)
+    return _reserve_impl(lab_name, public_lab = True)
 
-def _reserve_impl(lab_name, public, institution_id):
+@opensocial_blueprint.route("/public/reservations/new/<rlms_identifier>/<quoted_url:lab_name>/")
+def public_rlms_reserve(rlms_identifier, lab_name):
+    return _reserve_impl(lab_name, public_rlms = True, rlms_identifier = rlms_identifier)
+
+def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None):
+    # TODO XXX SECURITY BUG: THIS METHOD DOES NOT USE THE BOOKING THING
     st = request.args.get('st') or ''
-    if public:
-        db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
-        if db_laboratory is None:
-            return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
+    SHINDIG.url = 'https://shindig.epfl.ch'
 
-        SHINDIG.url = 'https://shindig.epfl.ch'
+    if public_rlms:
+        db_rlms = db.session.query(RLMS).filter_by(publicly_available = True, public_identifier = rlms_identifier).first()
+        if db_rlms is None:
+            return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
+        lab_identifier = lab_name
 
         ple_configuration = '{}'
         institution_name  = 'public-labs' # TODO: make sure that this name is unique
         courses_configurations = []
     else:
-        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
-        if institution is None or len(institution.shindig_credentials) < 1:
-            return render_template("opensocial/errors.html", message = gettext("This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"))
+        if public_lab:
+            db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
+            if db_laboratory is None:
+                return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
 
-        SHINDIG.url = institution.shindig_credentials[0].shindig_url
+            ple_configuration = '{}'
+            institution_name  = 'public-labs' # TODO: make sure that this name is unique
+            courses_configurations = []
+        else:
+            institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
+            if institution is None or len(institution.shindig_credentials) < 1:
+                return render_template("opensocial/errors.html", message = gettext("This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"))
 
-        # Obtain current application data (especially, on which space is the user running it)
-        current_app_str  = urllib2.urlopen(url_shindig('/rest/apps/@self?st=%s' % st)).read()
-        current_app_data = json.loads(current_app_str)
-        space_id = current_app_data['entry'].get('parentId') or 'null parent'
-        parent_type = current_app_data['entry'].get('parentType')
-        if parent_type != '@space':
-            return render_template("opensocial/errors.html", message = gettext("Invalid parent: it should be a space, and it is a %(parenttype)s", parenttype=parent_type))
-        # Obtain the list of parent spaces of that space
-        spaces = [space_id]
-        get_parent_spaces(space_id, spaces)
-        # Now, check permissions:
-        # First, check if the lab is public (e.g. the lab can be accessed by anyone)
-        # Second, check accesibility permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
-        # After that, in the case that there are not accesibility permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
-        public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
-        courses_configurations = []
-        if public_lab is None:
-            # No public access is granted for the lab, check accesibility permissions
-            accessible_permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
-            if accessible_permission is None:
-                permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
-                if permission is None:
-                    return render_template("opensocial/errors.html", message = gettext("Your PLE is valid, but don't have permissions for the requested laboratory."))
-                for course_permission in permission.course_permissions:
-                    if course_permission.course.context_id in spaces:
-                        # Let the server choose among the best possible configuration
-                        courses_configurations.append(course_permission.configuration)
-                if len(courses_configurations) == 0:
-                    return render_template("opensocial/errors.html", message = gettext("Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %(space)r)", space=spaces))
-            else:
-                # There is a accesibility permission for that lab and institution
-                permission = accessible_permission
+            SHINDIG.url = institution.shindig_credentials[0].shindig_url
 
-            ple_configuration = permission.configuration
-            db_laboratory     = permission.laboratory
-            institution_name  = institution.name
-        else: 
-            # There is a public permission for the lab
-            ple_configuration = []
-            db_laboratory     = public_lab
-            institution_name  = institution.name            
+            # Obtain current application data (especially, on which space is the user running it)
+            current_app_str  = urllib2.urlopen(url_shindig('/rest/apps/@self?st=%s' % st)).read()
+            current_app_data = json.loads(current_app_str)
+            space_id = current_app_data['entry'].get('parentId') or 'null parent'
+            parent_type = current_app_data['entry'].get('parentType')
+            if parent_type != '@space':
+                return render_template("opensocial/errors.html", message = gettext("Invalid parent: it should be a space, and it is a %(parenttype)s", parenttype=parent_type))
+            # Obtain the list of parent spaces of that space
+            spaces = [space_id]
+            get_parent_spaces(space_id, spaces)
+            # Now, check permissions:
+            # First, check if the lab is public (e.g. the lab can be accessed by anyone)
+            # Second, check accesibility permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
+            # After that, in the case that there are not accesibility permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
+            public_lab_db = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+            courses_configurations = []
+            if public_lab_db is None:
+                # No public access is granted for the lab, check accesibility permissions
+                accessible_permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
+                if accessible_permission is None:
+                    permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+                    if permission is None:
+                        return render_template("opensocial/errors.html", message = gettext("Your PLE is valid, but don't have permissions for the requested laboratory."))
+                    for course_permission in permission.course_permissions:
+                        if course_permission.course.context_id in spaces:
+                            # Let the server choose among the best possible configuration
+                            courses_configurations.append(course_permission.configuration)
+                    if len(courses_configurations) == 0:
+                        return render_template("opensocial/errors.html", message = gettext("Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %(space)r)", space=spaces))
+                else:
+                    # There is a accesibility permission for that lab and institution
+                    permission = accessible_permission
+
+                ple_configuration = permission.configuration
+                db_laboratory     = permission.laboratory
+                institution_name  = institution.name
+            else: 
+                # There is a public permission for the lab
+                ple_configuration = []
+                db_laboratory     = public_lab_db
+                institution_name  = institution.name
+        lab_identifier = db_laboratory.laboratory_id
+        db_rlms = db_laboratory.rlms
     # Obtain user data
-    if st == 'null' and public:
+    if st == 'null' and (public_lab or public_rlms):
         user_id = 'no-id'
     else:
         try:
@@ -236,10 +290,14 @@ def _reserve_impl(lab_name, public, institution_id):
             current_user_data = json.loads(current_user_str)
         except:
             traceback.print_exc()
-            return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
-        # name    = current_user_data['entry'].get('displayName') or 'anonymous'
-        user_id = current_user_data['entry'].get('id') or 'no-id'
-    db_rlms           = db_laboratory.rlms
+            if public_lab or public_rlms:
+                user_id = 'no-id'
+            else:
+                return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
+        else:
+            # name    = current_user_data['entry'].get('displayName') or 'anonymous'
+            user_id = current_user_data['entry'].get('id') or 'no-id'
+
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
     user_agent = unicode(request.user_agent)
@@ -267,7 +325,7 @@ def _reserve_impl(lab_name, public, institution_id):
         request_payload = {}
 
     try:
-        response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,
+        response = remote_laboratory.reserve(laboratory_id                = lab_identifier,
                                                 username                  = user_id,
                                                 institution               = institution_name,
                                                 general_configuration_str = ple_configuration,
@@ -288,25 +346,36 @@ def _reserve_impl(lab_name, public, institution_id):
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
-    return _open_widget_impl(lab_name, widget_name, False, institution_id)
+    return _open_widget_impl(lab_name, widget_name, institution_id = institution_id)
 
 @opensocial_blueprint.route("/public/reservations/existing/<lab_name>/<widget_name>/")
 def open_public_widget(lab_name, widget_name):
-    return _open_widget_impl(lab_name, widget_name, True, None)
+    return _open_widget_impl(lab_name, widget_name, public_lab = True)
 
-def _open_widget_impl(lab_name, widget_name, public, institution_id):
-    if public:
-        db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
+@opensocial_blueprint.route("/public/reservations/existing/<rlms_identifier>/<quoted_url:lab_name>/<widget_name>/")
+def open_public_rlms_widget(rlms_identifier, lab_name, widget_name):
+    return _open_widget_impl(lab_name, widget_name, public_rlms = True, rlms_identifier = rlms_identifier)
+
+def _open_widget_impl(lab_name, widget_name, public_lab = False, public_rlms = False, institution_id = None, rlms_identifier = None):
+    if public_rlms:
+        db_rlms = db.session.query(RLMS).filter_by(publicly_available = True, public_identifier = rlms_identifier).first()
+        if db_rlms is None:
+            return gettext("RLMS not found")
     else:
-        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
-        if institution is None or len(institution.shindig_credentials) == 0:
-            return gettext("Institution not found or it does not support Shindig")
-        permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
-        db_laboratory     = permission.laboratory if permission is not None else None
+        if public_lab:
+            db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
+        else:
+            institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
+            if institution is None or len(institution.shindig_credentials) == 0:
+                return gettext("Institution not found or it does not support Shindig")
+            permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+            db_laboratory     = permission.laboratory if permission is not None else None
 
-    if db_laboratory is None:
-        return gettext("Laboratory not found")
-    db_rlms           = db_laboratory.rlms
+        if db_laboratory is None:
+            return gettext("Laboratory not found")
+
+        db_rlms           = db_laboratory.rlms
+
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
     ManagerClass = get_manager_class(rlms_kind, rlms_version)
