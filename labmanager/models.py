@@ -109,9 +109,9 @@ class RLMS(db.Model, SBBase):
     # Not unique (otherwise there couldn't be two empty names)
     public_identifier  = db.Column(db.Unicode(50), nullable = False, default = u'')
 
-    default_autoload = db.Column(db.Boolean, nullable = True, index = True, default = False)
+    default_autoload = db.Column(db.Boolean, nullable = True, index = True, default = None)
 
-    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}', publicly_available = False, public_identifier = u'', default_autoload = False):
+    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}', publicly_available = False, public_identifier = u'', default_autoload = None):
         self.kind = kind
         self.location = location
         self.url = url
