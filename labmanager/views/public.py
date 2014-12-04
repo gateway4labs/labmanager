@@ -36,13 +36,17 @@ def public_id_formatter(v, c, laboratory, p):
 def list_widgets_formatter(v, c, laboratory, p):
     return Markup('<a href="%s">%s</a>' % (url_for('.list_widgets', public_identifier = public_id_formatter(v, c, laboratory, p)), gettext("list")))
 
+def rlms_formatter(v, c, laboratory, p):
+    rlms = laboratory.rlms
+    return Markup('<a href="%s">%s - %s</a> (%s)' % (rlms.url, rlms.kind, rlms.version, rlms.location))
+
 class PublicLaboratoriesPanel(ModelView):
     can_delete = False
     can_edit   = False
     can_create = False
     column_list = ('rlms', 'name', 'laboratory_id', 'public_identifier', 'widgets')
     column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), public_identifier=lazy_gettext('public_identifier'), widgets=lazy_gettext('widgets'))
-    column_formatters = dict( local_identifier = public_id_formatter, widgets = list_widgets_formatter )
+    column_formatters = dict( rlms = rlms_formatter, local_identifier = public_id_formatter, widgets = list_widgets_formatter )
 
     def __init__(self, session, **kwargs):
         super(PublicLaboratoriesPanel, self).__init__(Laboratory, session, **kwargs)
@@ -81,13 +85,16 @@ class PublicLaboratoriesPanel(ModelView):
 def list_labs_formatter(v, c, rlms, p):
     return Markup('<a href="%s">%s</a>' % (url_for('.list_labs', public_identifier = rlms.public_identifier), gettext("list")))
 
+def public_rlms_formatter(v, c, rlms, p):
+    return Markup('<a href="%s">%s - %s</a>' % (rlms.url, rlms.kind, rlms.version))
+
 class PublicSystemsPanel(ModelView):
     can_delete = False
     can_edit   = False
     can_create = False
-    column_list = ('kind', 'version', 'location', 'url', 'labs')
-    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'))
-    column_formatters = dict( labs = list_labs_formatter )
+    column_list = ('rlms', 'location', 'labs')
+    column_labels  = dict(kind=lazy_gettext('rlms'), labs=lazy_gettext('labs'))
+    column_formatters = dict( labs = list_labs_formatter, rlms = public_rlms_formatter )
 
     def __init__(self, session, **kwargs):
         super(PublicSystemsPanel, self).__init__(RLMS, session, **kwargs)
