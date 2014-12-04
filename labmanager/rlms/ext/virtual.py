@@ -51,6 +51,8 @@ FORM_CREATOR = VirtualFormCreator()
 
 class RLMS(BaseRLMS):
 
+    DEFAULT_AUTOLOAD = True
+
     def __init__(self, configuration):
         self.configuration = configuration
 
