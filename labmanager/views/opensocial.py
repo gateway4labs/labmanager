@@ -59,9 +59,11 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     if not lab_found:
         return base_data
 
+    if autoload is None and rlms_db.default_autoload is not None:
+        autoload = rlms_db.default_autoload
+
     RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
     rlms = RLMS_CLASS(rlms_db.configuration)
-
 
     if Capabilities.FORCE_SEARCH in rlms.get_capabilities():
         if autoload is None:
@@ -74,7 +76,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         # 
         # if autoload is None:
         #     autoload = labs[0].autoload
-        autoload = False
+        pass
 
     widgets = rlms.list_widgets(laboratory_identifier)
     for widget in widgets:
