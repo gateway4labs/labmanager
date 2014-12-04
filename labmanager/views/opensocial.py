@@ -290,9 +290,13 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
             current_user_data = json.loads(current_user_str)
         except:
             traceback.print_exc()
-            return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
-        # name    = current_user_data['entry'].get('displayName') or 'anonymous'
-        user_id = current_user_data['entry'].get('id') or 'no-id'
+            if public_lab or public_rlms:
+                user_id = 'no-id'
+            else:
+                return render_template("opensocial/errors.html", message = gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
+        else:
+            # name    = current_user_data['entry'].get('displayName') or 'anonymous'
+            user_id = current_user_data['entry'].get('id') or 'no-id'
 
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
