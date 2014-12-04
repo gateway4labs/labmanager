@@ -67,13 +67,14 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         if autoload is None:
             autoload = True # By default in those cases where a search is mandatory
     else:
-        labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory_identifier ]
-        if not labs:
-            # The laboratory has changed
-            return None
-
-        if autoload is None:
-            autoload = labs[0].autoload
+        # labs = [ lab for lab in rlms.get_laboratories() if lab.laboratory_id == laboratory_identifier ]
+        # if not labs:
+        #     # The laboratory has changed
+        #     return None
+        # 
+        # if autoload is None:
+        #     autoload = labs[0].autoload
+        autoload = False
 
     widgets = rlms.list_widgets(laboratory_identifier)
     for widget in widgets:
