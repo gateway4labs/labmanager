@@ -320,6 +320,7 @@ class RLMSPanel(L4lModelView):
         rlms_obj.location = rlms.location
         rlms_obj.publicly_available = rlms.publicly_available
         rlms_obj.public_identifier = rlms.public_identifier
+        rlms_obj.default_autoload = rlms.default_autoload
         for key in config:
             setattr(rlms_obj, key, config[key])
 
@@ -373,11 +374,13 @@ class RLMSPanel(L4lModelView):
                                 url = form.url.data, location = form.location.data,
                                 configuration = config_json, 
                                 publicly_available = form.publicly_available.data,
-                                public_identifier = form.public_identifier.data)
+                                public_identifier = form.public_identifier.data,
+                                default_autoload = form.default_autoload.data)
                 else:
                     rlms_obj = self.session.query(RLMS).filter_by(id = edit_id).first()
                     rlms_obj.url = form.url.data
                     rlms_obj.location = form.location.data
+                    rlms_obj.default_autoload = form.default_autoload.data
                     rlms_obj.publicly_available = form.publicly_available.data
                     rlms_obj.public_identifier = form.public_identifier.data
                     rlms_obj.configuration = config_json
