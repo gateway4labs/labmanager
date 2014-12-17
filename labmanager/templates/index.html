@@ -4,27 +4,33 @@
 {% block body_container %}
         <div class="row">
             <div class="hero-unit" align="center">
-                <p><img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="LMS4labs Logo" /></p> 
+                <p>
+                    <img height="150" src="{{ url_for('static', filename='golab.png') }}" alt="Go-Lab logo" />
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+                    <img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="gateway4labs logo" />
+                </p> 
                 <p>{{gettext('Welcome to the LabManager!')}}</p>
             </div>
         </div>
         <div class="row">
             <div class="span4">
-                <h2>{{gettext('Graasp public labs')}}</h2>
-                <p>{{gettext('Here you can find the list of public labs available for Graasp without registration.')}}</p>
+                <h2>{{gettext('Go-Lab public labs')}}</h2>
+                <p>{{gettext('Here you can find the list of public labs available for Go-Lab without registration.')}}</p>
                 <p><a href="{{ url_for('public_admin.index') }}">{{gettext('See public labs')}}</a></p>
             </div>
 
             <div class="span4">
-                <h2>{{gettext('Graasp registration')}}</h2>
-                <p>{{gettext('Register your school using Graasp')}}</p>
+                <h2>{{gettext('Go-Lab registration')}}</h2>
+                <p>{{gettext('Register your school using Go-Lab')}}</p>
                 <p><a href="{{ url_for('opensocial.register') }}">{{gettext('Register')}}</a></p>
             </div>
 
             <div class="span4">
-                <h2>{{gettext('Graasp users')}}</h2>
-                <p>{{gettext('School owners using Graasp will select which courses or other users are registered')}}</p>
-                <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">{{gettext('Manage Graasp access')}}</a></p>
+                <h2>{{gettext('Go-Lab users')}}</h2>
+                <p>{{gettext('School owners using Go-Lab will select which courses or other users are registered')}}</p>
+                <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">{{gettext('Manage Go-Lab access')}}</a></p>
             </div>
 
         </div>
