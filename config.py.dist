@@ -13,6 +13,8 @@ SMTP_SERVER = None
 # List of Admins to send mails to when an error occurs.
 ADMINS = []
 
+# Use in the context of the Go-Lab project (which has partially funded this project; see http://www.go-lab-project.eu/ )
+GOLAB = False
 
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
 USE_PYMYSQL = os.environ.get('USE_PYMYSQL', True)

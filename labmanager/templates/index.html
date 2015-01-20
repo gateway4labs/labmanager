@@ -5,15 +5,18 @@
         <div class="row">
             <div class="hero-unit" align="center">
                 <p>
+                    {% if golab %}
                     <img height="150" src="{{ url_for('static', filename='golab.png') }}" alt="Go-Lab logo" />
                     &nbsp;
                     &nbsp;
                     &nbsp;
+                    {% endif %}
                     <img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="gateway4labs logo" />
                 </p> 
                 <p>{{gettext('Welcome to the LabManager!')}}</p>
             </div>
         </div>
+        {% if golab %}
         <div class="row">
             <div class="span4">
                 <h2>{{gettext('Go-Lab public labs')}}</h2>
@@ -32,8 +35,8 @@
                 <p>{{gettext('School owners using Go-Lab will select which courses or other users are registered')}}</p>
                 <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">{{gettext('Manage Go-Lab access')}}</a></p>
             </div>
-
         </div>
+        {% endif %}
         
         <div class="row">
             <div class="span4">
