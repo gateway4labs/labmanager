@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<title>Slim Framework for PHP 5</title>
+	<style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:40px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+	<script>
+	$(function() {
+	//GET
+	function getUrlVars() {
+		var vars = [], hash;
+		var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		for (var i = 0; i < hashes.length; i++) {
+			hash = hashes[i].split('=');
+			vars.push(hash[0]);
+			vars[hash[0]] = hash[1];
+		}
+		return vars;
+	}
+	var GETvars = getUrlVars();
+	var context_id = GETvars['context_id'];
+	//console.log('context_id: ' + context_id);
+	var reservation_id = GETvars['reservation_id'];
+	//console.log('reservation_id: ' + reservation_id);
+	//Get reservation_details
+	$.getJSON( 'getSettings?context_id='+context_id+'&reservation_id='+reservation_id, function( json ) {
+		//console.log('back_url: ' + json.back_url);
+		//console.log('base_url: ' + json.base_url);
+		$('#back_url').attr('href', json.back_url);
+		var form_url = json.base_url+'/settings?context_id='+context_id+'&reservation_id='+reservation_id;
+		//console.log('form_url: ' + form_url);
+		$('#form1').attr('action', form_url);
+		var test_config = json.base_url+'/test_config';
+		$('#test_config').text(test_config);
+		$('#test_config').attr('href', test_config);
+	});
+	});
+	</script>
+</head>
+
+<body>
+	<h1>Plug-in setup (<a id="back_url" href="#">back</a>)</h1>
+	<h2>Configuration Settings</h2>
+	<p>This is just a demo of how the plug-in can be configured in its own screen. This screen is only accessed by the LabManager administrator to configure the screen. It's not even needed in most scenarios, but sometimes the plug-in could have more than one user (e.g., different LabManagers), and different setups for different LabManagers.</p>
+	<p>This case is simpler, though. You only need to put a password, which by default is password, so the HTTP plug-in can interact with the final laboratory.</p>
+
+	<form id="form1" method="POST" action="#">
+	<ul>
+		<li>Password: <input type="text" name="password"></input><br>
+			<button type="submit">Submit</button>
+		</li>
+	</ul>
+	</form>
+
+	<p>You can test if the configuration is valid or not using the /test-config method here:</p>
+	<ul>
+		<li><a id="test_config" target="_blank" href="#">#</a></li>
+	</ul>
+</body>
+</html>
