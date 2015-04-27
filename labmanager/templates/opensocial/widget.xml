@@ -1,6 +1,5 @@
 <Module>
  <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
- <Require feature="opensocial-0.9" />
  <Require feature="osapi" />
  <Require feature="pubsub" />
  <Require feature="dynamic-height" />
@@ -56,7 +55,7 @@
 
             $("#container").html("");
             // Now show it
-            var contents = $("<iframe id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}500px{% endif %}' width='100%'>");
+            var contents = $("<iframe id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}500px{% endif %}' width='99.5%'>");
             trace("I'm going to set as innerHTML: " + contents);
             $("#container").append(contents); 
             gadgets.window.adjustHeight();
@@ -88,7 +87,7 @@
     gadgets.util.registerOnLoadHandler(init);
     trace("Registered.");
 </script>
- <div id="container">Loading...</div>
+ <div id="container" style="text-align: center">Loading...</div>
  ]]>
 </Content>
 </Module>

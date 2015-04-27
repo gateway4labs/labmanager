@@ -1,6 +1,6 @@
 <Module>
  <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
- <Require feature="opensocial-0.9" />
+<!-- <Require feature="opensocial-0.9" /> -->
  <Require feature="osapi" />
  <Require feature="pubsub" />
  </ModulePrefs>
