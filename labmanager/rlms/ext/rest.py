@@ -25,7 +25,7 @@ class HttpAddForm(AddForm):
     base_url = TextField("Base URL",    validators = [Required(), URL(False) ])
     login    = TextField("Login",    validators = [Required() ])
     password = PasswordField("Password",    validators = [])
-    extension = PasswordField("Extension",    validators = [], description = "If required, provide an extension (e.g., .php) to the HTTP API")
+    extension = TextField("Extension",    validators = [], description = "If required, provide an extension (e.g., .php) to the HTTP API")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(HttpAddForm, self).__init__(*args, **kwargs)
