@@ -13,7 +13,7 @@ import urllib2
 import requests
 import traceback
 
-from flask.ext.wtf import TextField, Required, URL, PasswordField
+from flask.ext.wtf import TextField, Required, URL, PasswordField, SelectField
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
 from labmanager.rlms import register, Laboratory, BaseRLMS, BaseFormCreator, Versions
@@ -27,6 +27,7 @@ class HttpAddForm(AddForm):
     login    = TextField("Login",    validators = [Required() ])
     password = PasswordField("Password",    validators = [])
     extension = TextField("Extension",    validators = [], description = "If required, provide an extension (e.g., .php) to the HTTP API")
+    mode = SelectField("Mode",  choices=[('json', 'Pure JSON requests and responses'), ('json+form', 'JSON for responses, HTML forms for requests')], default = "json")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(HttpAddForm, self).__init__(*args, **kwargs)
@@ -68,6 +69,7 @@ class RLMS(BaseRLMS):
         self.password = config.get('password')
         self.extension = config.get('extension', '')
         self.context_id = str(config.get('context_id', ''))
+        self.mode = config.get('mode', 'json')
 
         if not self.base_url or not self.login or not self.password:
             raise Exception("Laboratory misconfigured: fields missing" )
@@ -102,7 +104,13 @@ class RLMS(BaseRLMS):
             context_remaining = remaining + '?context_id=' + self.context_id
 
         headers['Content-Type'] = 'application/json'
-        r = requests.post('%s%s' % (self.base_url, context_remaining), data = json.dumps(data), auth = (self.login, self.password), headers = headers)
+        if self.mode == 'json':
+            data = json.dumps(data)
+        elif self.mode == 'json+form':
+            data = data
+        else:
+            raise Exception("Misconfigured mode: %s" % self.mode)
+        r = requests.post('%s%s' % (self.base_url, context_remaining), data = data, auth = (self.login, self.password), headers = headers)
         return r.json()
 
     def get_version(self):
