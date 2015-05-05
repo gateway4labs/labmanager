@@ -214,7 +214,7 @@ def public_rlms_reserve(rlms_identifier, lab_name):
 def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None):
     # TODO XXX SECURITY BUG: THIS METHOD DOES NOT USE THE BOOKING THING
     st = request.args.get('st') or ''
-    SHINDIG.url = 'https://shindig.epfl.ch'
+    SHINDIG.url = 'http://shindig2.epfl.ch'
 
     if public_rlms:
         db_rlms = db.session.query(RLMS).filter_by(publicly_available = True, public_identifier = rlms_identifier).first()
@@ -413,7 +413,7 @@ def register():
             errors = True
         if not errors:
             lt = LearningTool(name = form.short_name.data, full_name = form.full_name.data, url = form.url.data)
-            shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'https://shindig.epfl.ch')
+            shindig_credentials = ShindigCredentials(lt = lt, shindig_url = 'http://shindig2.epfl.ch')
             lt_user = LtUser(login = form.user_login.data, full_name = form.user_full_name.data, lt = lt, access_level = 'admin')
             lt_user.password = unicode(hashlib.new('sha', form.user_password.data.encode('utf8')).hexdigest())
             for lab in db.session.query(Laboratory).filter_by(available = True).all():

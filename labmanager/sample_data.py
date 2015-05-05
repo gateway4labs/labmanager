@@ -178,7 +178,7 @@ def add_sample_users(silence = False):
         lt4 = LearningTool(full_name = u"School 1 at Graasp", name = u"school1", url = u"http://graasp.epfl.ch/")
         db.session.add(lt4)
 
-        credential = ShindigCredentials(lt = lt4, shindig_url = u'https://shindig.epfl.ch')
+        credential = ShindigCredentials(lt = lt4, shindig_url = u'http://shindig2.epfl.ch')
         db.session.add(credential)
 
         lt_admin4   = LtUser(login=u"admin", full_name=u"Administrator", lt = lt4, access_level = u'admin')
@@ -205,7 +205,7 @@ def add_sample_users(silence = False):
         lt5 = LearningTool(full_name = u"School 2 at Graasp", name = u"school2", url = u"http://graasp.epfl.ch/")
         db.session.add(lt5)
 
-        credential = ShindigCredentials(lt = lt5, shindig_url = u'http://shindig.epfl.ch')
+        credential = ShindigCredentials(lt = lt5, shindig_url = u'http://shindig2.epfl.ch')
         db.session.add(credential)
 
         lt_admin5  = LtUser(login=u"admin", full_name=u"Administrator", lt = lt5, access_level = u'admin')
