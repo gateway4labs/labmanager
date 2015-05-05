@@ -25,6 +25,7 @@ class HttpAddForm(AddForm):
     base_url = TextField("Base URL",    validators = [Required(), URL(False) ])
     login    = TextField("Login",    validators = [Required() ])
     password = PasswordField("Password",    validators = [])
+    extension = PasswordField("Extension",    validators = [], description = "If required, provide an extension (e.g., .php) to the HTTP API")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(HttpAddForm, self).__init__(*args, **kwargs)
@@ -64,12 +65,23 @@ class RLMS(BaseRLMS):
 
         self.login    = config.get('login')
         self.password = config.get('password')
+        self.extension = config.get('extension', '')
         self.context_id = str(config.get('context_id', ''))
 
         if not self.base_url or not self.login or not self.password:
             raise Exception("Laboratory misconfigured: fields missing" )
 
+    def _inject_extension(self, remaining):
+        method_and_get_query = remaining.split('?',1)
+        if len(method_and_get_query) == 1:
+            return method_and_get_query + self.extension
+        else: # 2
+            method, get_query = method_and_get_query
+            return method + self.extension + '?' + get_query
+
     def _request(self, remaining, headers = {}):
+        remaining = self._inject_extension(remaining)
+
         if '?' in remaining:
             context_remaining = remaining + '&context_id=' + self.context_id
         else:
@@ -79,6 +91,8 @@ class RLMS(BaseRLMS):
         return r.json()
 
     def _request_post(self, remaining, data, headers = None):
+        remaining = self._inject_extension(remaining)
+
         if headers is None:
             headers = {}
         if '?' in remaining:
