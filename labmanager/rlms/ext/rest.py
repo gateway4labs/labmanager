@@ -11,6 +11,7 @@ import json
 import urllib2
 
 import requests
+import traceback
 
 from flask.ext.wtf import TextField, Required, URL, PasswordField
 
@@ -140,9 +141,19 @@ class RLMS(BaseRLMS):
             'user_properties' : user_properties,
         }
         request.update(kwargs)
-        if kwargs.get('debug', False):
+        debug_mode = kwargs.get('debug', False)
+        if debug_mode:
             open('last_request.txt','w').write(json.dumps(request, indent = 4))
-        response = self._request_post('/reserve', request)
+        try:
+            response = self._request_post('/reserve', request)
+        except:
+            if debug_mode:
+                exc_info = traceback.format_exc()
+                open('last_request.txt','a').write(exc_info)
+            raise
+        else:
+            if debug_mode:
+                open('last_request.txt','a').write(json.dumps(response, indent = 4))
         return {
             'reservation_id' : response['reservation_id'],
             'load_url' : response['load_url']
