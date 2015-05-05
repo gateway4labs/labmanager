@@ -13,6 +13,7 @@ import urllib2
 import requests
 import traceback
 
+from flask import current_app
 from flask.ext.wtf import TextField, Required, URL, PasswordField, SelectField
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
@@ -149,7 +150,7 @@ class RLMS(BaseRLMS):
             'user_properties' : user_properties,
         }
         request.update(kwargs)
-        debug_mode = kwargs.get('debug', False)
+        debug_mode = kwargs.get('debug', False) and current_app.debug
         if debug_mode:
             open('last_request.txt','w').write(json.dumps(request, indent = 4))
         try:
