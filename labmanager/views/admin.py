@@ -416,8 +416,8 @@ class RLMSPanel(L4lModelView):
                     
                     try:
                         setup_url = rlms_instance.setup(back_url = labs_url)
-                    except:
-                        flash(gettext("Couldn't load the setup URL! (this usually means that the plug-in is not correctly configured)"))
+                    except Exception as e:
+                        flash(gettext("Couldn't load the setup URL! (this usually means that the plug-in is not correctly configured). Error message: %s" % e))
                         return redirect(url_for('.edit_view', id = rlms_id))
                     else:
                         return redirect(setup_url)
@@ -442,8 +442,14 @@ class RLMSPanel(L4lModelView):
         ManagerClass = get_manager_class(rlms_obj.kind, rlms_obj.version)
         rlms_instance = ManagerClass(rlms_obj.configuration)
         back_url = url_for('.edit_view', id = rlms_id, _external = True)
-        setup_url = rlms_instance.setup(back_url = back_url)
-        return redirect(setup_url)
+
+        try:
+            setup_url = rlms_instance.setup(back_url = back_url)
+        except Exception as e:
+            flash(gettext("Couldn't load the setup URL! (this usually means that the plug-in is not correctly configured). Error message: %s" % e))
+            return redirect(back_url)
+        else:
+            return redirect(setup_url)
 
 
 
