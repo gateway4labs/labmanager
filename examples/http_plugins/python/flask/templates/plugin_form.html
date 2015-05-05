@@ -13,7 +13,7 @@
 </form>
 <p>You can test if the configuration is valid or not using the /test-config method here:</p>
 <ul>
-    <li><a href="{{ url_for('plugin.test_config', _external = True) }}">{{ url_for('plugin.test_config', _external = True) }}</a>
+    <li><a href="{{ url_for('plugin.test_config', context_id = context_id, _external = True) }}">{{ url_for('plugin.test_config', context_id = context_id, _external = True) }}</a>
 </ul>
 </body>
 </html>

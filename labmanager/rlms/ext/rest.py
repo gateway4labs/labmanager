@@ -74,7 +74,7 @@ class RLMS(BaseRLMS):
     def _inject_extension(self, remaining):
         method_and_get_query = remaining.split('?',1)
         if len(method_and_get_query) == 1:
-            return method_and_get_query + self.extension
+            return method_and_get_query[0] + self.extension
         else: # 2
             method, get_query = method_and_get_query
             return method + self.extension + '?' + get_query
