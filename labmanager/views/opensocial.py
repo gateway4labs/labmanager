@@ -77,16 +77,18 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         # if autoload is None:
         #     autoload = labs[0].autoload
         pass
+    
+    if Capabilities.WIDGET in rlms.get_capabilities():
+        widgets = rlms.list_widgets(laboratory_identifier)
 
-    widgets = rlms.list_widgets(laboratory_identifier)
-    for widget in widgets:
-        if widget['name'] == widget_name:
-            widget['autoload'] = autoload
+        for widget in widgets:
+            if widget['name'] == widget_name:
+                widget['autoload'] = autoload
 
-            if height is not None:
-                widget['height'] = height
+                if height is not None:
+                    widget['height'] = height
 
-            return widget
+                return widget
 
     base_data['autoload'] = autoload
     return base_data
@@ -345,7 +347,12 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
         traceback.print_exc()
         return render_template("opensocial/errors.html", message = gettext("There was an error performing the reservation to the final laboratory."))
     else:
-        return render_template("opensocial/confirmed.html", reservation_id = response['reservation_id'], shindig_url = SHINDIG.url)
+        if Capabilities.WIDGET in remote_laboratory.get_capabilities():
+            reservation_id = response['reservation_id']
+        else:
+            reservation_id = response['load_url']
+
+        return render_template("opensocial/confirmed.html", reservation_id = reservation_id, shindig_url = SHINDIG.url)
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
@@ -388,7 +395,10 @@ def _open_widget_impl(lab_name, widget_name, public_lab = False, public_rlms = F
     kwargs = {}
     if locale:
         kwargs['locale'] = locale
-    response = remote_laboratory.load_widget(reservation_id, widget_name, back = url_for('.reload', _external = True), **kwargs)
+    if Capabilities.WIDGET in remote_laboratory.get_capabilities():
+        response = remote_laboratory.load_widget(reservation_id, widget_name, back = url_for('.reload', _external = True), **kwargs)
+    else:
+        response = {'url' : reservation_id}
     widget_contents_url = response['url']
     return redirect(widget_contents_url)
     

@@ -69,7 +69,11 @@ class PublicLaboratoriesPanel(ModelView):
         rlms_db = laboratory.rlms
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
-        widgets = rlms.list_widgets(laboratory.laboratory_id)
+        if Capabilities.WIDGET in rlms.get_capabilities():
+            widgets = rlms.list_widgets(laboratory.laboratory_id)
+        else:
+            widgets = [ { 'name' : 'lab', 'description' : 'Main view of the laboratory' } ]
+
         links = {
             # widget-name : link
         }
@@ -163,7 +167,11 @@ class PublicSystemsPanel(ModelView):
         RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
         rlms = RLMS_CLASS(rlms_db.configuration)
 
-        widgets = rlms.list_widgets(lab_identifier)
+        if Capabilities.WIDGET in rlms.get_capabilities():
+            widgets = rlms.list_widgets(lab_identifier)
+        else:
+            widgets = [ { 'name' : 'lab', 'description' : 'Main view of the laboratory' } ]
+
         # XXX: TODO: check if the lab_identifier does not exist and report it!
         links = {
             # widget-name : link
