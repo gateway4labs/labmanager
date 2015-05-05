@@ -352,7 +352,9 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
         else:
             reservation_id = response['load_url']
 
-        return render_template("opensocial/confirmed.html", reservation_id = reservation_id, shindig_url = SHINDIG.url)
+        quoted_reservation_id = urllib2.quote(reservation_id, '')
+
+        return render_template("opensocial/confirmed.html", reservation_id = quoted_reservation_id, shindig_url = SHINDIG.url)
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
