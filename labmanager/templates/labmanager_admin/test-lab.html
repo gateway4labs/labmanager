@@ -1,0 +1,11 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+
+<h1>Testing {{ lab.name }}</h1>
+
+<a href="{{ url_for('.index_view') }}">Back to the list of laboratories</a>
+<iframe width="100%" height="900px" src="{{ url_for('.display_lab', id = lab.id) }}">
+</iframe>
+
+{% endblock %}

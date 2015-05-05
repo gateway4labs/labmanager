@@ -603,7 +603,7 @@ def public_availability_formatter(v, c, lab, p):
                     ))
 
 
-def go_lab_reservation_formater(v, c, lab, p):
+def go_lab_reservation_formatter(v, c, lab, p):
     if lab.go_lab_reservation:
         klass = 'btn-danger'
         msg = gettext('Deactivate')
@@ -613,7 +613,7 @@ def go_lab_reservation_formater(v, c, lab, p):
     return Markup("""<form method='POST' action='%(url)s' style="text-align: center"> 
                 <input type='hidden' name='activate' value='%(activate_value)s'/>
                 <input type='hidden' name='lab_id' value='%(lab_id)s'/>
-                <label> %(texto)s <label/>
+                <label> %(texto)s </label>
                 <br>
                 <input class='btn %(klass)s' type='submit' value="%(msg)s"></input>
                 </form>""" % dict(
@@ -625,16 +625,21 @@ def go_lab_reservation_formater(v, c, lab, p):
                     msg = msg  
                 ))
 
+def test_lab_formatter(v, c, lab, p):
+    return Markup("""<label>%s</label><a class='btn btn-success' href="%s">%s</a>""" % (lazy_gettext("Test laboratory"), url_for('.test_lab', id = lab.id), lazy_gettext("Test")))
+
+
 class LaboratoryPanel(L4lModelView):
 
     can_create = can_edit = False
-    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','go_lab_reservation']
-    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),go_lab_reservation=lazy_gettext('Go-Lab reservation'))
-    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, go_lab_reservation = go_lab_reservation_formater )
+    column_list = ['rlms', 'name', 'laboratory_id', 'visibility', 'availability', 'public_availability','go_lab_reservation', 'test']
+    column_labels = dict(rlms=lazy_gettext('rlms'), name=lazy_gettext('name'), laboratory_id=lazy_gettext('laboratory_id'), visibility=lazy_gettext('visibility'), availability=lazy_gettext('availability'), public_availability=lazy_gettext('public_availability'),go_lab_reservation=lazy_gettext('Go-Lab reservation'), test=lazy_gettext("Test"))
+    column_formatters = dict(availability = accessibility_formatter, public_availability = public_availability_formatter, go_lab_reservation = go_lab_reservation_formatter, test = test_lab_formatter)
     column_descriptions = dict(
                             availability = lazy_gettext("Make this laboratory automatically available for the Learning Tools"),
                             public_availability = lazy_gettext("Make this laboratory automatically available even from outside the registered Learning Tools"),
-                            go_lab_reservation = lazy_gettext("Make this laboratory available to Go-Lab booking system")
+                            go_lab_reservation = lazy_gettext("Make this laboratory available to Go-Lab booking system"),
+                            test = lazy_gettext("Test this laboratory"),
                     )
 
     def __init__(self, session, **kwargs):
@@ -666,6 +671,57 @@ class LaboratoryPanel(L4lModelView):
             self.session.commit()
         return redirect(url_for('.index_view'))
 
+    @expose('/lab/test/')
+    def test_lab(self):
+        lab_id = request.args.get('id')
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is None:
+            return "Laboratory id not found", 404
+
+        return self.render("labmanager_admin/test-lab.html", lab = lab)
+
+    @expose('/lab/test/display/')
+    def display_lab(self):
+        try:
+            lab_id = int(request.args.get('id', '-1'))
+        except ValueError:
+            return "id must be an integer", 400
+        
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is None:
+            return "Laboratory id not found", 404
+
+        return self.render("labmanager_admin/display_lab.html", laboratory = lab)
+
+    @expose('/lab/test/launch/', methods = ['POST'])
+    def launch_lab(self):
+        lab_id = request.args.get('id')
+        lab = self.session.query(Laboratory).filter_by(id = lab_id).first()
+        if lab is None:
+            return "Laboratory id not found", 404
+
+        db_rlms = lab.rlms
+        ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
+        remote_laboratory = ManagerClass(db_rlms.configuration)
+        back_url = url_for('.display_lab', id = lab_id)
+        try:
+            response = remote_laboratory.reserve(lab.laboratory_id,
+                                             current_user.login,
+                                             "admin-panel",
+                                             "{}",
+                                             [],
+                                             {},
+                                             { 
+                                                'user_agent' : unicode(request.user_agent),
+                                                'from_ip'    : request.remote_addr,
+                                                'referer'    : request.referrer,
+                                            }, back_url = back_url, debug = True)
+
+            load_url = response['load_url']
+        except Exception as e:
+            flash(gettext("There was a problem testing this experiment. Error message: %s" % e))
+            return redirect(back_url)
+        return redirect(load_url)
 
     @expose('/lab/availability/public', methods = ['POST'])
     def change_public_availability(self):

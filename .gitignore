@@ -1,6 +1,7 @@
 errors.log
 stdout.txt
 stderr.txt
+last_request.txt
 
 # Selenium files
 C:\\nppdf32Log*

@@ -140,6 +140,8 @@ class RLMS(BaseRLMS):
             'user_properties' : user_properties,
         }
         request.update(kwargs)
+        if kwargs.get('debug', False):
+            open('last_request.txt','w').write(json.dumps(request, indent = 4))
         response = self._request_post('/reserve', request)
         return {
             'reservation_id' : response['reservation_id'],
