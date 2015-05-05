@@ -413,9 +413,14 @@ class RLMSPanel(L4lModelView):
                     
                     # Then, re-create the manager class and call setup
                     rlms_instance = ManagerClass(config_json)
-
-                    setup_url = rlms_instance.setup(back_url = labs_url)
-                    return redirect(setup_url)
+                    
+                    try:
+                        setup_url = rlms_instance.setup(back_url = labs_url)
+                    except:
+                        flash(gettext("Couldn't load the setup URL! (this usually means that the plug-in is not correctly configured)"))
+                        return redirect(url_for('.edit_view', id = rlms_id))
+                    else:
+                        return redirect(setup_url)
 
                 return redirect(labs_url)
 
