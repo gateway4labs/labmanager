@@ -4,6 +4,7 @@ import pickle
 
 from functools import wraps
 
+import requests
 from cachecontrol import CacheControl
 from cachecontrol.caches import FileCache
 from cachecontrol.heuristics import LastModified, TIME_FMT
@@ -104,12 +105,12 @@ class GlobalCache(object):
         self.rlms_type = rlms_type
 
     @context_wrapper
-    def load(self, key, min_time = datetime.timedelta(hours=1)):
+    def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
         now = datetime.datetime.now()
         oldest = now - min_time
         result = db.session.query(RLMSTypeCache).filter(RLMSTypeCache.rlms_type == self.rlms_type, RLMSTypeCache.key == key, RLMSTypeCache.datetime >= oldest).order_by(RLMSTypeCache.datetime.desc()).first()
         if result is None:
-            return None
+            return default_value
 
         return pickle.loads(result.value)
 

@@ -132,12 +132,12 @@ class RLMSTypeCache(db.Model):
     
     id = db.Column(db.Integer, primary_key = True)
 
-    datetime = db.Column(db.DateTime)
     rlms_type = db.Column(db.Unicode(255), nullable = False, index = True)
     key = db.Column(db.Unicode(255), index = True)
     value = db.Column(db.UnicodeText)
+    datetime = db.Column(db.DateTime)
 
-    def __init__(rlms_type, key, value, datetime):
+    def __init__(self, rlms_type, key, value, datetime):
         self.rlms_type = rlms_type
         self.key = key
         self.value = value
