@@ -127,6 +127,22 @@ class RLMS(db.Model, SBBase):
     def __unicode__(self):
         return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)
 
+class RLMSTypeCache(db.Model):
+    __tablename__ = 'rlmstype_cache'
+    
+    id = db.Column(db.Integer, primary_key = True)
+
+    rlms_type = db.Column(db.Unicode(255), nullable = False, index = True)
+    key = db.Column(db.Unicode(255), index = True)
+    value = db.Column(db.UnicodeText)
+    datetime = db.Column(db.DateTime)
+
+    def __init__(self, rlms_type, key, value, datetime):
+        self.rlms_type = rlms_type
+        self.key = key
+        self.value = value
+        self.datetime = datetime
+
 #######################################################################
 # 
 #     Laboratory
