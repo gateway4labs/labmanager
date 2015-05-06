@@ -1,7 +1,7 @@
 import os
 
 # Have you run... "pip install git+https://github.com/gateway4labs/rlms_weblabdeusto.git" first?
-RLMS = ['weblabdeusto','unr','ilabs','phet','vish']
+RLMS = ['weblabdeusto','unr','ilabs','phet','vish','quvis']
 
 
 # Where will the admin error notification mails come from.
@@ -16,21 +16,17 @@ ADMINS = []
 # Use in the context of the Go-Lab project (which has partially funded this project; see http://www.go-lab-project.eu/ )
 GOLAB = False
 
-SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
-USE_PYMYSQL = os.environ.get('USE_PYMYSQL', True)
+ENGINE = 'sqlite'
 
-if SQLALCHEMY_DATABASE_URI is None:
-    ENGINE = 'mysql'
+if ENGINE == 'mysql':
     USERNAME = 'labmanager'
     PASSWORD = 'labmanager'
     DBNAME = 'labmanager'
     HOST = 'localhost'
-
-    if ENGINE == 'mysql':
-        SQLALCHEMY_DATABASE_URI = "mysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
-        SQLALCHEMY_POOL_RECYCLE = 3600
-    else:
-        SQLALCHEMY_DATABASE_URI = "sqlite:///%s" % DBNAME
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://%s:%s@%s/%s" % (USERNAME, PASSWORD, HOST, DBNAME)
+    SQLALCHEMY_POOL_RECYCLE = 3600
+else:
+    SQLALCHEMY_DATABASE_URI = "sqlite:///database.db"
 
 #
 # Flask configuration
