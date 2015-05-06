@@ -64,7 +64,7 @@ if not app.debug and app.config.get("ADMINS") is not None and app.config.get("SM
     mail_handler = SMTPHandler(smtp_server,
                                 from_addr,
                                 to_addrs,
-                                "AppComposer Application Error Report")
+                                "gateway4labs Application Error Report")
     formatter = logging.Formatter(
         '''
         Message type:       %(levelname)s
