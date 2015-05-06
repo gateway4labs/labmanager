@@ -117,8 +117,8 @@ class GlobalCache(object):
     @context_wrapper
     def save(self, key, value):
         existing_values = db.session.query(RLMSTypeCache).filter_by(rlms_type=self.rlms_type, key=key).all()
-        for value in existing_values:
-            db.session.delete(value)
+        for existing_value in existing_values:
+            db.session.delete(existing_value)
         new_record = RLMSTypeCache(rlms_type = self.rlms_type, key = key, value = pickle.dumps(value), datetime = datetime.datetime.now())
         db.session.add(new_record)
         try:
