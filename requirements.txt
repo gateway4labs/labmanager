@@ -13,7 +13,8 @@ pymysql-sa==1.0
 PyYAML==3.10
 SQLAlchemy==0.7.10
 alembic==0.6.4
-requests==2.1.0
+requests==2.6.0
+CacheControl==0.11.2
 Flask-Testing==0.4.1
 Flask-DebugToolbar==0.9.0
 WTForms==1.0.5
