@@ -9,7 +9,9 @@
 import sys
 
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
-assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or True # Avoid pyflakes warnings
+from .caches import GlobalCache, get_cached_session
+
+assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or GlobalCache or get_cached_session or True # Avoid pyflakes warnings
 
 # 
 # Add the proper managers by pointing to a module

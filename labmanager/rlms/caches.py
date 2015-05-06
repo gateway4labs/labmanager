@@ -1,10 +1,20 @@
+import datetime
 import calendar
+import pickle
+
+from functools import wraps
 
 from cachecontrol import CacheControl
 from cachecontrol.caches import FileCache
 from cachecontrol.heuristics import LastModified, TIME_FMT
 
 from email.utils import formatdate, parsedate, parsedate_tz
+
+from flask import g
+from sqlalchemy.exc import IntegrityError
+from labmanager.db import db
+from labmanager.application import app
+from labmanager.models import RLMSTypeCache
 
 class LastModifiedNoDate(LastModified):
     """ This takes the original LastModified implementation of 
@@ -70,4 +80,67 @@ def get_cached_session():
     return CacheControl(requests.Session(),
                     cache=FileCache(CACHE_DIR), heuristic=LastModifiedNoDate(require_date=False))
 
+def context_wrapper(func):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            getattr(g, 'testing_if_running_in_context', None)
+        except RuntimeError:
+            running_inside_context = False
+        else:
+            running_inside_context = True
+        
+        if running_inside_context:
+            return func(*args, **kwargs)
+        
+        with app.app_context():
+            return func(*args, **kwargs)
+
+    return wrapper
+
+class GlobalCache(object):
+    def __init__(self, rlms_type):
+        self.rlms_type = rlms_type
+
+    @context_wrapper
+    def load(self, key, min_time = datetime.timedelta(hours=1)):
+        now = datetime.datetime.now()
+        oldest = now - min_time
+        result = db.session.query(RLMSTypeCache).filter(RLMSTypeCache.rlms_type == self.rlms_type, RLMSTypeCache.key == key, RLMSTypeCache.datetime >= oldest).order_by(RLMSTypeCache.datetime.desc()).first()
+        if result is None:
+            return None
+
+        return pickle.loads(result.value)
+
+    @context_wrapper
+    def save(self, key, value):
+        existing_values = db.session.query(RLMSTypeCache).filter_by(rlms_type=self.rlms_type, key=key).all()
+        for value in existing_values:
+            db.session.delete(value)
+        new_record = RLMSTypeCache(rlms_type = self.rlms_type, key = key, value = pickle.dumps(value), datetime = datetime.datetime.now())
+        db.session.add(new_record)
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+        except:
+            db.session.rollback()
+            raise
+
+    @context_wrapper
+    def clean_cache(self, mix_time = datetime.timedelta(hours=24)):
+        now = datetime.datetime.now()
+        oldest = now - min_time
+        existing_values = db.session.query(RLMSTypeCache).filter(RLMSTypeCache.rlms_type == self.rlms_type, RLMSTypeCache.datetime < oldest).all()
+        for value in existing_values:
+            db.session.delete(value)
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+        except:
+            db.session.rollback()
+            raise
 
