@@ -13,7 +13,7 @@ from cachecontrol.heuristics import LastModified, TIME_FMT
 
 from email.utils import formatdate, parsedate, parsedate_tz
 
-from flask import g
+from flask import g, request
 from sqlalchemy.exc import IntegrityError
 from labmanager.db import db
 from labmanager.application import app
@@ -109,6 +109,15 @@ class AbstractCache(object, DictMixin):
 
     @context_wrapper
     def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
+        # If the request says don't take into account the cache, do not do it
+        try:
+            headers = request.headers
+        except RuntimeError:
+            headers = {}
+
+        if headers.get('Cache-Control') == 'no-cache' or headers.get('Pragma') == 'no-cache':
+            return default_value
+
         now = datetime.datetime.now()
         oldest = now - min_time
         result = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key, self.MODEL.datetime >= oldest).order_by(self.MODEL.datetime.desc()).first()
@@ -139,6 +148,7 @@ class AbstractCache(object, DictMixin):
         except:
             db.session.rollback()
             raise
+        return value
 
     def keys(self):
         return [ key for key,  in db.session.query(self.MODEL.key).filter_by(rlms_type=self.context_id).all() ]
@@ -155,6 +165,7 @@ class AbstractCache(object, DictMixin):
                 db.session.commit()
             except:
                 db.session.rollback()
+                raise
         else:
             raise KeyError(key)
 

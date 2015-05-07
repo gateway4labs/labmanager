@@ -7,8 +7,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import sys
+import time
 import threading
+import datetime
+import traceback
 
+from labmanager.application import app
+from labmanager.db import db
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
 from .caches import GlobalCache, VersionCache, get_cached_session
 
@@ -25,6 +30,25 @@ _RLMSs = {
     # "WebLab-Deusto" : ( labmanager.rlms.ext.weblabdeusto, ['4.0'] ),
 }
 
+_GLOBAL_PERIODIC_TASKS = [
+    # {
+    #     'name' : "WebLab-Deusto",
+    #     'versions' : ["4.0", "5.0"],
+    #     'func' : func,
+    #     'when' : datetime.timedelta
+    # }
+]
+
+_LOCAL_PERIODIC_TASKS = [
+    # {
+    #     'name' : "WebLab-Deusto",
+    #     'versions' : ["4.0", "5.0"],
+    #     'func' : func,
+    #     'when' : datetime.timedelta
+    # }
+]
+
+
 class Laboratory(object):
     def __init__(self, name, laboratory_id, description = None, autoload = False):
         self.name          = name
@@ -38,8 +62,10 @@ class Laboratory(object):
     def __hash__(self):
         return hash(self.laboratory_id)
 
-class RegistrationRecord(object):
+class _RegistrationRecord(object):
     def __init__(self, name, versions):
+        self.name = name
+        self.versions = versions
         global_key = '%s - %s' % (name, ', '.join(versions))
         self.cache = GlobalCache(global_key)
         self.per_version_cache = {}
@@ -66,9 +92,112 @@ class RegistrationRecord(object):
         self.per_thread.cached_session = cached_session
         return cached_session
 
+    def _add_periodic_task(self, where, task_name, function, hours, minutes):
+        if hours == 0 and minutes == 0:
+            raise ValueError("You must establish hours or minutes")
+
+        if hours < 0 or minutes < 0:
+            raise ValueError("hours and minutes must be positive numbers")
+
+        where.append({
+            'name' : task_name,
+            'rlms' : self.name,
+            'versions' : self.versions,
+            'func' : function,
+            'when' : datetime.timedelta(hours = hours, minutes = minutes),
+        })
+
+    def add_global_periodic_task(self, task_name, function, hours = 0, minutes = 0):
+        return self._add_periodic_task(_GLOBAL_PERIODIC_TASKS, task_name, function, hours, minutes)
+
+    def add_local_periodic_task(self, task_name, function, hours = 0, minutes = 0):
+        return self._add_periodic_task(_LOCAL_PERIODIC_TASKS, task_name, function, hours, minutes)
+
+def _debug(msg):
+    print "[%s] - %s" % (time.ctime(), msg)
+
+class TaskRunner(object):
+    def __init__(self):
+        # task_id : datetime.datetime
+        self.latest_executions = {
+        }
+        self._stopping = False
+
+    def _now(self):
+        return datetime.datetime.now().replace(second = 0, microsecond = 0)
+
+    def _run_all(self):
+        # Run global tasks
+        for task_id, task in enumerate(_GLOBAL_PERIODIC_TASKS):
+            now = self._now()
+            must_be_run = False
+            if task_id not in self.latest_executions:
+                must_be_run = True
+            else:
+                time_elapsed = now - self.latest_executions[task_id]
+                if time_elapsed >= task['when']:
+                    must_be_run = True
+
+            if must_be_run:
+                for version in task['versions']:
+                    _debug("Running task %r for rlms %s %s..." % (task['name'], task['rlms'], version))
+                    try:
+                        task['func']()
+                    except Exception:
+                        traceback.print_exc()
+                self.latest_executions[task_id] = now
+
+        # Same for regular
+        for task_id, task in enumerate(_LOCAL_PERIODIC_TASKS):
+            now = self._now()
+            must_be_run = False
+            if task_id not in self.latest_executions:
+                must_be_run = True
+            else:
+                time_elapsed = now - self.latest_executions[task_id]
+                if time_elapsed >= task['when']:
+                    must_be_run = True
+
+            if must_be_run:
+                with app.app_context():
+                    for version in task['versions']:
+                        rlmss = db.session.query(RLMS).filter_by(kind = task['rlms'], version = version).all()
+                        for db_rlms in rlmss:
+                            ManagerClass = get_manager_class(db_rlms.rlms_type, db_rlms.rlms_version)
+                            rlms = ManagerClass(db_rlms.configuration)
+                            _debug("Running task %r for rlms %s %s (%s)..." % (task['name'], task['rlms'], version, db_rlms.location))
+                            try:
+                                task['func'](rlms)
+                            except Exception:
+                                traceback.print_exc()
+
+                self.latest_executions[task_id] = now
+
+    def _step(self):
+        before = self._now()
+        future = before + datetime.timedelta(minutes = 1)
+        self._run_all()
+        after = datetime.datetime.now()
+
+        remaining_seconds = (future - after).total_seconds()
+        if remaining_seconds > 0:
+            PIECES = 60
+            per_second = remaining_seconds / PIECES
+            for _ in xrange(PIECES):
+                if self._stopping:
+                    break
+                time.sleep(per_second)
+
+    def run_forever(self):
+        while not self._stopping:
+            self._step()
+
+    def stop(self):
+        self._stopping = True
+
 def register(name, versions, module_name):
     _RLMSs[name] = (module_name, versions)
-    return RegistrationRecord(name, versions)
+    return _RegistrationRecord(name, versions)
 
 def get_supported_types():
     return _RLMSs.keys()
