@@ -114,7 +114,11 @@ class _RegistrationRecord(object):
         return self._add_periodic_task(_LOCAL_PERIODIC_TASKS, task_name, function, hours, minutes)
 
 def _debug(msg):
+    sys.stderr.flush()
+    sys.stdout.flush()
     print "[%s] - %s" % (time.ctime(), msg)
+    sys.stdout.flush()
+    sys.stderr.flush()
 
 class TaskRunner(object):
     def __init__(self):

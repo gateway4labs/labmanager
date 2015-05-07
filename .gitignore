@@ -1,4 +1,5 @@
 run_tasks.sh
+tasks_logs.txt
 web_cache
 errors.log
 stdout.txt
