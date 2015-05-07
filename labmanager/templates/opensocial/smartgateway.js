@@ -62,7 +62,9 @@ function SmartGateway(container) {
 
         me._container.html("");
 
-        var $button = $("<button id='reserve-button' class='btn btn-success'>{{ gettext('Reserve') }}</button>");
+        // TODO
+        // var $button = $("<button id='reserve-button' class='btn btn-success'>__MSG_reserve__</button>");
+        var $button = $("<button id='reserve-button' class='btn btn-success'>Reserve</button>");
         $button.click( me.startReservation );
 
         var $div = $("<div></div>");

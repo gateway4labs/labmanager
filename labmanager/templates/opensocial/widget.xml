@@ -1,8 +1,10 @@
 <Module>
  <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
- <Require feature="osapi" />
- <Require feature="pubsub" />
- <Require feature="dynamic-height" />
+     <!-- TODO -->
+     <!-- <Locale messages="languages/something/ALL_ALL.xml"/> -->
+     <Require feature="osapi" />
+     <Require feature="pubsub" />
+     <Require feature="dynamic-height" />
  </ModulePrefs>
  <Content type="html" view="home,canvas">
  <![CDATA[
