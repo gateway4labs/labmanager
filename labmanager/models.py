@@ -135,10 +135,28 @@ class RLMSTypeCache(db.Model):
     rlms_type = db.Column(db.Unicode(255), nullable = False, index = True)
     key = db.Column(db.Unicode(255), index = True)
     value = db.Column(db.UnicodeText)
-    datetime = db.Column(db.DateTime)
+    datetime = db.Column(db.DateTime, index = True)
 
     def __init__(self, rlms_type, key, value, datetime):
         self.rlms_type = rlms_type
+        self.key = key
+        self.value = value
+        self.datetime = datetime
+
+class RLMSCache(db.Model):
+    __tablename__ = 'rlms_caches'
+    
+    id = db.Column(db.Integer, primary_key = True)
+
+    rlms_id = db.Column(db.Integer, db.ForeignKey('rlmss.id'), nullable = False)
+    key = db.Column(db.Unicode(255), index = True)
+    value = db.Column(db.UnicodeText)
+    datetime = db.Column(db.DateTime, index = True)
+
+    rlms = relation(RLMS.__name__, backref = backref('caches', order_by=id, cascade = 'all,delete'))
+
+    def __init__(self, rlms, key, value, datetime):
+        self.rlms = rlms
         self.key = key
         self.value = value
         self.datetime = datetime
