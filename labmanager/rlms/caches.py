@@ -2,6 +2,8 @@ import datetime
 import calendar
 import pickle
 
+from UserDict import DictMixin
+
 from functools import wraps
 
 import requests
@@ -11,11 +13,11 @@ from cachecontrol.heuristics import LastModified, TIME_FMT
 
 from email.utils import formatdate, parsedate, parsedate_tz
 
-from flask import g
+from flask import g, request
 from sqlalchemy.exc import IntegrityError
 from labmanager.db import db
 from labmanager.application import app
-from labmanager.models import RLMSTypeCache
+from labmanager.models import RLMSTypeCache, RLMSCache
 
 class LastModifiedNoDate(LastModified):
     """ This takes the original LastModified implementation of 
@@ -100,26 +102,44 @@ def context_wrapper(func):
 
     return wrapper
 
-class GlobalCache(object):
-    def __init__(self, rlms_type):
-        self.rlms_type = rlms_type
+class AbstractCache(object, DictMixin):
+    def __init__(self, context_id):
+        self.context_id = context_id
+        super(AbstractCache, self).__init__()
 
     @context_wrapper
     def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
+        # If the request says don't take into account the cache, do not do it
+        try:
+            headers = request.headers
+        except RuntimeError:
+            headers = {}
+
+        if headers.get('Cache-Control') == 'no-cache' or headers.get('Pragma') == 'no-cache':
+            return default_value
+
         now = datetime.datetime.now()
         oldest = now - min_time
-        result = db.session.query(RLMSTypeCache).filter(RLMSTypeCache.rlms_type == self.rlms_type, RLMSTypeCache.key == key, RLMSTypeCache.datetime >= oldest).order_by(RLMSTypeCache.datetime.desc()).first()
+        result = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key, self.MODEL.datetime >= oldest).order_by(self.MODEL.datetime.desc()).first()
         if result is None:
             return default_value
 
         return pickle.loads(result.value)
 
+    def __getitem__(self, key):
+        default_value = object()
+        result = self.get(key, default_value)
+        if result == default_value:
+            raise KeyError(key)
+
+        return result
+
     @context_wrapper
-    def save(self, key, value):
-        existing_values = db.session.query(RLMSTypeCache).filter_by(rlms_type=self.rlms_type, key=key).all()
+    def __setitem__(self, key, value):
+        existing_values = db.session.query(self.MODEL).filter_by(rlms_type=self.context_id, key=key).all()
         for existing_value in existing_values:
             db.session.delete(existing_value)
-        new_record = RLMSTypeCache(rlms_type = self.rlms_type, key = key, value = pickle.dumps(value), datetime = datetime.datetime.now())
+        new_record = self.MODEL(self.context_id, key = key, value = pickle.dumps(value), datetime = datetime.datetime.now())
         db.session.add(new_record)
         try:
             db.session.commit()
@@ -128,12 +148,32 @@ class GlobalCache(object):
         except:
             db.session.rollback()
             raise
+        return value
+
+    def keys(self):
+        return [ key for key,  in db.session.query(self.MODEL.key).filter_by(rlms_type=self.context_id).all() ]
+
+    def __delitem__(self, key):
+        results = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key).all()
+        found = False
+        for result in results:
+            found = True
+            db.session.delete(result)
+        
+        if found:
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
+        else:
+            raise KeyError(key)
 
     @context_wrapper
-    def clean_cache(self, mix_time = datetime.timedelta(hours=24)):
+    def clear(self, mix_time = datetime.timedelta(hours=24)):
         now = datetime.datetime.now()
         oldest = now - min_time
-        existing_values = db.session.query(RLMSTypeCache).filter(RLMSTypeCache.rlms_type == self.rlms_type, RLMSTypeCache.datetime < oldest).all()
+        existing_values = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.datetime < oldest).all()
         for value in existing_values:
             db.session.delete(value)
 
@@ -144,4 +184,22 @@ class GlobalCache(object):
         except:
             db.session.rollback()
             raise
+
+class GlobalCache(AbstractCache):
+    MODEL = RLMSTypeCache
+    MODEL_CONTEXT_COLUMN = lambda *args: RLMSTypeCache.rlms_type
+
+    def __init__(self, rlms_type):
+        super(GlobalCache, self).__init__(rlms_type)
+
+class VersionCache(GlobalCache):
+    def __init__(self, version_id):
+        super(VersionCache, self).__init__(version_id)
+
+class InstanceCache(AbstractCache):
+    MODEL = RLMSCache
+    MODEL_CONTEXT_COLUMN = lambda *args : RLMSCache.rlms_id
+
+    def __init__(self, rlms_id):
+        super(InstanceCache, self).__init__(rlms_id)
 
