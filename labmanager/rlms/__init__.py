@@ -12,8 +12,10 @@ import threading
 import datetime
 import traceback
 
-from labmanager.application import app
+
 from labmanager.db import db
+from labmanager.models import RLMS as dbRLMS
+from labmanager.application import app
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
 from .caches import GlobalCache, VersionCache, InstanceCache, get_cached_session
 
@@ -62,6 +64,13 @@ class Laboratory(object):
     def __hash__(self):
         return hash(self.laboratory_id)
 
+
+_current_task_id = 0
+def _next_task_id():
+    global _current_task_id
+    _current_task_id += 1
+    return _current_task_id
+
 class _RegistrationRecord(object):
     def __init__(self, name, versions):
         self.name = name
@@ -108,6 +117,7 @@ class _RegistrationRecord(object):
             raise ValueError("hours and minutes must be positive numbers")
 
         where.append({
+            'id'   : _next_task_id(),
             'name' : task_name,
             'rlms' : self.name,
             'versions' : self.versions,
@@ -138,44 +148,38 @@ class TaskRunner(object):
     def _now(self):
         return datetime.datetime.now().replace(second = 0, microsecond = 0)
 
+    def _must_be_run(self, now, task):
+        if task['id'] not in self.latest_executions:
+            return True
+
+        time_elapsed = now - self.latest_executions[task['id']]
+        if time_elapsed >= task['when']:
+            return True
+
+        return False
+
     def _run_all(self):
         # Run global tasks
-        for task_id, task in enumerate(_GLOBAL_PERIODIC_TASKS):
+        for task in _GLOBAL_PERIODIC_TASKS:
             now = self._now()
-            must_be_run = False
-            if task_id not in self.latest_executions:
-                must_be_run = True
-            else:
-                time_elapsed = now - self.latest_executions[task_id]
-                if time_elapsed >= task['when']:
-                    must_be_run = True
-
-            if must_be_run:
+            if self._must_be_run(now, task):
                 for version in task['versions']:
                     _debug("Running task %r for rlms %s %s..." % (task['name'], task['rlms'], version))
                     try:
                         task['func']()
                     except Exception:
                         traceback.print_exc()
-                self.latest_executions[task_id] = now
+                self.latest_executions[task['id']] = now
 
         # Same for regular
-        for task_id, task in enumerate(_LOCAL_PERIODIC_TASKS):
+        for task in _LOCAL_PERIODIC_TASKS:
             now = self._now()
-            must_be_run = False
-            if task_id not in self.latest_executions:
-                must_be_run = True
-            else:
-                time_elapsed = now - self.latest_executions[task_id]
-                if time_elapsed >= task['when']:
-                    must_be_run = True
-
-            if must_be_run:
+            if self._must_be_run(now, task):
                 with app.app_context():
                     for version in task['versions']:
-                        rlmss = db.session.query(RLMS).filter_by(kind = task['rlms'], version = version).all()
+                        rlmss = db.session.query(dbRLMS).filter_by(kind = task['rlms'], version = version).all()
                         for db_rlms in rlmss:
-                            ManagerClass = get_manager_class(db_rlms.rlms_type, db_rlms.rlms_version, db_rlms.id)
+                            ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
                             rlms = ManagerClass(db_rlms.configuration)
                             _debug("Running task %r for rlms %s %s (%s)..." % (task['name'], task['rlms'], version, db_rlms.location))
                             try:
@@ -183,7 +187,7 @@ class TaskRunner(object):
                             except Exception:
                                 traceback.print_exc()
 
-                self.latest_executions[task_id] = now
+                self.latest_executions[task['id']] = now
 
     def _step(self):
         before = self._now()

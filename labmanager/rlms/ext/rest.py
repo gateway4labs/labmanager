@@ -90,7 +90,7 @@ class RLMS(BaseRLMS):
             context_remaining = remaining + '&context_id=' + self.context_id
         else:
             context_remaining = remaining + '?context_id=' + self.context_id
-        r = requests.get('%s%s' % (self.base_url, context_remaining), auth = (self.login, self.password), headers = headers)
+        r = HTTP_PLUGIN.cached_session.get('%s%s' % (self.base_url, context_remaining), auth = (self.login, self.password), headers = headers)
         r.raise_for_status()
         return r.json()
 
@@ -111,14 +111,21 @@ class RLMS(BaseRLMS):
             data = data
         else:
             raise Exception("Misconfigured mode: %s" % self.mode)
-        r = requests.post('%s%s' % (self.base_url, context_remaining), data = data, auth = (self.login, self.password), headers = headers)
+
+        # Cached session will not cache anything in a post. But if the connection already exists to the server, we still use it, becoming faster
+        r = HTTP_PLUGIN.cached_session.post('%s%s' % (self.base_url, context_remaining), data = data, auth = (self.login, self.password), headers = headers)
         return r.json()
 
     def get_version(self):
         return Versions.VERSION_1
 
     def get_capabilities(self):
+        capabilities = HTTP_PLUGIN.rlms_cache.get('capabilities')
+        if capabilities is not None:
+            return capabilities
+            
         capabilities = self._request('/capabilities')
+        HTTP_PLUGIN.rlms_cache['capabilities'] = capabilities['capabilities']
         return capabilities['capabilities']
 
     def setup(self, back_url):
@@ -132,11 +139,17 @@ class RLMS(BaseRLMS):
             return response.get('error_messages', ['Invalid error message'])
 
     def get_laboratories(self, **kwargs):
+        labs = HTTP_PLUGIN.rlms_cache.get('labs')
+        if labs is not None:
+            return labs
+
         labs = self._request('/labs')['labs']
         laboratories = []
         for lab in labs:
             laboratory = Laboratory(name = lab['name'], laboratory_id = lab['laboratory_id'], description = lab.get('description'), autoload = lab.get('autoload'))
             laboratories.append(laboratory)
+
+        HTTP_PLUGIN.rlms_cache['labs'] = laboratories
         return laboratories
 
     def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
@@ -189,5 +202,10 @@ class RLMS(BaseRLMS):
 PLUGIN_NAME = "HTTP plug-in"
 PLUGIN_VERSIONS = ['1.0']
 
-register(PLUGIN_NAME, PLUGIN_VERSIONS, __name__)
+def populate_cache(rlms):
+    rlms.get_capabilities()
+    rlms.get_laboratories()
+
+HTTP_PLUGIN = register(PLUGIN_NAME, PLUGIN_VERSIONS, __name__)
+HTTP_PLUGIN.add_local_periodic_task('Populating cache', populate_cache, minutes = 55)
 
