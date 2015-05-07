@@ -67,7 +67,7 @@ class PublicLaboratoriesPanel(ModelView):
         if laboratory is None:
             return self.render("public/errors.html", message = "Laboratory not found")
         rlms_db = laboratory.rlms
-        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
         rlms = RLMS_CLASS(rlms_db.configuration)
         if Capabilities.WIDGET in rlms.get_capabilities():
             widgets = rlms.list_widgets(laboratory.laboratory_id)
@@ -119,7 +119,7 @@ class PublicSystemsPanel(ModelView):
         if rlms_db is None:
             return self.render("public/errors.html", message = "RLMS not found")
 
-        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
         rlms = RLMS_CLASS(rlms_db.configuration)
 
         query = request.args.get('q')
@@ -132,7 +132,7 @@ class PublicSystemsPanel(ModelView):
         else:
             page = 1
 
-        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
         rlms = RLMS_CLASS(rlms_db.configuration)
         if query:
             query_results = rlms.search(query = query, page = page)
@@ -164,7 +164,7 @@ class PublicSystemsPanel(ModelView):
         if rlms_db is None:
             return self.render("public/errors.html", message = "RLMS not found")
 
-        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
         rlms = RLMS_CLASS(rlms_db.configuration)
 
         if Capabilities.WIDGET in rlms.get_capabilities():

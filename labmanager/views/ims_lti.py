@@ -102,7 +102,7 @@ def launch_experiment():
     db_rlms           = db_laboratory.rlms
     author            = session.get('author_identifier', '(not in session)')
     referer           = request.referrer
-    ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
+    ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
     remote_laboratory = ManagerClass(db_rlms.configuration)
 
     response = remote_laboratory.reserve(db_laboratory.laboratory_id,

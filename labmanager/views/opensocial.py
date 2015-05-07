@@ -62,7 +62,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     if autoload is None and rlms_db.default_autoload is not None:
         autoload = rlms_db.default_autoload
 
-    RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+    RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
     rlms = RLMS_CLASS(rlms_db.configuration)
 
     if Capabilities.FORCE_SEARCH in rlms.get_capabilities():
@@ -309,7 +309,7 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
     origin_ip  = request.remote_addr
     referer    = request.referrer
     # Load the plug-in for the current RLMS, and instanciate it
-    ManagerClass = get_manager_class(rlms_kind, rlms_version)
+    ManagerClass = get_manager_class(rlms_kind, rlms_version, db_rlms.id)
     remote_laboratory = ManagerClass(db_rlms.configuration)
 
     kwargs = {}
@@ -390,7 +390,7 @@ def _open_widget_impl(lab_name, widget_name, public_lab = False, public_rlms = F
 
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
-    ManagerClass = get_manager_class(rlms_kind, rlms_version)
+    ManagerClass = get_manager_class(rlms_kind, rlms_version, db_rlms.id)
     remote_laboratory = ManagerClass(db_rlms.configuration)
     reservation_id = request.args.get('reservation_id') or 'reservation-id-not-found'
     locale = request.args.get('locale') or None

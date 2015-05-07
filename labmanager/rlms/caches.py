@@ -136,7 +136,7 @@ class AbstractCache(object, DictMixin):
 
     @context_wrapper
     def __setitem__(self, key, value):
-        existing_values = db.session.query(self.MODEL).filter_by(rlms_type=self.context_id, key=key).all()
+        existing_values = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key).all()
         for existing_value in existing_values:
             db.session.delete(existing_value)
         new_record = self.MODEL(self.context_id, key = key, value = pickle.dumps(value), datetime = datetime.datetime.now())
@@ -151,7 +151,7 @@ class AbstractCache(object, DictMixin):
         return value
 
     def keys(self):
-        return [ key for key,  in db.session.query(self.MODEL.key).filter_by(rlms_type=self.context_id).all() ]
+        return [ key for key,  in db.session.query(self.MODEL.key).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id).all() ]
 
     def __delitem__(self, key):
         results = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key).all()

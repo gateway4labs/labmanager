@@ -102,7 +102,7 @@ def requests():
             rlms_kind         = db_rlms.kind
             # 
             # Load the plug-in for the current RLMS, and instanciate it
-            ManagerClass = get_manager_class(rlms_kind, rlms_version)
+            ManagerClass = get_manager_class(rlms_kind, rlms_version, db_rlms.id)
             remote_laboratory = ManagerClass(db_rlms.configuration)
             
             response = remote_laboratory.reserve(laboratory_id             = db_laboratory.laboratory_id,

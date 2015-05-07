@@ -121,7 +121,7 @@ class PleInstructorLaboratoriesPanel(L4lPleInstructorModelView):
         if laboratory is None:
             return self.render("ple_admin/errors.html", message = gettext("Laboratory not found"))
         rlms_db = laboratory.rlms
-        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
         rlms = RLMS_CLASS(rlms_db.configuration)
         widgets = rlms.list_widgets(laboratory.laboratory_id)
         return self.render("ple_admin/list_widgets.html", widgets = widgets, institution_id = current_user.lt.name, lab_name = local_identifier)

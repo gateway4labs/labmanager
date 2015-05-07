@@ -15,7 +15,7 @@ import traceback
 from labmanager.application import app
 from labmanager.db import db
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
-from .caches import GlobalCache, VersionCache, get_cached_session
+from .caches import GlobalCache, VersionCache, InstanceCache, get_cached_session
 
 assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or True # Avoid pyflakes warnings
 
@@ -27,7 +27,7 @@ _RLMSs = {
     # "RLMS type" :  <module>, 
 
     # e.g.
-    # "WebLab-Deusto" : ( labmanager.rlms.ext.weblabdeusto, ['4.0'] ),
+    # "WebLab-Deusto" : ( labmanager.rlms.ext.weblabdeusto, ['4.0'], record ),
 }
 
 _GLOBAL_PERIODIC_TASKS = [
@@ -67,7 +67,7 @@ class _RegistrationRecord(object):
         self.name = name
         self.versions = versions
         global_key = '%s - %s' % (name, ', '.join(versions))
-        self.cache = GlobalCache(global_key)
+        self.global_cache = self.cache = GlobalCache(global_key)
         self.per_version_cache = {}
         for version in versions:
             # If a single version it's supported, the global cache is the same as the per version cache
@@ -81,6 +81,14 @@ class _RegistrationRecord(object):
             return self.cache
         else:
             return self.version_cache[version]
+
+    @property
+    def rlms_cache(self):
+        current_rlms_id = getattr(self.per_thread, 'current_rlms_id', None)
+        if current_rlms_id is not None:
+            return InstanceCache(current_rlms_id)
+        else:
+            return {}
 
     @property
     def cached_session(self):
@@ -167,7 +175,7 @@ class TaskRunner(object):
                     for version in task['versions']:
                         rlmss = db.session.query(RLMS).filter_by(kind = task['rlms'], version = version).all()
                         for db_rlms in rlmss:
-                            ManagerClass = get_manager_class(db_rlms.rlms_type, db_rlms.rlms_version)
+                            ManagerClass = get_manager_class(db_rlms.rlms_type, db_rlms.rlms_version, db_rlms.id)
                             rlms = ManagerClass(db_rlms.configuration)
                             _debug("Running task %r for rlms %s %s (%s)..." % (task['name'], task['rlms'], version, db_rlms.location))
                             try:
@@ -200,24 +208,25 @@ class TaskRunner(object):
         self._stopping = True
 
 def register(name, versions, module_name):
-    _RLMSs[name] = (module_name, versions)
-    return _RegistrationRecord(name, versions)
+    record = _RegistrationRecord(name, versions)
+    _RLMSs[name] = (module_name, versions, record)
+    return record
 
 def get_supported_types():
     return _RLMSs.keys()
         
 def get_supported_versions(rlms_type):
     if rlms_type in _RLMSs:
-        _, versions = _RLMSs[rlms_type]
+        _, versions, _ = _RLMSs[rlms_type]
         return versions
     return []
 
 def is_supported(rlms_type, rlms_version):
-    _, versions = _RLMSs.get(rlms_type, (None, []))
+    _, versions, _ = _RLMSs.get(rlms_type, (None, []))
     return rlms_version in versions
 
 def _get_module(rlms_type, rlms_version):
-    module_name, versions = _RLMSs.get(rlms_type, (None, []))
+    module_name, versions, _ = _RLMSs.get(rlms_type, (None, []))
     if rlms_version in versions:
         if hasattr(sys.modules[module_name], 'get_module'):
             return sys.modules[module_name].get_module(rlms_version)
@@ -241,6 +250,10 @@ def get_lms_permissions_form_class(rlms_type, rlms_version):
     form_creator = _get_form_creator(rlms_type, rlms_version)
     return form_creator.get_lms_permission_form()
 
-def get_manager_class(rlms_type, rlms_version):
+def get_manager_class(rlms_type, rlms_version, current_rlms_id = None):
     module = _get_module(rlms_type, rlms_version)
+    _, _, record = _RLMSs[rlms_type]
+    if current_rlms_id:
+        record.per_thread.current_rlms_id = current_rlms_id
     return module.RLMS
+

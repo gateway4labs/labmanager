@@ -155,8 +155,8 @@ class RLMSCache(db.Model):
 
     rlms = relation(RLMS.__name__, backref = backref('caches', order_by=id, cascade = 'all,delete'))
 
-    def __init__(self, rlms, key, value, datetime):
-        self.rlms = rlms
+    def __init__(self, rlms_id, key, value, datetime):
+        self.rlms_id = rlms_id
         self.key = key
         self.value = value
         self.datetime = datetime

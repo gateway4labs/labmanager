@@ -342,8 +342,9 @@ class RLMSPanel(L4lModelView):
                         continue
                     configuration[key] = field.data
             config_json = json.dumps(configuration)
-
-            ManagerClass = get_manager_class(rlms, version)
+            
+            current_rlms_id = None if add_or_edit else edit_id
+            ManagerClass = get_manager_class(rlms, version, current_rlms_id)
             rlms_instance = ManagerClass(config_json)
             if hasattr(rlms_instance, 'test'):
                 try:
@@ -439,7 +440,7 @@ class RLMSPanel(L4lModelView):
         if rlms_obj.kind != http_plugin.PLUGIN_NAME:
             return "RLMS is not HTTP", 400
 
-        ManagerClass = get_manager_class(rlms_obj.kind, rlms_obj.version)
+        ManagerClass = get_manager_class(rlms_obj.kind, rlms_obj.version, rlms_obj.id)
         rlms_instance = ManagerClass(rlms_obj.configuration)
         back_url = url_for('.edit_view', id = rlms_id, _external = True)
 
@@ -472,7 +473,7 @@ class RLMSPanel(L4lModelView):
         else:
             page = 1
 
-        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version)
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
         rlms = RLMS_CLASS(rlms_db.configuration)
         if query:
             query_results = rlms.search(query = query, page = page)
@@ -701,7 +702,7 @@ class LaboratoryPanel(L4lModelView):
             return "Laboratory id not found", 404
 
         db_rlms = lab.rlms
-        ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version)
+        ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
         remote_laboratory = ManagerClass(db_rlms.configuration)
         back_url = url_for('.display_lab', id = lab_id)
         try:
