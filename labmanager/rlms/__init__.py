@@ -7,11 +7,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import sys
+import threading
 
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
-from .caches import GlobalCache, get_cached_session
+from .caches import GlobalCache, VersionCache, get_cached_session
 
-assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or GlobalCache or get_cached_session or True # Avoid pyflakes warnings
+assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or True # Avoid pyflakes warnings
 
 # 
 # Add the proper managers by pointing to a module
@@ -37,8 +38,37 @@ class Laboratory(object):
     def __hash__(self):
         return hash(self.laboratory_id)
 
+class RegistrationRecord(object):
+    def __init__(self, name, versions):
+        global_key = '%s - %s' % (name, ', '.join(versions))
+        self.cache = GlobalCache(global_key)
+        self.per_version_cache = {}
+        for version in versions:
+            # If a single version it's supported, the global cache is the same as the per version cache
+            version_key = '%s - %s' % (name, version)
+            self.per_version_cache[version] = VersionCache(version_key)
+        
+        self.per_thread = threading.local()
+
+    def get_cache(self, version = None):
+        if version is None:
+            return self.cache
+        else:
+            return self.version_cache[version]
+
+    @property
+    def cached_session(self):
+        cached_session = getattr(self.per_thread, 'cached_session', None)
+        if cached_session:
+            return cached_session
+
+        cached_session = get_cached_session()
+        self.per_thread.cached_session = cached_session
+        return cached_session
+
 def register(name, versions, module_name):
     _RLMSs[name] = (module_name, versions)
+    return RegistrationRecord(name, versions)
 
 def get_supported_types():
     return _RLMSs.keys()
