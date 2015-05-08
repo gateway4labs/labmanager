@@ -17,7 +17,7 @@ from labmanager.db import db
 from labmanager.models import RLMS as dbRLMS
 from labmanager.application import app
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
-from .caches import GlobalCache, VersionCache, InstanceCache, get_cached_session
+from .caches import GlobalCache, VersionCache, InstanceCache, get_cached_session, CacheDisabler
 
 assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or True # Avoid pyflakes warnings
 
@@ -109,7 +109,7 @@ class _RegistrationRecord(object):
         self.per_thread.cached_session = cached_session
         return cached_session
 
-    def _add_periodic_task(self, where, task_name, function, hours, minutes):
+    def _add_periodic_task(self, where, task_name, function, hours, minutes, disable_cache):
         if hours == 0 and minutes == 0:
             raise ValueError("You must establish hours or minutes")
 
@@ -123,13 +123,14 @@ class _RegistrationRecord(object):
             'versions' : self.versions,
             'func' : function,
             'when' : datetime.timedelta(hours = hours, minutes = minutes),
+            'disable_cache' : disable_cache,
         })
 
-    def add_global_periodic_task(self, task_name, function, hours = 0, minutes = 0):
-        return self._add_periodic_task(_GLOBAL_PERIODIC_TASKS, task_name, function, hours, minutes)
+    def add_global_periodic_task(self, task_name, function, hours = 0, minutes = 0, disable_cache = True):
+        return self._add_periodic_task(_GLOBAL_PERIODIC_TASKS, task_name, function, hours, minutes, disable_cache)
 
-    def add_local_periodic_task(self, task_name, function, hours = 0, minutes = 0):
-        return self._add_periodic_task(_LOCAL_PERIODIC_TASKS, task_name, function, hours, minutes)
+    def add_local_periodic_task(self, task_name, function, hours = 0, minutes = 0, disable_cache = True):
+        return self._add_periodic_task(_LOCAL_PERIODIC_TASKS, task_name, function, hours, minutes, disable_cache)
 
 def _debug(msg):
     sys.stderr.flush()
@@ -160,15 +161,22 @@ class TaskRunner(object):
 
     def _run_all(self):
         # Run global tasks
+        cache_disabler = CacheDisabler()
+
         for task in _GLOBAL_PERIODIC_TASKS:
             now = self._now()
             if self._must_be_run(now, task):
                 for version in task['versions']:
                     _debug("Running task %r for rlms %s %s..." % (task['name'], task['rlms'], version))
+                    if task['disable_cache']:
+                        cache_disabler.disable()
                     try:
                         task['func']()
                     except Exception:
                         traceback.print_exc()
+                    finally:
+                        cache_disabler.reenable()
+
                 self.latest_executions[task['id']] = now
 
         # Same for regular
@@ -182,10 +190,15 @@ class TaskRunner(object):
                             ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
                             rlms = ManagerClass(db_rlms.configuration)
                             _debug("Running task %r for rlms %s %s (%s)..." % (task['name'], task['rlms'], version, db_rlms.location))
+                            if task['disable_cache']:
+                                cache_disabler.disable()
+
                             try:
                                 task['func'](rlms)
                             except Exception:
                                 traceback.print_exc()
+                            finally:
+                                cache_disabler.reenable()
 
                 self.latest_executions[task['id']] = now
 

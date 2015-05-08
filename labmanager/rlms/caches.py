@@ -1,6 +1,7 @@
 import datetime
 import calendar
 import pickle
+import threading
 
 from UserDict import DictMixin
 
@@ -102,13 +103,44 @@ def context_wrapper(func):
 
     return wrapper
 
+class CacheDisabler(object):
+
+    def disable(self):
+        AbstractCache.disable_cache()
+
+    def reenable(self):
+        AbstractCache.enable_cache()
+
+    def __del__(self):
+        AbstractCache.enable_cache()
+
+    def __enter__(self):
+        AbstractCache.disable_cache()
+
+    def __exit__(self, *args, **kwargs):
+        AbstractCache.enable_cache()
+
 class AbstractCache(object, DictMixin):
+
+    _local_ctx = threading.local()
+
     def __init__(self, context_id):
         self.context_id = context_id
         super(AbstractCache, self).__init__()
 
+    @staticmethod
+    def enable_cache():
+        AbstractCache._local_ctx.cache_disabled = False
+
+    @staticmethod
+    def disable_cache():
+        AbstractCache._local_ctx.cache_disabled = True
+
     @context_wrapper
     def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
+        if getattr(AbstractCache._local_ctx, 'cache_disabled', False):
+            return default_value
+
         # If the request says don't take into account the cache, do not do it
         try:
             headers = request.headers
