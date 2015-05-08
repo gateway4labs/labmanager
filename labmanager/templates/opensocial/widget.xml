@@ -12,6 +12,7 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
+    <script type="text/javascript" src="http://shindig2.epfl.ch/ils/main/ils_graaspeu.js"></script>
     <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
 {% if public_rlms %}
     <script type="text/javascript" src="{{ url_for('.public_rlms_smartgateway', rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
@@ -112,7 +113,7 @@
 
                 <tr>
                     <td>System</td>
-                    <td>{{ rlms.get_name() }} </td>
+                    <td><a target=_blank href="{{ rlms.url }}">{{ rlms.get_name() }}</a> </td>
                 </tr>
 
                 <tr>
@@ -125,6 +126,13 @@
         
         <div style="width: 100%; text-align: center">
             <button id='reserve_button' class='btn btn-primary'>Access the lab!</button>
+            <br><br>
+        </div>
+        <hr>
+
+        <div style="width: 100%; text-align: center">
+            <a href="http://www.go-lab-project.eu/" target="_blank"><img height="120" src="{{ url_for('static', filename='golab.png') }}" alt="Go-Lab logo" /></a>
+            <h5>Go-Lab Smart Gateway</h5>
         </div>
     </div>
 </div>
