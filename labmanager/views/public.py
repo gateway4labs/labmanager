@@ -90,7 +90,7 @@ def list_labs_formatter(v, c, rlms, p):
     return Markup('<a href="%s">%s</a>' % (url_for('.list_labs', public_identifier = rlms.public_identifier), gettext("list")))
 
 def public_rlms_formatter(v, c, rlms, p):
-    return Markup('<a href="%s">%s - %s</a>' % (rlms.url, rlms.kind, rlms.version))
+    return Markup('<a href="%s">%s</a>' % (rlms.url, rlms.get_name()))
 
 class PublicSystemsPanel(ModelView):
     can_delete = False
