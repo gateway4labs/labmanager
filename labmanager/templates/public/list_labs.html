@@ -18,7 +18,6 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>{{gettext('Selected')}}</th>
                 <th>{{gettext('Identifier')}}</th>
                 <th>{{gettext('Name')}}</th>
                 <th>{{gettext('Widgets')}}</th>
@@ -27,7 +26,6 @@
         <tbody>
             {% for lab in labs %}
             <tr>
-                <td><label class="checkbox"><input type="checkbox" name="{{ lab.laboratory_id }}"></label></td>
                 <td>{{ lab.laboratory_id }}</td>
                 <td>{{ lab.name }}</td>
                 <td><a href="{{ url_for('.list_widgets', rlms_identifier = public_identifier, lab_identifier = lab.laboratory_id) }}">list</a></td>
