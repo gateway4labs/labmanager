@@ -1,13 +1,17 @@
 {% extends 'admin/master.html' %}
+{% block head %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='bootstrap-slider.min.css') }}" rel="stylesheet">
+{% endblock %}
 {% block body %}
 
 <h3>{{gettext('Widgets for')}} {{ lab_name }}</h3>
 
 <p>{{gettext('The laboratory')}} {{ lab_name }} {{gettext('provides the following widgets. Copy the link for each particular widget and locate it in Graasp.')}}</p>
 
-<div class="alert alert-info text-center offset4 span4">
+<div class="alert alert-danger text-center offset4 span4">
     <h4>Note</h4>
-    <p>{{ gettext("You can change the height of the widget by adding <pre>?height=900</pre> at the end of the following URLs. This does not work in the Preview mode, but you can test it in Graasp.") }}</p>
+    <p>{{ gettext("You should change the height of the widget by using the widget slider to properly see how it will be displayed before copying the URL.") }}</p>
 </div>
 
 {% if widgets %}
@@ -28,7 +32,7 @@
             <td><a href="{{ links[widget['name']] }}">widget_{{ widget['name'] }}.xml</a></td>
         </tr>
         <tr>
-            <td colspan="2"><input type="text" value="{{ links[widget['name']] }}" style="width: 95%"></td>
+            <td colspan="2"><input id="input_url_{{ loop.index0 }}" class="link_input" type="text" value="{{ links[widget['name']] }}" style="width: 95%"></td>
         </tr>
         <tr>
             <td colspan="2">
@@ -37,22 +41,18 @@
                 <p><b>{{ gettext("Preview not available when using HTTPS.") }}</b></p><a href="{{ url_for('.list_widgets', **list_widgets_kwargs).replace('https://', 'http://', 1) }}" class="btn btn-default">{{ gettext("Use HTTP") }}</a>
             </div>
             {% else %}
-            <div class="text-center" id="widget_container_{{ loop.index0 }}" style="width: 100%"><button id="widget_{{ loop.index0 }}" type="button" class="btn btn-success">{{ gettext("Preview widget") }}</button></div>
+            <div id="slider_container_{{ loop.index0 }}" style="width: 100%; display: none"><h4>Configure height:</h4> <input id="slider_{{ loop.index0 }}" style="width: 100%" data-slider-id='height_slider_{{ loop.index0 }}' type="text" data-slider-min="0" data-slider-max="2000" data-slider-step="10" data-slider-value="500"/></div>
+            <div class="text-center" id="widget_container_{{ loop.index0 }}" style="width: 100%">
+                {% if not autoload %}
+                <button id="widget_{{ loop.index0 }}" type="button" class="btn btn-success">{{ gettext("Preview widget") }}</button>
+                {% endif %}
+            </div>
             {% endif %}
             </td>
         </tr>
 {% endfor %}
     </tbody>
 </table>
-
-<script src="{{ url_for('static', filename='jquery-1.8.3.min.js') }}" type="text/javascript"></script>
-<script>
-    $(":input").click(function(){
-        this.select();
-    });
-</script>
-
-
 
 {% else %}
 <div class="alert alert-error">
@@ -65,11 +65,32 @@
 
 {% block tail %}
     {{ super() }}
+    <script src="{{ url_for('static', filename="bootstrap-slider.min.js") }}"></script>
     <script>
+        $(":input.link_input").click(function(){
+            this.select();
+        });
+
         {% for widget in widgets %}
+            {% if not autoload %} {# If autoload, only run this when clicking on the button #}
             $("#widget_{{ loop.index0 }}").click(function() {
-                $(this).parent().html("<iframe width='100%' height='800px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url={{ links[widget['name']] }}'></iframe>");
+            {% endif %}
+                $("#widget_container_{{ loop.index0 }}").html("<iframe id='iframe_{{ loop.index0 }}' width='100%' height='800px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url={{ links[widget['name']] }}'></iframe>");
+                $('#slider_container_{{ loop.index0 }}').show();
+                $('#slider_{{ loop.index0 }}').slider({
+                    formatter: function(value) {
+                        return 'Current value: ' + value;
+                    }
+                }).on("slide", function(evt) {
+                    var newUrl = "{{ links[widget['name']] }}?height=" + evt.value;
+                    $("#iframe_{{ loop.index0 }}")
+                        .attr("height", evt.value + "px")
+                        .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url=" + newUrl);
+                    $("#input_url_{{ loop.index0 }}").attr("value", newUrl);
+                });
+            {% if not autoload %}
             });
+            {% endif %}            
         {% endfor %}
     </script>
 {% endblock %}
