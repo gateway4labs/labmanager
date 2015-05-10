@@ -121,7 +121,7 @@ def widget_xml(institution_id, lab_name, widget_name):
     except Exception, e:
         contents = render_template('opensocial/widget-error.xml',message=e)
         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = public_lab.rlms)
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
@@ -141,7 +141,7 @@ def public_widget_xml(lab_name, widget_name):
     except Exception, e:
         contents = render_template('opensocial/widget-error.xml',message=e)
         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = laboratory.rlms)
     return Response(contents, mimetype="application/xml")
 
 
@@ -164,7 +164,7 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
 #     except Exception, e:
 #         contents = render_template('opensocial/widget-error.xml',message=e)
 #         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'])
+    contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = rlms)
     return Response(contents, mimetype="application/xml")
 
 

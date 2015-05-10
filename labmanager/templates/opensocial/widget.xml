@@ -1,8 +1,10 @@
 <Module>
  <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
- <Require feature="osapi" />
- <Require feature="pubsub" />
- <Require feature="dynamic-height" />
+     <!-- TODO -->
+     <!-- <Locale messages="languages/something/ALL_ALL.xml"/> -->
+     <Require feature="osapi" />
+     <Require feature="pubsub" />
+     <Require feature="dynamic-height" />
  </ModulePrefs>
  <Content type="html" view="home,canvas">
  <![CDATA[
@@ -10,6 +12,7 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
+    <script type="text/javascript" src="http://shindig2.epfl.ch/ils/main/ils_graaspeu.js"></script>
     <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
 {% if public_rlms %}
     <script type="text/javascript" src="{{ url_for('.public_rlms_smartgateway', rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
@@ -40,7 +43,7 @@
         }
         // Create SmartGateway
         trace("Initializing SmartGateway...");
-        sg = new SmartGateway($('#container'));
+        sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
         trace("SmartGateway initialized.");
         // Register a callback: whenever a widget has a reservationId, this method is called 
         sg.registerOnLoad( function(reservationId) {
@@ -88,7 +91,52 @@
     gadgets.util.registerOnLoadHandler(init);
     trace("Registered.");
 </script>
- <div id="container" style="text-align: center">Loading...</div>
+
+<div id="buttondiv" style="display: none" class="container">
+    <div class="span8 offset1">
+        <div>
+            <legend class="">Laboratory {{ lab_name }}</legend>
+        </div>
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Laboratory</td>
+                    <td>{{ lab_name }}</td>
+                </tr>
+
+                <tr>
+                    <td>System</td>
+                    <td><a target=_blank href="{{ rlms.url }}">{{ rlms.get_name() }}</a> </td>
+                </tr>
+
+                <tr>
+                    <td>Location</td>
+                    <td>{{ rlms.location }}</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <div style="width: 100%; text-align: center">
+            <button id='reserve_button' class='btn btn-primary'>Access the lab!</button>
+            <br><br>
+        </div>
+        <hr>
+
+        <div style="width: 100%; text-align: center">
+            <a href="http://www.go-lab-project.eu/" target="_blank"><img height="120" src="{{ url_for('static', filename='golab.png') }}" alt="Go-Lab logo" /></a>
+            <h5>Go-Lab Smart Gateway</h5>
+        </div>
+    </div>
+</div>
+<div id="container" style="text-align: center">Loading...</div>
  ]]>
 </Content>
 </Module>

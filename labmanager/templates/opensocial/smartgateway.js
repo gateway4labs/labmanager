@@ -3,7 +3,7 @@ function trace(msg) {
         console.log(msg);
 }
 
-function SmartGateway(container) {
+function SmartGateway(container, button_div, reserve_button) {
 
     var me = this;
 
@@ -20,6 +20,8 @@ function SmartGateway(container) {
     // Create a unique identifier
     this._identifier = Math.random();
     this._container = container;
+    this._button_div = button_div;
+    this._reserve_button = reserve_button;
 
     this._loadCallback = null;
     this._reservation_id = null;
@@ -61,25 +63,13 @@ function SmartGateway(container) {
     this._buildUI = function() {
 
         me._container.html("");
-
-        var $button = $("<button id='reserve-button' class='btn btn-success'>{{ gettext('Reserve') }}</button>");
-        $button.click( me.startReservation );
-
-        var $div = $("<div></div>");
-        $div.css({
-            'text-align'    : 'center',
-            'width'         : '100%',
-            'margin-top'    : '5px',
-            'margin-bottom' : '5px'
-        });
-
-        $div.append($button);
-
-        me._container.append($div);
+        me._button_div.show();
+        
+        me._reserve_button.click(me.startReservation);
 
         gadgets.window.adjustHeight();
 
-        $(document).hover(me._onHover, me._noHover)
+        // $(document).hover(me._onHover, me._noHover)
     }
 
     this._onWaitReservationEvent = function(envelope, message) {
@@ -276,6 +266,7 @@ function SmartGateway(container) {
             trace("Loading... " + url);
 
             // and perform the reservation itself
+            me._button_div.hide();
             me._container.html("<iframe src='" + url + "' width='100%' onload='gadgets.window.adjustHeight();'></iframe>");
         }
     }

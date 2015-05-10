@@ -270,8 +270,8 @@ class RLMSObject(object): pass
 
 class RLMSPanel(L4lModelView):
     # For listing 
-    column_list  = ['kind', 'version', 'location', 'url', 'labs','publicly_available']
-    column_labels  = dict(kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'), publicly_available = lazy_gettext('public'))
+    column_list  = ['name', 'kind', 'version', 'location', 'url', 'labs','publicly_available']
+    column_labels  = dict(name=lazy_gettext('name'), kind=lazy_gettext('kind'), version=lazy_gettext('version'), location=lazy_gettext('location'), url=lazy_gettext('url'), labs=lazy_gettext('labs'), publicly_available = lazy_gettext('public'))
     column_exclude_list = ('version','configuration')
     column_descriptions = {
         'location' : lazy_gettext('City and country where the RLMS is hosted'),
@@ -316,6 +316,7 @@ class RLMSPanel(L4lModelView):
 
         config = json.loads(rlms.configuration)
         rlms_obj = RLMSObject()
+        rlms_obj.name = rlms.name
         rlms_obj.url = rlms.url
         rlms_obj.location = rlms.location
         rlms_obj.publicly_available = rlms.publicly_available
@@ -371,7 +372,7 @@ class RLMSPanel(L4lModelView):
 
             if not error_messages:
                 if add_or_edit:
-                    rlms_obj = RLMS(kind = rlms, version = version,
+                    rlms_obj = RLMS(kind = rlms, version = version, name = form.name.data,
                                 url = form.url.data, location = form.location.data,
                                 configuration = config_json, 
                                 publicly_available = form.publicly_available.data,
@@ -381,6 +382,7 @@ class RLMSPanel(L4lModelView):
                     rlms_obj = self.session.query(RLMS).filter_by(id = edit_id).first()
                     rlms_obj.url = form.url.data
                     rlms_obj.location = form.location.data
+                    rlms_obj.name = form.name.data
                     rlms_obj.default_autoload = form.default_autoload.data
                     rlms_obj.publicly_available = form.publicly_available.data
                     rlms_obj.public_identifier = form.public_identifier.data

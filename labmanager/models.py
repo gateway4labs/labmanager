@@ -99,6 +99,7 @@ class RLMS(db.Model, SBBase):
     __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.Unicode(50))
     kind = db.Column(db.Unicode(50), nullable = False)
     location = db.Column(db.Unicode(50), nullable = False)
     url = db.Column(db.Unicode(300), nullable = False)
@@ -111,9 +112,10 @@ class RLMS(db.Model, SBBase):
 
     default_autoload = db.Column(db.Boolean, nullable = True, index = True, default = None)
 
-    def __init__(self, kind = None, url = None, location = None, version = None, configuration = '{}', publicly_available = False, public_identifier = u'', default_autoload = None):
+    def __init__(self, kind = None, url = None, name = None, location = None, version = None, configuration = '{}', publicly_available = False, public_identifier = u'', default_autoload = None):
         self.kind = kind
         self.location = location
+        self.name = name
         self.url = url
         self.version = version
         self.configuration = configuration
@@ -123,6 +125,12 @@ class RLMS(db.Model, SBBase):
 
     def __repr__(self):
         return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r, publicly_available=%(publicly_available)r, public_identifier = %(public_identifier)r, default_autoload = %(default_autoload)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration, publicly_available = self.publicly_available, public_identifier = self.public_identifier, default_autoload = self.default_autoload)
+
+    def get_name(self):
+        if self.name:
+            return self.name
+
+        return self.kind
 
     def __unicode__(self):
         return gettext(u"%(kind)s on %(location)s", kind=self.kind, location=self.location)

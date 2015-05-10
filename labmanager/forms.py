@@ -21,6 +21,7 @@ class RetrospectiveForm(Form):
 
 class AddForm(RetrospectiveForm):
 
+    name = TextField(lazy_gettext('Name'), validators = [ validators.Required() ], default = 'RLMS name', description = lazy_gettext("Name of the RLMS"))
     url       = TextField(lazy_gettext('URL'), validators = [ validators.URL(require_tld = False), validators.Required() ], default = 'http://rlms-address/', description = lazy_gettext('Main URL of the RLMS'))
     location  = TextField(lazy_gettext('Location'), validators = [ validators.Required() ], default = 'City, Country', description = lazy_gettext("City and country where the RLMS is hosted"))
     publicly_available = BooleanField(lazy_gettext('Public'), default = False, description = lazy_gettext("Do you want to provide access to this laboratory publicly?"))
@@ -28,6 +29,10 @@ class AddForm(RetrospectiveForm):
     default_autoload = BooleanField(lazy_gettext('Autoload'), default = False, description = lazy_gettext("Should these labs be loaded by default?"))
 
     def __init__(self, **kwargs):
+        default_name = getattr(self, 'DEFAULT_NAME', getattr(self, 'DEFAULT_PUBLIC_IDENTIFIER', None))
+        if default_name:
+            kwargs.setdefault('name', default_name)
+
         default_location = getattr(self, 'DEFAULT_LOCATION', None)
         if default_location:
             kwargs.setdefault('location', default_location)

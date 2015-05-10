@@ -73,6 +73,8 @@ class PublicLaboratoriesPanel(ModelView):
             widgets = rlms.list_widgets(laboratory.laboratory_id)
         else:
             widgets = [ { 'name' : 'lab', 'description' : 'Main view of the laboratory' } ]
+       
+        autoload = rlms_db.default_autoload
 
         links = {
             # widget-name : link
@@ -84,13 +86,13 @@ class PublicLaboratoriesPanel(ModelView):
             links[widget['name']] = link
 
         list_widgets_kwargs = dict(public_identifier = public_identifier, _external = True)
-        return self.render("public/list_widgets.html", list_widgets_kwargs = list_widgets_kwargs, widgets = widgets, lab_name = public_identifier, links = links)
+        return self.render("public/list_widgets.html", list_widgets_kwargs = list_widgets_kwargs, widgets = widgets, lab_name = public_identifier, links = links, autoload = autoload)
 
 def list_labs_formatter(v, c, rlms, p):
     return Markup('<a href="%s">%s</a>' % (url_for('.list_labs', public_identifier = rlms.public_identifier), gettext("list")))
 
 def public_rlms_formatter(v, c, rlms, p):
-    return Markup('<a href="%s">%s - %s</a>' % (rlms.url, rlms.kind, rlms.version))
+    return Markup('<a href="%s">%s</a>' % (rlms.url, rlms.get_name()))
 
 class PublicSystemsPanel(ModelView):
     can_delete = False
@@ -172,6 +174,8 @@ class PublicSystemsPanel(ModelView):
         else:
             widgets = [ { 'name' : 'lab', 'description' : 'Main view of the laboratory' } ]
 
+        autoload = rlms_db.default_autoload
+
         # XXX: TODO: check if the lab_identifier does not exist and report it!
         links = {
             # widget-name : link
@@ -183,7 +187,7 @@ class PublicSystemsPanel(ModelView):
             links[widget['name']] = link
 
         list_widgets_kwargs = dict(rlms_identifier = rlms_identifier, lab_identifier = lab_identifier, _external = True)
-        return self.render("public/list_widgets.html", list_widgets_kwargs = list_widgets_kwargs, widgets = widgets, lab_name = lab_identifier, links = links)
+        return self.render("public/list_widgets.html", list_widgets_kwargs = list_widgets_kwargs, widgets = widgets, lab_name = lab_identifier, links = links, autoload = autoload)
 
 
 ############################################## 
