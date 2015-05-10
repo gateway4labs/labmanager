@@ -10,6 +10,7 @@ Create Date: 2015-05-10 19:56:50.353550
 revision = 'e657e849733'
 down_revision = '298c12227419'
 
+import json
 from alembic import op
 import sqlalchemy as sa
 import sqlalchemy.sql as sql
