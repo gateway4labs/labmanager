@@ -19,7 +19,7 @@
 <table class="table table-striped table-bordered">
     <thead>
         <tr>
-            <th>{{gettext('Widget name')}}</th>
+            <th width="20%">{{gettext('Widget name')}}</th>
             <th>{{gettext('Description')}}</th>
             <th>{{gettext('Widget link')}}</th>
         </tr>
@@ -75,7 +75,7 @@
             {% if not autoload %} {# If autoload, only run this when clicking on the button #}
             $("#widget_{{ loop.index0 }}").click(function() {
             {% endif %}
-                $("#widget_container_{{ loop.index0 }}").html("<iframe id='iframe_{{ loop.index0 }}' width='100%' height='800px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url={{ links[widget['name']] }}'></iframe>");
+                $("#widget_container_{{ loop.index0 }}").html("<iframe id='iframe_{{ loop.index0 }}' width='100%' height='500px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url={{ links[widget['name']] }}'></iframe>");
                 $('#slider_container_{{ loop.index0 }}').show();
                 $('#slider_{{ loop.index0 }}').slider({
                     formatter: function(value) {
@@ -84,9 +84,9 @@
                 }).on("slide", function(evt) {
                     var newUrl = "{{ links[widget['name']] }}?height=" + evt.value;
                     $("#iframe_{{ loop.index0 }}")
-                        .attr("height", evt.value + "px")
+                        .attr("height", (evt.value + 10) + "px")
                         .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url=" + newUrl);
-                    $("#input_url_{{ loop.index0 }}").attr("value", newUrl);
+                    $("#input_url_{{ loop.index0 }}").attr("value", newUrl).css("background-color", "#ffffdd");
                 });
             {% if not autoload %}
             });
