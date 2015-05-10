@@ -19,9 +19,9 @@ def get_module(version):
 
 class VirtualAddForm(AddForm):
 
-    web    = TextField("Web",    validators = [Required(), URL() ])
-    name   = TextField("Name",    validators = [Required() ])
-    height = TextField("Height")
+    web      = TextField("Web",    validators = [Required(), URL() ])
+    web_name = TextField("Web name",    validators = [Required() ])
+    height   = TextField("Height")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(VirtualAddForm, self).__init__(*args, **kwargs)
@@ -58,11 +58,11 @@ class RLMS(BaseRLMS):
 
         config = json.loads(configuration or '{}')
         self.web  = config.get('web')
-        self.name = config.get('name')
+        self.name = config.get('web_name')
         self.height = config.get('height')
 
         if not self.web or not self.name:
-            raise Exception("Laboratory misconfigured: fields missing" )
+            raise Exception("Laboratory misconfigured: fields missing: %s" % (configuration) )
 
     def get_version(self):
         return Versions.VERSION_1
