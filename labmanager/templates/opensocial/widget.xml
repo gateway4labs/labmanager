@@ -92,8 +92,8 @@
     trace("Registered.");
 </script>
 
-<div id="buttondiv" style="display: none" class="container">
-    <div class="span8 offset1">
+<div id="buttondiv" style="display: none">
+    <div class="span8 offset1" style="border-radius: 25px; border: 2px solid #bbb; padding: 20px;">
         <div>
             <legend class="">Laboratory {{ lab_name }}</legend>
         </div>
