@@ -135,7 +135,7 @@ class _RegistrationRecord(object):
 def _debug(msg):
     sys.stderr.flush()
     sys.stdout.flush()
-    print "[%s] - %s" % (time.ctime(), msg)
+    print u"[%s] - %s" % (time.ctime(), msg)
     sys.stdout.flush()
     sys.stderr.flush()
 
@@ -189,7 +189,7 @@ class TaskRunner(object):
                         for db_rlms in rlmss:
                             ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
                             rlms = ManagerClass(db_rlms.configuration)
-                            _debug("Running task %r for rlms %s %s (%s)..." % (task['name'], task['rlms'], version, db_rlms.location))
+                            _debug(u"Running task %r for rlms %s %s (%s)..." % (repr(task['name']), repr(task['rlms']), repr(version), repr(db_rlms.location)))
                             if task['disable_cache']:
                                 cache_disabler.disable()
 
