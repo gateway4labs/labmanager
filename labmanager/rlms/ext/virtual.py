@@ -23,7 +23,7 @@ class VirtualAddForm(AddForm):
     web      = TextField("Web",    validators = [Required(), URL() ])
     web_name = TextField("Web name",    validators = [Required() ])
     height   = TextField("Height")
-    translation_url = TextField("Web",    validators = [URL() ], description = "List of translations for this lab in a particular JSON format, if available")
+    translation_url = TextField("Translations URL", description = "List of translations for this lab in a particular JSON format, if available")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(VirtualAddForm, self).__init__(*args, **kwargs)
@@ -104,7 +104,7 @@ class RLMS(BaseRLMS):
             return translations
         try:
             r = VIRTUAL_LABS.cached_session.get(self.translation_url)
-            r.raise_status()
+            r.raise_for_status()
             translations_json = r.json()
         except Exception as e:
             traceback.print_exc()

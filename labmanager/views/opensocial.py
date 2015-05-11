@@ -54,7 +54,10 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         except:
             pass
     
-    base_data = {}
+    base_data = {
+        'translations' : {},
+        'mails' : {}
+    }
     if height is not None:
         base_data['height'] = height
 
@@ -79,18 +82,6 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         # if autoload is None:
         #     autoload = labs[0].autoload
         pass
-    
-    if Capabilities.WIDGET in rlms.get_capabilities():
-        widgets = rlms.list_widgets(laboratory_identifier)
-
-        for widget in widgets:
-            if widget['name'] == widget_name:
-                widget['autoload'] = autoload
-
-                if height is not None:
-                    widget['height'] = height
-
-                return widget
 
     if Capabilities.TRANSLATIONS in rlms.get_capabilities():
         translations = rlms.get_translations(laboratory_identifier)
@@ -100,6 +91,19 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
             translations['mails'] = []
     else:
         translations = {'translations' : {}, 'mails' : []}
+
+    if Capabilities.WIDGET in rlms.get_capabilities():
+        widgets = rlms.list_widgets(laboratory_identifier)
+
+        for widget in widgets:
+            if widget['name'] == widget_name:
+                widget['autoload'] = autoload
+                widget['translations'] = translations
+
+                if height is not None:
+                    widget['height'] = height
+
+                return widget
 
     base_data['autoload'] = autoload
     base_data['translations'] = translations
@@ -164,7 +168,7 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
         contents = render_template('opensocial/widget-error.xml',message="RLMS %s not found or not public" % rlms_identifier)
         return Response(contents, mimetype="application/xml")
 
-    widget_config = _extract_widget_config(rlms, lab_name, widget_name, True)     
+    widget_config = _extract_widget_config(rlms, lab_name, widget_name, True)
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO  
 
