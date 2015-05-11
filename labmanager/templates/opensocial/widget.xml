@@ -81,7 +81,7 @@
 
             $("#container").html("");
             // Now show it
-            var contents = $("<iframe frameborder='no' id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}500px{% endif %}' width='98.9%'>");
+            var contents = $("<iframe frameborder='no' id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}600px{% endif %}' width='98.9%'>");
             trace("I'm going to set as innerHTML: ");
             trace(contents);
             $("#container").append(contents); 

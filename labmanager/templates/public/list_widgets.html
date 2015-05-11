@@ -41,7 +41,7 @@
                 <p><b>{{ gettext("Preview not available when using HTTPS.") }}</b></p><a href="{{ url_for('.list_widgets', **list_widgets_kwargs).replace('https://', 'http://', 1) }}" class="btn btn-default">{{ gettext("Use HTTP") }}</a>
             </div>
             {% else %}
-            <div id="slider_container_{{ loop.index0 }}" style="width: 100%; display: none"><h4>Configure height:</h4> <input id="slider_{{ loop.index0 }}" style="width: 100%" data-slider-id='height_slider_{{ loop.index0 }}' type="text" data-slider-min="0" data-slider-max="2000" data-slider-step="10" data-slider-value="500"/></div>
+            <div id="slider_container_{{ loop.index0 }}" style="width: 100%; display: none"><h4>Configure height:</h4> <input id="slider_{{ loop.index0 }}" style="width: 100%" data-slider-id='height_slider_{{ loop.index0 }}' type="text" data-slider-min="0" data-slider-max="2000" data-slider-step="10" data-slider-value="600"/></div>
             <div class="text-center" id="widget_container_{{ loop.index0 }}" style="width: 100%">
                 {% if not autoload %}
                 <button id="widget_{{ loop.index0 }}" type="button" class="btn btn-success">{{ gettext("Preview widget") }}</button>
@@ -75,7 +75,7 @@
             {% if not autoload %} {# If autoload, only run this when clicking on the button #}
             $("#widget_{{ loop.index0 }}").click(function() {
             {% endif %}
-                $("#widget_container_{{ loop.index0 }}").html("<iframe frameborder='no' id='iframe_{{ loop.index0 }}' width='100%' height='500px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url={{ links[widget['name']] }}'></iframe>");
+                $("#widget_container_{{ loop.index0 }}").html("<iframe frameborder='no' id='iframe_{{ loop.index0 }}' width='100%' height='600px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=1&url={{ links[widget['name']] }}'></iframe>");
                 $('#slider_container_{{ loop.index0 }}').show();
                 $('#slider_{{ loop.index0 }}').slider({
                     formatter: function(value) {
