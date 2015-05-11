@@ -57,6 +57,7 @@
     }
 
     function init() {
+        $("#legend").text("__MSG_g4l_laboratory_key__".replace("{0}", "{{ lab_name }}"));
         var prefs = new gadgets.Prefs();
         var localeString = "";
         if (prefs.getLang() != undefined && prefs.getLang() != null && prefs.getCountry() != undefined && prefs.getCountry() != null) {
@@ -119,18 +120,18 @@
 <div id="buttondiv" style="display: none">
     <div class="span8 offset1" style="border-radius: 25px; border: 2px solid #bbb; padding: 20px;">
         <div>
-            <legend class="">Laboratory {{ lab_name }}</legend>
+            <legend id="legend" class=""></legend>
         </div>
 
         <table class="table table-striped table-bordered">
             <tbody>
                 <tr>
-                    <td>System</td>
+                    <td>__MSG_g4l_system__</td>
                     <td><a target=_blank href="{{ rlms.url }}">{{ rlms.get_name() }}</a> </td>
                 </tr>
 
                 <tr>
-                    <td>Location</td>
+                    <td>__MSG_g4l_location__</td>
                     <td>{{ rlms.location }}</td>
                 </tr>
 
@@ -138,7 +139,7 @@
         </table>
         
         <div style="width: 100%; text-align: center">
-            <button id='reserve_button' class='btn btn-primary'>Access the lab!</button>
+            <button id='reserve_button' class='btn btn-primary'>__MSG_g4l_access_the_lab__</button>
             <br><br>
         </div>
         <hr>
