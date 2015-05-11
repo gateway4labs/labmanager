@@ -230,7 +230,13 @@ def _indent(elem, level=0):
 
 def _translations_to_xml(translations_response, language):
     xml_bundle = ET.Element("messagebundle")
-    language = translations_response.get(language, {})
+    xml_bundle.attrib['automatic'] = "false"
+
+    translations = translations_response.get('translations', {})
+    mails = translations_response.get('mails', [])
+    language = translations.get(language, {})
+    if mails:
+        xml_bundle.attrib['mails'] = ','.join(mails)
 
     for key, pack in language.iteritems():
         if 'value' not in pack:
@@ -261,12 +267,15 @@ def _rlms_to_translations(rlms_db, laboratory_id, language):
         rlms = RLMS_CLASS(rlms_db.configuration)
         capabilities = rlms.get_capabilities()
         if Capabilities.TRANSLATIONS in capabilities:
-            translations = rlms.get_translations(laboratory_id).get('translations', {})
+            translations = rlms.get_translations(laboratory_id)
+
+    if 'translations' not in translations:
+        translations['translations'] = {}
 
     for lang in DEFAULT_TRANSLATIONS:
-        if lang not in translations:
-            translations[lang] = {}
-        translations[lang].update(DEFAULT_TRANSLATIONS[lang])
+        if lang not in translations['translations']:
+            translations['translations'][lang] = {}
+        translations['translations'][lang].update(DEFAULT_TRANSLATIONS[lang])
     
     translations_xml = _translations_to_xml(translations, language)
     return Response(translations_xml, mimetype='application/xml')
