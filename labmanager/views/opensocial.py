@@ -92,6 +92,11 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     else:
         translations = {'translations' : {}, 'mails' : []}
 
+    if autoload and len(translations['translations']) == 0:
+        show_languages = False
+    else:
+        show_languages = True
+
     if Capabilities.WIDGET in rlms.get_capabilities():
         widgets = rlms.list_widgets(laboratory_identifier)
 
@@ -99,6 +104,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
             if widget['name'] == widget_name:
                 widget['autoload'] = autoload
                 widget['translations'] = translations
+                widget['show_languages'] = show_languages
 
                 if height is not None:
                     widget['height'] = height
@@ -107,6 +113,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
 
     base_data['autoload'] = autoload
     base_data['translations'] = translations
+    base_data['show_languages'] = show_languages
     return base_data
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
