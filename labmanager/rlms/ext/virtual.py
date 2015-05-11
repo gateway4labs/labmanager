@@ -8,6 +8,7 @@
 
 import sys
 import json
+import traceback
 
 from flask.ext.wtf import TextField, Required, URL
 
@@ -22,6 +23,7 @@ class VirtualAddForm(AddForm):
     web      = TextField("Web",    validators = [Required(), URL() ])
     web_name = TextField("Web name",    validators = [Required() ])
     height   = TextField("Height")
+    translation_url = TextField("Web",    validators = [URL() ], description = "List of translations for this lab in a particular JSON format, if available")
 
     def __init__(self, add_or_edit, *args, **kwargs):
         super(VirtualAddForm, self).__init__(*args, **kwargs)
@@ -60,6 +62,7 @@ class RLMS(BaseRLMS):
         self.web  = config.get('web')
         self.name = config.get('web_name')
         self.height = config.get('height')
+        self.translation_url = config.get('translation_url')
 
         if not self.web or not self.name:
             raise Exception("Laboratory misconfigured: fields missing: %s" % (configuration) )
@@ -68,7 +71,10 @@ class RLMS(BaseRLMS):
         return Versions.VERSION_1
 
     def get_capabilities(self): 
-        return [ Capabilities.WIDGET ] 
+        capabilities = [ Capabilities.WIDGET ] 
+        if self.translation_url:
+            capabilities.append(Capabilities.TRANSLATIONS)
+        return capabilities
 
     def test(self):
         json.loads(self.configuration)
@@ -89,6 +95,28 @@ class RLMS(BaseRLMS):
             'url' : self.web
         }
 
+    def get_translations(self, laboratory_id, **kwargs):
+        if not self.translation_url:
+            return {}
+
+        translations = VIRTUAL_LABS.rlms_cache.get('translations')
+        if translations:
+            return translations
+        try:
+            r = VIRTUAL_LABS.cached_session.get(self.translation_url)
+            r.raise_status()
+            translations_json = r.json()
+        except Exception as e:
+            traceback.print_exc()
+            response = {
+                'error' : unicode(e)
+            }
+            VIRTUAL_LABS.rlms_cache['translations'] = response
+            return response
+        else:
+            VIRTUAL_LABS.rlms_cache['translations'] = translations_json
+            return translations_json
+
     def list_widgets(self, laboratory_id, **kwargs):
         default_widget = dict( name = 'default', description = 'Default widget')
         if self.height is not None:
@@ -96,4 +124,8 @@ class RLMS(BaseRLMS):
         return [ default_widget ]
 
 
-register("Virtual labs", ['0.1'], __name__)
+def populate_cache(rlms):
+    rlms.get_translations(None)
+
+VIRTUAL_LABS = register("Virtual labs", ['0.1'], __name__)
+VIRTUAL_LABS.add_local_periodic_task("Retrieve translations", populate_cache, minutes = 55)

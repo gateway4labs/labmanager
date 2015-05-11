@@ -112,6 +112,13 @@ class Capabilities(object):
     to provide labs. The Labmanager will report this to the user.
     """
 
+    TRANSLATIONS = 'translations'
+    """
+    Providing this capability reports taht the RLMS plug-in supports
+    a method call 'get_translations', which will return a dictionary of 
+    translations per laboratory.
+    """
+
 class BaseRLMS(object):
     """
     BaseRLMS is the abstract class which defines the interface 
@@ -239,6 +246,41 @@ class BaseRLMS(object):
                 'pages' : 1,
                 'laboratories' : results
             }
+
+    def get_translations(self, laboratory_id):
+        """
+        This method is optional. If provided, it must return something like:
+
+        {
+            'translations' : {
+                'en' : {
+                    'hello' : {
+                        'value' : "Hello",
+                        'namespace' : 'http://something'
+                    },
+                    'bye' : {
+                        'value' : "Bye"
+                    }
+                },
+                'es' : {
+                    'hello' : {
+                        'value' : "Hola",
+                        'namespace' : 'http://something'
+                    },
+                    'bye' : {
+                        'value' : "Adios"
+                    }
+                }
+            },
+            'mails' : [ 'someone@domain.com', 'somenelse@domain.com' ]
+        }
+
+        The result is that in the OpenSocial version it will display those translations.
+        They will not be used, but external tools such as the App Composer will use it
+        to translate those texts in an non-automatic mode. The App Composer will notify
+        the people listed in 'mails' about new translations.
+        """
+        return {}
 
     def load_widget(self, reservation_id, widget_name):
         """

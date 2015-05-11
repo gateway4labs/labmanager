@@ -5,6 +5,7 @@ import hashlib
 import traceback
 import threading
 import requests
+import xml.etree.ElementTree as ET
 
 from flask import Blueprint, request, redirect, render_template, url_for, Response
 from flask.ext.wtf import Form, validators, TextField, PasswordField
@@ -13,6 +14,7 @@ from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCrede
 from labmanager.rlms import get_manager_class, Capabilities
 import labmanager.forms as forms
 from labmanager.babel import gettext, lazy_gettext
+from labmanager.views.translations import DEFAULT_TRANSLATIONS
 
 SHINDIG = threading.local()
 
@@ -90,7 +92,17 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
 
                 return widget
 
+    if Capabilities.TRANSLATIONS in rlms.get_capabilities():
+        translations = rlms.get_translations(laboratory_identifier)
+        if 'translations' not in translations:
+            translations['translations'] = {}
+        if 'mails' not in translations:
+            translations['mails'] = []
+    else:
+        translations = {'translations' : {}, 'mails' : []}
+
     base_data['autoload'] = autoload
+    base_data['translations'] = translations
     return base_data
 
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
@@ -195,6 +207,97 @@ def public_smartgateway(lab_name):
 def public_rlms_smartgateway(rlms_identifier, lab_name):
     contents = render_template("opensocial/smartgateway.js", public_lab = False, public_rlms = True, lab_name = lab_name, rlms_identifier = rlms_identifier)
     return Response(contents, mimetype="application/javascript")
+
+
+def _indent(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            _indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+def _translations_to_xml(translations_response, language):
+    xml_bundle = ET.Element("messagebundle")
+    language = translations_response.get(language, {})
+
+    for key, pack in language.iteritems():
+        if 'value' not in pack:
+            continue
+
+        value = pack.get('value', '')
+        namespace = pack.get('namespace')
+        category = pack.get('category')
+
+        xml_msg = ET.SubElement(xml_bundle, 'msg')
+        xml_msg.attrib['name'] = key
+
+        if namespace:
+            xml_msg.attrib['namespace'] = namespace
+
+        if category:
+            xml_msg.attrib['category'] = category
+
+        xml_msg.text = value
+    _indent(xml_bundle)
+    xml_string = ET.tostring(xml_bundle, encoding = 'utf8')
+    return xml_string
+
+def _rlms_to_translations(rlms_db, laboratory_id, language):
+    translations = {}
+    if rlms_db is not None:
+        RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
+        rlms = RLMS_CLASS(rlms_db.configuration)
+        capabilities = rlms.get_capabilities()
+        if Capabilities.TRANSLATIONS in capabilities:
+            translations = rlms.get_translations(laboratory_id).get('translations', {})
+
+    for lang in DEFAULT_TRANSLATIONS:
+        if lang not in translations:
+            translations[lang] = {}
+        translations[lang].update(DEFAULT_TRANSLATIONS[lang])
+    
+    translations_xml = _translations_to_xml(translations, language)
+    return Response(translations_xml, mimetype='application/xml')
+
+@opensocial_blueprint.route("/w/<institution_id>/<lab_name>/languages/<lang>_ALL.xml")
+def translations(institution_id, lab_name, lang):
+    public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    laboratory = public_lab
+    if not public_lab:
+        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
+        if institution:
+            permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+            if permission:
+                laboratory = permission.laboratory
+
+    if not laboratory:
+        return _rlms_to_translations(None, None, lang)
+
+    return _rlms_to_translations(laboratory.rlms, laboratory.laboratory_id, lang)
+
+@opensocial_blueprint.route("/pub/<lab_name>/languages/<lang>_ALL.xml")
+def public_translations(lab_name, lang):
+    laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    if not laboratory:
+        return _rlms_to_translations(None, None, lang)
+    
+    return _rlms_to_translations(laboratory.rlms, laboratory.laboratory_id, lang)
+
+@opensocial_blueprint.route("/pub/<rlms_identifier>/<quoted_url:lab_name>/languages/<lang>_ALL.xml")
+def public_rlms_translations(rlms_identifier, lab_name, lang):
+    rlms = db.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
+    if not rlms:
+        return _rlms_to_translations(None, None, lang)
+
+    return _rlms_to_translations(rlms, lab_name, lang)
 
 @opensocial_blueprint.route("/reload")
 def reload():

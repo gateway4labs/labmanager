@@ -8,7 +8,6 @@
 
 import sys
 import json
-import urllib2
 
 import requests
 import traceback
@@ -17,7 +16,7 @@ from flask import current_app
 from flask.ext.wtf import TextField, Required, URL, PasswordField, SelectField
 
 from labmanager.forms import AddForm, RetrospectiveForm, GenericPermissionForm
-from labmanager.rlms import register, Laboratory, BaseRLMS, BaseFormCreator, Versions
+from labmanager.rlms import register, Laboratory, BaseRLMS, BaseFormCreator, Versions, Capabilities
 
 def get_module(version):
     return sys.modules[__name__]
@@ -152,6 +151,21 @@ class RLMS(BaseRLMS):
         HTTP_PLUGIN.rlms_cache['labs'] = laboratories
         return laboratories
 
+    def get_translations(self, laboratory_id, **kwargs):
+        cache_key = 'translations-%s' % laboratory_id
+        translations = HTTP_PLUGIN.rlms_cache.get(cache_key)
+        if translations is not None:
+            return translations
+
+        try:
+            translations_json = self._request('/translations?laboratory_id=%s' % requests.utils.quote(laboratory_id, ''))
+        except:
+            traceback.print_exc()
+            raise
+
+        HTTP_PLUGIN.rlms_cache[cache_key] = translations_json
+        return translations_json
+
     def reserve(self, laboratory_id, username, institution, general_configuration_str, particular_configurations, request_payload, user_properties, *args, **kwargs):
         request = {
             'laboratory_id' :  laboratory_id,
@@ -188,7 +202,7 @@ class RLMS(BaseRLMS):
         }
 
     def list_widgets(self, laboratory_id, **kwargs):
-        widgets_json = self._request('/widgets?laboratory_id=%s' % urllib2.quote(laboratory_id))
+        widgets_json = self._request('/widgets?laboratory_id=%s' % requests.utils.quote(laboratory_id))
         widgets = []
         for widget_json in widgets_json['widgets']:
             widget = {
@@ -203,8 +217,11 @@ PLUGIN_NAME = "HTTP plug-in"
 PLUGIN_VERSIONS = ['1.0']
 
 def populate_cache(rlms):
-    rlms.get_capabilities()
-    rlms.get_laboratories()
+    capabilities = rlms.get_capabilities()
+    for lab in rlms.get_laboratories():
+        if Capabilities.TRANSLATIONS in capabilities:
+            rlms.get_translations(lab.laboratory_id)
+    
 
 HTTP_PLUGIN = register(PLUGIN_NAME, PLUGIN_VERSIONS, __name__)
 HTTP_PLUGIN.add_local_periodic_task('Populating cache', populate_cache, minutes = 55)
