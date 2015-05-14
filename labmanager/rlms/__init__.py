@@ -17,7 +17,7 @@ from labmanager.db import db
 from labmanager.models import RLMS as dbRLMS
 from labmanager.application import app
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
-from .caches import GlobalCache, VersionCache, InstanceCache, get_cached_session, CacheDisabler
+from .caches import GlobalCache, VersionCache, InstanceCache, EmptyCache, get_cached_session, CacheDisabler
 
 assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or True # Avoid pyflakes warnings
 
@@ -97,7 +97,7 @@ class _RegistrationRecord(object):
         if current_rlms_id is not None:
             return InstanceCache(current_rlms_id)
         else:
-            return {}
+            return EmptyCache()
 
     @property
     def cached_session(self):

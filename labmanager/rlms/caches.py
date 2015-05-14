@@ -236,3 +236,6 @@ class InstanceCache(AbstractCache):
     def __init__(self, rlms_id):
         super(InstanceCache, self).__init__(rlms_id)
 
+class EmptyCache(dict):
+    def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
+        return dict.get(self, key, default_value)

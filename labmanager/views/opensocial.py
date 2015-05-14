@@ -261,7 +261,9 @@ def _translations_to_xml(translations_response, language):
 
         if category:
             xml_msg.attrib['category'] = category
-
+        
+        if not isinstance(value, unicode):
+            value = value.decode('utf-8')
         xml_msg.text = value
     _indent(xml_bundle)
     xml_string = ET.tostring(xml_bundle, encoding = 'UTF-8')
