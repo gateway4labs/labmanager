@@ -157,7 +157,12 @@ class AbstractCache(object, DictMixin):
         if result is None:
             return default_value
 
-        return pickle.loads(result.value)
+        try:
+            decoded_value = result.value.decode('base64')
+        except Exception as e:
+            return default_value
+
+        return pickle.loads(decoded_value)
 
     def __getitem__(self, key):
         default_value = object()
@@ -172,7 +177,7 @@ class AbstractCache(object, DictMixin):
         existing_values = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key).all()
         for existing_value in existing_values:
             db.session.delete(existing_value)
-        new_record = self.MODEL(self.context_id, key = key, value = pickle.dumps(value), datetime = datetime.datetime.now())
+        new_record = self.MODEL(self.context_id, key = key, value = pickle.dumps(value).encode('base64'), datetime = datetime.datetime.now())
         db.session.add(new_record)
         try:
             db.session.commit()
