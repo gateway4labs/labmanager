@@ -114,9 +114,16 @@ class Capabilities(object):
 
     TRANSLATIONS = 'translations'
     """
-    Providing this capability reports taht the RLMS plug-in supports
-    a method call 'get_translations', which will return a dictionary of 
+    Providing this capability reports that the RLMS plug-in supports
+    a method called 'get_translations', which will return a dictionary of 
     translations per laboratory.
+    """
+
+    LOGGING_URL = 'logging_url'
+    """
+    Providing this capability reports that the RLMS plug-in supports
+    a method called 'get_logging_url', which will return a URL to obtain
+    a set of data usage in Activity Streams format.
     """
 
 class BaseRLMS(object):
