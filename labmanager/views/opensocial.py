@@ -5,6 +5,7 @@ import hashlib
 import traceback
 import threading
 import requests
+from functools import wraps
 import xml.etree.ElementTree as ET
 
 from flask import Blueprint, request, redirect, render_template, url_for, Response
@@ -70,7 +71,13 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     RLMS_CLASS = get_manager_class(rlms_db.kind, rlms_db.version, rlms_db.id)
     rlms = RLMS_CLASS(rlms_db.configuration)
 
-    if Capabilities.FORCE_SEARCH in rlms.get_capabilities():
+    try:
+        capabilities = rlms.get_capabilities()
+    except Exception as e:
+        traceback.print_exc()
+        raise Exception("Error retrieving capabilities: %s" % e)
+
+    if Capabilities.FORCE_SEARCH in capabilities:
         if autoload is None:
             autoload = True # By default in those cases where a search is mandatory
     else:
@@ -83,7 +90,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         #     autoload = labs[0].autoload
         pass
 
-    if Capabilities.TRANSLATIONS in rlms.get_capabilities():
+    if Capabilities.TRANSLATIONS in capabilities:
         translations = rlms.get_translations(laboratory_identifier)
         if 'translations' not in translations:
             translations['translations'] = {}
@@ -97,7 +104,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     else:
         show_languages = True
 
-    if Capabilities.WIDGET in rlms.get_capabilities():
+    if Capabilities.WIDGET in capabilities:
         widgets = rlms.list_widgets(laboratory_identifier)
 
         for widget in widgets:
@@ -116,8 +123,20 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     base_data['show_languages'] = show_languages
     return base_data
 
+def xml_error_management(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            contents = render_template('opensocial/widget-error.xml', message="Error loading widget: %s" % e)
+            return Response(contents, mimetype="application/xml")
+
+    return wrapper
+
 @opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.xml")
 @opensocial_blueprint.route("/w/<institution_id>/<lab_name>/w_<widget_name>.xml")
+@xml_error_management
 def widget_xml(institution_id, lab_name, widget_name):
     public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     laboratory = public_lab
@@ -149,6 +168,7 @@ def widget_xml(institution_id, lab_name, widget_name):
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
 @opensocial_blueprint.route("/pub/<lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
+@xml_error_management
 def public_widget_xml(lab_name, widget_name):
     laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
     if not laboratory:
@@ -169,6 +189,7 @@ def public_widget_xml(lab_name, widget_name):
 
 
 @opensocial_blueprint.route("/pub/<rlms_identifier>/<quoted_url:lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
+@xml_error_management
 def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
     rlms = db.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
     if not rlms:
