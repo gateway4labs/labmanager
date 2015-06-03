@@ -216,6 +216,8 @@ class TaskRunner(object):
                 if self._stopping:
                     break
                 time.sleep(per_second)
+        else:
+            print "Warning: the last run_all took: %s time" % (after - before).total_seconds()
 
     def run_forever(self):
         while not self._stopping:
