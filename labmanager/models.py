@@ -142,7 +142,7 @@ class RLMSTypeCache(db.Model):
 
     rlms_type = db.Column(db.Unicode(255), nullable = False, index = True)
     key = db.Column(db.Unicode(255), index = True)
-    value = db.Column(db.UnicodeText)
+    value = db.Column(db.UnicodeText(512 * 1024 * 1024)) # 512 MB
     datetime = db.Column(db.DateTime, index = True)
 
     def __init__(self, rlms_type, key, value, datetime):
@@ -158,7 +158,7 @@ class RLMSCache(db.Model):
 
     rlms_id = db.Column(db.Integer, db.ForeignKey('rlmss.id'), nullable = False)
     key = db.Column(db.Unicode(255), index = True)
-    value = db.Column(db.UnicodeText)
+    value = db.Column(db.UnicodeText(512 * 1024 * 1024)) # 512 MB
     datetime = db.Column(db.DateTime, index = True)
 
     rlms = relation(RLMS.__name__, backref = backref('caches', order_by=id, cascade = 'all,delete'))
