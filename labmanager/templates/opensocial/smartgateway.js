@@ -3,7 +3,7 @@ function trace(msg) {
         console.log(msg);
 }
 
-function SmartGateway(container, button_div, reserve_button) {
+function SmartGateway(container, button_div, reserve_button, localeString) {
 
     var me = this;
 
@@ -25,6 +25,7 @@ function SmartGateway(container, button_div, reserve_button) {
 
     this._loadCallback = null;
     this._reservation_id = null;
+    this._localeString = localeString;
 
     // Constructor
     this._init = function() {
@@ -256,11 +257,11 @@ function SmartGateway(container, button_div, reserve_button) {
             var lab_config = "";
             {% endif %}
             {% if public_rlms %}
-            var url = '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
+            var url = '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + lab_config + me._localeString;
             {% elif public_lab %}
-            var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
+            var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + lab_config + me._localeString;
             {% else %}
-            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + lab_config;
+            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + lab_config + me._localeString;
             {% endif %}
 
             trace("Loading... " + url);

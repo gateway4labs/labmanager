@@ -69,7 +69,7 @@
         }
         // Create SmartGateway
         trace("Initializing SmartGateway...");
-        sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
+        sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'), localeString);
         trace("SmartGateway initialized.");
         // Register a callback: whenever a widget has a reservationId, this method is called 
         sg.registerOnLoad( function(reservationId) {
