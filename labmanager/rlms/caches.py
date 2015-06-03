@@ -1,7 +1,7 @@
 import time
 import datetime
 import calendar
-import pickle
+import cPickle as pickle
 import threading
 
 from UserDict import DictMixin
