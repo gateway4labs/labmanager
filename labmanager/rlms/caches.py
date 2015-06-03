@@ -162,7 +162,11 @@ class AbstractCache(object, DictMixin):
         except Exception as e:
             return default_value
 
-        return pickle.loads(decoded_value)
+        
+        try:
+            return pickle.loads(decoded_value)
+        except:
+            return None
 
     def __getitem__(self, key):
         default_value = object()
