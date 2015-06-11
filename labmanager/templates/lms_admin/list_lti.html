@@ -1,0 +1,17 @@
+{% extends "admin/model/list.html" %}
+
+{% block list_header %}
+<div class="alert span4 offset4">
+    <p>In the LMS, use:</p>
+    <ul>
+        <li><a href="{{ url_for('lti.start_ims', _external = True) }}">{{ url_for('lti.start_ims', _external = True) }}</a> as the Launch URL</li>
+        {% if url_for('lti.start_ims', _external = True).startswith('http://') %}
+            <li>If your LMS uses <b>https://</b>, check that this gateway4labs installation supports it or contact the administrator, since it might not work</li>
+        {% endif %}
+        <li>The field "key" below as key</li>
+        <li>The field "secret" below as secret</li>
+    </ul>
+    <p>See a manual on Moodle <a href="https://docs.moodle.org/23/en/External_tool_settings">here</a>.</p>
+</div>
+{{ super() }}
+{% endblock %}

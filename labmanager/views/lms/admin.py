@@ -141,6 +141,8 @@ def create_course_filter(session):
 
 class PermissionToLmsUserPanel(L4lLmsModelView):
 
+    list_template = 'lms_admin/list_lti.html'
+
     can_edit = False
     form_columns = ('lt_user', 'permission_to_lt')
     column_labels = dict(permission_to_lt = lazy_gettext('Permission To LT'),
