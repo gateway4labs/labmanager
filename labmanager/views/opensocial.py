@@ -491,7 +491,8 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
                                                 **kwargs)
     except:
         traceback.print_exc()
-        return render_template("opensocial/errors.html", message = gettext("There was an error performing the reservation to the final laboratory."))
+        # Don't translate, just in case there are issues with the problem itself
+        return render_template("opensocial/errors.html", message = "There was an error performing the reservation to the final laboratory.")
     else:
         if Capabilities.WIDGET in remote_laboratory.get_capabilities():
             reservation_id = response['reservation_id']
