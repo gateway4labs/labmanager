@@ -16,6 +16,7 @@ from labmanager.rlms import get_manager_class, Capabilities
 import labmanager.forms as forms
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.views.translations import DEFAULT_TRANSLATIONS
+from labmanager import app
 
 SHINDIG = threading.local()
 
@@ -129,6 +130,7 @@ def xml_error_management(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
+            app.logger.error("Error processing request: %s" % e, exc_info = True)
             contents = render_template('opensocial/widget-error.xml', message="Error loading widget: %s" % e)
             return Response(contents, mimetype="application/xml")
 
@@ -160,7 +162,8 @@ def widget_xml(institution_id, lab_name, widget_name):
         if not booking_system(laboratory):    
             contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
             return Response(contents, mimetype="application/xml")
-    except Exception, e:
+    except Exception as e:
+        app.logger.error("Error processing request: %s" % e, exc_info = True)
         contents = render_template('opensocial/widget-error.xml',message=e)
         return Response(contents, mimetype="application/xml")
     contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = public_lab.rlms)
@@ -181,7 +184,8 @@ def public_widget_xml(lab_name, widget_name):
         if not booking_system(laboratory):    
             contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
             return Response(contents, mimetype="application/xml")
-    except Exception, e:
+    except Exception as e:
+        app.logger.error("Error processing request: %s" % e, exc_info = True)
         contents = render_template('opensocial/widget-error.xml',message=e)
         return Response(contents, mimetype="application/xml")
     contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = laboratory.rlms)
@@ -221,7 +225,7 @@ def booking_system(laboratory):
             response = r.json()
             if not response:
                 return False
-        except Exception, e:
+        except Exception as e:
             raise ValueError('Error in request with url',url)
     return True
 
@@ -489,7 +493,8 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
                                                 },
                                                 back = url_for('.reload', _external = True),
                                                 **kwargs)
-    except:
+    except Exception as e:
+        app.logger.error("Error processing request: %s" % e, exc_info = True)
         traceback.print_exc()
         # Don't translate, just in case there are issues with the problem itself
         return render_template("opensocial/errors.html", message = "There was an error performing the reservation to the final laboratory.")
