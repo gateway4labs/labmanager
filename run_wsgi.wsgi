@@ -22,3 +22,9 @@ import logging
 file_handler = logging.FileHandler(filename='errors.log')
 file_handler.setLevel(logging.INFO)
 application.logger.addHandler(file_handler)
+
+if application.config.get('FORCE_SSL'):
+    old_application = application
+    def application(environ, start_response):
+        environ['wsgi.url_scheme'] = 'https'
+        return old_application(environ, start_response)
