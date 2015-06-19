@@ -520,6 +520,7 @@ def open_public_widget(lab_name, widget_name):
 def open_public_rlms_widget(rlms_identifier, lab_name, widget_name):
     return _open_widget_impl(lab_name, widget_name, public_rlms = True, rlms_identifier = rlms_identifier)
 
+@xml_error_management
 def _open_widget_impl(lab_name, widget_name, public_lab = False, public_rlms = False, institution_id = None, rlms_identifier = None):
     if public_rlms:
         db_rlms = db.session.query(RLMS).filter_by(publicly_available = True, public_identifier = rlms_identifier).first()
