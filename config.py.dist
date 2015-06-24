@@ -1,7 +1,7 @@
 import os
 
 # Have you run... "pip install git+https://github.com/gateway4labs/rlms_weblabdeusto.git" first?
-RLMS = ['weblabdeusto','unr','ilabs','phet','vish','quvis']
+RLMS = ['weblabdeusto','unr','ilabs','phet','vish','quvis','concord']
 
 
 # Where will the admin error notification mails come from.
