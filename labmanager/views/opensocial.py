@@ -15,6 +15,7 @@ from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCrede
 from labmanager.rlms import get_manager_class, Capabilities
 import labmanager.forms as forms
 from labmanager.babel import gettext, lazy_gettext
+from labmanager.utils import remote_addr
 from labmanager.views.translations import DEFAULT_TRANSLATIONS
 from labmanager import app
 
@@ -456,7 +457,7 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
     rlms_version      = db_rlms.version
     rlms_kind         = db_rlms.kind
     user_agent = unicode(request.user_agent)
-    origin_ip  = request.remote_addr
+    origin_ip  = remote_addr()
     referer    = request.referrer
     # Load the plug-in for the current RLMS, and instanciate it
     ManagerClass = get_manager_class(rlms_kind, rlms_version, db_rlms.id)

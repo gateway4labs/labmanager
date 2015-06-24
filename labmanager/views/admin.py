@@ -24,7 +24,7 @@ from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
 from labmanager.db import db
 import labmanager.forms as forms
-from labmanager.utils import data_filename
+from labmanager.utils import data_filename, remote_addr
 import labmanager.rlms.ext.rest as http_plugin
 
 config = yload(open(data_filename('labmanager/config/config.yml')))
@@ -716,7 +716,7 @@ class LaboratoryPanel(L4lModelView):
                                              {},
                                              { 
                                                 'user_agent' : unicode(request.user_agent),
-                                                'from_ip'    : request.remote_addr,
+                                                'from_ip'    : remote_addr(),
                                                 'referer'    : request.referrer,
                                             }, back_url = back_url, debug = True)
 

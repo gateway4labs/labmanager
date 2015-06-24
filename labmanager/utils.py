@@ -1,5 +1,6 @@
 import os
 import sys
+from flask import request
 from werkzeug.urls import url_quote, url_unquote
 from werkzeug.routing import PathConverter
 
@@ -15,6 +16,11 @@ def data_filename(fname):
     else:
         return fname
 
+def remote_addr():
+    if not request.headers.getlist("X-Forwarded-For"):
+        return request.remote_addr
+
+    return request.headers.getlist("X-Forwarded-For")[0]
 
 class FullyQuotedUrlConverter(PathConverter):
     def to_python(self, value):

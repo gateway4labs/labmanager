@@ -12,6 +12,7 @@ from labmanager.application import app
 from labmanager.views import get_json
 from labmanager.views.error_codes import messages_codes
 from labmanager.babel import gettext
+from labmanager.utils import remote_addr
 
 ########################################################
 # 
@@ -51,7 +52,7 @@ def requests():
     db_lt = db.session.query(LearningTool).filter_by(name = g.lt).first()
     if request.method == 'GET':
         local_identifiers = [ permission.local_identifier for permission in  db_lt.lab_permissions ]
-        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = request.remote_addr, courses = db_lt.courses)
+        return render_template("http/requests.html", local_identifiers = local_identifiers, remote_addr = remote_addr(), courses = db_lt.courses)
     from labmanager.views import get_json
     json_data = get_json()
     if json_data is None:

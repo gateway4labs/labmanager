@@ -17,6 +17,7 @@ from flask import request, Blueprint, session, Response, render_template, redire
 from labmanager.models import PermissionToLtUser
 from labmanager.rlms import get_manager_class
 from labmanager.babel import gettext
+from labmanager.utils import remote_addr
 
 lti_blueprint = Blueprint('lti', __name__)
 
@@ -113,7 +114,7 @@ def launch_experiment():
                                          request_payload,
                                          { 
                                             'user_agent' : unicode(request.user_agent),
-                                            'from_ip'    : request.remote_addr,
+                                            'from_ip'    : remote_addr(),
                                             'referer'    : referer,
                                         })
     load_url = response['load_url']
