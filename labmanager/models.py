@@ -99,9 +99,9 @@ class RLMS(db.Model, SBBase):
     __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.Unicode(50))
+    name = db.Column(db.Unicode(255))
     kind = db.Column(db.Unicode(50), nullable = False)
-    location = db.Column(db.Unicode(50), nullable = False)
+    location = db.Column(db.Unicode(255), nullable = False)
     url = db.Column(db.Unicode(300), nullable = False)
     version = db.Column(db.Unicode(50), nullable = False)
     configuration = db.Column(db.Unicode(10 * 1024))
