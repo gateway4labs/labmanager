@@ -82,8 +82,17 @@ class LastModifiedNoDate(LastModified):
 
 def get_cached_session():
     CACHE_DIR = 'web_cache'
-    return CacheControl(requests.Session(),
+    sess = CacheControl(requests.Session(),
                     cache=FileCache(CACHE_DIR), heuristic=LastModifiedNoDate(require_date=False))
+
+    original_get = sess.get
+    def wrapped_get(*args, **kwargs):
+        try:
+            return original_get(*args, **kwargs)
+        except OSError:
+            return requests.get(*args, **kwargs)
+    sess.get = wrapped_get
+    return sess
 
 def context_wrapper(func):
 
