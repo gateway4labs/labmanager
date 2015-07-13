@@ -89,7 +89,7 @@ def get_cached_session():
     def wrapped_get(*args, **kwargs):
         try:
             return original_get(*args, **kwargs)
-        except OSError:
+        except (OSError, IOError) as e:
             return requests.get(*args, **kwargs)
     sess.get = wrapped_get
     return sess
