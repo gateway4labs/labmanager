@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico', _external = True) }}">
+    <title>Lab Manager</title>
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
+    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap-responsive.css", _external = True) }}" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        <div class="">
+            <div>
+                <legend class="">{{ gettext("The laboratory is reserved by someone else") }}</legend>
+            </div>
+
+            <div class="alert alert-error">
+                <h4>{{ gettext("This laboratory supports booking, and at this time it is booked.") }}</h4>
+                <ul>
+                    <li>{{ gettext("The current session finishes at: ") }} <span data-date="{{ next_session.strftime("%Y-%m-%d %H:%M:%SZ") }}"></span></li>
+                    <li> {{ gettext("Ensure you can use future sessions at:") }} <a href=http://www.golabz.eu/>www.golabz.eu</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{{ url_for('static', filename="jquery-1.8.3.min.js", _external = True) }}"></script>
+    <script>
+        function zfill(n) {
+            if (n < 10) 
+                return "0" + n;
+            return n;
+        }
+
+        $("[data-date]").each(function (pos, value) {
+            var datestring = $(value).data("date");
+            var d = new Date(datestring.replace(/ /, 'T'));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+    </script>
+</html>

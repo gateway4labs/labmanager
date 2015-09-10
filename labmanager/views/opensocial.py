@@ -2,13 +2,18 @@ import json
 import urllib
 import urllib2
 import hashlib
+import urlparse
+import datetime
 import traceback
 import threading
-import requests
+
+
 from functools import wraps
 import xml.etree.ElementTree as ET
 
-from flask import Blueprint, request, redirect, render_template, url_for, Response
+import requests
+
+from flask import Blueprint, request, redirect, render_template, url_for, Response, make_response
 from flask.ext.wtf import Form, validators, TextField, PasswordField
 from labmanager.db import db
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory, RLMS
@@ -425,8 +430,9 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
         db_rlms = db_laboratory.rlms
 
     if booking_required:
-        ils_student_url = request.args.get('ils_student_url')
-        ils_teacher_url = request.args.get('ils_teacher_url')
+        next_session = check_ils_booking(gadget_url_base)
+        if next_session is not None:
+            return render_template("opensocial/errors-booking.html", next_session = next_session)
 
     # Obtain user data
     if st == 'null' and (public_lab or public_rlms):
@@ -499,6 +505,101 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
         quoted_reservation_id = urllib2.quote(reservation_id, '')
 
         return render_template("opensocial/confirmed.html", reservation_id = quoted_reservation_id, shindig_url = SHINDIG.url)
+
+def extract_ils_id(url):
+    if url is None:
+        return None
+
+    try:
+        path = urlparse.urlparse(url).path
+        identifier = path.split('/')[2]
+    except Exception:
+        traceback.print_exc()
+        return None
+    else:
+        return identifier
+
+def check_ils_booking(gadget_url_base):
+    """
+    Checks the session and returns when the lab is free (in UTC). If None is returned, it means that there is no ongoing session so they can use the lab.
+    """
+    ils_student_id = extract_ils_id(request.args.get('ils_student_url'))
+    ils_teacher_id = extract_ils_id(request.args.get('ils_teacher_url'))
+
+    # TODO: change for another
+    BOOKING_URL = url_for('.mock_golabz_booking_service', _external=True)
+    # BOOKING_URL = 'http://www.golabz.eu/rest/labs-booking/retrieve.json'
+
+    try:
+        r = requests.get(BOOKING_URL)
+        r.raise_for_status()
+        booking_slots = r.json()
+    except Exception as e:
+        traceback.print_exc()
+        # We can not stop students using the labs if the service is temporarily down
+        return None
+
+    affected_ilss = []
+    oldest_affected_endtime = datetime.datetime.utcnow()
+    for booking_slot in booking_slots:
+        is_current_lab = False
+        for lab_url in booking_slot.get('lab_urls', []):
+            if lab_url.startswith(gadget_url_base):
+                is_current_lab = True
+                break
+
+        if not is_current_lab:
+            continue
+        
+        start_time_str = booking_slot.get('start_time', '2000-01-01T00:00:00')
+        end_time_str = booking_slot.get('end_time', '2000-01-01T00:00:00')
+        FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+        try:
+            start_time = datetime.datetime.strptime(start_time_str, FORMAT)
+            end_time = datetime.datetime.strptime(end_time_str, FORMAT)
+        except ValueError:
+            traceback.print_exc()
+            continue
+
+        now = datetime.datetime.utcnow()
+        if end_time > now > start_time:
+            ils_id = extract_ils_id(booking_slot.get('ils_url')) or 'does.not.exist'
+            if end_time > oldest_affected_endtime:
+                oldest_affected_endtime = end_time
+            affected_ilss.append(ils_id)
+
+    if affected_ilss:
+        for affected_ils_id in affected_ilss:
+            if affected_ils_id in (ils_student_id, ils_teacher_id):
+                return None
+        # If there are affected ILS, but we're not part of them, we're not authorized
+        return oldest_affected_endtime
+    else:
+        # If there is no affected ILS, it doesn't matter if we're in the group or not
+        return None
+
+
+@opensocial_blueprint.route("/mock_golabz_booking_service.json")
+def mock_golabz_booking_service():
+    response = [
+        {
+            "title":"Luminescent Labs",
+            "id":"155",
+            "ils_url":"http://graasp.eu/ils/55e699265de47c39e48d76bc/?lang=en",
+            "lab_urls": [
+                "http://localhost/foobar/",
+                "http://localhost:5000/os/pub/acidbase/w_default.xml",
+            ],
+            "user_id":"10",
+            "user_mail":"yiwei.cao@gmail.com",
+            "start_time":"2010-09-30T14:30:00",
+            "end_time":"2030-09-30T15:30:00"
+        }
+    ]
+    r = make_response(json.dumps(response))
+    r.content_type = 'application/json'
+    return r
 
 @opensocial_blueprint.route("/reservations/existing/<institution_id>/<lab_name>/<widget_name>/")
 def open_widget(institution_id, lab_name, widget_name):
