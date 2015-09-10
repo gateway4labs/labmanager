@@ -159,15 +159,7 @@ def widget_xml(institution_id, lab_name, widget_name):
     if not laboratory:
         contents = render_template('opensocial/widget-error.xml',message="Lab %s not found or not public" % lab_name)
         return Response(contents, mimetype="application/xml")
-    try:
-        if not booking_system(laboratory):    
-            contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
-            return Response(contents, mimetype="application/xml")
-    except Exception as e:
-        app.logger.error("Error processing request: %s" % e, exc_info = True)
-        contents = render_template('opensocial/widget-error.xml',message=e)
-        return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = public_lab.rlms)
+    contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = public_lab.rlms, booking = laboratory.go_lab_reservation)
     return Response(contents, mimetype="application/xml")
 
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
@@ -181,15 +173,8 @@ def public_widget_xml(lab_name, widget_name):
     widget_config = _extract_widget_config(laboratory.rlms, laboratory.laboratory_id, widget_name, True)     
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO  
-    try:
-        if not booking_system(laboratory):    
-            contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
-            return Response(contents, mimetype="application/xml")
-    except Exception as e:
-        app.logger.error("Error processing request: %s" % e, exc_info = True)
-        contents = render_template('opensocial/widget-error.xml',message=e)
-        return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = laboratory.rlms)
+
+    contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = laboratory.rlms, booking = laboratory.go_lab_reservation)
     return Response(contents, mimetype="application/xml")
 
 
@@ -206,14 +191,7 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
         return "Error: widget does not exist anymore" # TODO  
 
 #   XXX We do not support booking on the public labs yet
-#     try:
-#         if not booking_system(laboratory):    
-#             contents = render_template('opensocial/widget-error.xml',message="Invalid Credentials, token isn't correct")
-#             return Response(contents, mimetype="application/xml")
-#     except Exception, e:
-#         contents = render_template('opensocial/widget-error.xml',message=e)
-#         return Response(contents, mimetype="application/xml")
-    contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = rlms)
+    contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = rlms, booking = False)
     return Response(contents, mimetype="application/xml")
 
 
@@ -352,19 +330,24 @@ def reload():
     return render_template("opensocial/reload.html")
 
 
+INVALID_WIDGET_NAME = 'THIS_IS_NOT_A_VALID_WIDGET_NAME'
+
 @opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>/")
 def reserve(institution_id, lab_name):
-    return _reserve_impl(lab_name, institution_id = institution_id)
+    gadget_url_base = url_for('.widget_xml', institution_name = institution_id, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    return _reserve_impl(lab_name, institution_id = institution_id, gadget_url_base = gadget_url_base)
 
 @opensocial_blueprint.route("/public/reservations/new/<lab_name>/")
 def public_reserve(lab_name):
-    return _reserve_impl(lab_name, public_lab = True)
+    gadget_url_base = url_for('.public_widget_xml', lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    return _reserve_impl(lab_name, public_lab = True, gadget_url_base = gadget_url_base)
 
 @opensocial_blueprint.route("/public/reservations/new/<rlms_identifier>/<quoted_url:lab_name>/")
 def public_rlms_reserve(rlms_identifier, lab_name):
-    return _reserve_impl(lab_name, public_rlms = True, rlms_identifier = rlms_identifier)
+    gadget_url_base = url_for('.public_rlms_widget_xml', rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    return _reserve_impl(lab_name, public_rlms = True, rlms_identifier = rlms_identifier, gagdet_url_base = None)
 
-def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None):
+def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None, gadget_url_base = None):
     # TODO XXX SECURITY BUG: THIS METHOD DOES NOT USE THE BOOKING THING
     st = request.args.get('st') or ''
     SHINDIG.url = 'http://shindig2.epfl.ch'
@@ -378,12 +361,13 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
         ple_configuration = '{}'
         institution_name  = 'public-labs' # TODO: make sure that this name is unique
         courses_configurations = []
+        booking_required = False
     else:
         if public_lab:
             db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
             if db_laboratory is None:
                 return render_template("opensocial/errors.html", message = gettext("That lab does not exist or it is not publicly available."))
-
+            
             ple_configuration = '{}'
             institution_name  = 'public-labs' # TODO: make sure that this name is unique
             courses_configurations = []
@@ -435,8 +419,15 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
                 ple_configuration = []
                 db_laboratory     = public_lab_db
                 institution_name  = institution.name
+
+        booking_required = db_laboratory.go_lab_reservation
         lab_identifier = db_laboratory.laboratory_id
         db_rlms = db_laboratory.rlms
+
+    if booking_required:
+        ils_student_url = request.args.get('ils_student_url')
+        ils_teacher_url = request.args.get('ils_teacher_url')
+
     # Obtain user data
     if st == 'null' and (public_lab or public_rlms):
         user_id = 'no-id'
