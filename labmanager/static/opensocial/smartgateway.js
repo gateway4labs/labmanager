@@ -6,16 +6,6 @@ function trace(msg) {
 function SmartGateway(container, button_div, reserve_button, localeString) {
 
     var me = this;
-
-    // The _mylabid identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
-    
-    {% if public_rlms %}
-    var _mylabid = '{{ url_for(".public_rlms_smartgateway", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}';
-    {% elif public_lab %}
-    var _mylabid = '{{ url_for(".public_smartgateway", lab_name = lab_name, _external = True) }}';
-    {% else %}
-    var _mylabid = '{{ url_for(".smartgateway", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
-    {% endif %}
    
     // Create a unique identifier
     this._identifier = Math.random();
@@ -46,7 +36,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
             event: "select",
             type: "json",
             message: {
-                'srclabid'                   : _mylabid,
+                'srclabid'                   : LAB_ID,
                 'labmanager-msg'             : 'labmanager::someone-there'
             }
         });
@@ -78,7 +68,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
 
         var messlabid = message["srclabid"];
  
-        if ( (message['labmanager-src'] != me._identifier) && ( messlabid == _mylabid ) )
+        if ( (message['labmanager-src'] != me._identifier) && ( messlabid == LAB_ID ) )
         { 
             $('#reserve-button').attr('disabled', 'disabled');
         }
@@ -121,7 +111,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
             event: "select",
             type: "json",
             message: {
-                'srclabid'           : _mylabid,
+                'srclabid'           : LAB_ID,
                 'labmanager-msg'    : 'labmanager::updateBgColor',
                 'color'             : color,
             }
@@ -137,7 +127,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
             event: "select",
             type: "json",
             message: {
-                'srclabid'           : _mylabid,
+                'srclabid'           : LAB_ID,
                 'labmanager-msg'    : 'labmanager::updateBgColor',
                 'color'             : color,
             }
@@ -150,7 +140,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
 
         var messlabid = message["srclabid"];
  
-        if (messlabid == _mylabid)
+        if (messlabid == LAB_ID)
         {
             document.body.style.backgroundColor=color; 
         }
@@ -172,7 +162,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
 
         var messlabid = message["srclabid"];
 
-        if ( ( me._reservation_id == null ) && ( messlabid  == _mylabid ) ) {
+        if ( ( me._reservation_id == null ) && ( messlabid  == LAB_ID ) ) {
             me._reservation_id = message['labmanager-reservation-id'];
             me._loadCallback(me._reservation_id);
         }
@@ -183,13 +173,13 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
             
         var messlabid = message["srclabid"];
  
-        if ( ( me._reservation_id != null ) && ( messlabid  == _mylabid ) )
+        if ( ( me._reservation_id != null ) && ( messlabid  == LAB_ID ) )
         {
             gadgets.openapp.publish({
                 event: "select",
                 type: "json",
                 message: {
-                    'srclabid'                   : _mylabid,
+                    'srclabid'                   : LAB_ID,
                     'labmanager-msg'             : 'labmanager::activate',
                     'labmanager-reservation-id'  : me._reservation_id,
                 }
@@ -201,7 +191,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
     // This message takes a message from the iframe through the inter-frame communication
     // and uses OpenApp to send a message to the rest of the widgets.
     this._processMessages = function(e) {
-        if((e.origin == 'http://{{ request.host }}' || e.origin == 'https://{{ request.host }}') && new String(e.data).indexOf("reserved::") == 0) {
+        if((e.origin == CURRENT_HOST_HTTP || e.origin == CURRENT_HOST_HTTPS) && new String(e.data).indexOf("reserved::") == 0) {
             var data_str = e.data.split('::')[1];
             trace('Do something with: ' + data_str);
 
@@ -212,7 +202,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
                 event: "select",
                 type: "json",
                 message: {
-                    'srclabid'                   : _mylabid,
+                    'srclabid'                   : LAB_ID,
                     'labmanager-msg'             : 'labmanager::activate',
                     'labmanager-reservation-id'  : reservation_id,
                 }
@@ -220,12 +210,12 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
                 
             me._reservation_id = reservation_id;
             me._loadCallback(reservation_id);
-        } else if((e.origin == 'http://{{ request.host }}' || e.origin == 'https://{{ request.host }}') && new String(e.data).indexOf("reload::") == 0) {
+        } else if((e.origin == CURRENT_HOST_HTTP || e.origin == CURRENT_HOST_HTTPS) && new String(e.data).indexOf("reload::") == 0) {
             gadgets.openapp.publish({
                 event: "select",
                 type: "json",
                 message: {
-                    'srclabid'                   : _mylabid,
+                    'srclabid'                   : LAB_ID,
                     'labmanager-msg'             : 'labmanager::reload',
                 }
             });
@@ -243,7 +233,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
                 event: "select",
                 type: "json",
                 message: {
-                    'srclabid'                   : _mylabid,
+                    'srclabid'                   : LAB_ID,
                     'labmanager-msg'             : 'labmanager::wait_reservation',
                     'labmanager-src'             : me._identifier
                 }
@@ -251,18 +241,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
 
             // Then, take the token
             var token = shindig.auth.getSecurityToken();
-            {% if request.args.get('lab_config') %}
-            var lab_config = "&lab_config={{ request.args.get('lab_config') }}";
-            {% else %}
-            var lab_config = "";
-            {% endif %}
-            {% if public_rlms %}
-            var url = '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + lab_config + me._localeString;
-            {% elif public_lab %}
-            var url = '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + lab_config + me._localeString;
-            {% else %}
-            var url = '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + lab_config + me._localeString;
-            {% endif %}
+            var url = getReservationUrl(token, me._localeString);
 
             trace("Loading... " + url);
 

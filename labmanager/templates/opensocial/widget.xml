@@ -39,14 +39,30 @@
     <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/main/ils_graaspeu.js"></script>
     <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
-{% if public_rlms %}
-    <script type="text/javascript" src="{{ url_for('.public_rlms_smartgateway', rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
-{% elif public_lab %}
-    <script type="text/javascript" src="{{ url_for('.public_smartgateway', lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
-{% else %}
-    <script type="text/javascript" src="{{ url_for('.smartgateway', institution_id = institution_id, lab_name = lab_name, _external = True, lab_config = request.args.get('lab_config')) }}"></script>
-{% endif %}
 
+    <script type="text/javascript">
+        // The LAB_ID identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
+        var CURRENT_HOST_HTTP = 'http://{{ request.host }}';
+        var CURRENT_HOST_HTTPS = 'https://{{ request.host }}';
+        var LAB_ID = '{{ request.url }}';
+
+        function getReservationUrl(token, localeString) {
+            // Laboratory config provided in the request
+            {% if request.args.get('lab_config') %}
+            var lab_config = "&lab_config={{ request.args.get('lab_config') }}";
+            {% else %}
+            var lab_config = "";
+            {% endif %}
+            {% if public_rlms %}
+            return '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + lab_config + localeString;
+            {% elif public_lab %}
+            return '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + lab_config + localeString;
+            {% else %}
+            return '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + lab_config + localeString;
+            {% endif %}
+        }
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='opensocial/smartgateway.js') }}"></script>
 
 
 <script type="text/javaScript">
@@ -54,7 +70,6 @@
     var sg;
 
     function adjustIframeHeight() {
-//        $("#final_widget_iframe").removeAttr("height");
         gadgets.window.adjustHeight();
     }
 
@@ -67,6 +82,18 @@
                 localeString = "&locale=" + prefs.getLang() + "_" + prefs.getCountry();
             }
         }
+
+        {% if go_lab_reservation %}
+        ils.getIls(function (ils, phase) {
+            if (!ils.error) {
+                console.log("Current ILS id: " + ils.metadata.ilsRef);
+            }
+        });
+        var go_lab_reservation = true;
+        {% else %}
+        var go_lab_reservation = false;
+        {% endif %}
+
         // Create SmartGateway
         trace("Initializing SmartGateway...");
         sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'), localeString);
