@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 
-from flask import Blueprint, request, redirect, render_template, url_for, Response, make_response
+from flask import Blueprint, request, redirect, render_template, url_for, Response, make_response, jsonify
 from flask.ext.wtf import Form, validators, TextField, PasswordField
 from labmanager.db import db
 from labmanager.models import LearningTool, PermissionToLt, LtUser, ShindigCredentials, Laboratory, RLMS
@@ -501,6 +501,18 @@ def extract_ils_id(url):
         return None
     else:
         return identifier
+
+@opensocial_blueprint.route("/booking/<institution_id>/<lab_name>/")
+def check_laboratory_booking(institution_id, lab_name):
+    gadget_url_base = url_for('.widget_xml', institution_name = institution_id, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    next_session = check_ils_booking(gadget_url_base)
+    return jsonify(error = False, next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S'), booked = next_session is not None)
+
+@opensocial_blueprint.route("/public/booking/<lab_name>/")
+def check_public_laboratory_booking(lab_name):
+    gadget_url_base = url_for('.public_widget_xml', lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    next_session = check_ils_booking(gadget_url_base)
+    return jsonify(error = False, next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S'), booked = next_session is not None)
 
 def check_ils_booking(gadget_url_base):
     """

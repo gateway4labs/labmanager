@@ -3,10 +3,19 @@ function trace(msg) {
         console.log(msg);
 }
 
-function SmartGateway(container, button_div, reserve_button, localeString) {
+function SmartGateway(container, button_div, reserve_button) {
 
     var me = this;
-   
+
+    var prefs = new gadgets.Prefs();
+    this.localeString = "";
+    if (prefs.getLang() != undefined && prefs.getLang() != null && prefs.getCountry() != undefined && prefs.getCountry() != null) {
+        if (prefs.getLang().length > 0 && prefs.getCountry().length > 0) {
+            this.localeString = "&locale=" + prefs.getLang() + "_" + prefs.getCountry();
+        }
+    }
+
+
     // Create a unique identifier
     this._identifier = Math.random();
     this._container = container;
@@ -15,7 +24,6 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
 
     this._loadCallback = null;
     this._reservation_id = null;
-    this._localeString = localeString;
 
     // Constructor
     this._init = function() {
@@ -241,7 +249,7 @@ function SmartGateway(container, button_div, reserve_button, localeString) {
 
             // Then, take the token
             var token = shindig.auth.getSecurityToken();
-            var url = getReservationUrl(token, me._localeString);
+            var url = getReservationUrl(token, this.localeString);
 
             trace("Loading... " + url);
 
