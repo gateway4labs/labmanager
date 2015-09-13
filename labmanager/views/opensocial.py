@@ -502,19 +502,25 @@ def extract_ils_id(url):
     else:
         return identifier
 
+def _check_lab_booking_response(gadget_url_base):
+    next_session = check_ils_booking(gadget_url_base)
+    if next_session is not None:
+        next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S')
+
+    serialized_response = json.dumps(dict(error = False, next_session = next_session, booked = next_session is not None))
+    return Response(serialized_response, headers = {
+        'Access-Control-Allow-Origin': '*'
+    }, content_type = 'application/json')
+
 @opensocial_blueprint.route("/booking/<institution_id>/<lab_name>/")
 def check_laboratory_booking(institution_id, lab_name):
     gadget_url_base = url_for('.widget_xml', institution_name = institution_id, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
-    next_session = check_ils_booking(gadget_url_base)
-    return jsonify(error = False, next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S'), booked = next_session is not None)
+    return _check_lab_booking_response(gadget_url_base)
 
 @opensocial_blueprint.route("/public/booking/<lab_name>/")
 def check_public_laboratory_booking(lab_name):
     gadget_url_base = url_for('.public_widget_xml', lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
-    next_session = check_ils_booking(gadget_url_base)
-    if next_session is not None:
-        next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S')
-    return jsonify(error = False, next_session = next_session, booked = next_session is not None)
+    return _check_lab_booking_response(gadget_url_base)
 
 def check_ils_booking(gadget_url_base):
     """
@@ -583,10 +589,11 @@ def mock_golabz_booking_service():
         {
             "title":"Luminescent Labs",
             "id":"155",
-            "ils_url":"http://graasp.eu/ils/55e699265de47c39e48d76bc/?lang=en",
+            "ils_url":"http://graasp.eu/ils/55f605fd06a9ab76eb10e3db/?lang=en",
             "lab_urls": [
                 "http://localhost/foobar/",
                 "http://localhost:5000/os/pub/acidbase/w_default.xml",
+                "http://gateway.golabz.eu/os/pub/travoltage-booking/w_default.xml",
             ],
             "user_id":"10",
             "user_mail":"yiwei.cao@gmail.com",
