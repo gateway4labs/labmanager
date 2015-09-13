@@ -53,6 +53,12 @@
         {% else %}
         var BOOKING_URL = '{{ url_for(".check_laboratory_booking", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
         {% endif %}
+        {% if go_lab_booking %}
+        var GOLAB_BOOKING = true;
+        {% else %}
+        var GOLAB_BOOKING = false;
+        {% endif %}
+
         function getReservationUrl(token, localeString) {
             // Laboratory config provided in the request
             {% if request.args.get('lab_config') %}
@@ -83,24 +89,12 @@
     function init() {
         $("#legend").text("{% if not autoload %}__MSG_g4l_laboratory_key__{% endif %}".replace("{0}", "{{ lab_name }}"));
 
-        {% if go_lab_reservation %}
-        ils.getIls(function (ils, phase) {
-            if (!ils.error) {
-                console.log("Current ILS id: " + ils.metadata.ilsRef);
-            }
-        });
-        var go_lab_reservation = true;
-        {% else %}
-        var go_lab_reservation = false;
-        {% endif %}
-
         // Create SmartGateway
         trace("Initializing SmartGateway...");
         sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
         trace("SmartGateway initialized.");
         // Register a callback: whenever a widget has a reservationId, this method is called 
         sg.registerOnLoad( function(reservationId) {
-            
             {% if public_rlms %}
             var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
             {% elif public_lab %}
@@ -136,8 +130,51 @@
             }, "#final_widget_iframe");
         });
         trace("Callback registered.");
-        if (AUTOLOAD) 
-            sg.startReservation();
+
+        function showError(errorMessage) {
+            $("#reserve_button_area").hide();
+            $("#error_area").hide();
+            $("#error_message").html(errorMessage);
+        }
+
+        /*
+        if (GOLAB_BOOKING) {
+            // TODO: display some "Checking booking" message
+            ils.getIls(function (ils, phase) {
+                var ils_student_url = "";
+                var ils_teacher_url = "";
+                if (!ils.error) {
+                    // TODO: ils_student_url = ...
+                    console.log("Current ILS id: " + ils.metadata.ilsRef);
+                }
+
+                $.get(BOOKING_URL + "?ils_student_url=" + ils_student_url "&ils_teacher_url=" + ils_teacher_url)
+                    .done(function (data) {
+                        // something
+                        if (data.booked) {
+                            if (ils.error) {
+                                // TODO: the current ILS could not be retrieved, so
+                                // maybe the user is a valid user not properly using
+                                // the lab
+                            } else {
+                                // The user is an invalid user. Show the problem.
+                            }
+                        } else {
+                            if (AUTOLOAD) {
+                                sg.startReservation();
+                            } else {
+                                // Hide the "checking booking" message
+                            }
+                        }
+                    })
+                    .fail(function () {
+                        // Show an error
+                    });
+            });
+        } else */ {
+            if (AUTOLOAD) 
+                sg.startReservation();
+        }
     }
 
     trace("Registering...");
@@ -162,12 +199,15 @@
                     <td>__MSG_g4l_location__</td>
                     <td>{{ rlms.location }}</td>
                 </tr>
-
             </tbody>
         </table>
         {% endif %}
-        <div style="width: 100%; text-align: center">
+        <div id="reserve_button_area" style="width: 100%; text-align: center">
             <button id='reserve_button' class='btn btn-primary'>{% if not autoload %}__MSG_g4l_access_the_lab__{% endif %}</button>
+            <br><br>
+        </div>
+        <div id="error_area" style="display: none" class="alert alert-error">
+            <p id="error_message></p>
             <br><br>
         </div>
         <hr>

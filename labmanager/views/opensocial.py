@@ -512,7 +512,9 @@ def check_laboratory_booking(institution_id, lab_name):
 def check_public_laboratory_booking(lab_name):
     gadget_url_base = url_for('.public_widget_xml', lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
     next_session = check_ils_booking(gadget_url_base)
-    return jsonify(error = False, next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S'), booked = next_session is not None)
+    if next_session is not None:
+        next_session = next_session.strftime('%Y-%m-%dT%H:%M:%S')
+    return jsonify(error = False, next_session = next_session, booked = next_session is not None)
 
 def check_ils_booking(gadget_url_base):
     """
