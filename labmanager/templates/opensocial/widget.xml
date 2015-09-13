@@ -137,7 +137,7 @@
             $("#error_message").html(errorMessage);
         }
 
-        if (GOLAB_BOOKING) {
+        /* if (GOLAB_BOOKING) {
             $("#reserve_button_area").hide();
             $("#waiting_area").show();
             ils.getIls(function (ils, phase) {
@@ -169,8 +169,8 @@
                         $("#waiting_area").hide();
                         showError("There was an error checking the booking");
                     });
-            });
-        } else {
+            }); 
+        } else */ {
             if (AUTOLOAD) 
                 sg.startReservation();
         }

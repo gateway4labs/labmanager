@@ -333,7 +333,7 @@ def public_reserve(lab_name):
 @opensocial_blueprint.route("/public/reservations/new/<rlms_identifier>/<quoted_url:lab_name>/")
 def public_rlms_reserve(rlms_identifier, lab_name):
     gadget_url_base = url_for('.public_rlms_widget_xml', rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
-    return _reserve_impl(lab_name, public_rlms = True, rlms_identifier = rlms_identifier, gagdet_url_base = None)
+    return _reserve_impl(lab_name, public_rlms = True, rlms_identifier = rlms_identifier, gadget_url_base = None)
 
 def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None, gadget_url_base = None):
     # TODO XXX SECURITY BUG: THIS METHOD DOES NOT USE THE BOOKING THING
