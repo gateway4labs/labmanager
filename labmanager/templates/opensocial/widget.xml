@@ -137,9 +137,9 @@
             $("#error_message").html(errorMessage);
         }
 
-        /*
         if (GOLAB_BOOKING) {
-            // TODO: display some "Checking booking" message
+            $("#reserve_button_area").hide();
+            $("#waiting_area").show();
             ils.getIls(function (ils, phase) {
                 var ils_student_url = "";
                 var ils_teacher_url = "";
@@ -150,28 +150,27 @@
 
                 $.get(BOOKING_URL + "?ils_student_url=" + ils_student_url "&ils_teacher_url=" + ils_teacher_url)
                     .done(function (data) {
-                        // something
+                        $("#waiting_area").hide();
+
                         if (data.booked) {
-                            if (ils.error) {
-                                // TODO: the current ILS could not be retrieved, so
-                                // maybe the user is a valid user not properly using
-                                // the lab
-                            } else {
-                                // The user is an invalid user. Show the problem.
-                            }
+                            // The user is an invalid user. Show the problem.
+                            var d = new Date(data.next_session);
+                            var new_session = d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds());
+                            showError("There is an existing session running. The next session is on: " + new_session);
                         } else {
                             if (AUTOLOAD) {
                                 sg.startReservation();
                             } else {
-                                // Hide the "checking booking" message
+                                $("#reserve_button_area").show();
                             }
                         }
                     })
                     .fail(function () {
-                        // Show an error
+                        $("#waiting_area").hide();
+                        showError("There was an error checking the booking");
                     });
             });
-        } else */ {
+        } else {
             if (AUTOLOAD) 
                 sg.startReservation();
         }
@@ -207,7 +206,11 @@
             <br><br>
         </div>
         <div id="error_area" style="display: none" class="alert alert-error">
-            <p id="error_message></p>
+            <p id="error_message"></p>
+            <br><br>
+        </div>
+        <div id="waiting_area" style="display: none" class="alert alert-info">
+            <p>__MSG_g4l_checking_booking__</p>
             <br><br>
         </div>
         <hr>

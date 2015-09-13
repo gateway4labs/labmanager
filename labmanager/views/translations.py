@@ -19,6 +19,10 @@ DEFAULT_TRANSLATIONS = {
         'g4l_access_the_lab' : {
             'value' : "Access the lab!",
             'namespace' : G4L_NAMESPACE
+        },
+        'g4l_checking_booking' : {
+            'value' : "Checking if there is any booked session...",
+            'namespace' : G4L_NAMESPACE
         }
     },
     'es' : {
@@ -36,6 +40,10 @@ DEFAULT_TRANSLATIONS = {
         },
         'g4l_access_the_lab' : {
             'value' : "Accede al laboratorio",
+            'namespace' : G4L_NAMESPACE
+        },
+        'g4l_checking_booking' : {
+            'value' : "Comprobando si hay alguna sesión reservada...",
             'namespace' : G4L_NAMESPACE
         }
     }
