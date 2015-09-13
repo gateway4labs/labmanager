@@ -132,6 +132,9 @@ class _RegistrationRecord(object):
     def add_local_periodic_task(self, task_name, function, hours = 0, minutes = 0, disable_cache = True):
         return self._add_periodic_task(_LOCAL_PERIODIC_TASKS, task_name, function, hours, minutes, disable_cache)
 
+    def is_debug(self):
+        return 'debug' in sys.argv or '-debug' in sys.argv or '--debug' in sys.argv
+
 def _debug(msg):
     sys.stderr.flush()
     sys.stdout.flush()
