@@ -546,7 +546,8 @@ def check_ils_booking(gadget_url_base):
     oldest_affected_endtime = datetime.datetime.utcnow()
     for booking_slot in booking_slots:
         is_current_lab = False
-        for lab_url in booking_slot.get('lab_urls', []):
+        for lab_app in booking_slot.get('lab_apps', []):
+            lab_url = lab_app.get('app_url', '')
             if lab_url.startswith(gadget_url_base):
                 is_current_lab = True
                 break
@@ -590,10 +591,19 @@ def mock_golabz_booking_service():
             "title":"Luminescent Labs",
             "id":"155",
             "ils_url":"http://graasp.eu/ils/55f605fd06a9ab76eb10e3db/?lang=en",
-            "lab_urls": [
-                "http://localhost/foobar/",
-                "http://localhost:5000/os/pub/acidbase/w_default.xml",
-                "http://gateway.golabz.eu/os/pub/travoltage-booking/w_default.xml",
+            "lab_apps": [
+                {
+                    'app_url' : "http://localhost/foobar/",
+                    'app_type' : 'Open Social widget',
+                },
+                {
+                    'app_url' : "http://localhost:5000/os/pub/acidbase/w_default.xml",
+                    'app_type' : 'Open Social widget',
+                },
+                {
+                    'app_url' : "http://gateway.golabz.eu/os/pub/travoltage-booking/w_default.xml",
+                    'app_type': 'Open Social widget',
+                }
             ],
             "user_id":"10",
             "user_mail":"yiwei.cao@gmail.com",
