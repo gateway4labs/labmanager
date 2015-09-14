@@ -20,6 +20,7 @@ Flask-Testing==0.4.1
 Flask-DebugToolbar==0.10.0
 WTForms==1.0.5
 lxml==3.4.4
+gunicorn==19.3.0
 
 git+https://github.com/gateway4labs/rlms_unr.git
 git+https://github.com/gateway4labs/rlms_weblabdeusto.git
