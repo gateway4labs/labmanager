@@ -223,8 +223,7 @@ class TaskRunner(object):
             clean_cache()
 
         future = before + datetime.timedelta(minutes = 1)
-        future.second = 0
-        future.microsecond = 0
+        future = future.replace(second = 0, microsecond = 0)
         self._run_all()
         after = datetime.datetime.now()
 
