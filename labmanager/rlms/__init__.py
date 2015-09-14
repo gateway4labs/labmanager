@@ -107,6 +107,18 @@ class _RegistrationRecord(object):
 
         cached_session = get_cached_session()
         self.per_thread.cached_session = cached_session
+
+        def timeout_get(url, timeout = (30, 60), max_retries = 3, **kwargs):
+            count = 0
+            while True:
+                try:
+                    return cached_session.get(url, timeout = timeout, **kwargs)
+                except requests.Timeout:
+                    count += 1
+                    if count >= max_retries:
+                        raise
+        
+        cached_session.timeout_get = timeout_get
         return cached_session
 
     def _add_periodic_task(self, where, task_name, function, hours, minutes, disable_cache):
