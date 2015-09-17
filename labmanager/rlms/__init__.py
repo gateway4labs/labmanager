@@ -17,7 +17,7 @@ from labmanager.db import db
 from labmanager.models import RLMS as dbRLMS
 from labmanager.application import app
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
-from .caches import GlobalCache, VersionCache, InstanceCache, EmptyCache, get_cached_session, CacheDisabler
+from .caches import GlobalCache, VersionCache, InstanceCache, EmptyCache, get_cached_session, CacheDisabler, clean_cache
 
 assert BaseFormCreator or register_blueprint or Versions or Capabilities or BaseRLMS or True # Avoid pyflakes warnings
 
@@ -217,9 +217,13 @@ class TaskRunner(object):
 
                 self.latest_executions[task['id']] = now
 
-    def _step(self):
+    def _step(self, initial):
         before = self._now()
+        if before.hour == initial.hour and before.minute == initial.minute:
+            clean_cache()
+
         future = before + datetime.timedelta(minutes = 1)
+        future = future.replace(second = 0, microsecond = 0)
         self._run_all()
         after = datetime.datetime.now()
 
@@ -235,8 +239,9 @@ class TaskRunner(object):
             print "Warning: the last run_all took: %s time" % (after - before).total_seconds()
 
     def run_forever(self):
+        initial = self._now()
         while not self._stopping:
-            self._step()
+            self._step(initial)
 
     def stop(self):
         self._stopping = True

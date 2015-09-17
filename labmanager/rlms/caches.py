@@ -1,4 +1,5 @@
 import time
+import shutil
 import datetime
 import calendar
 import cPickle as pickle
@@ -80,8 +81,9 @@ class LastModifiedNoDate(LastModified):
     def warning(self, resp):
         return None
 
+CACHE_DIR = 'web_cache'
+
 def get_cached_session():
-    CACHE_DIR = 'web_cache'
     sess = CacheControl(requests.Session(),
                     cache=FileCache(CACHE_DIR), heuristic=LastModifiedNoDate(require_date=False))
 
@@ -93,6 +95,12 @@ def get_cached_session():
             return requests.get(*args, **kwargs)
     sess.get = wrapped_get
     return sess
+
+def clean_cache():
+    try:
+        shutil.rmtree(CACHE_DIR)
+    except (OSError, IOError) as e:
+        pass
 
 def context_wrapper(func):
 
