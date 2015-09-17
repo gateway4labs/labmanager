@@ -529,9 +529,8 @@ def check_ils_booking(gadget_url_base):
     ils_student_id = extract_ils_id(request.args.get('ils_student_url'))
     ils_teacher_id = extract_ils_id(request.args.get('ils_teacher_url'))
 
-    # TODO: change for another
-    BOOKING_URL = url_for('.mock_golabz_booking_service', _external=True)
-    # BOOKING_URL = 'http://www.golabz.eu/rest/labs-booking/retrieve.json'
+    # BOOKING_URL = url_for('.mock_golabz_booking_service', _external=True)
+    BOOKING_URL = 'http://www.golabz.eu/rest/lab-booking/retrieve.json'
 
     try:
         r = requests.get(BOOKING_URL)
