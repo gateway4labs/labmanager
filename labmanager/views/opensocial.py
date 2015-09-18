@@ -533,7 +533,10 @@ def check_ils_booking(gadget_url_base):
     BOOKING_URL = 'http://www.golabz.eu/rest/lab-booking/retrieve.json'
 
     try:
-        r = requests.get(BOOKING_URL)
+        r = requests.get(BOOKING_URL, headers = {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+        })
         r.raise_for_status()
         booking_slots = r.json()
     except Exception as e:
