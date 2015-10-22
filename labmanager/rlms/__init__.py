@@ -11,6 +11,7 @@ import time
 import threading
 import datetime
 import traceback
+import requests
 
 
 from labmanager.db import db
