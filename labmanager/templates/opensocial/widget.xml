@@ -105,7 +105,7 @@
         sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
         trace("SmartGateway initialized.");
         // Register a callback: whenever a widget has a reservationId, this method is called 
-        sg.registerOnLoad( function(reservationId) {
+        sg.registerOnLoad( function(reservationId, g4lSessionId) {
             {% if public_rlms %}
             var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
             {% elif public_lab %}
@@ -139,6 +139,8 @@
                     gadgets.window.adjustHeight();
                 }
             }, "#final_widget_iframe");
+
+            reportStarted({{ "{0} widget of {1}".format(widget_name,lab_name)|tojson|safe }}, LAB_ID, g4lSessionId);
         });
         trace("Callback registered.");
 

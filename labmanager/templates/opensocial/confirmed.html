@@ -4,6 +4,7 @@
         function init() {
             var data = {
                 'reservation-id' : '{{ reservation_id|safe }}',
+                'g4l-session-id' : '{{ g4l_session_id|safe }}'
             };
             // window.parent.postMessage("reserved::" + JSON.stringify(data), '{{ shindig_url }}');
 

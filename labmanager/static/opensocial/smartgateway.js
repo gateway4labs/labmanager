@@ -24,6 +24,7 @@ function SmartGateway(container, button_div, reserve_button) {
 
     this._loadCallback = null;
     this._reservation_id = null;
+    this._g4l_session_id = null;
 
     // Constructor
     this._init = function() {
@@ -172,7 +173,8 @@ function SmartGateway(container, button_div, reserve_button) {
 
         if ( ( me._reservation_id == null ) && ( messlabid  == LAB_ID ) ) {
             me._reservation_id = message['labmanager-reservation-id'];
-            me._loadCallback(me._reservation_id);
+            me._g4l_session_id = message['labmanager-g4l-session-id'];
+            me._loadCallback(me._reservation_id, me._g4l_session_id);
         }
     }
 
@@ -190,6 +192,7 @@ function SmartGateway(container, button_div, reserve_button) {
                     'srclabid'                   : LAB_ID,
                     'labmanager-msg'             : 'labmanager::activate',
                     'labmanager-reservation-id'  : me._reservation_id,
+                    'labmanager-g4l-session-id'  : me._g4l_session_id
                 }
             });
         }
@@ -205,6 +208,7 @@ function SmartGateway(container, button_div, reserve_button) {
 
             var data = JSON.parse(data_str);
             var reservation_id = data['reservation-id'];
+            var g4l_session_id = data['g4l-session-id'];
 
             gadgets.openapp.publish({
                 event: "select",
@@ -213,11 +217,13 @@ function SmartGateway(container, button_div, reserve_button) {
                     'srclabid'                   : LAB_ID,
                     'labmanager-msg'             : 'labmanager::activate',
                     'labmanager-reservation-id'  : reservation_id,
+                    'labmanager-g4l-session-id'  : g4l_session_id
                 }
             });
                 
             me._reservation_id = reservation_id;
-            me._loadCallback(reservation_id);
+            me._g4l_session_id = g4l_session_id;
+            me._loadCallback(reservation_id, g4l_session_id);
         } else if((e.origin == CURRENT_HOST_HTTP || e.origin == CURRENT_HOST_HTTPS) && new String(e.data).indexOf("reload::") == 0) {
             gadgets.openapp.publish({
                 event: "select",

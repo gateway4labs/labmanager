@@ -1,4 +1,6 @@
+import time
 import json
+import random
 import urllib
 import urllib2
 import hashlib
@@ -486,8 +488,9 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
             reservation_id = response['load_url']
 
         quoted_reservation_id = urllib2.quote(reservation_id, '')
+        g4l_session_id = "{0}-{1}-{2}" % (quoted_reservation_id, time.time(), str(random.randint(0, 9999)).zfill(4))
 
-        return render_template("opensocial/confirmed.html", reservation_id = quoted_reservation_id, shindig_url = SHINDIG.url)
+        return render_template("opensocial/confirmed.html", reservation_id = quoted_reservation_id, g4l_session_id = g4l_session_id, shindig_url = SHINDIG.url)
 
 def extract_ils_id(url):
     if url is None:
