@@ -41,7 +41,10 @@
                 <p><b>{{ gettext("Preview not available when using HTTPS.") }}</b></p><a href="{{ url_for('.list_widgets', **list_widgets_kwargs).replace('https://', 'http://', 1) }}" class="btn btn-default">{{ gettext("Use HTTP") }}</a>
             </div>
             {% else %}
-            <div id="slider_container_{{ loop.index0 }}" style="width: 100%; display: none"><h4>Configure height:</h4> <input id="slider_{{ loop.index0 }}" style="width: 100%" data-slider-id='height_slider_{{ loop.index0 }}' type="text" data-slider-min="0" data-slider-max="2000" data-slider-step="10" data-slider-value="600"/></div>
+            <div id="slider_container_{{ loop.index0 }}" style="width: 100%; display: none">
+                <h4>Configure height:</h4> <input id="slider_{{ loop.index0 }}" style="width: 100%" data-slider-id='height_slider_{{ loop.index0 }}' type="text" data-slider-min="0" data-slider-max="2000" data-slider-step="10" data-slider-value="600"/>
+                <h4>Adjust scale:</h4> <input id="slider_scale_{{ loop.index0 }}" style="width: 100%" data-slider-id='scale_slider_{{ loop.index0 }}' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.1" data-slider-value="100"/>
+            </div>
             <div class="text-center" id="widget_container_{{ loop.index0 }}" style="width: 100%">
                 {% if not autoload %}
                 <button id="widget_{{ loop.index0 }}" type="button" class="btn btn-success">{{ gettext("Preview widget") }}</button>
@@ -71,23 +74,53 @@
             this.select();
         });
 
+        var heights = {
+            // id: value
+        };
+        var scales = {
+            // id: value
+        };
+
         {% for widget in widgets %}
             {% if not autoload %} {# If autoload, only run this when clicking on the button #}
             $("#widget_{{ loop.index0 }}").click(function() {
             {% endif %}
                 $("#widget_container_{{ loop.index0 }}").html("<iframe frameborder='no' id='iframe_{{ loop.index0 }}' width='100%' height='600px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url={{ links[widget['name']] }}'></iframe>");
                 $('#slider_container_{{ loop.index0 }}').show();
+                // Height slider
                 $('#slider_{{ loop.index0 }}').slider({
                     formatter: function(value) {
                         return 'Current value: ' + value;
                     }
                 }).on("slide", function(evt) {
+                    heights["{{ loop.index0 }}"] = evt.value;
                     var newUrl = "{{ links[widget['name']] }}?height=" + evt.value;
+                    if (scales["{{ loop.index0 }}"] != undefined)
+                        newUrl = newUrl + "&scale=" + scales["{{ loop.index0 }}"];
+
                     $("#iframe_{{ loop.index0 }}")
                         .attr("height", (evt.value + 10) + "px")
-                        .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url=" + newUrl);
+                        .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url=" + encodeURIComponent(newUrl));
                     $("#input_url_{{ loop.index0 }}").attr("value", newUrl).css("background-color", "#ffffdd");
                 });
+                
+                // Scale slider
+                $('#slider_scale_{{ loop.index0 }}').slider({
+                    formatter: function(value) {
+                        return 'Current value: ' + value;
+                    }
+                }).on("slide", function(evt) {
+                    var value = Math.floor(100 * evt.value);
+                    scales["{{ loop.index0 }}"] = value;
+                    var newUrl = "{{ links[widget['name']] }}?scale=" + value;
+                    if (heights["{{ loop.index0 }}"] != undefined)
+                        newUrl = newUrl + "&height=" + heights["{{ loop.index0 }}"];
+
+                    $("#iframe_{{ loop.index0 }}")
+                        .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url=" + encodeURIComponent(newUrl));
+                    $("#input_url_{{ loop.index0 }}").attr("value", newUrl).css("background-color", "#ffffdd");
+                });
+
             {% if not autoload %}
             });
             {% endif %}            
