@@ -71,6 +71,16 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     if height is not None:
         base_data['height'] = height
 
+    scale = None
+    if request.args.get('scale'):
+        try:
+            scale = int(request.args['scale'])
+        except:
+            pass
+
+    if scale is not None:
+        base_data['scale'] = scale
+
     if not lab_found:
         return base_data
 
@@ -124,6 +134,9 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
 
                 if height is not None:
                     widget['height'] = height
+
+                if scale is not None:
+                    widget['scale'] = scale
 
                 return widget
 
@@ -198,6 +211,7 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
         return "Error: widget does not exist anymore" # TODO  
 
 #   XXX We do not support booking on the public labs yet
+    print widget_config
     contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = rlms, go_lab_booking = False, go_lab_booking_url = "")
     return Response(contents, mimetype="application/xml")
 
