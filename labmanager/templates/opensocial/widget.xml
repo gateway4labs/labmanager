@@ -30,7 +30,7 @@
         <Locale messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
         {% for lang in widget_config['translation_list'] %}
             <Locale lang="{{ lang }}" messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
-        {% endif %}
+        {% endfor %}
     {% endif %}
      <Require feature="osapi" />
      <Require feature="pubsub" />
