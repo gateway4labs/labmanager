@@ -166,7 +166,8 @@ class AbstractCache(object, DictMixin):
             headers = {}
 
         if headers.get('Cache-Control') == 'no-cache' or headers.get('Pragma') == 'no-cache':
-            return default_value
+            if 'shindig' not in headers.get('User-Agent', '').lower():
+                return default_value
 
         now = datetime.datetime.now()
         oldest = now - min_time
