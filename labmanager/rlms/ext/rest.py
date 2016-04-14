@@ -221,6 +221,8 @@ def populate_cache(rlms):
     for lab in rlms.get_laboratories():
         if Capabilities.TRANSLATIONS in capabilities:
             rlms.get_translations(lab.laboratory_id)
+        if Capabilities.TRANSLATION_LIST in capabilities:
+            rlms.get_translation_list(lab.laboratory_id)
     
 
 HTTP_PLUGIN = register(PLUGIN_NAME, PLUGIN_VERSIONS, __name__)

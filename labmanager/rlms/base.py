@@ -119,6 +119,15 @@ class Capabilities(object):
     translations per laboratory.
     """
 
+    TRANSLATION_LIST = 'translation_list'
+    """
+    Providing this capability reports that the RLMS plug-in supports
+    a method called 'get_translation_list', which will return a list of
+    ISO 639-1 messages detailing what languages are supported by the server
+    side. If TRANSLATIONS is provided this method is not required.
+    """
+
+
     LOGGING_URL = 'logging_url'
     """
     Providing this capability reports that the RLMS plug-in supports
@@ -253,6 +262,15 @@ class BaseRLMS(object):
                 'pages' : 1,
                 'laboratories' : results
             }
+
+    def get_translation_list(self, laboratory_id):
+        """
+        This method is optional. If provided, it must return something like:
+        {
+            'supported_languages' : ['en', 'fr', 'de']
+        }
+        """
+        return {}
 
     def get_translations(self, laboratory_id):
         """

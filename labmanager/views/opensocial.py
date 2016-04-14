@@ -108,7 +108,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         # if autoload is None:
         #     autoload = labs[0].autoload
         pass
-
+    
     if Capabilities.TRANSLATIONS in capabilities:
         translations = rlms.get_translations(laboratory_identifier)
         if 'translations' not in translations:
@@ -118,10 +118,18 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     else:
         translations = {'translations' : {}, 'mails' : []}
 
+    # Only if no translation is regularly provided and translation_list is supoprted
+    if len(translations['translations']) == 0 and Capabilities.TRANSLATION_LIST in capabilities:
+        translation_list = list((rlms.get_translation_list(laboratory_identifier) or {}).get('supported_languages', []))
+    else:
+        translation_list = []
+
     if autoload and len(translations['translations']) == 0:
         show_languages = False
     else:
         show_languages = True
+        
+    show_empty_languages = len(translation_list) > 0
 
     if Capabilities.WIDGET in capabilities:
         widgets = rlms.list_widgets(laboratory_identifier)
@@ -130,7 +138,9 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
             if widget['name'] == widget_name:
                 widget['autoload'] = autoload
                 widget['translations'] = translations
+                widget['translation_list'] = translation_list
                 widget['show_languages'] = show_languages
+                widget['show_empty_languages'] = show_empty_languages
 
                 if height is not None:
                     widget['height'] = height
@@ -142,7 +152,9 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
 
     base_data['autoload'] = autoload
     base_data['translations'] = translations
+    base_data['translation_list'] = translation_list
     base_data['show_languages'] = show_languages
+    base_data['show_empty_languages'] = show_empty_languages
     return base_data
 
 def xml_error_management(func):

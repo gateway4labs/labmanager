@@ -1,31 +1,36 @@
 <Module>
  <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
     {% if widget_config.get('show_languages', False) %}
-     {% if public_rlms %}
-         <Locale messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
-         <Locale lang="en" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
-         {% for lang in widget_config['translations'].get('translations', {}) %}
-            {% if lang != "en" %}
-                <Locale lang="{{ lang }}" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang=lang, _external = True) }}"/>
-            {% endif %}
-         {% endfor %}
-     {% elif public_lab %}
-         <Locale messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
-         <Locale lang="en" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
-         {% for lang in widget_config['translations'].get('translations', {}) %}
-            {% if lang != "en" %}
-                <Locale lang="{{ lang }}" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = lang) }}"/>
-            {% endif %}
-         {% endfor %}
-     {% else %}
-         <Locale messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
-         <Locale lang="en" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
-         {% for lang in widget_config['translations'].get('translations', {}) %}
-            {% if lang != "en" %}
-                <Locale lang="{{ lang }}" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = lang) }}"/>
-            {% endif %}
-         {% endfor %}
-     {% endif %}
+         {% if public_rlms %}
+             <Locale messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
+             <Locale lang="en" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
+             {% for lang in widget_config['translations'].get('translations', {}) %}
+                {% if lang != "en" %}
+                    <Locale lang="{{ lang }}" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang=lang, _external = True) }}"/>
+                {% endif %}
+             {% endfor %}
+         {% elif public_lab %}
+             <Locale messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
+             <Locale lang="en" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
+             {% for lang in widget_config['translations'].get('translations', {}) %}
+                {% if lang != "en" %}
+                    <Locale lang="{{ lang }}" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = lang) }}"/>
+                {% endif %}
+             {% endfor %}
+         {% else %}
+             <Locale messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
+             <Locale lang="en" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
+             {% for lang in widget_config['translations'].get('translations', {}) %}
+                {% if lang != "en" %}
+                    <Locale lang="{{ lang }}" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = lang) }}"/>
+                {% endif %}
+             {% endfor %}
+         {% endif %}
+    {% elif widget_config.get('show_empty_languages', False)  %}
+        <Locale messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+        {% for lang in widget_config['translation_list'] %}
+            <Locale lang="{{ lang }}" messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+        {% endif %}
     {% endif %}
      <Require feature="osapi" />
      <Require feature="pubsub" />
