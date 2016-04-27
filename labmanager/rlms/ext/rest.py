@@ -95,8 +95,6 @@ class RLMS(BaseRLMS):
         try:
             return r.json()
         except ValueError:
-            if 'www.remlabnet.eu/golab/translations.php?laboratory_id=3' in url:
-                return {}
             raise
 
     def _request_post(self, remaining, data, headers = None):
