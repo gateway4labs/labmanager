@@ -89,9 +89,15 @@ class RLMS(BaseRLMS):
             context_remaining = remaining + '&context_id=' + self.context_id
         else:
             context_remaining = remaining + '?context_id=' + self.context_id
-        r = HTTP_PLUGIN.cached_session.get('%s%s' % (self.base_url, context_remaining), auth = (self.login, self.password), headers = headers)
+        url = '%s%s' % (self.base_url, context_remaining)
+        r = HTTP_PLUGIN.cached_session.get(url, auth = (self.login, self.password), headers = headers)
         r.raise_for_status()
-        return r.json()
+        try:
+            return r.json()
+        except ValueError:
+            if 'www.remlabnet.eu/golab/translations.php?laboratory_id=3' in url:
+                return {}
+            raise
 
     def _request_post(self, remaining, data, headers = None):
         remaining = self._inject_extension(remaining)
