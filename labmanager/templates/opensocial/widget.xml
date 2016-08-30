@@ -69,7 +69,7 @@
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/main/ils_graaspeu.js"></script>
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/metadata/MetadataHandler.js"></script>
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/applog/ActionLogger.js"></script>
-    <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='opensocial/openapp/openapp.js', _external = True) }}"></script>
 
     <script type="text/javascript">
         // The LAB_ID identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
