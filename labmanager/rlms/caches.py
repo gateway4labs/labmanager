@@ -1,3 +1,4 @@
+import sys
 import time
 import shutil
 import datetime
@@ -167,23 +168,31 @@ class AbstractCache(object, DictMixin):
 
         if headers.get('Cache-Control') == 'no-cache' or headers.get('Pragma') == 'no-cache':
             if 'shindig' not in headers.get('User-Agent', '').lower():
+                print("[%s]: Cache ignore request by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
+                sys.stdout.flush()
                 return default_value
 
         now = datetime.datetime.now()
         oldest = now - min_time
         result = db.session.query(self.MODEL).filter(self.MODEL_CONTEXT_COLUMN() == self.context_id, self.MODEL.key == key, self.MODEL.datetime >= oldest).order_by(self.MODEL.datetime.desc()).first()
         if result is None:
+            print("[%s]: Cache miss by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
+            sys.stdout.flush()
             return default_value
 
         try:
             decoded_value = result.value.decode('base64')
         except Exception as e:
+            print("[%s]: Cache miss due to invalid base64 contents, by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
+            sys.stdout.flush()
             return default_value
 
         
         try:
             return pickle.loads(decoded_value)
         except:
+            print("[%s]: Cache miss due to pickle request by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
+            sys.stdout.flush()
             return None
 
     def __getitem__(self, key):
