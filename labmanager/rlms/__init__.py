@@ -65,6 +65,11 @@ class Laboratory(object):
     def __hash__(self):
         return hash(self.laboratory_id)
 
+class LabError(Exception):
+    pass
+
+class LabNotFoundError(LabError):
+    pass
 
 _current_task_id = 0
 def _next_task_id():
