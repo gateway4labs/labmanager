@@ -1,14 +1,14 @@
 """ltUser change
 
 Revision ID: 2c4a51c0e9ff
-Revises: 1997f106f707
+Revises: 26909b70f894
 Create Date: 2016-10-24 12:01:52.335632
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '2c4a51c0e9ff'
-down_revision = '1997f106f707'
+down_revision = '26909b70f894'
 
 from alembic import op
 import sqlalchemy as sa

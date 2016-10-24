@@ -68,9 +68,9 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key=True)
-    login    = db.Column(db.Unicode(50), index=True, unique = True, nullable = False)
-    name     = db.Column(db.Unicode(50), index=True, nullable = False)
-    password = db.Column(db.Unicode(50), index=True, nullable = False) # hash
+    login    = db.Column(db.Unicode(50), unique = True, nullable = False)
+    name     = db.Column(db.Unicode(50), nullable = False)
+    password = db.Column(db.Unicode(50), nullable = False) # hash
 
     def __init__(self, login = None, name = None, password = None):
         self.login    = login
