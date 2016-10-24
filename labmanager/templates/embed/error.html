@@ -1,0 +1,12 @@
+{% extends "embed/base.html" %}
+
+{% block body %}
+    
+    <div class="row">
+        <br>
+        <div class="alert alert-danger col-lg-6 col-lg-offset-3 text-center">
+            <h1>{{ gettext("Error") }}</h1>
+            <h4>{{ message }}</h4>
+        </div>
+    </div>
+{% endblock %}

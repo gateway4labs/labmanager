@@ -26,8 +26,12 @@ if app.config.get('USE_PYMYSQL', False):
 
 db = SQLAlchemy()
 db.init_app(app)
+session = db.session
+
 
 Base = db.Model
+
+
 
 def create_alembic_config(silence = False):
     if silence:

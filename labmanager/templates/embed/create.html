@@ -1,0 +1,308 @@
+{% extends "embed/base-logged.html" %}
+
+{% if form.height.data %}
+    {% set initial_height = form.height.data %}
+{% else %}
+    {% set initial_height = 900 %}
+{% endif %}
+
+{% if form.scale.data %}
+    {% set initial_scale = ((form.scale.data or '10000')|int)/100 %}
+{% else %}
+    {% set initial_scale = 100 %}
+{% endif %}
+
+{% block head %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='bootstrap-slider.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='select2/select2.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    {{ super() }}
+    {% from "embed/_form_helpers.html" import render_field %}
+
+    <div class="row" ng-controller="EmbedScreenController">
+        <div class="col-lg-10 col-lg-offset-1">
+            <a href="{{ url_for('.index') }}" class="btn"><i
+                    class="glyphicon glyphicon-list"></i> {{ gettext("Back to list") }}</a>
+
+            {% if identifier %}
+                <div class="alert alert-info" style="margin-top: 10px">
+                    <p>{{ gettext("The following link is an OpenSocial widget that embeds your app:") }}</p>
+                    <input class="link_input" type="text"
+                           value="{{ url_for('.app_xml', identifier=identifier, _external=True) }}" style="width: 95%">
+                </div>
+            {% endif %}
+
+            <h1>{{ header_message }}</h1>
+
+            <form method="POST" name="embed_form" ng-submit="submitForm()" action="{{ request.url }}"
+                  class="form-horizontal" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+
+                <fieldset>
+                    {{ render_field(form.name, ng_submit="submitForm()") }}
+                    {{ render_field(form.url, ng_submit="submitForm()") }}
+
+
+                    <div class="ng-cloak" ng-submit="addNewLanguage()"
+                         ng-show="{% if languages %}true{% else %}false{% endif %}">
+                        <h4>Languages</h4>
+
+                        <div class="alert alert-info col-lg-6 col-lg-offset-3">
+                            <p>{{ gettext("If the application is available in multiple languages, you may add the different URLs here") }}</p>
+                        </div>
+                        {% raw %}
+                        <table class="table table-hover table-border">
+                            <thead>
+                            <tr>
+                                <th style="width: 20px"></th>
+                                <th style="width: 150px">Language</th>
+                                <th>URL</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td></td>
+                                <td>English</td>
+                                <td>{{ embed.url }}</td>
+                            </tr>
+                            <tr ng-repeat="lang in embed.languages|orderBy:'name'">
+                                <td>
+                                    <button class="btn" ng-click="deleteLanguage($index)"><i
+                                            class="glyphicon glyphicon-remove-sign"></i></button>
+                                </td>
+                                <td>{{ lang.name }}</td>
+                                <td>{{ lang.url }}
+                                    <input type="hidden" name="language.{{ lang.code }}" value="{{ lang.url }}"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <select id="editing_language" ng-model="embed.editing.language_code"
+                                            style="width: 100%">
+                                        <option ng-repeat="lang in embed.available_languages|orderBy:'name'"
+                                                value="{{ lang.code }}">{{ lang.name }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input ng-enter="addNewLanguage()" style="width: 80%" type="url"
+                                           ng-model="embed.editing.url"></input>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        {% endraw %}
+                        <div class="text-center" style="width: 100%; margin-bottom: 10px">
+                            <button class="btn btn-default" ng-disabled="!canAddLanguage()" ng-click="addNewLanguage()">
+                                <i class="glyphicon glyphicon-plus-sign"></i> {{ gettext("Add language") }}</button>
+                        </div>
+
+                    </div>
+
+
+                    <div class="text-center">
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                            <a href="{{ url_for('.index') }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <div ng-cloak ng-show="embed.url.length > 0" id="slider_container" style="width: 100%">
+                <h2>{{ gettext("Preview") }}</h2>
+
+                <p ng-if="isSwf(embed.url)">{{ gettext("Adjust size") }}</p>
+                <p ng-if="!isSwf(embed.url)">{{ gettext("Adjust height") }}</p>
+
+                <input id="slider-height" style="width: 100%" data-slider-id='height_slider' type="text"
+                       data-slider-min="0" data-slider-max="2000" data-slider-step="10"
+                       data-slider-value="{{ initial_height }}"/>
+
+                <div ng-hide="isSwf(embed.url)">
+                    <p>{{ gettext("Adjust scale") }}</p>
+                    <input id="slider-scale" style="width: 100%" data-slider-id='scale_slider' type="text"
+                           data-slider-min="0" data-slider-max="100" data-slider-step="0.1"
+                           data-slider-value="{{ initial_scale }}"/>
+                </div>
+                <div id="iframe-container" style="width: 910px; overflow: hidden">
+                    <iframe {% raw %}ng-src="{{embed.url|trustAsResourceUrl}}" {% endraw %} frameborder='no' id='iframe'
+                            width='100%' height='{{ initial_height }}px'></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename="bootstrap-slider.min.js") }}"></script>
+    <script src="{{ url_for('static', filename="angular.min.js") }}"></script>
+    <script src="{{ url_for('static', filename="select2/select2.min.js") }}"></script>
+    <script>
+        angular
+                .module("embedScreen", [])
+                .filter('trustAsResourceUrl', ['$sce', function ($sce) {
+                    return function (val) {
+                        return $sce.trustAsResourceUrl(val);
+                    };
+                }])
+                .controller("EmbedScreenController", EmbedScreenController)
+                .directive('ngEnter', function () {
+                    return function (scope, elements, attrs) {
+                        elements.bind('keydown keypress', function (event) {
+                            if (event.which === 13) {
+                                scope.$apply(function () {
+                                    scope.$eval(attrs.ngEnter);
+                                });
+                                event.preventDefault();
+                            }
+                        });
+                    };
+                });
+
+
+        function EmbedScreenController($scope, $sce) {
+            {% if languages %}
+                var all_languages = {{ all_languages|tojson }};
+            {% endif %}
+
+            $scope.embed = {
+                url: "",
+                height: {{ initial_height }},
+                scale: {{ initial_scale }},
+                {% if languages %}
+                    languages: {{ existing_languages|tojson }},
+                    available_languages: {{ languages|tojson }},
+                {% endif %}
+                editing: {
+                    language_code: "",
+                    url: ""
+                }
+            };
+
+
+            {% if form.url.data %}
+                $scope.embed.url = "{{ form.url.data }}";
+            {% endif %}
+
+
+            $scope.submitForm = function () {
+                $('form[name="embed_form"]')[0].submit();
+            };
+
+            $scope.deleteLanguage = function (index) {
+                // Put the language back to available languages
+                $scope.embed.available_languages.push({
+                    code: $scope.embed.languages[index]['code'],
+                    name: $scope.embed.languages[index]['name']
+                });
+                $scope.embed.languages.splice(index, 1);
+            };
+
+            $scope.addNewLanguage = function () {
+                if (!$scope.canAddLanguage())
+                    return;
+
+                var language_name = all_languages[$scope.embed.editing.language_code];
+                $scope.embed.languages.push({
+                    code: $scope.embed.editing.language_code,
+                    name: language_name,
+                    url: $scope.embed.editing.url
+                });
+                $scope.embed.editing.url = "";
+
+                $scope.embed.available_languages = $.grep($scope.embed.available_languages, function (lang, i) {
+                    return lang.code != $scope.embed.editing.language_code;
+                });
+            }
+
+            $scope.canAddLanguage = function () {
+                return $scope.embed.editing.language_code && $scope.embed.editing.url;
+            }
+
+            $scope.isSwf = function (url) {
+                console.log(url);
+
+                if (url == undefined || url.match == undefined)
+                    return false;
+
+                return url.match(/.*\.swf/) != null;
+            }; //! isSwf
+        }
+
+        // jQuery code
+
+        // Height:
+        $("input[name='height']").val({{ initial_height }});
+
+        $('#slider-height').slider({
+            formatter: function (value) {
+                return 'Current value: ' + value;
+            }
+        }).on("slide", function (evt) {
+            $("#iframe").attr("height", (evt.value + 10) + "px");
+            // $scope.embed.height = evt.value;
+            // TODO: the code above should be necessary
+            $("input[name='height']").val(evt.value);
+        });
+
+        // Scale
+        $("input[name='scale']").val({{ initial_scale }});
+        updateScale({{ initial_scale }});
+
+        $('#slider-scale').slider({
+            formatter: function (value) {
+                return 'Current value: ' + value;
+            }
+        }).on("slide", function (evt) {
+            updateScale(evt.value);
+            // $scope.embed.scale = evt.value;
+            // TODO: the code above should be necessary
+            $("input[name='scale']").val(evt.value);
+        });
+
+        function updateScale(scale) {
+            var maxWidth = 98.9;
+            var newScaleValue = scale / maxWidth;
+            var newWidth = "" + maxWidth / newScaleValue;
+            var newScale = "scale(" + newScaleValue + ")";
+            $("#iframe").css({
+                "-webkit-transform-origin": "top left",
+                "-moz-transform-origin": "top left",
+                "-ms-transform-origin": "top left",
+                "-o-transform-origin": "top left",
+                "transform-origin": "top left",
+                "width": newWidth + "%",
+                "-webkit-transform": newScale,
+                "-moz-transform": newScale,
+                "-ms-transform": newScale,
+                "-o-transform": newScale,
+                "transform": newScale
+            });
+            if (scale && scale != 100 && scale != "100") {
+                $("#iframe").attr("scrolling", "no");
+            }
+        }
+
+
+        $(":input.link_input").click(function () {
+            this.select();
+        });
+
+        $(document).ready(function () {
+            $("#editing_language").select2();
+        });
+
+        angular.element(document).ready(function () {
+            angular.bootstrap(document, ['embedScreen']);
+        });
+    </script>
+{% endblock %}
+

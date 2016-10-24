@@ -1,0 +1,50 @@
+{% extends "embed/base-logged.html" %}
+
+{% block body %}
+    {{ super() }}
+
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <h1>{{ gettext("Manage webs") }}</h1>
+            
+            <br>
+            <a class="btn btn-primary" href="{{ url_for('.create') }}"><i class="glyphicon glyphicon-plus"></i></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+
+            {% if applications|length > 0 %}
+                <br>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 20px"></th>
+                            <th>{{ gettext("Name") }}</th>
+                            <th>{{ gettext("Public app info") }}</th>
+                            <th>{{ gettext("Link") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('.edit', identifier=app.identifier) }}"><i class="glyphicon glyphicon-edit"></i></a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('.edit', identifier=app.identifier) }}">{{ app.name }}</a>
+                            </td>
+                            <td><a href="{{ url_for('.app', identifier=app.identifier) }}" class="btn btn-default">{{ gettext("Public link") }}</a></td>
+                            <td><a href="{{ url_for('.app_xml', identifier=app.identifier) }}" class="btn btn-default">XML</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-warning col-lg-6 col-lg-offset-3 text-center">
+                    <h4>{{ gettext("You don't have any web yet.") }}</h4>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

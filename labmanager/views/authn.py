@@ -18,6 +18,10 @@ login_manager = LoginManager()
 login_manager.setup_app(app)
 login_manager.session_protection = "strong"
 
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect('/login/lms?next=' + request.path)
+
 @login_manager.user_loader
 def load_user(userid):
     if userid.startswith(u'labmanager_admin::'):
@@ -64,11 +68,12 @@ def login_admin():
     return gettext("Error in create_session")
 
 @app.route('/login/lms/', methods=['GET', 'POST'])
+@app.route('/login/lms', methods=['GET', 'POST'])
 def login_lms():
     """Login screen for application"""
     DEFAULT_NEXT = url_for('lms_admin.index')
     next = request.args.get('next', DEFAULT_NEXT)
-
+    print next
     lmss = [ lt for lt in LearningTool.all() if len(lt.shindig_credentials) == 0 ]
 
     if request.method == 'GET':

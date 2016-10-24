@@ -1,12 +1,15 @@
 # -*-*- encoding: utf-8 -*-*-
 
 import hashlib
-
-from sqlalchemy import sql
+import datetime
+import uuid
+from sqlalchemy import sql, ForeignKey
 from sqlalchemy.orm import relation, backref, relationship
 from flask.ext.login import UserMixin
 from labmanager.db import db
 from labmanager.babel import gettext
+
+
 
 TABLE_KWARGS = {
     'mysql_engine' : 'InnoDB',
@@ -65,9 +68,9 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key=True)
-    login    = db.Column(db.Unicode(50), unique = True, nullable = False)
-    name     = db.Column(db.Unicode(50), nullable = False)
-    password = db.Column(db.Unicode(50), nullable = False) # hash
+    login    = db.Column(db.Unicode(50), index=True, unique = True, nullable = False)
+    name     = db.Column(db.Unicode(50), index=True, nullable = False)
+    password = db.Column(db.Unicode(50), index=True, nullable = False) # hash
 
     def __init__(self, login = None, name = None, password = None):
         self.login    = login
@@ -86,6 +89,26 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     @classmethod
     def exists(self, login, word):
         return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
+
+class GoLabOAuthUser(db.Model):
+    __tablename__ = 'GoLabOAuthUsers'
+
+    id = db.Column(db.Integer, primary_key = True)
+    display_name = db.Column(db.Unicode(255), index = True, nullable = False)
+    email = db.Column(db.Unicode(255), index = True, nullable = False, unique = True)
+
+    def __init__(self, email, display_name):
+        self.email = email
+        self.display_name = display_name
+
+    def __repr__(self):
+        return "GoLabOAuthUsers(%r, %r)" % (self.email, self.display_name)
+
+    def __unicode__(self):
+        return u"%s <%s>" % (self.display_name, self.email)
+
+
+
 
 #########################################################
 # 
@@ -504,3 +527,63 @@ class RequestPermissionLT(db.Model, SBBase):
         return gettext(u"'%(localidentifier)s': lab %(labname)s to %(ltname)s", localidentifier=self.local_identifier, 
                                                                                                                             labname = self.laboratory.name, 
                                                                                                                             ltname = self.lt.name)
+
+class EmbedApplication(db.Model):
+    __tablename__ = 'EmbedApplications'
+
+    id = db.Column(db.Integer, primary_key = True)
+    url = db.Column(db.Unicode(255), index = True, nullable = False)
+    name = db.Column(db.Unicode(100), index = True, nullable = False)
+    owner_id = db.Column(db.Integer, ForeignKey('lt_users.id'))
+    height = db.Column(db.Integer)
+    scale = db.Column(db.Integer) # value multiplied by 100; 9850 represents 98.5
+    identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
+    creation = db.Column(db.DateTime, index = True, nullable = False)
+    last_update = db.Column(db.DateTime, index = True, nullable = False)
+
+    owner = relation("LtUser",backref="embed_applications")
+
+    def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None):
+        if creation is None:
+            creation = datetime.datetime.utcnow()
+        if last_update is None:
+            last_update = datetime.datetime.utcnow()
+        if identifier is None:
+            identifier = unicode(uuid.uuid4())
+            while EmbedApplication.query.filter_by(identifier=identifier).first() is not None:
+                identifier = unicode(uuid.uuid4())
+        self.url = url
+        self.name = name
+        self.owner = owner
+        self.identifier = identifier
+        self.creation = creation
+        self.last_update = last_update
+        self.height = height
+        self.scale = scale
+
+    def update(self, url = None, name = None, height = None, scale = None):
+        if url is not None:
+            self.url = url
+        if name is not None:
+            self.name = name
+        if height is not None:
+            self.height = height
+        if scale is not None:
+            self.scale = scale
+        self.last_update = datetime.datetime.utcnow()
+
+class EmbedApplicationTranslation(db.Model):
+    __tablename__ = 'EmbedApplicationTranslation'
+
+    id = db.Column(db.Integer, primary_key = True)
+    embed_application_id = db.Column(db.Integer, ForeignKey('EmbedApplications.id'))
+    url = db.Column(db.Unicode(255), index = True, nullable = False)
+    language = db.Column(db.Unicode(10), index = True, nullable = False)
+
+    embed_application = relation("EmbedApplication", backref="translations")
+
+    def __init__(self, embed_application, url, language):
+        self.embed_application = embed_application
+        self.url = url
+        self.language = language
+

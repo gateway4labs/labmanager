@@ -1,0 +1,41 @@
+.modal-body {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+
+
+
+/* For the AppSearch Table */
+
+.appsearch-table {
+    cursor: pointer; cursor: hand;
+}
+
+
+
+/* To indicate that a particular field can be dynamically changed by clicking */
+.dyn-changeable {
+    cursor: pointer; cursor: hand;
+}
+
+
+
+/* For the App screen and similar */
+
+.app-title {
+
+}
+
+.app-description {
+
+}
+
+input.ng-invalid.ng-dirty {
+    background-color: #FED4D4;
+    border-color: red;
+}
+
+input.ng-valid.ng-dirty {
+    border-color: green;
+}

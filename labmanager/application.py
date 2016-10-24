@@ -41,7 +41,8 @@ else:
     app.secret_key = os.urandom(32)
 app.config['SESSION_COOKIE_NAME'] = 'g4lsession'
 
-
+from .embed import embed_blueprint
+app.register_blueprint(embed_blueprint, url_prefix='/embed')
 
 
 # Initialize the logging mechanism to send error 500 mails to the administrators

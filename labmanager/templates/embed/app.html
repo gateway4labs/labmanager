@@ -1,0 +1,17 @@
+{% extends "embed/base.html" %}
+
+{% block body %}
+    <h1>{{ gettext("Application {name}").format(name = app.name) }}</h1>
+
+    <ul>
+        <li>Created by {{ app.owner.full_name }}</li>
+        <li>Original resources:
+            <ul>
+                <li>Default - <a href="{{ app.url }}">{{ app.url }}</a></li>
+                {% for translation in app.translations %}
+                <li>{{ translation.language }} - <a href="{{ translation.url }}">{{ translation.url }}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
