@@ -53,13 +53,14 @@ _LOCAL_PERIODIC_TASKS = [
 
 
 class Laboratory(object):
-    def __init__(self, name, laboratory_id, description = None, autoload = False, age_ranges=None, domains=None, **kwargs):
-        self.name          = name
-        self.laboratory_id = laboratory_id
-        self.description   = description
-        self.autoload      = autoload
-        self.age_ranges    = age_ranges
-        self.domains       = domains
+    def __init__(self, name, laboratory_id, description=None, autoload=False, age_ranges=None, domains=None, long_description=None, **kwargs):
+        self.name             = name
+        self.laboratory_id    = laboratory_id
+        self.description      = description
+        self.long_description = long_description
+        self.autoload         = autoload
+        self.age_ranges       = age_ranges
+        self.domains          = domains
 
 
     def __repr__(self):
