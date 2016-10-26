@@ -1,10 +1,27 @@
-from flask import Blueprint, jsonify, url_for
+from flask import Blueprint, jsonify, url_for, request, current_app, Response
 
 from labmanager.db import db
 from labmanager.models import RLMS, Laboratory
 from labmanager.rlms import get_manager_class, Capabilities
 
 repository_blueprint = Blueprint('repository', __name__)
+
+@repository_blueprint.before_request
+def requires_lms_auth():
+    shared_secret = current_app.config.get('REPOSITORY_SHARED_SECRET')
+    if not shared_secret:
+        return
+
+    UNAUTHORIZED = Response(response="Could not verify your credentials", status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
+
+    auth = request.authorization
+    if not auth:
+        return UNAUTHORIZED
+    else:
+        password = auth.password
+
+    if password != shared_secret:
+        return UNAUTHORIZED
 
 @repository_blueprint.route('/')
 def index():
