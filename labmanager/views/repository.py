@@ -4,11 +4,11 @@ from labmanager.db import db
 from labmanager.models import RLMS, Laboratory
 from labmanager.rlms import get_manager_class, Capabilities
 
-siway_blueprint = Blueprint('siway', __name__)
+repository_blueprint = Blueprint('repository', __name__)
 
-@siway_blueprint.route('/')
+@repository_blueprint.route('/')
 def index():
-    return "Welcome to SiWay"
+    return "Welcome to the repository"
 
 def lab_to_json(lab, widgets):
     age_ranges = [] # e.g., 12-13, 14-15
@@ -56,7 +56,7 @@ def _extract_labs(rlms, single_lab = None):
         public_laboratories.append(lab_to_json(lab, lab_widgets))
     return public_laboratories
 
-@siway_blueprint.route('/metadata.json')
+@repository_blueprint.route('/metadata.json')
 def resources():
     public_laboratories = []
     for lab in db.session.query(Laboratory).filter_by(publicly_available = True):
