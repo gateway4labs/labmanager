@@ -12,8 +12,8 @@ def index():
 
 def lab_to_json(lab, widgets):
     age_ranges = [] # e.g., 12-13, 14-15
-    age_ranges = ['12-14', '14-16', '>18'] 
-    domains = ['physics', 'chemistry'] # e.g., Physics, Chemistry
+    age_ranges = lab.age_ranges or []
+    domains = lab.domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
     for widget in widgets:
         lab_widgets.append({
@@ -26,6 +26,7 @@ def lab_to_json(lab, widgets):
             'domains' : domains,
             'age_range' : age_ranges,
             'lab_apps' : lab_widgets,
+            'keywords' : lab.keywords or []
         }
 
 def _extract_labs(rlms, single_lab = None):
