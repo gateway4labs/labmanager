@@ -44,6 +44,9 @@ app.config['SESSION_COOKIE_NAME'] = 'g4lsession'
 from .embed import embed_blueprint
 app.register_blueprint(embed_blueprint, url_prefix='/embed')
 
+from .saml_auth import saml_blueprint
+app.register_blueprint(saml_blueprint, url_prefix='/saml')
+
 
 # Initialize the logging mechanism to send error 500 mails to the administrators
 if not app.debug and app.config.get("ADMINS") is not None and app.config.get("SMTP_SERVER") is not None:
