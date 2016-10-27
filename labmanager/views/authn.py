@@ -169,7 +169,7 @@ def login_saml():
 
     if 'sso' in request.args:
         print 'Redirecting to login page'
-        return redirect(auth.login())
+        return redirect(url_for(app.index))
     elif 'slo' in request.args:
         name_id = None
         session_index = None
@@ -187,6 +187,7 @@ def login_saml():
             session['samlUserdata'] = auth.get_attributes()
             session['samlNameId'] = auth.get_nameid()
             session['samlSessionIndex'] = auth.get_session_index()
+
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'RelayState' in request.form and self_url != request.form['RelayState']:
                 print 'redirecting to Relay State (acs)'
@@ -196,6 +197,7 @@ def login_saml():
         #TODO:User logout here
         dscb = lambda: session.clear()
         url = auth.process_slo(delete_session_cb=dscb)
+        print url
         errors = auth.get_errors()
         if len(errors) == 0:
             if url is not None:
