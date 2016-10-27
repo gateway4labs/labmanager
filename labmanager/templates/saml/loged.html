@@ -1,7 +1,3 @@
-{% extends "saml/base.html" %}
-
-{% block content %}
-
   <h1>You are logged</h1>
   {% if attributes %}
     <table class="table table-striped">
@@ -23,5 +19,3 @@
     <div class="alert alert-danger" role="alert">You don't have any attributes</div>
   {% endif %}
   <a href="{{ url_for('login_saml',slo='') }}" class="btn btn-danger">Logout</a>
-
-{% endblock %}
