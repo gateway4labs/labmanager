@@ -161,11 +161,8 @@ def prepare_flask_request(request):
 def login_saml():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-    errors = []
-    not_auth_warn = False
-    success_slo = False
     attributes = False
-    paint_logout = False
+
 
     if 'sso' in request.args:
         print 'Redirecting to login page'
@@ -192,7 +189,7 @@ def login_saml():
             if 'samlUserdata' in session:
                 if len(session['samlUserdata']) > 0:
                     attributes = session['samlUserdata'].items()
-
+            #TODO: add user to db if doesn't exit and login
             return render_template('saml/loged.html',attributes=attributes)
             #if 'RelayState' in request.form and self_url != request.form['RelayState']:
                 #print 'redirecting to Relay State (acs)'
@@ -209,18 +206,9 @@ def login_saml():
                 return redirect(url)
             else:
                 success_slo = True
-        else:
-            print 'session delete url is none'
-            redirect(url_for('index'))
 
-    print attributes
-    return render_template(
-        'saml/index.html',
-        errors=errors,
-        not_auth_warn=not_auth_warn,
-        success_slo=success_slo,
-        paint_logout=paint_logout
-    )
+    return render_template('index.html')
+
 
 
 @app.route('/saml/metadata/')
