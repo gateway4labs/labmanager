@@ -206,8 +206,8 @@ def login_saml():
                 return redirect(url)
             else:
                 success_slo = True
-
-    return render_template('index.html')
+    golab = app.config.get('GOLAB', False)
+    return render_template("index.html", golab = golab)
 
 
 
