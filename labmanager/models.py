@@ -68,9 +68,9 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key=True)
-    login    = db.Column(db.Unicode(50), index=True, unique = True, nullable = False)
-    name     = db.Column(db.Unicode(50), index=True, nullable = False)
-    password = db.Column(db.Unicode(50), index=True, nullable = False) # hash
+    login    = db.Column(db.Unicode(50), unique = True, nullable = False)
+    name     = db.Column(db.Unicode(50), nullable = False)
+    password = db.Column(db.Unicode(50), nullable = False) # hash
 
     def __init__(self, login = None, name = None, password = None):
         self.login    = login
@@ -90,9 +90,10 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     def exists(self, login, word):
         return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
-class GoLabOAuthUser(db.Model):
-    __tablename__ = 'GoLabOAuthUsers'
+class SiWaySAMLUser(db.Model):
+    __tablename__ = 'SiWaySAMLUsers'
 
+    # Here the fields that we retrieve at SiWay
     id = db.Column(db.Integer, primary_key = True)
     display_name = db.Column(db.Unicode(255), index = True, nullable = False)
     email = db.Column(db.Unicode(255), index = True, nullable = False, unique = True)
@@ -102,7 +103,7 @@ class GoLabOAuthUser(db.Model):
         self.display_name = display_name
 
     def __repr__(self):
-        return "GoLabOAuthUsers(%r, %r)" % (self.email, self.display_name)
+        return "SiWaySAMLUsers(%r, %r)" % (self.email, self.display_name)
 
     def __unicode__(self):
         return u"%s <%s>" % (self.display_name, self.email)

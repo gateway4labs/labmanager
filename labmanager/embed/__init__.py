@@ -2,7 +2,7 @@ import traceback
 from flask import Blueprint, render_template, make_response, redirect, url_for, request
 from flask_login import login_required, current_user
 
-from labmanager import db
+from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import EmbedApplication, EmbedApplicationTranslation
 from labmanager.translator.languages import obtain_languages
