@@ -192,7 +192,8 @@ def login_saml():
             if 'samlUserdata' in session:
                 if len(session['samlUserdata']) > 0:
                     attributes = session['samlUserdata'].items()
-            render_template('saml/loged.html',attributes=attributes)
+
+            return render_template('saml/loged.html',attributes=attributes)
             #if 'RelayState' in request.form and self_url != request.form['RelayState']:
                 #print 'redirecting to Relay State (acs)'
                 #return redirect(auth.redirect_to(request.form['RelayState']))
