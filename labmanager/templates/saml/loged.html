@@ -1,0 +1,27 @@
+{% extends "saml/base.html" %}
+
+{% block content %}
+
+  <h1>You are logged</h1>
+  {% if attributes %}
+    <table class="table table-striped">
+      <thead>
+        <th>Name</th><th>Values</th>
+      </thead>
+      <tbody>
+        {% for attr in attributes %}
+          <tr><td>{{ attr.0 }}</td>
+          <td><ul class="list-unstyled">
+            {% for val in attr.1 %}
+              <li>{{ val }}</li>
+            {% endfor %}
+          </ul></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-danger" role="alert">You don't have any attributes</div>
+  {% endif %}
+  <a href="{{ url_for('login_saml',slo='') }}" class="btn btn-danger">Logout</a>
+
+{% endblock %}

@@ -188,12 +188,14 @@ def login_saml():
             session['samlUserdata'] = auth.get_attributes()
             session['samlNameId'] = auth.get_nameid()
             session['samlSessionIndex'] = auth.get_session_index()
-
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
+            if 'samlUserdata' in session:
+                if len(session['samlUserdata']) > 0:
+                    attributes = session['samlUserdata'].items()
+            render_template('saml/loged.html',attributes=attributes)
             #if 'RelayState' in request.form and self_url != request.form['RelayState']:
                 #print 'redirecting to Relay State (acs)'
                 #return redirect(auth.redirect_to(request.form['RelayState']))
-            #TODO: login user here
     elif 'sls' in request.args:
         #TODO:User logout here
         dscb = lambda: session.clear()
@@ -210,17 +212,12 @@ def login_saml():
             print 'session delete url is none'
             redirect(url_for('index'))
 
-    if 'samlUserdata' in session:
-        paint_logout = True
-        if len(session['samlUserdata']) > 0:
-            attributes = session['samlUserdata'].items()
     print attributes
     return render_template(
         'saml/index.html',
         errors=errors,
         not_auth_warn=not_auth_warn,
         success_slo=success_slo,
-        attributes=attributes,
         paint_logout=paint_logout
     )
 
