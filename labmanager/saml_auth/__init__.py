@@ -63,7 +63,7 @@ def index():
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'RelayState' in request.form and self_url != request.form['RelayState']:
                 print 'redirecting to Relay State (acs)'
-                return redirect(auth.redirect_to(request.form['RelayState']))
+                #return redirect(auth.redirect_to(request.form['RelayState']))
     elif 'sls' in request.args:
         dscb = lambda: session.clear()
         url = auth.process_slo(delete_session_cb=dscb)
