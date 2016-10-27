@@ -169,7 +169,7 @@ def login_saml():
 
     if 'sso' in request.args:
         print 'Redirecting to login page'
-        return redirect(url_for(app.index))
+        return redirect(url_for('index'))
     elif 'slo' in request.args:
         name_id = None
         session_index = None
