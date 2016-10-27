@@ -41,10 +41,8 @@ def index():
     paint_logout = False
 
     if 'sso' in request.args:
+        print 'Redirecting to login page'
         return redirect(auth.login())
-    elif 'sso2' in request.args:
-        return_to = '%sattrs/' % request.host_url
-        return redirect(auth.login(return_to))
     elif 'slo' in request.args:
         name_id = None
         session_index = None
@@ -52,7 +50,7 @@ def index():
             name_id = session['samlNameId']
         if 'samlSessionIndex' in session:
             session_index = session['samlSessionIndex']
-
+        print 'Redirecting to logout (slo)'
         return redirect(auth.logout(name_id=name_id, session_index=session_index))
     elif 'acs' in request.args:
         auth.process_response()
@@ -64,6 +62,7 @@ def index():
             session['samlSessionIndex'] = auth.get_session_index()
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'RelayState' in request.form and self_url != request.form['RelayState']:
+                print 'redirecting to Relay State (acs)'
                 return redirect(auth.redirect_to(request.form['RelayState']))
     elif 'sls' in request.args:
         dscb = lambda: session.clear()
@@ -71,6 +70,7 @@ def index():
         errors = auth.get_errors()
         if len(errors) == 0:
             if url is not None:
+                print 'Redirecting to session delete url (sls)'
                 return redirect(url)
             else:
                 success_slo = True
