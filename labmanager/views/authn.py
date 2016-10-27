@@ -157,6 +157,7 @@ def prepare_flask_request(request):
 
 
 @app.route('/saml/', methods=['GET', 'POST'])
+@app.route('/saml', methods=['GET', 'POST'])
 def login_saml():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
