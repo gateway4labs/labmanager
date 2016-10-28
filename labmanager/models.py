@@ -104,7 +104,7 @@ class SiWaySAMLUser(db.Model):
     group = db.Column(db.Unicode(255), nullable=False)
 
 
-    def __init__(self, email, uid, employee_type, full_name, short_name, school_name, group):
+    def __init__(self, email, uid, employee_type, full_name, short_name, school_name, group, password):
         self.email = email
         self.uid = uid
         self.employee_type = employee_type
@@ -112,6 +112,7 @@ class SiWaySAMLUser(db.Model):
         self.short_name = short_name
         self.school_name = school_name
         self.group = group
+        self.password = password
 
     def __repr__(self):
         return "SiWaySAMLUsers(%r, %r)" % (self.email, self.short_name)

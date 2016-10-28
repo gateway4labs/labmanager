@@ -211,6 +211,8 @@ def login_saml():
                                 group = attr[1][0]
                             elif attr[0] == 'cn':
                                 full_name = attr[1][0]
+                            elif attr[0] == 'userPassword':
+                                password = attr[1][0]
 
                         user = SiWaySAMLUser(employee_type=employee_type,
                                              uid=int(uid),
@@ -218,7 +220,8 @@ def login_saml():
                                              short_name=short_name,
                                              email=email,
                                              group=group,
-                                             full_name=full_name
+                                             full_name=full_name,
+                                             password=password
                                              )
                         db_session.add(user)
                         db_session.commit()
