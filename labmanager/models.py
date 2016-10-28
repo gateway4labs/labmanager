@@ -102,6 +102,7 @@ class SiWaySAMLUser(db.Model):
     short_name = db.Column(db.Unicode(255),nullable=False)
     school_name = db.Column(db.Unicode(255), nullable=False)
     group = db.Column(db.Unicode(255), nullable=False)
+    password = db.Column(db.Unicode(255), nullable=False)
 
 
     def __init__(self, email, uid, employee_type, full_name, short_name, school_name, group, password):
