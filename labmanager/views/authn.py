@@ -12,7 +12,8 @@ from flask import render_template, request, flash, redirect, url_for, session, m
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
 from labmanager.babel import gettext
 from ..application import app
-from ..models import LabManagerUser, LtUser, LearningTool
+from labmanager.db import db_session
+from ..models import LabManagerUser, LtUser, LearningTool, SiWaySAMLUser
 
 from urlparse import urlparse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
@@ -161,8 +162,7 @@ def prepare_flask_request(request):
 def login_saml():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-    attributes = False
-
+    user = None
 
     if 'sso' in request.args:
         print 'Redirecting to login page'
@@ -174,26 +174,56 @@ def login_saml():
             name_id = session['samlNameId']
         if 'samlSessionIndex' in session:
             session_index = session['samlSessionIndex']
-        print 'Redirecting to logout (slo)'
-        print auth.logout(name_id=name_id, session_index=session_index)
         return redirect(auth.logout(name_id=name_id, session_index=session_index))
     elif 'acs' in request.args:
         auth.process_response()
         errors = auth.get_errors()
-        not_auth_warn = not auth.is_authenticated()
         if len(errors) == 0:
             session['samlUserdata'] = auth.get_attributes()
             session['samlNameId'] = auth.get_nameid()
             session['samlSessionIndex'] = auth.get_session_index()
-            self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'samlUserdata' in session:
                 if len(session['samlUserdata']) > 0:
                     attributes = session['samlUserdata'].items()
-            #TODO: add user to db if doesn't exit and login
-            return render_template('saml/loged.html',attributes=attributes)
-            #if 'RelayState' in request.form and self_url != request.form['RelayState']:
-                #print 'redirecting to Relay State (acs)'
-                #return redirect(auth.redirect_to(request.form['RelayState']))
+                    new_user = False
+                    for attr in attributes:
+                        if attr[0] == 'mail':
+                            email = attr[1][0]
+                            user = SiWaySAMLUser.query.filter_by(email=email).first()
+                            if user is None:
+                                new_user = True
+                            break
+
+                    if new_user:
+                        for attr in attributes:
+                            if attr[0] == 'employeeType':
+                                employee_type = attr[1][0]
+                            elif attr[0] == 'uid':
+                                uid = attr[1][0]
+                            elif attr[0] == 'o':
+                                school_name = attr[1][0]
+                            elif attr[0] == 'sn':
+                                short_name = attr[1][0]
+                            elif attr[0] == 'mail':
+                                email = attr[1][0]
+                            elif attr[0] == 'ou':
+                                group = attr[1][0]
+                            elif attr[0] == 'cn':
+                                full_name = attr[1][0]
+
+                        user = SiWaySAMLUser(employee_type=employee_type,
+                                             uid=int(uid),
+                                             school_name=school_name,
+                                             short_name=short_name,
+                                             email=email,
+                                             group=group,
+                                             full_name=full_name
+                                             )
+                        db_session.add(user)
+                        db_session.commit()
+
+                    return render_template('saml/loged.html',user=user)
+
     elif 'sls' in request.args:
         #TODO:User logout here
         dscb = lambda: session.clear()
@@ -204,8 +234,6 @@ def login_saml():
             if url is not None:
                 print 'Redirecting to session delete url (sls)'
                 return redirect(url)
-            else:
-                success_slo = True
     golab = app.config.get('GOLAB', False)
     return render_template("index.html", golab = golab)
 
