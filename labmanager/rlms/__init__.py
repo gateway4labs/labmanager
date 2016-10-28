@@ -53,14 +53,18 @@ _LOCAL_PERIODIC_TASKS = [
 
 
 class Laboratory(object):
-    def __init__(self, name, laboratory_id, description = None, autoload = False):
-        self.name          = name
-        self.laboratory_id = laboratory_id
-        self.description   = description
-        self.autoload      = autoload
+    def __init__(self, name, laboratory_id, description=None, autoload=False, age_ranges=None, domains=None, long_description=None, keywords=None, **kwargs):
+        self.name             = name
+        self.laboratory_id    = laboratory_id
+        self.description      = description
+        self.long_description = long_description
+        self.autoload         = autoload
+        self.age_ranges       = age_ranges
+        self.domains          = domains
+        self.keywords         = keywords
 
     def __repr__(self):
-        return "Laboratory(%r, %r, %r, %r)" % (self.name, self.laboratory_id, self.description, self.autoload)
+        return "Laboratory(%r, %r, %r, %r, %r, %r, %r)" % (self.name, self.laboratory_id, self.description, self.autoload, self.age_ranges, self.domains, self.long_description)
 
     def __hash__(self):
         return hash(self.laboratory_id)
