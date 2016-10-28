@@ -185,6 +185,7 @@ def login_saml():
             if 'samlUserdata' in session:
                 if len(session['samlUserdata']) > 0:
                     attributes = session['samlUserdata'].items()
+                    print attributes
                     new_user = False
                     for attr in attributes:
                         if attr[0] == 'mail':
