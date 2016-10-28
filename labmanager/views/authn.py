@@ -185,7 +185,6 @@ def login_saml():
             if 'samlUserdata' in session:
                 if len(session['samlUserdata']) > 0:
                     attributes = session['samlUserdata'].items()
-                    print attributes
                     new_user = False
                     for attr in attributes:
                         if attr[0] == 'mail':
@@ -213,7 +212,6 @@ def login_saml():
                                 full_name = attr[1][0]
                             elif attr[0] == 'userPassword':
                                 password = attr[1][0]
-
                         user = SiWaySAMLUser(employee_type=employee_type,
                                              uid=int(uid),
                                              school_name=school_name,
@@ -225,6 +223,9 @@ def login_saml():
                                              )
                         db_session.add(user)
                         db_session.commit()
+                        print 'New user pushed to db'
+                    else:
+                        print 'User already in db'
 
                     return render_template('saml/loged.html',user=user)
 
