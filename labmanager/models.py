@@ -95,18 +95,31 @@ class SiWaySAMLUser(db.Model):
 
     # Here the fields that we retrieve at SiWay
     id = db.Column(db.Integer, primary_key = True)
-    display_name = db.Column(db.Unicode(255), index = True, nullable = False)
     email = db.Column(db.Unicode(255), index = True, nullable = False, unique = True)
+    uid = db.Column(db.Integer,nullable=False)
+    employee_type = db.Column(db.Unicode(255),nullable=False)
+    full_name = db.Column(db.Unicode(255), nullable = False)
+    short_name = db.Column(db.Unicode(255),nullable=False)
+    school_name = db.Column(db.Unicode(255), nullable=False)
+    group = db.Column(db.Unicode(255), nullable=False)
+    password = db.Column(db.Unicode(255), nullable=False)
 
-    def __init__(self, email, display_name):
+
+    def __init__(self, email, uid, employee_type, full_name, short_name, school_name, group, password):
         self.email = email
-        self.display_name = display_name
+        self.uid = uid
+        self.employee_type = employee_type
+        self.full_name = full_name
+        self.short_name = short_name
+        self.school_name = school_name
+        self.group = group
+        self.password = password
 
     def __repr__(self):
-        return "SiWaySAMLUsers(%r, %r)" % (self.email, self.display_name)
+        return "SiWaySAMLUsers(%r, %r)" % (self.email, self.short_name)
 
     def __unicode__(self):
-        return u"%s <%s>" % (self.display_name, self.email)
+        return u"%s <%s>" % (self.short_name, self.email)
 
 
 

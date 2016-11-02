@@ -8,11 +8,17 @@
 
 from time import time
 from hashlib import new as new_hash
-from flask import render_template, request, flash, redirect, url_for, session
+from flask import render_template, request, flash, redirect, url_for, session, make_response
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
 from labmanager.babel import gettext
 from ..application import app
-from ..models import LabManagerUser, LtUser, LearningTool
+from labmanager.db import db_session
+from ..models import LabManagerUser, LtUser, LearningTool, SiWaySAMLUser
+
+from urlparse import urlparse
+from onelogin.saml2.auth import OneLogin_Saml2_Auth
+from onelogin.saml2.utils import OneLogin_Saml2_Utils
+
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
@@ -129,6 +135,131 @@ def login_ple():
             flash(gettext(u'Invalid username.'))
             return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     return gettext(u"Error in create_session")
+
+def init_saml_auth(req):
+    auth = OneLogin_Saml2_Auth(req, custom_base_path=app.config['SAML_PATH'])
+    return auth
+
+
+def prepare_flask_request(request):
+    # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
+    url_data = urlparse(request.url)
+    return {
+        'https': 'on' if request.scheme == 'https' else 'off',
+        'http_host': request.host,
+        'server_port': url_data.port,
+        'script_name': request.path,
+        'get_data': request.args.copy(),
+        'post_data': request.form.copy(),
+        # Uncomment if using ADFS as IdP, https://github.com/onelogin/python-saml/pull/144
+        # 'lowercase_urlencoding': True,
+        'query_string': request.query_string
+    }
+
+
+@app.route('/saml/', methods=['GET', 'POST'])
+@app.route('/saml', methods=['GET', 'POST'])
+def login_saml():
+    req = prepare_flask_request(request)
+    auth = init_saml_auth(req)
+    user = None
+
+    if 'sso' in request.args:
+        print 'Redirecting to login page'
+        return redirect(auth.login())
+    elif 'slo' in request.args:
+        name_id = None
+        session_index = None
+        if 'samlNameId' in session:
+            name_id = session['samlNameId']
+        if 'samlSessionIndex' in session:
+            session_index = session['samlSessionIndex']
+        return redirect(auth.logout(name_id=name_id, session_index=session_index))
+    elif 'acs' in request.args:
+        auth.process_response()
+        errors = auth.get_errors()
+        if len(errors) == 0:
+            session['samlUserdata'] = auth.get_attributes()
+            session['samlNameId'] = auth.get_nameid()
+            session['samlSessionIndex'] = auth.get_session_index()
+            if 'samlUserdata' in session:
+                if len(session['samlUserdata']) > 0:
+                    attributes = session['samlUserdata'].items()
+                    new_user = False
+                    for attr in attributes:
+                        if attr[0] == 'mail':
+                            email = attr[1][0]
+                            user = SiWaySAMLUser.query.filter_by(email=email).first()
+                            if user is None:
+                                new_user = True
+                            break
+
+                    if new_user:
+                        for attr in attributes:
+                            if attr[0] == 'employeeType':
+                                employee_type = attr[1][0]
+                            elif attr[0] == 'uid':
+                                uid = attr[1][0]
+                            elif attr[0] == 'o':
+                                school_name = attr[1][0]
+                            elif attr[0] == 'sn':
+                                short_name = attr[1][0]
+                            elif attr[0] == 'mail':
+                                email = attr[1][0]
+                            elif attr[0] == 'ou':
+                                group = attr[1][0]
+                            elif attr[0] == 'cn':
+                                full_name = attr[1][0]
+                            elif attr[0] == 'userPassword':
+                                password = attr[1][0]
+                        user = SiWaySAMLUser(employee_type=employee_type,
+                                             uid=int(uid),
+                                             school_name=school_name,
+                                             short_name=short_name,
+                                             email=email,
+                                             group=group,
+                                             full_name=full_name,
+                                             password=password
+                                             )
+                        db_session.add(user)
+                        db_session.commit()
+                        print 'New user pushed to db'
+                    else:
+                        print 'User already in db'
+
+                    return render_template('saml/loged.html',user=user)
+
+    elif 'sls' in request.args:
+        #TODO:User logout here
+        dscb = lambda: session.clear()
+        url = auth.process_slo(delete_session_cb=dscb)
+        print url
+        errors = auth.get_errors()
+        if len(errors) == 0:
+            if url is not None:
+                print 'Redirecting to session delete url (sls)'
+                return redirect(url)
+    golab = app.config.get('GOLAB', False)
+    return render_template("index.html", golab = golab)
+
+
+
+@app.route('/saml/metadata/')
+def metadata():
+    req = prepare_flask_request(request)
+    auth = init_saml_auth(req)
+    settings = auth.get_settings()
+    metadata = settings.get_sp_metadata()
+    errors = settings.validate_metadata(metadata)
+
+    if len(errors) == 0:
+        resp = make_response(metadata, 200)
+        resp.headers['Content-Type'] = 'text/xml'
+    else:
+        resp = make_response(', '.join(errors), 500)
+    return resp
+
+
 
 @app.route("/logout", methods=['GET'])
 @login_required
