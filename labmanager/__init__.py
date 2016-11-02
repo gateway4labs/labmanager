@@ -27,6 +27,7 @@ from .views import load as load_views
 from .views.ims_lti import lti_blueprint
 from .views.basic_http import basic_http_blueprint
 from .views.opensocial import opensocial_blueprint
+from .views.repository import repository_blueprint
 
 def load_rlms_modules():
     """
@@ -59,6 +60,8 @@ def register_blueprints():
     app.register_blueprint(lti_blueprint, url_prefix='/lti')
     app.register_blueprint(opensocial_blueprint, url_prefix='/os')
     app.register_blueprint(opensocial_blueprint, url_prefix='/opensocial')
+    app.register_blueprint(repository_blueprint, url_prefix='/repo')
+    app.register_blueprint(repository_blueprint, url_prefix='/repository')
 
     from labmanager.rlms.base import _BLUEPRINTS
     for url, blueprint in _BLUEPRINTS.items():
