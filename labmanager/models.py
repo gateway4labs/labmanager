@@ -91,7 +91,7 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
         return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
 class SiWaySAMLUser(db.Model):
-    __tablename__ = 'SiWaySAMLUsers'
+    __tablename__ = 'siway_user'
 
     # Here the fields that we retrieve at SiWay
     id = db.Column(db.Integer, primary_key = True)
@@ -548,14 +548,14 @@ class EmbedApplication(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     url = db.Column(db.Unicode(255), index = True, nullable = False)
     name = db.Column(db.Unicode(100), index = True, nullable = False)
-    owner_id = db.Column(db.Integer, ForeignKey('lt_users.id'))
+    owner_id = db.Column(db.Integer, ForeignKey('siway_user.id'))
     height = db.Column(db.Integer)
     scale = db.Column(db.Integer) # value multiplied by 100; 9850 represents 98.5
     identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
     creation = db.Column(db.DateTime, index = True, nullable = False)
     last_update = db.Column(db.DateTime, index = True, nullable = False)
 
-    owner = relation("LtUser",backref="embed_applications")
+    owner = relation('SiWaySAMLUser',backref="embed_applications")
 
     def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None):
         if creation is None:

@@ -17,8 +17,7 @@ from ..models import LabManagerUser, LtUser, LearningTool, SiWaySAMLUser
 
 from urlparse import urlparse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
-from onelogin.saml2.utils import OneLogin_Saml2_Utils
-
+from functools import wraps
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
@@ -182,6 +181,7 @@ def login_saml():
             session['samlUserdata'] = auth.get_attributes()
             session['samlNameId'] = auth.get_nameid()
             session['samlSessionIndex'] = auth.get_session_index()
+
             if 'samlUserdata' in session:
                 if len(session['samlUserdata']) > 0:
                     attributes = session['samlUserdata'].items()
@@ -189,6 +189,7 @@ def login_saml():
                     for attr in attributes:
                         if attr[0] == 'mail':
                             email = attr[1][0]
+                            session['samlEmail'] = email
                             user = SiWaySAMLUser.query.filter_by(email=email).first()
                             if user is None:
                                 new_user = True
@@ -259,7 +260,24 @@ def metadata():
         resp = make_response(', '.join(errors), 500)
     return resp
 
+def current_siway_user():
+    if 'samlEmail' not in session:
+        return None
+    return db_session.query(SiWaySAMLUser).filter_by(email = session['samlEmail']).first()
 
+def requires_siway_login(f):
+    """
+    Require that a particular flask URL requires login. It will require the user to be logged,
+    and if he's not logged he will be redirected there afterwards.
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if current_siway_user() is None:
+            return redirect(url_for('login_saml',sso='', next=request.url))
+        return f(*args, **kwargs)
+
+    return wrapper
 
 @app.route("/logout", methods=['GET'])
 @login_required
