@@ -16,8 +16,8 @@
             </div>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">{{ user.name }}</a></li>
-                <li><a href="{{ url_for('logout') }}">{{ gettext("Log out") }}</a></li>
+                <li><a href="#">{{ user.full_name }}</a></li>
+                <li><a href="{{ url_for('login_saml',slo='') }}">{{ gettext("Log out") }}</a></li>
             </ul>
         </div>
     </nav>
