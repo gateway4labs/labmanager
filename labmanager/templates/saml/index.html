@@ -1,27 +1,5 @@
-{% extends "saml/base.html" %}
+{% extends "saml/base-logged.html" %}
 
 {% block content %}
-
-{% if errors %}
-  <div class="alert alert-danger" role="alert">
-    <strong>Errors:</strong>
-    <ul class="list-unstyled">
-        {% for err in errors %}
-          <li>{{err}}</li>
-        {% endfor %}
-    </ul>
-  </div>
-{% endif %}
-
-{% if not_auth_warn %}
-  <div class="alert alert-danger" role="alert">Not authenticated</div>
-{% endif %}
-
-{% if success_slo %}
-  <div class="alert alert-success" role="alert">Successfully logged out</div>
-{% endif %}
-
-  <a href="?sso" class="btn btn-primary">Login</a>
-
-
+    <a class="btn btn-success btn-large" href="{{ url_for('embed.index') }}"> Embed apps in OpenSocial </a>
 {% endblock %}

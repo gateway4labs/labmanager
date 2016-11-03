@@ -228,7 +228,7 @@ def login_saml():
                     else:
                         print 'User already in db'
 
-                    return render_template('saml/loged.html',user=user)
+                    return render_template('saml/index.html',user=user)
 
     elif 'sls' in request.args:
         #TODO:User logout here
