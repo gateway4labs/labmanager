@@ -1,5 +1,6 @@
 {% extends "saml/base-logged.html" %}
 
-{% block content %}
+{% block body %}
+    {{ super() }}
     <button class="btn btn-success btn-large" href="{{ url_for('embed.index') }}"> Embed apps in OpenSocial </button>
 {% endblock %}
