@@ -253,8 +253,8 @@ def login_saml():
             if url is not None:
                 print 'Redirecting to session delete url (sls)'
                 return redirect(url)
-    golab = current_app.config.get('GOLAB', False)
-    return render_template("index.html", golab = golab)
+
+    return redirect(url_for('index'))
 
 
 
