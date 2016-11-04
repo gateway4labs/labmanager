@@ -1,5 +1,6 @@
 # -*-*- encoding: utf-8 -*-*-
 
+import json
 import hashlib
 import datetime
 import uuid
@@ -551,10 +552,13 @@ class EmbedApplication(db.Model):
     identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
     creation = db.Column(db.DateTime, index = True, nullable = False)
     last_update = db.Column(db.DateTime, index = True, nullable = False)
+    description = db.Column(db.UnicodeText, nullable = True)
+    age_ranges_commas = db.Column(db.Unicode(100), nullable = True) # golab format, comma separated
+    domains_json = db.Column(db.Unicode(255), nullable = True) # JSON-encoded domains in a list
 
     owner = relation('SiWaySAMLUser',backref="embed_applications")
 
-    def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None):
+    def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None, description = None, age_ranges=None, domains=None):
         if creation is None:
             creation = datetime.datetime.utcnow()
         if last_update is None:
@@ -571,8 +575,31 @@ class EmbedApplication(db.Model):
         self.last_update = last_update
         self.height = height
         self.scale = scale
+        self.description = None
+        self.age_ranges = age_ranges
+        self.domains = domains
 
-    def update(self, url = None, name = None, height = None, scale = None):
+    @property
+    def domains(self):
+        if not self.domains_json:
+            return []
+        return json.loads(self.domains_json) or []
+
+    @domains.setter
+    def domains(self, domains):
+        self.domains_json = json.dumps(domains or [])
+
+    @property
+    def age_ranges(self):
+        if not self.age_ranges_commas:
+            return []
+        return self.age_ranges_commas.split(',')
+
+    @age_ranges.setter
+    def age_ranges(self, age_ranges):
+        self.age_ranges_commas = ','.join(age_ranges or [])
+
+    def update(self, url = None, name = None, height = None, scale = None, description = None, domains = None, age_ranges = None):
         if url is not None:
             self.url = url
         if name is not None:
@@ -581,6 +608,12 @@ class EmbedApplication(db.Model):
             self.height = height
         if scale is not None:
             self.scale = scale
+        if description is not None:
+            self.description = description
+        if domains is not None:
+            self.domains = domains
+        if age_ranges is not None:
+            self.age_ranges = age_ranges
         self.last_update = datetime.datetime.utcnow()
 
 class EmbedApplicationTranslation(db.Model):

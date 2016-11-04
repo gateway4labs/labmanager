@@ -8,7 +8,7 @@
 
 from time import time
 from hashlib import new as new_hash
-from flask import render_template, request, flash, redirect, url_for, session, make_response
+from flask import render_template, request, flash, redirect, url_for, session, make_response, current_app
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
 from labmanager.babel import gettext
 from ..application import app
@@ -159,6 +159,19 @@ def prepare_flask_request(request):
 @app.route('/saml/', methods=['GET', 'POST'])
 @app.route('/saml', methods=['GET', 'POST'])
 def login_saml():
+
+    if current_app.config.get('DEBUG'):
+        if request.args.get('fake', '').lower() == 'true':
+            email='sammy.student@siway-demo.eu'
+            user = db_session.query(SiWaySAMLUser).filter_by(email=email).first()
+            if user is None:
+                user = SiWaySAMLUser(employee_type='student', uid=int(110053), school_name='Isaac Newton School', short_name='Sammy', email=email, group='Class 5c', full_name='Student Sammy')
+                db_session.add(user)
+                db_session.commit()
+            session['samlEmail'] = email
+            return redirect(request.args.get('next') or url_for('embed.index'))
+
+
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
     user = None
@@ -240,7 +253,7 @@ def login_saml():
             if url is not None:
                 print 'Redirecting to session delete url (sls)'
                 return redirect(url)
-    golab = app.config.get('GOLAB', False)
+    golab = current_app.config.get('GOLAB', False)
     return render_template("index.html", golab = golab)
 
 
