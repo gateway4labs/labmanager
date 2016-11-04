@@ -164,8 +164,11 @@ def login_saml():
     user = None
 
     if 'sso' in request.args:
-        print 'Redirecting to login page'
-        return redirect(auth.login())
+        kwargs = {}
+        if 'next' in request.args:
+            kwargs['return_to'] = request.args.get('next')
+        return redirect(auth.login(**kwargs))
+
     elif 'slo' in request.args:
         name_id = None
         session_index = None
@@ -174,6 +177,7 @@ def login_saml():
         if 'samlSessionIndex' in session:
             session_index = session['samlSessionIndex']
         return redirect(auth.logout(name_id=name_id, session_index=session_index))
+
     elif 'acs' in request.args:
         auth.process_response()
         errors = auth.get_errors()
@@ -182,49 +186,45 @@ def login_saml():
             session['samlNameId'] = auth.get_nameid()
             session['samlSessionIndex'] = auth.get_session_index()
 
-            if 'samlUserdata' in session:
-                if len(session['samlUserdata']) > 0:
-                    attributes = session['samlUserdata'].items()
-                    new_user = False
+            if len(session['samlUserdata']) > 0:
+                attributes = session['samlUserdata'].items()
+                new_user = False
+                for attr in attributes:
+                    if attr[0] == 'mail':
+                        email = attr[1][0]
+                        session['samlEmail'] = email
+                        user = SiWaySAMLUser.query.filter_by(email=email).first()
+                        if user is None:
+                            new_user = True
+                        break
+
+                if new_user:
                     for attr in attributes:
-                        if attr[0] == 'mail':
+                        if attr[0] == 'employeeType':
+                            employee_type = attr[1][0]
+                        elif attr[0] == 'uid':
+                            uid = attr[1][0]
+                        elif attr[0] == 'o':
+                            school_name = attr[1][0]
+                        elif attr[0] == 'sn':
+                            short_name = attr[1][0]
+                        elif attr[0] == 'mail':
                             email = attr[1][0]
-                            session['samlEmail'] = email
-                            user = SiWaySAMLUser.query.filter_by(email=email).first()
-                            if user is None:
-                                new_user = True
-                            break
+                        elif attr[0] == 'ou':
+                            group = attr[1][0]
+                        elif attr[0] == 'cn':
+                            full_name = attr[1][0]
+                    user = SiWaySAMLUser(employee_type=employee_type,
+                                         uid=int(uid),
+                                         school_name=school_name,
+                                         short_name=short_name,
+                                         email=email,
+                                         group=group,
+                                         full_name=full_name)
+                    db_session.add(user)
+                    db_session.commit()
 
-                    if new_user:
-                        for attr in attributes:
-                            if attr[0] == 'employeeType':
-                                employee_type = attr[1][0]
-                            elif attr[0] == 'uid':
-                                uid = attr[1][0]
-                            elif attr[0] == 'o':
-                                school_name = attr[1][0]
-                            elif attr[0] == 'sn':
-                                short_name = attr[1][0]
-                            elif attr[0] == 'mail':
-                                email = attr[1][0]
-                            elif attr[0] == 'ou':
-                                group = attr[1][0]
-                            elif attr[0] == 'cn':
-                                full_name = attr[1][0]
-                        user = SiWaySAMLUser(employee_type=employee_type,
-                                             uid=int(uid),
-                                             school_name=school_name,
-                                             short_name=short_name,
-                                             email=email,
-                                             group=group,
-                                             full_name=full_name)
-                        db_session.add(user)
-                        db_session.commit()
-                        print 'New user pushed to db'
-                    else:
-                        print 'User already in db'
-
-                    return render_template('saml/index.html',user=user)
+                return render_template('saml/index.html',user=user)
 
     elif 'sls' in request.args:
         #TODO:User logout here
