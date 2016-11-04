@@ -167,6 +167,7 @@ def login_saml():
         kwargs = {}
         if 'next' in request.args:
             kwargs['return_to'] = request.args.get('next')
+            session['next'] = request.args.get('next')
         return redirect(auth.login(**kwargs))
 
     elif 'slo' in request.args:
@@ -223,6 +224,9 @@ def login_saml():
                                          full_name=full_name)
                     db_session.add(user)
                     db_session.commit()
+                
+                if 'next' in session:
+                    return redirect(session.pop('next'))
 
                 return render_template('saml/index.html',user=user)
 
