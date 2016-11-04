@@ -211,17 +211,13 @@ def login_saml():
                                 group = attr[1][0]
                             elif attr[0] == 'cn':
                                 full_name = attr[1][0]
-                            elif attr[0] == 'userPassword':
-                                password = attr[1][0]
                         user = SiWaySAMLUser(employee_type=employee_type,
                                              uid=int(uid),
                                              school_name=school_name,
                                              short_name=short_name,
                                              email=email,
                                              group=group,
-                                             full_name=full_name,
-                                             password=password
-                                             )
+                                             full_name=full_name)
                         db_session.add(user)
                         db_session.commit()
                         print 'New user pushed to db'
