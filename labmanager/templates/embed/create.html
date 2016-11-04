@@ -43,6 +43,8 @@
 
                 <fieldset>
                     {{ render_field(form.name, ng_submit="submitForm()") }}
+                    {{ render_field(form.description, ng_submit="submitForm()") }}
+                    {{ render_field(form.age_ranges) }}
                     {{ render_field(form.url, ng_submit="submitForm()") }}
 
 

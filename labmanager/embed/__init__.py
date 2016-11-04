@@ -8,7 +8,7 @@ from labmanager.models import EmbedApplication, EmbedApplicationTranslation
 from labmanager.translator.languages import obtain_languages
 
 from flask.ext.wtf import Form
-from wtforms import TextField, HiddenField
+from wtforms import TextField, HiddenField, SelectMultipleField
 from wtforms.validators import required
 from wtforms.fields.html5 import URLField
 from wtforms.widgets import HiddenInput, TextInput
@@ -92,9 +92,13 @@ def index():
     applications = db.session.query(EmbedApplication).filter_by(owner = current_siway_user()).order_by(EmbedApplication.last_update).all()
     return render_template("embed/index.html", applications = applications, user = current_siway_user())
 
+AGE_RANGES = ['<6', '6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '>18']
+
 class ApplicationForm(Form):
     name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"))
     url = URLField(lazy_gettext("Web:"), validators=[required()], widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"))
+    age_ranges = SelectMultipleField(lazy_gettext("Age ranges:"), choices=zip(AGE_RANGES, AGE_RANGES))
+    description = TextField(lazy_gettext("Description:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"))
     height = HiddenField(lazy_gettext("Height:"), validators=[required()], widget = AngularJSHiddenInput(ng_model='embed.height'))
     scale = HiddenField(lazy_gettext("Scale:"), validators=[required()], widget = AngularJSHiddenInput(ng_model='embed.scale'))
 
@@ -123,7 +127,7 @@ def create():
     form = ApplicationForm()
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
-        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale)
+        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges=form.age_ranges.data)
         db.session.add(application)
         try:
             db.session.commit()
@@ -195,8 +199,7 @@ def edit(identifier):
                 db.session.delete(translation)
 
         form_scale = _get_scale_value(form)
-        print(form_scale)
-        application.update(url=form.url.data, name=form.name.data, height=form.height.data, scale=form_scale)
+        application.update(url=form.url.data, name=form.name.data, height=form.height.data, scale=form_scale, age_ranges=form.age_ranges.data, description=form.description.data)
         db.session.commit()
 
     # Add the posted languages to the existing ones
