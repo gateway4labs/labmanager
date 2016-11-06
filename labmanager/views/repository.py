@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, url_for, request, current_app, Response
 
 from labmanager.db import db
-from labmanager.models import RLMS, Laboratory
+from labmanager.models import RLMS, Laboratory, EmbedApplication
 from labmanager.rlms import get_manager_class, Capabilities
 
 repository_blueprint = Blueprint('repository', __name__)
@@ -28,8 +28,7 @@ def index():
     return "Welcome to the repository"
 
 def lab_to_json(lab, widgets):
-    age_ranges = [] # e.g., 12-13, 14-15
-    age_ranges = lab.age_ranges or []
+    age_ranges = lab.age_ranges or [] # e.g., 12-13, 14-15
     domains = lab.domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
     for widget in widgets:
@@ -45,6 +44,23 @@ def lab_to_json(lab, widgets):
             'lab_apps' : lab_widgets,
             'keywords' : lab.keywords or []
         }
+
+def app_to_json(embed_app):
+    age_ranges = embed_app.age_ranges # e.g., 12-13, 14-15
+    domains = embed_app.domains # e.g., Physics, Chemistry
+    lab_widgets = [{
+        'app_url': url_for('embed.app_xml', identifier=embed_app.identifier, _external=True),
+        'app_title': embed_app.name,
+    }]
+    return {
+            'title': embed_app.name,
+            'description': embed_app.description or '',
+            'domains' : domains,
+            'age_range' : age_ranges,
+            'lab_apps' : lab_widgets,
+            'keywords' : []
+        }
+
 
 def _extract_labs(rlms, single_lab = None):
     RLMS_CLASS = get_manager_class(rlms.kind, rlms.version, rlms.id)
@@ -83,5 +99,8 @@ def resources():
     for rlms in db.session.query(RLMS).filter_by(publicly_available = True):
         for public_lab in _extract_labs(rlms):
             public_laboratories.append(public_lab)
+
+    for app in db.session.query(EmbedApplication).all():
+        public_laboratories.append(app_to_json(app))
 
     return jsonify(resources=public_laboratories)
