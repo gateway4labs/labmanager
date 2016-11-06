@@ -110,12 +110,9 @@ def index():
     applications = db.session.query(EmbedApplication).filter_by(owner = current_siway_user()).order_by(EmbedApplication.last_update).all()
     return render_template("embed/index.html", applications = applications, user = current_siway_user())
 
-AGE_RANGES = ['<6', '6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '>18']
-
 class ApplicationForm(Form):
     name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
     url = URLField(lazy_gettext("Web:"), validators=[required()], widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"), description=lazy_gettext("Web address of the resource"))
-    # age_ranges = MultiCheckboxField(lazy_gettext("Age ranges:"), choices=zip(AGE_RANGES, AGE_RANGES), description=lazy_gettext("Select the age ranges this tool is useful for"))
     age_ranges_range = HiddenField(lazy_gettext("Age ranges:"), validators=[required()], description=lazy_gettext("Select the age ranges this tool is useful for"))
     description = TextField(lazy_gettext("Description:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
     domains_text = TextField(lazy_gettext("Domains:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Say in which domains apply to the resource (separated by commas): e.g., physics, electronics..."))
@@ -147,7 +144,7 @@ def create():
     form = ApplicationForm()
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
-        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges = form.age_ranges_range.data)
+        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges_range = form.age_ranges_range.data)
         application.domains_text = form.domains_text.data
         db.session.add(application)
         try:
