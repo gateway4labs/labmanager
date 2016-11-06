@@ -11,7 +11,7 @@ from flask.ext.wtf import Form
 from wtforms import TextField, HiddenField, SelectMultipleField
 from wtforms.validators import required
 from wtforms.fields.html5 import URLField
-from wtforms.widgets import HiddenInput, TextInput
+from wtforms.widgets import HiddenInput, TextInput, CheckboxInput, html_params, HTMLString
 from wtforms.widgets.html5 import URLInput
 
 embed_blueprint = Blueprint('embed', __name__)
@@ -46,6 +46,24 @@ class AngularJSURLInput(AngularJSInput, URLInput):
 
 class AngularJSHiddenInput(AngularJSInput, HiddenInput):
     pass
+
+
+class DivWidget(object):
+    def __init__(self, padding = '10px'):
+        self.padding = padding
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        html = ['<div %s>' % (html_params(**kwargs))]
+        for subfield in field:
+            html.append('<label class="checkbox-inline">%s %s</label>' % (subfield(), subfield.label.text))
+        html.append('</div>')
+        return HTMLString(''.join(html))
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = DivWidget()
+    option_widget = CheckboxInput()
 
 # 
 # Public URLs
@@ -95,10 +113,12 @@ def index():
 AGE_RANGES = ['<6', '6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '>18']
 
 class ApplicationForm(Form):
-    name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"))
-    url = URLField(lazy_gettext("Web:"), validators=[required()], widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"))
-    age_ranges = SelectMultipleField(lazy_gettext("Age ranges:"), choices=zip(AGE_RANGES, AGE_RANGES))
-    description = TextField(lazy_gettext("Description:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"))
+    name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
+    url = URLField(lazy_gettext("Web:"), validators=[required()], widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"), description=lazy_gettext("Web address of the resource"))
+    # age_ranges = MultiCheckboxField(lazy_gettext("Age ranges:"), choices=zip(AGE_RANGES, AGE_RANGES), description=lazy_gettext("Select the age ranges this tool is useful for"))
+    age_ranges_range = HiddenField(lazy_gettext("Age ranges:"), validators=[required()], description=lazy_gettext("Select the age ranges this tool is useful for"))
+    description = TextField(lazy_gettext("Description:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
+    domains_text = TextField(lazy_gettext("Domains:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Say in which domains apply to the resource (separated by commas): e.g., physics, electronics..."))
     height = HiddenField(lazy_gettext("Height:"), validators=[required()], widget = AngularJSHiddenInput(ng_model='embed.height'))
     scale = HiddenField(lazy_gettext("Scale:"), validators=[required()], widget = AngularJSHiddenInput(ng_model='embed.scale'))
 
@@ -127,7 +147,8 @@ def create():
     form = ApplicationForm()
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
-        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges=form.age_ranges.data)
+        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges = form.age_ranges_range.data)
+        application.domains_text = form.domains_text.data
         db.session.add(application)
         try:
             db.session.commit()
@@ -199,7 +220,7 @@ def edit(identifier):
                 db.session.delete(translation)
 
         form_scale = _get_scale_value(form)
-        application.update(url=form.url.data, name=form.name.data, height=form.height.data, scale=form_scale, age_ranges=form.age_ranges.data, description=form.description.data)
+        application.update(url=form.url.data, name=form.name.data, height=form.height.data, scale=form_scale, age_ranges_range=form.age_ranges_range.data, description=form.description.data, domains_text=form.domains_text.data)
         db.session.commit()
 
     # Add the posted languages to the existing ones

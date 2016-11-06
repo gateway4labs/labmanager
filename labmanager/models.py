@@ -575,7 +575,7 @@ class EmbedApplication(db.Model):
         self.last_update = last_update
         self.height = height
         self.scale = scale
-        self.description = None
+        self.description = description
         self.age_ranges = age_ranges
         self.domains = domains
 
@@ -590,6 +590,14 @@ class EmbedApplication(db.Model):
         self.domains_json = json.dumps(domains or [])
 
     @property
+    def domains_text(self):
+        return ', '.join(self.domains)
+
+    @domains_text.setter
+    def domains_text(self, domains):
+        self.domains = [ domain.strip() for domain in domains.split(',') if domain.strip() ]
+
+    @property
     def age_ranges(self):
         if not self.age_ranges_commas:
             return []
@@ -597,9 +605,53 @@ class EmbedApplication(db.Model):
 
     @age_ranges.setter
     def age_ranges(self, age_ranges):
-        self.age_ranges_commas = ','.join(age_ranges or [])
+        age_ranges_splitted = age_ranges[1:-1].split(',')
+        min_age = int(age_ranges_splitted[0].strip())
+        max_age = int(age_ranges_splitted[1].strip())
+        
+        new_age_ranges = []
+        for x in xrange(min_age, max_age, 2):
+            if x == 4:
+                new_age_ranges.append('<6')
+            elif x == 6:
+                new_age_ranges.append('6-8')
+            elif x == 8:
+                new_age_ranges.append('8-10')
+            elif x == 10:
+                new_age_ranges.append('10-12')
+            elif x == 12:
+                new_age_ranges.append('12-14')
+            elif x == 14:
+                new_age_ranges.append('14-16')
+            elif x == 16:
+                new_age_ranges.append('16-18')
+            elif x == 18:
+                new_age_ranges.append('>18')
+        print new_age_ranges
+        self.age_ranges = new_age_ranges
 
-    def update(self, url = None, name = None, height = None, scale = None, description = None, domains = None, age_ranges = None):
+    @property
+    def age_ranges_range(self):
+        age_ranges = self.age_ranges
+        if age_ranges[0] == '<6':
+            minimum = 4
+        elif age_ranges[0] == '>18':
+            minimum = 20
+        else:
+            minimum = int(age_ranges[0].split('-')[0])
+        if age_ranges[-1] == '<6':
+            maximum = 4
+        elif age_ranges[-1] == '>18':
+            maximum = 20
+        else:
+            maximum = int(age_ranges[-1].split('-')[1])
+        return "[%s, %s]" % (minimum, maximum)
+
+    @age_ranges_range.setter
+    def age_ranges_range(self, age_ranges_range):
+        self.age_ranges_range_commas = ','.join(age_ranges_range or [])
+
+    def update(self, url = None, name = None, height = None, scale = None, description = None, domains = None, age_ranges_range = None, domains_text=None):
         if url is not None:
             self.url = url
         if name is not None:
@@ -612,8 +664,10 @@ class EmbedApplication(db.Model):
             self.description = description
         if domains is not None:
             self.domains = domains
-        if age_ranges is not None:
-            self.age_ranges = age_ranges
+        if age_ranges_range is not None:
+            self.age_ranges_range = age_ranges_range
+        if self.domains_text is not None:
+            self.domains_text = domains_text
         self.last_update = datetime.datetime.utcnow()
 
 class EmbedApplicationTranslation(db.Model):

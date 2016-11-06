@@ -12,6 +12,12 @@
     {% set initial_scale = 100 %}
 {% endif %}
 
+{% if form.age_ranges_range.data %}
+    {% set initial_age_ranges = form.age_ranges_range.data %}
+{% else %}
+    {% set initial_age_ranges = "[4, 20]" %}
+{% endif %}
+
 {% block head %}
     {{ super() }}
     <link href="{{ url_for('static', filename='bootstrap-slider.min.css') }}" rel="stylesheet">
@@ -44,7 +50,34 @@
                 <fieldset>
                     {{ render_field(form.name, ng_submit="submitForm()") }}
                     {{ render_field(form.description, ng_submit="submitForm()") }}
-                    {{ render_field(form.age_ranges) }}
+                    {{ render_field(form.domains_text, ng_submit="submitForm()") }}
+{#
+					<div class="form-group {% if form.age_ranges.errors %}has-error{% endif %}">
+						{{ form.age_ranges.label(form.age_ranges.label.text, class="control-label col-sm-3") }}
+						<div class="col-sm-7">
+							{{ form.age_ranges(id=form.age_ranges.name)|safe }}
+							<p class="help-block">{{ form.age_ranges.description }}</p>
+							{% for error in form.age_ranges.errors %}
+							<span class="help-block input-errors">{{ error }}</span>
+							{% endfor %}
+						</div>
+					</div> #}
+					<div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
+						{{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
+						<div class="col-sm-7">
+							<input id="age_ranges_range_slider" type="text" value="" 
+								style="width: 400px"
+								data-slider-ticks="[4, 6, 8, 10, 12, 14, 16, 18, 20]" 
+								data-slider-ticks-labels='["<6", "6", "8", "10", "12", "14", "16", "18", ">18"]'
+								data-slider-step="2"
+								data-slider-value="{{ initial_age_ranges }}"/>
+							<p class="help-block">{{ form.age_ranges_range.description }}</p>
+							{% for error in form.age_ranges_range.errors %}
+							<span class="help-block input-errors">{{ error }}</span>
+							{% endfor %}
+						</div>
+					</div>
+
                     {{ render_field(form.url, ng_submit="submitForm()") }}
 
 
@@ -258,6 +291,14 @@
         // Scale
         $("input[name='scale']").val({{ initial_scale }});
         updateScale({{ initial_scale }});
+		
+		if ("{{ form.age_ranges_range.value }}" != "") {
+		}
+		$("#age_ranges_range_slider").slider().on("slide", function (evt) {
+			var newValue = new String(evt.value);
+            $("input[name='age_ranges_range']").val(newValue);
+        });
+
 
         $('#slider-scale').slider({
             formatter: function (value) {
