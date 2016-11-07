@@ -25,6 +25,7 @@ M2Crypto==0.25.1
 dm.xmlsec.binding==1.3.2
 isodate==0.5.4
 defusedxml==0.4.1
+beautifulsoup4==4.3.2
 
 
 git+https://github.com/gateway4labs/rlms_unr.git

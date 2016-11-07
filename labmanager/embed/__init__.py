@@ -1,4 +1,6 @@
 import traceback
+import requests
+from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, make_response, redirect, url_for, request
 from labmanager.views.authn import requires_siway_login, current_siway_user
 
@@ -161,6 +163,26 @@ def create():
         form = ApplicationForm(obj=original_application)
     else:
         form = ApplicationForm()
+
+    if not form.url.data and original_url:
+        form.url.data = original_url
+        if not form.name.data:
+            try:
+                req = requests.get(original_url, timeout=(3,3), stream=True)
+                if req.status_code == 200 and 'html' in req.headers.get('content-type', '').lower():
+                    # First megabyte maximum
+                    content = req.iter_content(1024 * 1024).next()
+                    soup = BeautifulSoup(content, 'lxml')
+                    form.name.data = soup.find("title").text
+                    meta_description = soup.find("meta", attrs={'name': 'description'})
+                    if meta_description is not None:
+                        meta_description_text = meta_description.attrs.get('content')
+                        if meta_description_text and not form.description.data:
+                            form.description.data = meta_description_text
+                req.close()
+            except:
+                traceback.print_exc()
+                pass
 
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)

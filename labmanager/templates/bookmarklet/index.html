@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SiWay Smart Gateway</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" CONTENT="noindex, nofollow">
+    <link href="{{ url_for('static', filename='bs3/css/bootstrap.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bs3/css/bootstrap-theme.min.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="row text-center">
+            <div class="jumbotron" style="padding-bottom: 200px">
+                <h1>{{ gettext("Install the bookmarklet") }}</h1>
+
+                <br>
+                <br>
+                <br>
+                <div style="width: 100%">
+            
+                <div class="col-sm-4 col-sm-offset-2">
+                    <p>{{ gettext("By installing the bookmarklet, you will be able to add any web resource to SiWay") }}</p>
+                </div>
+
+                <div class="col-sm-4">
+                    <a href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add SiWay bookmarklet</a>
+                </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='jquery-1.9.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='bs3/js/bootstrap.min.js') }}" type="text/javascript"></script>
+</body>
+</html>
