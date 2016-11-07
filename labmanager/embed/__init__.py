@@ -141,7 +141,27 @@ def _get_scale_value(form):
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_siway_login
 def create():
-    form = ApplicationForm()
+    original_url = request.args.get('url')
+    original_application = None
+    if original_url:
+        applications = db.session.query(EmbedApplication).filter_by(url=original_url).all()
+        if applications:
+            original_application = applications[0]
+            for app in applications:
+                if len(app.translations) > len(original_application.translations):
+                    original_application = app
+                if app.name and not original_application.name:
+                    original_application = app
+                    continue
+                if app.description and not original_application.description:
+                    original_application = app
+                    continue
+
+    if original_application is not None:
+        form = ApplicationForm(obj=original_application)
+    else:
+        form = ApplicationForm()
+
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
         application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges_range = form.age_ranges_range.data)
