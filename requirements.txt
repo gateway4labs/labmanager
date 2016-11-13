@@ -26,6 +26,7 @@ dm.xmlsec.binding==1.3.2
 isodate==0.5.4
 defusedxml==0.4.1
 beautifulsoup4==4.3.2
+xml2dict==0.2.2
 
 
 git+https://github.com/gateway4labs/rlms_unr.git

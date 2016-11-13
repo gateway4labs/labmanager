@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, url_for, request, current_app, Response
 
+from dict2xml import dict2xml
+
 from labmanager.db import db
 from labmanager.models import RLMS, Laboratory, EmbedApplication
 from labmanager.rlms import get_manager_class, Capabilities
@@ -27,7 +29,7 @@ def requires_lms_auth():
 def index():
     return "Welcome to the repository"
 
-def lab_to_json(lab, widgets):
+def lab_to_json(lab, widgets, fmt):
     age_ranges = lab.age_ranges or [] # e.g., 12-13, 14-15
     domains = lab.domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
@@ -89,8 +91,7 @@ def _extract_labs(rlms, single_lab = None):
         public_laboratories.append(lab_to_json(lab, lab_widgets))
     return public_laboratories
 
-@repository_blueprint.route('/metadata.json')
-def resources():
+def _get_resources():
     public_laboratories = []
     for lab in db.session.query(Laboratory).filter_by(publicly_available = True):
         for public_lab in _extract_labs(rlms, lab):
@@ -103,4 +104,20 @@ def resources():
     for app in db.session.query(EmbedApplication).all():
         public_laboratories.append(app_to_json(app))
 
+    return public_laboratories
+
+@repository_blueprint.route('/metadata.json')
+def resources():
+    public_laboratories = _get_resources()
     return jsonify(resources=public_laboratories)
+
+@repository_blueprint.route('/metadata.xml')
+def resources_xml():
+    public_laboratories = _get_resources()
+    return Response(dict2xml({
+        "resources": {
+            "resource" : public_laboratories
+        }
+    }), mimetype='application/xml')
+
+
