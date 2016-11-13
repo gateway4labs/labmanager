@@ -139,6 +139,10 @@ class CacheDisabler(object):
     def __exit__(self, *args, **kwargs):
         AbstractCache.enable_cache()
 
+_MEMORY_CACHE = {
+    # original_value: resulting_value
+}
+
 class AbstractCache(object, DictMixin):
 
     _local_ctx = threading.local()
@@ -180,20 +184,29 @@ class AbstractCache(object, DictMixin):
             sys.stdout.flush()
             return default_value
 
+        key = result.value
+        if key in _MEMORY_CACHE:
+            return _MEMORY_CACHE[key]
+
         try:
             decoded_value = result.value.decode('base64')
         except Exception as e:
             print("[%s]: Cache miss due to invalid base64 contents, by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
             sys.stdout.flush()
+            _MEMORY_CACHE[key] = default_value
             return default_value
 
         
         try:
-            return pickle.loads(decoded_value)
+            result = pickle.loads(decoded_value)
         except:
             print("[%s]: Cache miss due to pickle request by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
             sys.stdout.flush()
+            _MEMORY_CACHE[key] = None
             return None
+        else:
+            _MEMORY_CACHE[key] = result
+            return result
 
     def __getitem__(self, key):
         default_value = object()
