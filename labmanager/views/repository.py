@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, url_for, request, current_app, Response
+import json
+from flask import Blueprint, jsonify, url_for, request, current_app, Response, render_template_string
 
 from dict2xml import dict2xml
 
@@ -171,5 +172,19 @@ def resources_xml():
             "resource" : public_laboratories
         }
     }), mimetype='application/xml')
+
+@repository_blueprint.route('/metadata.html')
+def resources_html():
+    fmt = request.args.get('format') or 'json'
+    if fmt == 'xml':
+        public_laboratories = _get_resources(fmt='xml')
+        contents = dict2xml({
+            "resources": {
+                "resource" : public_laboratories
+            }
+        })
+    else:
+        contents = json.dumps(_get_resources(fmt='json'))
+    return render_template_string("<html><body>Contents: <pre>{{ contents }}</pre></body></html>", contents=contents)
 
 
