@@ -6,6 +6,7 @@ from dict2xml import dict2xml
 from labmanager.db import db
 from labmanager.models import RLMS, Laboratory, EmbedApplication
 from labmanager.rlms import get_manager_class, Capabilities
+from labmanager.rlms.caches import force_cache
 
 repository_blueprint = Blueprint('repository', __name__)
 
@@ -140,6 +141,8 @@ def _extract_labs(rlms, single_lab = None, fmt='json'):
     return public_laboratories
 
 def _get_resources(fmt = 'json'):
+    if request.args.get('nocache', '') not in ('1','True', 'true'):
+        force_cache()
     public_laboratories = []
     for lab in db.session.query(Laboratory).filter_by(publicly_available = True):
         for public_lab in _extract_labs(rlms, lab, fmt=fmt):
