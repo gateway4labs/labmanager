@@ -54,6 +54,14 @@ def verify_credentials():
                 # response.status_code = 403
                 return response
         session['author_identifier']  = request.form['user_id']
+        if 'lis_person_name_full' in request.form:
+            session['user_fullname'] = request.form['lis_person_name_full']
+        if 'context_id' in request.form:
+            session['group_id'] = request.form['context_id']
+        if 'context_title' in request.form:
+            session['group_name'] = request.form['context_title']
+        if 'launch_presentation_locale' in request.form:
+            session['launch_locale'] = request.form['launch_presentation_locale']
         session['consumer'] = consumer_key
         session['last_request'] = time()
         return
@@ -106,16 +114,25 @@ def launch_experiment():
     ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
     remote_laboratory = ManagerClass(db_rlms.configuration)
 
+    request_info = { 
+        'user_agent' : unicode(request.user_agent),
+        'from_ip'    : remote_addr(),
+        'referer'    : referer,
+    }
+    for key in 'group_name', 'group_id', 'user_fullname':
+        if key in session:
+            request_info[key] = session[key]
+    kwargs = {}
+    if 'launch_locale' in session:
+        kwargs['locale'] = session['launch_locale'].split('-')[0].split('_')[0]
+
     response = remote_laboratory.reserve(db_laboratory.laboratory_id,
                                          author,
                                          p_to_lt.lt.name,
                                          lt_configuration,
                                          courses_configurations,
                                          request_payload,
-                                         { 
-                                            'user_agent' : unicode(request.user_agent),
-                                            'from_ip'    : remote_addr(),
-                                            'referer'    : referer,
-                                        })
+                                         request_info,
+                                         **kwargs)
     load_url = response['load_url']
     return redirect(load_url)
