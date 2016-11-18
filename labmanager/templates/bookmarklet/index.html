@@ -14,25 +14,70 @@
             <div class="jumbotron" style="padding-bottom: 200px">
                 <h1>{{ gettext("Install the bookmarklet") }}</h1>
 
+                {% if browser == 'edge' %}
+                    <div class="alert alert-danger">
+                        <h2>Browser not supported</h2>
+
+                        <p>{{ gettext("Unfortunately, Microsoft Edge does not properly support bookmarklets. If you have other web browser installed, feel free to use it.") }}</p>
+                        <p>{{ gettext("If you want to try to use this bookmarklet, click on Continue.") }}
+
+                        <a href="#" onclick='$("#edgeinstructions").show()'>{{ gettext("Continue") }}</a>
+                    </div>
+
+                    <div class="hidden" id="edgeinstructions">
+                        <a href="http://www.howtogeek.com/231775/how-to-install-and-use-bookmarklets-in-microsoft-edge/">To be done...</a>
+                    </div>
+                {% else %}
                 <br>
                 <br>
                 <br>
                 <div style="width: 100%">
             
-                <div class="col-sm-4 col-sm-offset-2">
-                    <p>{{ gettext("By installing the bookmarklet, you will be able to add any web resource to SiWay") }}</p>
-                </div>
+                    <div class="col-sm-6">
+                        <p>{{ gettext("Install the bookmarklet so as to add Open Educational Resources to SiWay.") }}</p>
+                        {% if browser == 'ie' %}
+                        {% elif browser == 'firefox' %}
+                        <p>{{ gettext("Right click the link and click on 'Bookmark this link'.") }}</p>
+                        {% else %}
+                        <p>{{ gettext("Drag the link on the right to the bookmark panel.") }}</p>
+                        {% endif %}
 
-                <div class="col-sm-4">
-                    <a href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add SiWay bookmarklet</a>
-                </div>
-                </div>
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                            {{ gettext("Show instructions") }}
+                        </button>
+                    </div>
 
+                    <div class="col-sm-4">
+                        <a id="bookmarklet" href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add to SiWay</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
+
+            <div class="row">
+                <div class="collapse" id="instructions">
+                    <div class="well">
+                        {% if browser == 'ie' %}
+                        {% elif browser == 'firefox' %}
+                        <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/firefox.gif') }}">
+                        {% else %}
+                        <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/chrome.gif') }}">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
     </div>
 
     <script src="{{ url_for('static', filename='jquery-1.9.1.min.js') }}" type="text/javascript"></script>
     <script src="{{ url_for('static', filename='bs3/js/bootstrap.min.js') }}" type="text/javascript"></script>
+    <script>
+        $("body").ready(function() {
+            $("#bookmarklet").click(function (event) {
+                event.preventDefault();
+            });
+        });
+    </script>
 </body>
 </html>

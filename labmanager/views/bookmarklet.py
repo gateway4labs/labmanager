@@ -4,7 +4,11 @@ bookmarklet_blueprint = Blueprint('bookmarklet', __name__)
 
 @bookmarklet_blueprint.route('/')
 def index():
-    return render_template("bookmarklet/index.html")
+    if ' Edge/' in request.headers.get('User-Agent', ''):
+        browser = 'edge'
+    else:
+        browser = request.user_agent.browser
+    return render_template("bookmarklet/index.html", browser=browser)
 
 @bookmarklet_blueprint.route('/create')
 def create():
