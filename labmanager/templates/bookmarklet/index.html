@@ -15,13 +15,16 @@
                 <h1>{{ gettext("Install the bookmarklet") }}</h1>
 
                 {% if browser == 'edge' %}
-                    <div class="alert alert-danger">
+                    <div class="alert alert-warning">
                         <h2>Browser not supported</h2>
 
-                        <p>{{ gettext("Unfortunately, Microsoft Edge does not properly support bookmarklets. If you have other web browser installed, feel free to use it.") }}</p>
-                        <p>{{ gettext("If you want to try to use this bookmarklet, click on Continue.") }}
+                        <p>{{ gettext("Unfortunately, Microsoft Edge does not properly support bookmarklets. If you have other web browser installed, please use it.") }}</p>
+                        <p>{{ gettext("If you want to try to use Edge, the easiest way is to open this same page in Microsoft Internet Explorer, and then in Edge click on 'Import your favorites'.") }}</p>
+                        <br>
 
-                        <a href="#" onclick='$("#edgeinstructions").show()'>{{ gettext("Continue") }}</a>
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                            {{ gettext("Show instructions") }}
+                        </button>
                     </div>
 
                     <div class="hidden" id="edgeinstructions">
@@ -58,8 +61,16 @@
 
             <div class="row">
                 <div class="collapse" id="instructions">
-                    <div class="well">
-                        {% if browser == 'msie' %}
+                    <div class="well text-center">
+                        {% if browser == 'edge' %}
+                        <h3>{{ gettext("Step 1: Install the bookmarklet in Internet Explorer") }}</h3>
+                        <h3>{{ gettext("Step 2: Click on the three lines to go to Favorites") }}</h3>
+                        <img style="width: 50%" src="{{ url_for('static', filename='bookmarklet/instructions/edge1.png') }}"><br>
+                        <h3>{{ gettext("Step 3: Go to Favorites Settings, and activate the Favorites bar and click on 'Import'") }}</h3>
+                        <img style="width: 50%" src="{{ url_for('static', filename='bookmarklet/instructions/edge2.png') }}"><br>
+                        <h3>{{ gettext("Step 4: You can use the bookmarklet in any website") }}</h3>
+                        <img style="width: 50%" src="{{ url_for('static', filename='bookmarklet/instructions/edge3.png') }}"><br>
+                        {% elif browser == 'msie' %}
                         <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/msie.gif') }}">
                         {% elif browser == 'firefox' %}
                         <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/firefox.gif') }}">
