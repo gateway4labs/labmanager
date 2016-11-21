@@ -1,4 +1,5 @@
 import json
+import hashlib
 from flask import Blueprint, jsonify, url_for, request, current_app, Response, render_template_string
 
 from dict2xml import dict2xml
@@ -31,7 +32,15 @@ def requires_lms_auth():
 def index():
     return "Welcome to the repository"
 
-def lab_to_json(lab, widgets):
+def create_lab_id(rlms, lab, single = True):
+    identifier = 'lab:rlms={};lab={};{}'.format(rlms.id, lab.laboratory_id, single)
+    return hashlib.new('sha1', identifier).hexdigest()
+
+def create_app_id(app):
+    identifier = '{}'.format(app.id)
+    return hashlib.new('sha1', identifier).hexdigest()
+
+def lab_to_json(lab, widgets, rlms, single):
     age_ranges = lab.age_ranges or [] # e.g., 12-13, 14-15
     domains = lab.domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
@@ -41,6 +50,7 @@ def lab_to_json(lab, widgets):
             'app_title': widget['name'],
         })
     return {
+            'id': create_lab_id(rlms, lab),
             'title': lab.name,
             'description': lab.description or '',
             'domains' : domains,
@@ -57,6 +67,7 @@ def app_to_json(embed_app):
         'app_title': embed_app.name,
     }]
     return {
+            'id':  create_app_id(embed_app),
             'title': embed_app.name,
             'description': embed_app.description or '',
             'domains' : domains,
@@ -65,7 +76,7 @@ def app_to_json(embed_app):
             'keywords' : []
         }
 
-def lab_to_xml(lab, widgets):
+def lab_to_xml(lab, widgets, rlms, single):
     age_ranges = lab.age_ranges or [] # e.g., 12-13, 14-15
     domains = lab.domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
@@ -77,6 +88,7 @@ def lab_to_xml(lab, widgets):
             }
         })
     structure = {
+            'id': create_lab_id(rlms, lab),
             'title': lab.name,
             'description': lab.description or '',
             'domains' : { 'domain': domains },
@@ -100,6 +112,7 @@ def app_to_xml(embed_app):
         }
     }]
     return {
+            'id':  create_app_id(embed_app),
             'title': embed_app.name,
             'description': embed_app.description or '',
             'domains' : { 'domain': domains},
@@ -137,7 +150,7 @@ def _extract_labs(rlms, single_lab = None, fmt='json'):
                 'link': link,
             })
 
-        public_laboratories.append(lab_formatter(lab, lab_widgets))
+        public_laboratories.append(lab_formatter(lab, lab_widgets, rlms, single_lab is not None))
     return public_laboratories
 
 def _get_resources(fmt = 'json'):
