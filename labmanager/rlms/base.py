@@ -135,6 +135,16 @@ class Capabilities(object):
     a set of data usage in Activity Streams format.
     """
 
+    URL_FINDER = 'url_finder'
+    """
+    Providing this capability reports that the RLMS plug-in supports
+    two methods called 'get_base_urls()', which will return a list of URLs, and
+    another method called 'get_lab_by_url(url)', which given a URL, it finds
+    what laboratory it contains (or None if no lab is found). The get_lab_by_url
+    method will only be called if 'get_base_urls()' is the base URL for the url.
+    """
+
+
 class BaseRLMS(object):
     """
     BaseRLMS is the abstract class which defines the interface 
