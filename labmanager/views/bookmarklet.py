@@ -21,8 +21,6 @@ def index():
 @requires_siway_login
 def create():
     url = request.args.get('url') or ''
-    if url:
-        session['bookmarklet-from'] = url
     
     rlms_by_id = {}
     for db_rlms in db.session.query(RLMS).filter_by(publicly_available=True).all():
@@ -34,7 +32,7 @@ def create():
                 if url.startswith(base_url):
                     lab = rlms.get_lab_by_url(url)
                     if lab is not None:
-                        return redirect(url_for('.public_rlms', rlms_id=db_rlms.public_identifier, lab_name=lab.laboratory_id))
+                        return redirect(url_for('.public_rlms', rlms_id=db_rlms.public_identifier, lab_name=lab.laboratory_id, url=url))
 
     for db_rlms in db.session.query(RLMS).filter_by(publicly_available=False).all():
         rlms = db_rlms.get_rlms()
@@ -46,7 +44,7 @@ def create():
                     lab = rlms.get_lab_by_url(url)
                     db_lab = db.session.query(Laboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
                     if db_lab is not None:
-                        return redirect(url_for('.public_lab', public_identifier=db_lab.public_identifier))
+                        return redirect(url_for('.public_lab', public_identifier=db_lab.public_identifier, url=url))
 
     return redirect(url_for('embed.create', url=url))
 
@@ -64,7 +62,7 @@ def _return_lab(lab, identifier_links, langs):
         if lang_name:
             new_langs.append(lang_name)
 
-    bookmarklet_from = session.pop('bookmarklet-from', None)
+    bookmarklet_from = request.args.get('url')
 
     return render_template("embed/create.html", user = current_siway_user(), form=form, identifier_links=identifier_links, header_message=gettext("View resource"), languages=[], existing_languages=[], all_languages=[], disabled=True, langs = sorted(new_langs), bookmarklet_from=bookmarklet_from)
 

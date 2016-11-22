@@ -200,7 +200,10 @@ def create():
             traceback.print_exc()
             return render_template("embed/error.html", message = gettext("There was an error creating an application"), user = current_siway_user()), 500
         else:
-            return redirect(url_for('.edit', identifier=application.identifier))
+            kwargs = {}
+            if bookmarklet_from:
+                kwargs['url'] = bookmarklet_from
+            return redirect(url_for('.edit', identifier=application.identifier, **kwargs))
             
     return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_siway_user(), bookmarklet_from=bookmarklet_from)
 
@@ -277,6 +280,6 @@ def edit(identifier):
 
     # Obtain the languages formatted as required but excluding those already added
     languages = obtain_formatted_languages(existing_languages)
-    bookmarklet_from = session.pop('bookmarklet-from', None)
+    bookmarklet_from = request.args.get('url')
     return render_template("embed/create.html", user = current_siway_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from)
 
