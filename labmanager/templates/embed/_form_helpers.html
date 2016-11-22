@@ -1,4 +1,4 @@
-{% macro render_field(field, required = False, no_form_control = False) %}
+{% macro render_field(field, required = False, no_form_control = False, disabled=False) %}
     {% if field.type in ('FileField', 'BooleanField') %}
         {% set no_form_control = True %}
     {% endif %}
@@ -12,8 +12,14 @@
         {{ field.label(the_label, class="control-label col-sm-3") }}
         
         <div class="col-sm-7">
+            {% if disabled %}
+            {{ field(id=field.name, class="" if no_form_control else "form-control", disabled="disabled", **kwargs)|safe }}
+            {% else %}
             {{ field(id=field.name, class="" if no_form_control else "form-control", **kwargs)|safe }}
+            {% endif %}
+            {% if not disabled %}
             <p class="help-block">{{ field.description }}</p>
+            {% endif %}
             {% for error in field.errors %}
             <span class="help-block input-errors">{{ error }}</span>
             {% endfor %}

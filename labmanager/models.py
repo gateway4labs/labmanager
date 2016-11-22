@@ -612,19 +612,24 @@ class EmbedApplication(db.Model):
 
     @property
     def age_ranges_range(self):
-        age_ranges = self.age_ranges
-        if age_ranges[0] == '<6':
-            minimum = 4
-        elif age_ranges[0] == '>18':
-            minimum = 20
-        else:
-            minimum = int(age_ranges[0].split('-')[0])
-        if age_ranges[-1] == '<6':
-            maximum = 4
-        elif age_ranges[-1] == '>18':
-            maximum = 20
-        else:
-            maximum = int(age_ranges[-1].split('-')[1])
+        return EmbedApplication.age_ranges2text(self.age_ranges)
+    
+    @staticmethod
+    def age_ranges2text(age_ranges):
+        minimum = 20
+        maximum = 4
+        for age_range in age_ranges:
+            if age_range == '<6':
+                minimum = 4
+            elif age_range == '>18':
+                maximum = 20
+            else:
+                number_low = int(age_range.split('-')[0])
+                number_high = int(age_range.split('-')[1])
+                if number_low < minimum:
+                    minimum = number_low
+                if number_high > maximum:
+                    maximum = number_high
 
         if maximum == 20 and minimum == 20:
             minimum = 18
@@ -633,8 +638,8 @@ class EmbedApplication(db.Model):
 
         return "[%s, %s]" % (minimum, maximum)
 
-    @age_ranges_range.setter
-    def age_ranges_range(self, age_ranges_range):
+    @staticmethod
+    def text2age_ranges(age_ranges_range):
         age_ranges_splitted = age_ranges_range[1:-1].split(',')
         min_age = int(age_ranges_splitted[0].strip())
         max_age = int(age_ranges_splitted[1].strip())
@@ -659,7 +664,12 @@ class EmbedApplication(db.Model):
                 new_age_ranges.append('>18')
             elif x == 20 and '>18' not in new_age_ranges:
                 new_age_ranges.append('>18')
-        self.age_ranges = new_age_ranges
+
+        return new_age_ranges
+
+    @age_ranges_range.setter
+    def age_ranges_range(self, age_ranges_range):
+        self.age_ranges = EmbedApplication.text2age_ranges(age_ranges_range)
 
     def update(self, url = None, name = None, height = None, scale = None, description = None, domains = None, age_ranges_range = None, domains_text=None):
         if url is not None:

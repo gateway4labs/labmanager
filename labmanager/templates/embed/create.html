@@ -30,14 +30,19 @@
 
     <div class="row" ng-controller="EmbedScreenController">
         <div class="col-lg-10 col-lg-offset-1">
-            <a href="{{ url_for('.index') }}" class="btn"><i
+            <a href="{{ url_for('embed.index') }}" class="btn"><i
                     class="glyphicon glyphicon-list"></i> {{ gettext("Back to list") }}</a>
 
-            {% if identifier %}
+            {% if identifier or identifier_links %}
                 <div class="alert alert-info" style="margin-top: 10px">
                     <p>{{ gettext("The following link is an OpenSocial widget that embeds your app:") }}</p>
-                    <input class="link_input" type="text"
-                           value="{{ url_for('.app_xml', identifier=identifier, _external=True) }}" style="width: 95%">
+                    {% if identifier %}
+                    <input class="link_input" type="text" value="{{ url_for('.app_xml', identifier=identifier, _external=True) }}" style="width: 95%">
+                    {% elif identifier_links %}
+                        {% for identifier_link in identifier_links %}
+                            <input class="link_input" type="text" value="{{ identifier_link }}" style="width: 95%">
+                        {% endfor %}
+                    {% endif %}
                 </div>
             {% endif %}
 
@@ -48,20 +53,9 @@
                 {{ form.hidden_tag() }}
 
                 <fieldset>
-                    {{ render_field(form.name, ng_submit="submitForm()") }}
-                    {{ render_field(form.description, ng_submit="submitForm()") }}
-                    {{ render_field(form.domains_text, ng_submit="submitForm()") }}
-{#
-					<div class="form-group {% if form.age_ranges.errors %}has-error{% endif %}">
-						{{ form.age_ranges.label(form.age_ranges.label.text, class="control-label col-sm-3") }}
-						<div class="col-sm-7">
-							{{ form.age_ranges(id=form.age_ranges.name)|safe }}
-							<p class="help-block">{{ form.age_ranges.description }}</p>
-							{% for error in form.age_ranges.errors %}
-							<span class="help-block input-errors">{{ error }}</span>
-							{% endfor %}
-						</div>
-					</div> #}
+                    {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled) }}
+                    {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled) }}
+                    {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled) }}
 					<div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
 						{{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
 						<div class="col-sm-7">
@@ -71,15 +65,38 @@
 								data-slider-ticks-labels='["<6", "6", "8", "10", "12", "14", "16", "18", ">18"]'
 								data-slider-step="2"
 								data-slider-value="{{ initial_age_ranges }}"/>
+                            {% if not disabled %}
 							<p class="help-block">{{ form.age_ranges_range.description }}</p>
+                            {% endif %}
 							{% for error in form.age_ranges_range.errors %}
 							<span class="help-block input-errors">{{ error }}</span>
 							{% endfor %}
 						</div>
 					</div>
 
-                    {{ render_field(form.url, ng_submit="submitForm()") }}
+                    {% if disabled %}
+                        {% if langs %}
+                            <div class="form-group">
+                                <div class="control-label col-sm-3">
+                                    <label>{{ gettext("Languages") }}</label>
+                                </div>
+                                <div class="col-sm-7">
+                                    {% for lang in langs %}
+                                        {{ lang }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
 
+                        {% if bookmarklet_from %}
+                            <div class="text-center" style="margin-top: 50px">
+                                <div class="form-actions">
+                                    <a href="{{ bookmarklet_from }}" class="btn btn-primary">{{ gettext("Back to the resource") }}</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                    {{ render_field(form.url, ng_submit="submitForm()") }}
 
                     <div class="ng-cloak" ng-submit="addNewLanguage()"
                          ng-show="{% if languages %}true{% else %}false{% endif %}">
@@ -139,13 +156,16 @@
 
                     </div>
 
-
                     <div class="text-center">
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
                             <a href="{{ url_for('.index') }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                            {% if bookmarklet_from %}
+                            <a href="{{ bookmarklet_from }}" class="btn btn-info">{{ gettext("Back to the original resource") }}</a>
+                            {% endif %}
                         </div>
                     </div>
+                    {% endif %}
                 </fieldset>
             </form>
 
@@ -293,7 +313,7 @@
         updateScale({{ initial_scale }});
 		
         $("input[name='age_ranges_range']").val("{{ initial_age_ranges }}");
-		$("#age_ranges_range_slider").slider({
+		var age_slider = $("#age_ranges_range_slider").slider({
             formatter: function (value) {
                 var minimum = value[0];
                 if (minimum == 4)
@@ -311,6 +331,9 @@
 			var newValue = "[" + evt.value[0] + "," + evt.value[1] + "]";
             $("input[name='age_ranges_range']").val(newValue);
         });
+        {% if disabled %}
+        age_slider.slider('disable');
+        {% endif %}
 
 
         $('#slider-scale').slider({

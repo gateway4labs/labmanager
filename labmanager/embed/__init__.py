@@ -1,7 +1,7 @@
 import traceback
 import requests
 from bs4 import BeautifulSoup
-from flask import Blueprint, render_template, make_response, redirect, url_for, request
+from flask import Blueprint, render_template, make_response, redirect, url_for, request, session
 from labmanager.views.authn import requires_siway_login, current_siway_user
 
 from labmanager.db import db
@@ -144,6 +144,11 @@ def _get_scale_value(form):
 @requires_siway_login
 def create():
     original_url = request.args.get('url')
+    if original_url:
+        bookmarklet_from = original_url
+    else:
+        bookmarklet_from = None
+
     original_application = None
     if original_url:
         applications = db.session.query(EmbedApplication).filter_by(url=original_url).all()
@@ -197,7 +202,7 @@ def create():
         else:
             return redirect(url_for('.edit', identifier=application.identifier))
             
-    return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_siway_user())
+    return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_siway_user(), bookmarklet_from=bookmarklet_from)
 
 @embed_blueprint.route('/edit/<identifier>/', methods = ['GET', 'POST'])
 @requires_siway_login
@@ -272,5 +277,6 @@ def edit(identifier):
 
     # Obtain the languages formatted as required but excluding those already added
     languages = obtain_formatted_languages(existing_languages)
-    return render_template("embed/create.html", user = current_siway_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages)
+    bookmarklet_from = session.pop('bookmarklet-from', None)
+    return render_template("embed/create.html", user = current_siway_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from)
 
