@@ -11,7 +11,6 @@ from labmanager.db import db
 from labmanager.babel import gettext
 
 
-
 TABLE_KWARGS = {
     'mysql_engine' : 'InnoDB',
     # Complete me
@@ -157,6 +156,10 @@ class RLMS(db.Model, SBBase):
         self.publicly_available = publicly_available
         self.public_identifier = public_identifier
         self.default_autoload = default_autoload
+
+    def get_rlms(self):
+        rlms_class = get_manager_class(self.kind, self.version, self.id)
+        return rlms_class(self.configuration)
 
     def __repr__(self):
         return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r, publicly_available=%(publicly_available)r, public_identifier = %(public_identifier)r, default_autoload = %(default_autoload)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration, publicly_available = self.publicly_available, public_identifier = self.public_identifier, default_autoload = self.default_autoload)
@@ -692,3 +695,4 @@ class EmbedApplicationTranslation(db.Model):
         self.url = url
         self.language = language
 
+from labmanager.rlms import get_manager_class

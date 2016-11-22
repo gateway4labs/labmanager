@@ -270,6 +270,19 @@ def get_supported_versions(rlms_type):
         return versions
     return []
 
+def get_all_rlms():
+    rlmss = []
+    for db_rlms in db.session.query(dbRLMS).all():
+        try:
+            ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
+            rlms = ManagerClass(db_rlms.configuration)
+        except:
+            traceback.print_exc()
+            continue
+        rlmss.append(rlms)
+    return rlmss
+
+
 def is_supported(rlms_type, rlms_version):
     _, versions, _ = _RLMSs.get(rlms_type, (None, []))
     return rlms_version in versions
