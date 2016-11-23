@@ -155,6 +155,9 @@ def prepare_flask_request(request):
         'query_string': request.query_string
     }
 
+@app.route('/saml/error')
+def saml_error():
+    return render_template("", next=session.pop('next', None))
 
 @app.route('/saml/', methods=['GET', 'POST'])
 @app.route('/saml', methods=['GET', 'POST'])
@@ -231,6 +234,9 @@ def login_saml():
                             full_name = attr[1][0]
                     if employee_type is None or uid is None or school_name is None or short_name is None or email is None or group is None or full_name is None:
                         raise Exception("Missing some field: %r" % attributes)
+                    if employee_type not in ('teacher', 'admin', 'administrator', 'instructor'):
+                        session['saml_error'] = gettext("Invalid employee type. This functionality is only allowed for teachers")
+                        return redirect(url_for('.saml_error'))
                     user = SiWaySAMLUser(employee_type=employee_type,
                                          uid=int(uid),
                                          school_name=school_name,
