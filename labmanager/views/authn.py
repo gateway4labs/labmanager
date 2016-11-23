@@ -157,7 +157,8 @@ def prepare_flask_request(request):
 
 @app.route('/saml/error')
 def saml_error():
-    return render_template("", next=session.pop('next', None))
+    error_message = session.pop('saml_error', None)
+    return render_template("saml/error.html", error_message=error_message, next=session.pop('next', None))
 
 @app.route('/saml/', methods=['GET', 'POST'])
 @app.route('/saml', methods=['GET', 'POST'])
