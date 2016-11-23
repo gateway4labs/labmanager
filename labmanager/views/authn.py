@@ -213,6 +213,7 @@ def login_saml():
                         break
 
                 if new_user:
+                    employee_type = uid = school_name = short_name = email = group = full_name = None
                     for attr in attributes:
                         if attr[0] == 'employeeType':
                             employee_type = attr[1][0]
@@ -228,6 +229,8 @@ def login_saml():
                             group = attr[1][0]
                         elif attr[0] == 'cn':
                             full_name = attr[1][0]
+                    if employee_type is None or uid is None or school_name is None or short_name is None or email is None or group is None or full_name is None:
+                        raise Exception("Missing some field: %r" % attributes)
                     user = SiWaySAMLUser(employee_type=employee_type,
                                          uid=int(uid),
                                          school_name=school_name,
