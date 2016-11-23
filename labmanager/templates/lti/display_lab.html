@@ -42,6 +42,9 @@
 
             <form method="POST" action="{{ url_for('lti.launch_experiment') }}">
                 <button type="submit" class="btn btn-primary">{{gettext('Click here to use the lab')}}</button>
+                {% if return_url %}
+                <a href="{{ return_url }}" class="btn btn-default">{{ gettext("Return") }}</a>
+                {% endif %}
             </form>
         </div>
     </div>

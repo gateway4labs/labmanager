@@ -62,6 +62,10 @@ def verify_credentials():
             session['group_name'] = request.form['context_title']
         if 'launch_presentation_locale' in request.form:
             session['launch_locale'] = request.form['launch_presentation_locale']
+        if 'launch_presentation_document_target' in request.form:
+            session['launch_presentation_document_target'] = request.form['launch_presentation_document_target']
+        if 'launch_presentation_return_url' in request.form:
+            session['launch_presentation_return_url'] = request.form['launch_presentation_return_url']
         session['consumer'] = consumer_key
         session['last_request'] = time()
         return
@@ -77,6 +81,7 @@ def verify_credentials():
 @lti_blueprint.route("/", methods = ['GET', 'POST'])
 def start_ims():
     consumer_key = session.get('consumer')
+    return_url = session.get('launch_presentation_return_url') or ''
     permission_to_lt_user = PermissionToLtUser.find(key = consumer_key)
 
     # current_role = set(request.form['roles'].split(','))
@@ -93,7 +98,7 @@ def start_ims():
 
     laboratory       = permission_to_lt_user.permission_to_lt.laboratory
     local_identifier = permission_to_lt_user.permission_to_lt.local_identifier
-    return render_template('lti/display_lab.html', laboratory = laboratory, local_identifier = local_identifier)
+    return render_template('lti/display_lab.html', laboratory = laboratory, local_identifier = local_identifier, return_url = return_url)
 
 @lti_blueprint.route("/experiment/", methods = ['GET', 'POST'])
 def launch_experiment():
