@@ -215,7 +215,7 @@ def login_saml():
                 if new_user:
                     employee_type = uid = school_name = short_name = email = group = full_name = None
                     for attr in attributes:
-                        if attr[0] == 'employeeType':
+                        if attr[0] in ('employeeType', 'employeetype'):
                             employee_type = attr[1][0]
                         elif attr[0] == 'uid':
                             uid = attr[1][0]
