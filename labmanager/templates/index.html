@@ -51,6 +51,12 @@
                 <p>{{gettext('SiWay users will select which courses or other users are registered')}}</p>
                 <p><a href="{{ url_for('login_saml',sso='') }}">{{gettext('Manage SiWay internals')}}</a></p>
             </div>
+            <div class="span4">
+                <h2>{{gettext('SiWay bookmarklet')}}</h2>
+                <p>{{gettext('Add the bookmarklet to be able to add resources from the web to SiWay')}}</p>
+                <p><a href="{{ url_for('bookmarklet.index') }}">{{gettext('SiWay bookmarklet')}}</a></p>
+            </div>
+
         </div>
 	    
     </div>
