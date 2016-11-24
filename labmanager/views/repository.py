@@ -165,13 +165,15 @@ def _get_resources(fmt = 'json'):
         for public_lab in _extract_labs(rlms, fmt=fmt):
             public_laboratories.append(public_lab)
 
-    if fmt == 'xml':
-        app_formatter = app_to_xml
-    else:
-        app_formatter = app_to_json
+    if False:
+        # DO NOT ADD EMBEDDED APPS TO THE REPOSITORY
+        if fmt == 'xml':
+            app_formatter = app_to_xml
+        else:
+            app_formatter = app_to_json
 
-    for app in db.session.query(EmbedApplication).all():
-        public_laboratories.append(app_formatter(app))
+        for app in db.session.query(EmbedApplication).all():
+            public_laboratories.append(app_formatter(app))
 
     return public_laboratories
 
