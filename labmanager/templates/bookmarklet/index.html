@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <div class="row text-center">
-            <div class="jumbotron" style="padding-bottom: 200px">
+            <div class="jumbotron" style="padding-bottom: 300px">
                 <h1>{{ gettext("Install the bookmarklet") }}</h1>
 
                 {% if browser == 'edge' %}
@@ -27,9 +27,9 @@
                         </button>
                     </div>
 
-                    <div class="hidden" id="edgeinstructions">
+                    {# <div class="hidden" id="edgeinstructions">
                         <a href="http://www.howtogeek.com/231775/how-to-install-and-use-bookmarklets-in-microsoft-edge/">To be done...</a>
-                    </div>
+                    </div> #}
                 {% else %}
                 <br>
                 <br>
@@ -53,6 +53,9 @@
 
                     <div class="col-sm-4">
                         <a id="bookmarklet" href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add to SiWay</a>
+                        <div class="alert alert-warning" id="onbuttonclick" style="display: none; margin-top: 20px">
+                            <p>{{ gettext("Install the bookmarklet. For instructions click on 'Show instructions', and then use the button in your web browser, not this one.") }}</p>
+                        </div>
                     </div>
                 </div>
                 {% endif %}
@@ -88,6 +91,7 @@
     <script>
         $("body").ready(function() {
             $("#bookmarklet").click(function (event) {
+                $("#onbuttonclick").show();
                 event.preventDefault();
             });
         });
