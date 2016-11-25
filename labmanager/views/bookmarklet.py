@@ -46,7 +46,11 @@ def create():
                     if db_lab is not None:
                         return redirect(url_for('.public_lab', public_identifier=db_lab.public_identifier, url=url))
 
-    return redirect(url_for('embed.create', url=url))
+    existing_embed_app = db.session.query(EmbedApplication).filter_by(owner=current_siway_user(), url=url).first()
+    if existing_embed_app is None:
+        return redirect(url_for('embed.create', url=url))
+    
+    return redirect(url_for('embed.edit', identifier=existing_embed_app.identifier))
 
 def _return_lab(lab, identifier_links, langs):
     form = ApplicationForm()
