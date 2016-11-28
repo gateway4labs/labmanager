@@ -93,7 +93,9 @@ def public_rlms(rlms_id, lab_name):
                 link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier = rlms_id, lab_name = lab_name, widget_name = widget['name'], _external = True)
                 if link.startswith('https://'):
                     link = link.replace('https://', 'http://', 1)
+
                 links.append(link)
+
             if Capabilities.TRANSLATION_LIST in rlms.get_capabilities():
                 langs = (rlms.get_translation_list(lab.laboratory_id) or {}).get('supported_languages') or []
             else:
@@ -101,7 +103,7 @@ def public_rlms(rlms_id, lab_name):
             return _return_lab(lab, links, langs)
     
     return "Laboratory not found", 404
-    
+
 @bookmarklet_blueprint.route('/pub/lab/<everything:public_identifier>')
 @requires_siway_login
 def public_lab(public_identifier):
@@ -127,4 +129,5 @@ def public_lab(public_identifier):
             return _return_lab(lab, links, langs)
 
     return "Laboratory not found", 404
+
 

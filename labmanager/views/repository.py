@@ -1,6 +1,6 @@
 import json
 import hashlib
-from flask import Blueprint, jsonify, url_for, request, current_app, Response, render_template_string
+from flask import Blueprint, jsonify, url_for, request, current_app, Response, render_template_string, redirect
 
 from dict2xml import dict2xml
 
@@ -48,6 +48,7 @@ def lab_to_json(lab, widgets, rlms, single):
         lab_widgets.append({
             'app_url': widget['link'],
             'app_title': widget['name'],
+            'external_url': widget['external'],
         })
     return {
             'id': create_lab_id(rlms, lab),
@@ -85,6 +86,7 @@ def lab_to_xml(lab, widgets, rlms, single):
             'labApp' : {
                 'appUrl': widget['link'],
                 'appTitle': widget['name'],
+                'externalUrl': widget['external'],
             }
         })
     structure = {
@@ -143,11 +145,18 @@ def _extract_labs(rlms, single_lab = None, fmt='json'):
 
         lab_widgets = []
         for widget in widgets:
-            link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier=rlms.public_identifier, lab_name=lab.laboratory_id, widget_name = widget['name'], _external=True)
+            if single_lab is None:
+                link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier=rlms.public_identifier, lab_name=lab.laboratory_id, widget_name = widget['name'], _external=True)
+                external_url = url_for('.preview_public_rlms', rlms_id=rlms.public_identifier, widget_name=widget['name'], lab_name=lab.laboratory_id, _external=True)
+            else:
+                link = url_for('opensocial.public_widget_xml', lab_name=lab.public_identifier, widget_name = widget['name'], _external=True)
+                external_url = url_for('.preview_public_lab', widget_name=widget['name'], public_identifier=lab.public_identifier, _external=True)
+
             lab_widgets.append({
                 'name': widget['name'],
                 'description': widget['description'],
                 'link': link,
+                'external': external_url,
             })
 
         public_laboratories.append(lab_formatter(lab, lab_widgets, rlms, single_lab is not None))
@@ -205,4 +214,47 @@ def resources_html():
         contents = json.dumps(_get_resources(fmt='json'))
     return render_template_string("<html><body>Contents: <pre>{{ contents }}</pre></body></html>", contents=contents)
 
+def _get_widgets(rlms, laboratory_id):
+    if Capabilities.WIDGET in rlms.get_capabilities():
+        return rlms.list_widgets(laboratory_id)
+
+    return [ { 'name' : 'lab', 'description' : 'Main view of the laboratory' } ]
+
+@repository_blueprint.route('/preview/rlms/<rlms_id>/<widget_name>/<everything:lab_name>')
+def preview_public_rlms(rlms_id, widget_name, lab_name):
+    db_rlms = db.session.query(RLMS).filter_by(publicly_available=True, public_identifier=rlms_id).first()
+    if db_rlms is None:
+        return "Laboratory not found", 404
+    
+    rlms = db_rlms.get_rlms()
+    for lab in rlms.get_laboratories():
+        if lab.laboratory_id == lab_name:
+            widgets = _get_widgets(rlms, lab.laboratory_id)
+
+            links = [] 
+            for widget in widgets:
+                if widget['name'] == widget_name:
+                    reservation = rlms.reserve(lab.laboratory_id, 'anonymous', 'preview', '{}', [], {}, {}, locale=request.args.get('locale', 'en'))
+                    return redirect(reservation['load_url'])
+                    
+    
+    return "Laboratory not found", 404
+    
+@repository_blueprint.route('/preview/lab/<widget_name>/<everything:public_identifier>')
+def preview_public_lab(widget_name, public_identifier):
+    db_laboratory = db.session.query(Laboratory).filter_by(publicly_available=True, public_identifier=public_identifier).first()
+    if db_laboratory is None:
+        return "Laboratory not found", 404
+
+    rlms = db_laboratory.rlms.get_rlms()
+    for lab in rlms.get_laboratories():
+        if lab.laboratory_id == db_laboratory.laboratory_id:
+            widgets = _get_widgets(rlms, lab.laboratory_id)
+            links = []
+            for widget in widgets:
+                if widget['name'] == widget_name:
+                    reservation = rlms.reserve(lab.laboratory_id, 'anonymous', 'preview', '{}', [], {}, {}, locale=request.args.get('locale', 'en'))
+                    return redirect(reservation['load_url'])
+
+    return "Laboratory not found", 404
 
