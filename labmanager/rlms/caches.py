@@ -152,6 +152,9 @@ def dont_force_cache():
     _FORCE_CACHE.force = False
 
 def is_forcing_cache():
+    nocache = request.args.get('nocache', '').lower()
+    if nocache in ('true', '1'):
+        return False
     return getattr(_FORCE_CACHE, 'force', False)
 
 class AbstractCache(object, DictMixin):
