@@ -178,12 +178,12 @@ def create():
                     # First megabyte maximum
                     content = req.iter_content(1024 * 1024).next()
                     soup = BeautifulSoup(content, 'lxml')
-                    form.name.data = soup.find("title").text
+                    form.name.data = (soup.find("title").text or '').strip()
                     meta_description = soup.find("meta", attrs={'name': 'description'})
                     if meta_description is not None:
                         meta_description_text = meta_description.attrs.get('content')
                         if meta_description_text and not form.description.data:
-                            form.description.data = meta_description_text
+                            form.description.data = (meta_description_text or '').strip()
                 req.close()
             except:
                 traceback.print_exc()
