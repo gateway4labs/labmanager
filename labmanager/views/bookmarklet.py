@@ -50,7 +50,7 @@ def create():
     if existing_embed_app is None:
         return redirect(url_for('embed.create', url=url))
     
-    return redirect(url_for('embed.edit', identifier=existing_embed_app.identifier))
+    return redirect(url_for('embed.edit', identifier=existing_embed_app.identifier, url=url))
 
 def _return_lab(lab, identifier_links, langs):
     form = ApplicationForm()
@@ -68,7 +68,7 @@ def _return_lab(lab, identifier_links, langs):
 
     bookmarklet_from = request.args.get('url')
 
-    return render_template("embed/create.html", user = current_siway_user(), form=form, identifier_links=identifier_links, header_message=gettext("View resource"), languages=[], existing_languages=[], all_languages=[], disabled=True, langs = sorted(new_langs), bookmarklet_from=bookmarklet_from)
+    return render_template("embed/create.html", user = current_siway_user(), form=form, identifier_links=identifier_links, header_message=gettext("View resource"), languages=[], existing_languages=[], all_languages=[], disabled=True, langs = sorted(new_langs), bookmarklet_from=bookmarklet_from, domains_provided=lab.domains is not None, age_ranges_provided=lab.age_ranges is not None)
 
 def _get_widgets(rlms, laboratory_id):
     if Capabilities.WIDGET in rlms.get_capabilities():
@@ -76,7 +76,7 @@ def _get_widgets(rlms, laboratory_id):
 
     return [ { 'name' : 'lab', 'description' : 'Main view of the laboratory' } ]
 
-@bookmarklet_blueprint.route('/pub/rlms/<rlms_id>/<everything:lab_name>')
+@bookmarklet_blueprint.route('/pub/rlms/<rlms_id>/<everything:lab_name>', methods=['GET','POST'])
 @requires_siway_login
 def public_rlms(rlms_id, lab_name):
     db_rlms = db.session.query(RLMS).filter_by(publicly_available=True, public_identifier=rlms_id).first()
@@ -104,7 +104,7 @@ def public_rlms(rlms_id, lab_name):
     
     return "Laboratory not found", 404
 
-@bookmarklet_blueprint.route('/pub/lab/<everything:public_identifier>')
+@bookmarklet_blueprint.route('/pub/lab/<everything:public_identifier>', methods=['GET','POST'])
 @requires_siway_login
 def public_lab(public_identifier):
     db_laboratory = db.session.query(Laboratory).filter_by(publicly_available=True, public_identifier=public_identifier).first()

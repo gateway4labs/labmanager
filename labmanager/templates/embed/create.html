@@ -55,7 +55,7 @@
                 <fieldset>
                     {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled) }}
                     {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled) }}
-                    {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled) }}
+                    {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided) }}
 					<div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
 						{{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
 						<div class="col-sm-7">
@@ -87,14 +87,14 @@
                                 </div>
                             </div>
                         {% endif %}
-
-                        {% if bookmarklet_from %}
-                            <div class="text-center" style="margin-top: 50px">
-                                <div class="form-actions">
-                                    <a href="{{ bookmarklet_from }}" class="btn btn-primary">{{ gettext("Back to the resource") }}</a>
-                                </div>
+                        <div class="text-center" style="margin-top: 50px">
+                            <div class="form-actions">
+                                <button name="action" value="publish" type="submit" class="btn btn-success">{{ gettext("Publish in LMS") }}</button>
+                                {% if bookmarklet_from %}
+                                    <a href="{{ bookmarklet_from }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                                {% endif %}
                             </div>
-                        {% endif %}
+                        </div>
                     {% else %}
                     {{ render_field(form.url, ng_submit="submitForm()") }}
 
@@ -158,10 +158,14 @@
 
                     <div class="text-center">
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
-                            <a href="{{ url_for('.index') }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                            <button name="action" value="save" type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
                             {% if bookmarklet_from %}
-                            <a href="{{ bookmarklet_from }}" class="btn btn-info">{{ gettext("Back to the original resource") }}</a>
+                            <a href="{{ bookmarklet_from }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                            {% else %}
+                            <a href="{{ url_for('.index') }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                            {% endif %}
+                            {% if identifier or identifier_links %}
+                            <button name="action" value="publish" type="submit" class="btn btn-success">{{ gettext("Publish in LMS") }}</button>
                             {% endif %}
                         </div>
                     </div>
@@ -331,7 +335,7 @@
 			var newValue = "[" + evt.value[0] + "," + evt.value[1] + "]";
             $("input[name='age_ranges_range']").val(newValue);
         });
-        {% if disabled %}
+        {% if disabled and age_ranges_provided %}
         age_slider.slider('disable');
         {% endif %}
 
