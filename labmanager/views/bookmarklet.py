@@ -1,10 +1,13 @@
-from flask import Blueprint, request, url_for, redirect, render_template, session
+import traceback
+import requests
+from flask import Blueprint, request, url_for, redirect, render_template, session, current_app
 
 from labmanager.db import db
 from labmanager.models import RLMS, Laboratory, EmbedApplication
 from labmanager.babel import gettext
 from labmanager.rlms import Capabilities
-from labmanager.embed import ApplicationForm, list_of_languages
+from labmanager.embed import ApplicationForm, SimplifiedApplicationForm, list_of_languages
+from labmanager.views.repository import extract_labs, create_lab_id
 from labmanager.views.authn import requires_siway_login, current_siway_user
 
 bookmarklet_blueprint = Blueprint('bookmarklet', __name__)
@@ -52,12 +55,59 @@ def create():
     
     return redirect(url_for('embed.edit', identifier=existing_embed_app.identifier, url=url))
 
-def _return_lab(lab, identifier_links, langs):
-    form = ApplicationForm()
+def _return_lab(db_rlms, lab, identifier_links, langs, public_rlms):
+    form = SimplifiedApplicationForm()
     form.name.data = lab.name or ''
     form.description.data = lab.description or ''
-    form.domains_text.data = ', '.join(lab.domains or [])
-    form.age_ranges_range.data = EmbedApplication.age_ranges2text(lab.age_ranges or [])
+    # If available, override whatever
+    if lab.domains:
+        form.domains_text.data = ', '.join(lab.domains or [])
+    # If available, override whatever
+    if lab.age_ranges:
+        form.age_ranges_range.data = EmbedApplication.age_ranges2text(lab.age_ranges or [])
+
+    if form.validate_on_submit():
+        if public_rlms:
+            single_lab = None
+        else:
+            single_lab = lab.laboratory_id
+        
+        lab_unique_id = create_lab_id(db_rlms, lab.laboratory_id, single = single_lab is not None)
+        all_labs = extract_labs(db_rlms, single_lab, fmt='json', 
+                        age_ranges=EmbedApplication.text2age_ranges(form.age_ranges_range.data), 
+                        domains=form.domains_text.data.split(', '))
+        formatted_labs = [ cur_lab for cur_lab in all_labs if cur_lab['id'] == lab_unique_id ]
+        if len(formatted_labs) == 0:
+            return "Invalid lab identifier"
+
+        print ( form.age_ranges_range.data )
+        print ( EmbedApplication.text2age_ranges(form.age_ranges_range.data ))
+        formatted_lab = formatted_labs[0]
+        user = current_siway_user()
+        contributor = {
+            "uid": unicode(user.uid),
+            "full_name": user.full_name,
+            "school_name": user.school_name,
+            "email" : user.email,
+        }
+        formatted_lab = formatted_lab.copy()
+        formatted_lab['contributor'] = contributor
+        siway_credentials_username = current_app.config['SIWAY_CREDENTIALS_USERNAME']
+        siway_credentials_password = current_app.config['SIWAY_CREDENTIALS_PASSWORD']
+        response = requests.post('http://siway-demo.eu/ils/restapi/lms/oermedia?userId={user_id}'.format(user_id=user.uid), 
+                                    json=formatted_lab, auth=(siway_credentials_username, siway_credentials_password),
+                                    headers= {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                    })
+        try:
+            response.raise_for_status()
+        except:
+            traceback.print_exc()
+            print(response.content)
+            return "Error adding resource to the LMS"
+        return redirect('http://siway-demo.eu/ilp/pages/ilsbridge.jsf?startPage=content_manager')
+        
 
     languages = list_of_languages()
     new_langs = []
@@ -100,7 +150,7 @@ def public_rlms(rlms_id, lab_name):
                 langs = (rlms.get_translation_list(lab.laboratory_id) or {}).get('supported_languages') or []
             else:
                 langs = []
-            return _return_lab(lab, links, langs)
+            return _return_lab(db_rlms, lab, links, langs, public_rlms=True)
     
     return "Laboratory not found", 404
 
@@ -126,7 +176,7 @@ def public_lab(public_identifier):
                 langs = (rlms.get_translation_list(lab.laboratory_id) or {}).get('supported_languages') or []
             else:
                 langs = []
-            return _return_lab(lab, links, langs)
+            return _return_lab(db_rlms, lab, links, langs, public_rlms=False)
 
     return "Laboratory not found", 404
 

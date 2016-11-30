@@ -166,10 +166,10 @@ def login_saml():
 
     if current_app.config.get('DEBUG'):
         if request.args.get('fake', '').lower() == 'true':
-            email='sammy.student@siway-demo.eu'
+            email='tina.teacher@siway-demo.eu'
             user = db_session.query(SiWaySAMLUser).filter_by(email=email).first()
             if user is None:
-                user = SiWaySAMLUser(employee_type='student', uid=int(110053), school_name='Isaac Newton School', short_name='Sammy', email=email, group='Class 5c', full_name='Student Sammy')
+                user = SiWaySAMLUser(employee_type='teacher', uid=int(110051), school_name='4', short_name='Teacher', email=email, group='0', full_name='Tina Teacher')
                 db_session.add(user)
                 db_session.commit()
             session['samlEmail'] = email

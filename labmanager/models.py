@@ -616,6 +616,7 @@ class EmbedApplication(db.Model):
     
     @staticmethod
     def age_ranges2text(age_ranges):
+        print (age_ranges)
         minimum = 20
         maximum = 4
         for age_range in age_ranges:
@@ -640,29 +641,28 @@ class EmbedApplication(db.Model):
 
     @staticmethod
     def text2age_ranges(age_ranges_range):
+        # [4, 12] => ['<6', '6-8', '8-10', '10-12']
         age_ranges_splitted = age_ranges_range[1:-1].split(',')
         min_age = int(age_ranges_splitted[0].strip())
         max_age = int(age_ranges_splitted[1].strip())
         
         new_age_ranges = []
         for x in xrange(min_age, max_age + 2, 2):
-            if x == 4:
+            if x in (4, 6) and '<6' not in new_age_ranges:
                 new_age_ranges.append('<6')
-            elif x == 6:
-                new_age_ranges.append('6-8')
             elif x == 8:
-                new_age_ranges.append('8-10')
+                new_age_ranges.append('6-8')
             elif x == 10:
-                new_age_ranges.append('10-12')
+                new_age_ranges.append('8-10')
             elif x == 12:
-                new_age_ranges.append('12-14')
+                new_age_ranges.append('10-12')
             elif x == 14:
-                new_age_ranges.append('14-16')
+                new_age_ranges.append('12-14')
             elif x == 16:
-                new_age_ranges.append('16-18')
+                new_age_ranges.append('14-16')
             elif x == 18:
-                new_age_ranges.append('>18')
-            elif x == 20 and '>18' not in new_age_ranges:
+                new_age_ranges.append('16-18')
+            elif x == 20:
                 new_age_ranges.append('>18')
 
         return new_age_ranges

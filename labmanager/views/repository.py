@@ -32,17 +32,18 @@ def requires_lms_auth():
 def index():
     return "Welcome to the repository"
 
-def create_lab_id(rlms, lab, single = True):
-    identifier = 'lab:rlms={};lab={};{}'.format(rlms.id, lab.laboratory_id, single)
+def create_lab_id(rlms, laboratory_id, single = True):
+    # not single since we were using single = True in the past for all of them (and majority are not single)
+    identifier = 'lab:rlms={};lab={};{}'.format(rlms.id, laboratory_id, not single)
     return hashlib.new('sha1', identifier).hexdigest()
 
 def create_app_id(app):
     identifier = '{}'.format(app.id)
     return hashlib.new('sha1', identifier).hexdigest()
 
-def lab_to_json(lab, widgets, rlms, single):
-    age_ranges = lab.age_ranges or [] # e.g., 12-13, 14-15
-    domains = lab.domains or [] # e.g., Physics, Chemistry
+def lab_to_json(lab, widgets, rlms, single, age_ranges, domains):
+    age_ranges = lab.age_ranges or age_ranges or [] # e.g., 12-13, 14-15
+    domains = lab.domains or domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
     for widget in widgets:
         lab_widgets.append({
@@ -51,7 +52,7 @@ def lab_to_json(lab, widgets, rlms, single):
             'external_url': widget['external'],
         })
     return {
-            'id': create_lab_id(rlms, lab),
+            'id': create_lab_id(rlms, lab.laboratory_id, single),
             'title': lab.name,
             'description': lab.description or '',
             'domains' : domains,
@@ -77,9 +78,9 @@ def app_to_json(embed_app):
             'keywords' : []
         }
 
-def lab_to_xml(lab, widgets, rlms, single):
-    age_ranges = lab.age_ranges or [] # e.g., 12-13, 14-15
-    domains = lab.domains or [] # e.g., Physics, Chemistry
+def lab_to_xml(lab, widgets, rlms, single, age_ranges, domains):
+    age_ranges = lab.age_ranges or age_ranges or [] # e.g., 12-13, 14-15
+    domains = lab.domains or domains or [] # e.g., Physics, Chemistry
     lab_widgets = []
     for widget in widgets:
         lab_widgets.append({
@@ -90,7 +91,7 @@ def lab_to_xml(lab, widgets, rlms, single):
             }
         })
     structure = {
-            'id': create_lab_id(rlms, lab),
+            'id': create_lab_id(rlms, lab.laboratory_id, single),
             'title': lab.name,
             'description': lab.description or '',
             'domains' : { 'domain': domains },
@@ -124,7 +125,7 @@ def app_to_xml(embed_app):
         }
 
 
-def _extract_labs(rlms, single_lab = None, fmt='json'):
+def extract_labs(rlms, single_lab = None, fmt='json', age_ranges = None, domains = None):
     if fmt == 'xml':
         lab_formatter = lab_to_xml
     else:
@@ -134,7 +135,7 @@ def _extract_labs(rlms, single_lab = None, fmt='json'):
     labs = rlms_inst.get_laboratories()
     public_laboratories = []
     for lab in labs:
-        if single_lab is not None and lab.laboratory_id != single_lab.laboratory_id:
+        if single_lab is not None and lab.laboratory_id != single_lab:
             # If filtering, remove those labs
             continue
 
@@ -147,10 +148,14 @@ def _extract_labs(rlms, single_lab = None, fmt='json'):
         for widget in widgets:
             if single_lab is None:
                 link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier=rlms.public_identifier, lab_name=lab.laboratory_id, widget_name = widget['name'], _external=True)
-                external_url = url_for('.preview_public_rlms', rlms_id=rlms.public_identifier, widget_name=widget['name'], lab_name=lab.laboratory_id, _external=True)
+                if link.startswith('https://'):
+                    link = link.replace('https://', 'http://', 1)
+                external_url = url_for('repository.preview_public_rlms', rlms_id=rlms.public_identifier, widget_name=widget['name'], lab_name=lab.laboratory_id, _external=True)
             else:
                 link = url_for('opensocial.public_widget_xml', lab_name=lab.public_identifier, widget_name = widget['name'], _external=True)
-                external_url = url_for('.preview_public_lab', widget_name=widget['name'], public_identifier=lab.public_identifier, _external=True)
+                if link.startswith('https://'):
+                    link = link.replace('https://', 'http://', 1)
+                external_url = url_for('repository.preview_public_lab', widget_name=widget['name'], public_identifier=lab.public_identifier, _external=True)
 
             lab_widgets.append({
                 'name': widget['name'],
@@ -159,7 +164,7 @@ def _extract_labs(rlms, single_lab = None, fmt='json'):
                 'external': external_url,
             })
 
-        public_laboratories.append(lab_formatter(lab, lab_widgets, rlms, single_lab is not None))
+        public_laboratories.append(lab_formatter(lab, lab_widgets, rlms, single_lab is not None, age_ranges, domains))
     return public_laboratories
 
 def _get_resources(fmt = 'json'):
@@ -167,11 +172,11 @@ def _get_resources(fmt = 'json'):
         force_cache()
     public_laboratories = []
     for lab in db.session.query(Laboratory).filter_by(publicly_available = True):
-        for public_lab in _extract_labs(rlms, lab, fmt=fmt):
+        for public_lab in extract_labs(rlms, lab.laboratory_id, fmt=fmt):
             public_laboratories.append(public_lab)
    
     for rlms in db.session.query(RLMS).filter_by(publicly_available = True):
-        for public_lab in _extract_labs(rlms, fmt=fmt):
+        for public_lab in extract_labs(rlms, fmt=fmt):
             public_laboratories.append(public_lab)
 
     if False:
