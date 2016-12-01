@@ -4,9 +4,18 @@
     
     <div class="row">
         <br>
-        <div class="alert alert-danger col-lg-6 col-lg-offset-3 text-center">
-            <h1>{{ gettext("Error") }}</h1>
-            <h4>{{ message }}</h4>
+        <div class="col-lg-6 col-lg-offset-3 text-center">
+            <div class="alert alert-danger">
+                <h1>{{ gettext("Error") }}</h1>
+                <h4>{{ message }}</h4>
+            </div>
+
+            {% if back %}
+                <a href="{{ back }}" class="btn btn-info">{{ gettext("Go back") }}</a>
+            {% endif %}
+            {% if next %}
+                <a href="{{ next }}" class="btn btn-primary">{{ gettext("Go to the resource") }}</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

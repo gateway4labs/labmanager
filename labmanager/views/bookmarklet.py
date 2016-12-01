@@ -55,6 +55,36 @@ def create():
     
     return redirect(url_for('embed.edit', identifier=existing_embed_app.identifier, url=url))
 
+def _post_contents(oer_contents, url = None):
+    if url is None:
+        url = request.args.get('url')
+
+    oer_contents = oer_contents.copy()
+    user = current_siway_user()
+    contributor = {
+        "uid": unicode(user.uid),
+        "full_name": user.full_name,
+        "school_name": user.school_name,
+        "email" : user.email,
+    }
+    oer_contents['contributor'] = contributor
+    siway_credentials_username = current_app.config['SIWAY_CREDENTIALS_USERNAME']
+    siway_credentials_password = current_app.config['SIWAY_CREDENTIALS_PASSWORD']
+    response = requests.post('http://siway-demo.eu/ils/restapi/lms/oermedia?userId={user_id}'.format(user_id=user.uid), 
+                                json=oer_contents, auth=(siway_credentials_username, siway_credentials_password),
+                                headers= {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                })
+    try:
+        response.raise_for_status()
+    except:
+        traceback.print_exc()
+        print(response.content)
+        return render_template("embed/error.html", back=request.url, next=url, message=gettext("Error loading the Open Educational Resource into your LMS"))
+    else:
+        return redirect('http://siway-demo.eu/ilp/pages/ilsbridge.jsf?startPage=content_manager')
+
 def _return_lab(db_rlms, lab, identifier_links, langs, public_rlms):
     form = SimplifiedApplicationForm()
     form.name.data = lab.name or ''
@@ -80,32 +110,9 @@ def _return_lab(db_rlms, lab, identifier_links, langs, public_rlms):
         if len(formatted_labs) == 0:
             return "Invalid lab identifier"
 
-        print ( form.age_ranges_range.data )
-        print ( EmbedApplication.text2age_ranges(form.age_ranges_range.data ))
-        formatted_lab = formatted_labs[0]
-        user = current_siway_user()
-        contributor = {
-            "uid": unicode(user.uid),
-            "full_name": user.full_name,
-            "school_name": user.school_name,
-            "email" : user.email,
-        }
-        formatted_lab = formatted_lab.copy()
-        formatted_lab['contributor'] = contributor
-        siway_credentials_username = current_app.config['SIWAY_CREDENTIALS_USERNAME']
-        siway_credentials_password = current_app.config['SIWAY_CREDENTIALS_PASSWORD']
-        response = requests.post('http://siway-demo.eu/ils/restapi/lms/oermedia?userId={user_id}'.format(user_id=user.uid), 
-                                    json=formatted_lab, auth=(siway_credentials_username, siway_credentials_password),
-                                    headers= {
-                                        'Accept': 'application/json',
-                                        'Content-Type': 'application/json',
-                                    })
-        try:
-            response.raise_for_status()
-        except:
-            traceback.print_exc()
-            print(response.content)
+        if not _post_contents(formatted_labs[0]):
             return "Error adding resource to the LMS"
+
         return redirect('http://siway-demo.eu/ilp/pages/ilsbridge.jsf?startPage=content_manager')
         
 

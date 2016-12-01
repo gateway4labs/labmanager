@@ -616,7 +616,6 @@ class EmbedApplication(db.Model):
     
     @staticmethod
     def age_ranges2text(age_ranges):
-        print (age_ranges)
         minimum = 20
         maximum = 4
         for age_range in age_ranges:

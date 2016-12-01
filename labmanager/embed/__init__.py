@@ -278,6 +278,9 @@ def edit(identifier):
         application.update(url=form.url.data, name=form.name.data, height=form.height.data, scale=form_scale, age_ranges_range=form.age_ranges_range.data, description=form.description.data, domains_text=form.domains_text.data)
         db.session.commit()
 
+        if request.form.get('action') == 'publish':
+            return _post_contents(app_to_json(application), application.url)
+
     # Add the posted languages to the existing ones
     for lang_code, url in posted_languages.items():
         existing_languages[lang_code] = {
@@ -290,4 +293,7 @@ def edit(identifier):
     languages = obtain_formatted_languages(existing_languages)
     bookmarklet_from = request.args.get('url')
     return render_template("embed/create.html", user = current_siway_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from)
+
+from labmanager.views.repository import app_to_json
+from labmanager.views.bookmarklet import _post_contents
 
