@@ -67,6 +67,7 @@ def app_to_json(embed_app):
     lab_widgets = [{
         'app_url': url_for('embed.app_xml', identifier=embed_app.identifier, _external=True),
         'app_title': embed_app.name,
+        'external_url': embed_app.url,
     }]
     return {
             'id':  create_app_id(embed_app),
