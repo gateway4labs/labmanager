@@ -1,7 +1,7 @@
 import traceback
 import requests
 from bs4 import BeautifulSoup
-from flask import Blueprint, render_template, make_response, redirect, url_for, request, session
+from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify
 from labmanager.views.authn import requires_siway_login, current_siway_user
 
 from labmanager.db import db
@@ -214,6 +214,35 @@ def create():
             return redirect(url_for('.edit', identifier=application.identifier, **kwargs))
             
     return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_siway_user(), bookmarklet_from=bookmarklet_from)
+
+@embed_blueprint.route('/check.json')
+def check_json():
+    url = request.args.get('url')
+    if not url:
+        return jsonify(error=True, message=gettext("No URL provided"), url=url)
+    if not url.startswith(('http://', 'https://')):
+        return jsonify(error=True, message=gettext("URL doesn't have a valid protocol"), url=url)
+    
+    try:
+        req = requests.get(url, timeout=(5,5), stream=True)
+    except:
+        return jsonify(error=True, message=gettext("Error retrieving URL"), url=url)
+
+    if req.status_code != 200:
+        return jsonify(error=True, message=gettext("Error accessing to the URL"), url=url)
+
+    x_frame_options = req.headers.get('X-Frame-Options', '').lower()
+    if x_frame_options in ('deny', 'sameorigin') or x_frame_options.startswith('allow'):
+        return jsonify(error=True, message=gettext("This website does not support being loaded from a different site, so it is unavailable for SiWay"), url=url)
+    
+    content_type = req.headers.get('content-type', '').lower()
+    if 'html' not in content_type:
+        if 'shockwave' in content_type or 'flash' in content_type:
+            return jsonify(error=False, url=url)
+
+        return jsonify(error=True, message=gettext("URL is not HTML"), url=url)
+
+    return jsonify(error=False, url=url)
 
 @embed_blueprint.route('/edit/<identifier>/', methods = ['GET', 'POST'])
 @requires_siway_login

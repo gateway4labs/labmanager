@@ -97,6 +97,13 @@
                         </div>
                     {% else %}
                     {{ render_field(form.url, ng_submit="submitForm()") }}
+                    <div class="form-group">
+                        <div class="col-sm-7 col-sm-offset-3">
+                            <div class="alert alert-danger ng-cloak help-block" ng-if="embed.url_error">
+                            {% raw %}<span>{{ embed.url_error }}</span>{% endraw %}
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="ng-cloak" ng-submit="addNewLanguage()"
                          ng-show="{% if languages %}true{% else %}false{% endif %}">
@@ -158,14 +165,14 @@
 
                     <div class="text-center">
                         <div class="form-actions">
-                            <button name="action" value="save" type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                            <button name="action" value="save" type="submit" class="btn btn-primary" ng-disabled="isLanguageBeingAdded()">{{ gettext("Save") }}</button>
                             {% if bookmarklet_from %}
-                            <a href="{{ bookmarklet_from }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                            <a href="{{ bookmarklet_from }}" class="btn btn-danger" ng-disabled="isLanguageBeingAdded()">{{ gettext("Cancel") }}</a>
                             {% else %}
-                            <a href="{{ url_for('.index') }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                            <a href="{{ url_for('.index') }}" class="btn btn-danger" ng-disabled="isLanguageBeingAdded()">{{ gettext("Cancel") }}</a>
                             {% endif %}
                             {% if identifier or identifier_links %}
-                            <button name="action" value="publish" type="submit" class="btn btn-success">{{ gettext("Publish in LMS") }}</button>
+                            <button name="action" value="publish" type="submit" class="btn btn-success" ng-disabled="isLanguageBeingAdded()">{{ gettext("Publish in LMS") }}</button>
                             {% endif %}
                         </div>
                     </div>
@@ -173,7 +180,7 @@
                 </fieldset>
             </form>
 
-            <div ng-cloak ng-show="embed.url.length > 0" id="slider_container" style="width: 100%">
+            <div ng-cloak ng-show="embed.url.length > 0 && !embed.url_error" id="slider_container" style="width: 100%">
                 <h2>{{ gettext("Preview") }}</h2>
 
                 <p ng-if="isSwf(embed.url)">{{ gettext("Adjust size") }}</p>
@@ -227,13 +234,14 @@
                 });
 
 
-        function EmbedScreenController($scope, $sce) {
+        function EmbedScreenController($scope, $sce, $http) {
             {% if languages %}
                 var all_languages = {{ all_languages|tojson }};
             {% endif %}
 
             $scope.embed = {
                 url: "",
+                url_error: "",
                 height: {{ initial_height }},
                 scale: {{ initial_scale }},
                 {% if languages %}
@@ -246,7 +254,18 @@
                 }
             };
 
-
+            $scope.embed.url = "";
+            $scope.$watch('embed.url', function (newValue, oldValue) {
+                $http.get("{{ url_for('embed.check_json') }}?url=" + newValue).then(function(response) {
+                    if (response.data.url == $scope.embed.url) {
+                        if (response.data.error) {
+                            $scope.embed.url_error = response.data.message;
+                        } else {
+                            $scope.embed.url_error = "";
+                        }
+                    }
+                }, function() {});
+            });
             {% if form.url.data %}
                 $scope.embed.url = "{{ form.url.data }}";
             {% endif %}
@@ -286,9 +305,11 @@
                 return $scope.embed.editing.language_code && $scope.embed.editing.url;
             }
 
-            $scope.isSwf = function (url) {
-                console.log(url);
+            $scope.isLanguageBeingAdded = function () {
+                return $scope.embed.editing.url;
+            }
 
+            $scope.isSwf = function (url) {
                 if (url == undefined || url.match == undefined)
                     return false;
 
