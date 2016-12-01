@@ -76,10 +76,12 @@ def _post_contents(oer_contents, url = None):
                                     'Accept': 'application/json',
                                     'Content-Type': 'application/json',
                                 })
+    print(response.status_code)
     try:
         response.raise_for_status()
     except:
         traceback.print_exc()
+        print("Rendering embed/error")
         print(response.content)
         return render_template("embed/error.html", back=request.url, next=url, message=gettext("Error loading the Open Educational Resource into your LMS"))
     else:
@@ -110,11 +112,7 @@ def _return_lab(db_rlms, lab, identifier_links, langs, public_rlms):
         if len(formatted_labs) == 0:
             return "Invalid lab identifier"
 
-        if not _post_contents(formatted_labs[0]):
-            return "Error adding resource to the LMS"
-
-        return redirect('http://siway-demo.eu/ilp/pages/ilsbridge.jsf?startPage=content_manager')
-        
+        return _post_contents(formatted_labs[0])
 
     languages = list_of_languages()
     new_langs = []
