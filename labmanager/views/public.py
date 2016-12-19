@@ -6,13 +6,14 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-from flask import url_for, Markup, request
+from flask import url_for, Markup, request, flash
 from flask.ext.admin import Admin, AdminIndexView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import Laboratory, RLMS
 from labmanager.views import RedirectView
 from labmanager.rlms import get_manager_class, Capabilities
 from labmanager.babel import lazy_gettext, gettext
+from labmanager.utils import remote_addr
 from labmanager.db import db
  
 ##############################################
@@ -77,7 +78,7 @@ class PublicLaboratoriesPanel(ModelView):
         back_url = url_for('.show_lab', public_identifier=public_identifier, _external=True)
         try:
             response = remote_laboratory.reserve(lab.laboratory_id,
-                                             current_user.login,
+                                             "anonymous",
                                              "admin-panel",
                                              "{}",
                                              [],
@@ -90,6 +91,8 @@ class PublicLaboratoriesPanel(ModelView):
 
             load_url = response['load_url']
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             flash(gettext("There was a problem testing this experiment. Error message: %s" % e))
             return redirect(back_url)
         return redirect(load_url)
