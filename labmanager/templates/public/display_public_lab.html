@@ -56,7 +56,7 @@
                 </tbody>
             </table>
 
-            <form method="POST" action="{{ url_for('.show_lab', id = laboratory.public_identifier) }}">
+            <form method="POST" action="{{ url_for('.show_lab', public_identifier = laboratory.public_identifier) }}">
                 <button type="submit" class="btn btn-primary">{{gettext('Click here to use the lab')}}</button>
             </form>
         </div>
