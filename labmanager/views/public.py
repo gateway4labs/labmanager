@@ -6,7 +6,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-from flask import url_for, Markup, request, flash
+from flask import url_for, Markup, request, flash, redirect
 from flask.ext.admin import Admin, AdminIndexView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import Laboratory, RLMS
