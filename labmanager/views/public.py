@@ -61,6 +61,39 @@ class PublicLaboratoriesPanel(ModelView):
         query_obj = query_obj.filter_by(publicly_available = True)
         return query_obj
 
+    @expose('/lab/<public_identifier>/', methods = ['GET', 'POST'])
+    def show_lab(self, public_identifier):
+        lab = self.session.query(Laboratory).filter_by(public_identifier = public_identifier).first()
+        if lab is None:
+            return "Laboratory id not found", 404
+
+        if request.method == 'GET':
+            return self.render("public/display_public_lab.html", laboratory = lab)
+
+        # Else is post
+        db_rlms = lab.rlms
+        ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
+        remote_laboratory = ManagerClass(db_rlms.configuration)
+        back_url = url_for('.show_lab', public_identifier=public_identifier, _external=True)
+        try:
+            response = remote_laboratory.reserve(lab.laboratory_id,
+                                             current_user.login,
+                                             "admin-panel",
+                                             "{}",
+                                             [],
+                                             {},
+                                             { 
+                                                'user_agent' : unicode(request.user_agent),
+                                                'from_ip'    : remote_addr(),
+                                                'referer'    : request.referrer,
+                                            }, back_url = back_url, debug = True)
+
+            load_url = response['load_url']
+        except Exception as e:
+            flash(gettext("There was a problem testing this experiment. Error message: %s" % e))
+            return redirect(back_url)
+        return redirect(load_url)
+
     @expose("/widgets/<public_identifier>/")
     def list_widgets(self, public_identifier):
         laboratory = self.session.query(Laboratory).filter_by(public_identifier = public_identifier, publicly_available = True).first()
