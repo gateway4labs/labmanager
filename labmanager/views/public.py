@@ -6,7 +6,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-from flask import url_for, Markup, request, flash, redirect
+from flask import url_for, Markup, request, flash, redirect, current_app
 from flask.ext.admin import Admin, AdminIndexView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.models import Laboratory, RLMS
@@ -76,6 +76,13 @@ class PublicLaboratoriesPanel(ModelView):
         ManagerClass = get_manager_class(db_rlms.kind, db_rlms.version, db_rlms.id)
         remote_laboratory = ManagerClass(db_rlms.configuration)
         back_url = url_for('.show_lab', public_identifier=public_identifier, _external=True)
+        next_url = request.args.get('return')
+        if next_url:
+            for url in current_app.config.get('VALID_REDIRECT_URLS') or []:
+                if next_url.startswith(url):
+                    back_url = next_url
+                    break
+
         try:
             response = remote_laboratory.reserve(lab.laboratory_id,
                                              "anonymous",
