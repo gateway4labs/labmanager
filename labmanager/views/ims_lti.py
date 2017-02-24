@@ -11,6 +11,7 @@
   :license: BSD, see LICENSE for more details
 """
 
+import traceback
 from time import time
 from ims_lti_py import ToolProvider
 from flask import request, Blueprint, session, Response, render_template, redirect
@@ -45,6 +46,7 @@ def verify_credentials():
         try:
             return_value = tool_provider.valid_request(request)
         except:
+            traceback.print_exc()
             response = Response(render_template('lti/errors.html', message = gettext("Invalid secret: could not validate request.")))
             # response.status_code = 403
             return response
