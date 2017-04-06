@@ -13,7 +13,11 @@
                     {% endif %}
                     <img height="150" src="{{ url_for('static', filename='logo.png') }}" alt="gateway4labs logo" />
                 </p> 
+                {% if golab %}
+                <p>{{gettext('Welcome to the Go-Lab Smart Gateway!')}}</p>
+                {% else %}
                 <p>{{gettext('Welcome to the LabManager!')}}</p>
+                {% endif %}
             </div>
         </div>
         {% if golab %}
