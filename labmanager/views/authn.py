@@ -16,7 +16,6 @@ from labmanager.db import db_session
 from ..models import LabManagerUser, LtUser, LearningTool, SiWaySAMLUser
 
 from urlparse import urlparse
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from functools import wraps
 
 login_manager = LoginManager()
