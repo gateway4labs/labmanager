@@ -18,46 +18,40 @@
         </div>
         {% if golab %}
         <div class="row">
-            <div class="span4">
+            <div class="span6">
                 <h2>{{gettext('Go-Lab public labs')}}</h2>
                 <p>{{gettext('Here you can find the list of public labs available for Go-Lab without registration.')}}</p>
                 <p><a href="{{ url_for('public_admin.index') }}">{{gettext('See public labs')}}</a></p>
             </div>
 
-            <div class="span4">
+            <div class="span6">
+                <h2>{{gettext('Go-Lab bookmarklet')}}</h2>
+                <p>{{gettext('Add the bookmarklet to be able to add resources from the web to Go-Lab')}}</p>
+                <p><a href="{{ url_for('bookmarklet.index') }}">{{gettext('Go-Lab bookmarklet')}}</a></p>
+            </div>
+            
+            {% if False %}
+            <div class="span6">
                 <h2>{{gettext('Go-Lab registration')}}</h2>
                 <p>{{gettext('Register your school using Go-Lab')}}</p>
                 <p><a href="{{ url_for('opensocial.register') }}">{{gettext('Register')}}</a></p>
             </div>
 
-            <div class="span4">
+            <div class="span6">
                 <h2>{{gettext('Go-Lab users')}}</h2>
                 <p>{{gettext('School owners using Go-Lab will select which courses or other users are registered')}}</p>
                 <p><a href="{{ url_for('login_ple', next = url_for('ple_admin.index')) }}">{{gettext('Manage Go-Lab access')}}</a></p>
             </div>
+            {% endif %}
         </div>
         {% endif %}
         
         <div class="row">
-            <div class="span4">
+            <div class="span3">
                 <h2>{{gettext('LMS users')}}</h2>
                 <p>{{gettext('LMS users will select which courses or other users are registered in a LMS')}}</p>
                 <p><a href="{{ url_for('login_lms') }}">{{gettext('Manage LMS internals')}}</a></p>
             </div>
         </div>
-        <div class="row">
-            <div class="span4">
-                <h2>{{gettext('SiWay users')}}</h2>
-                <p>{{gettext('SiWay users will select which courses or other users are registered')}}</p>
-                <p><a href="{{ url_for('login_saml',sso='') }}">{{gettext('Manage SiWay internals')}}</a></p>
-            </div>
-            <div class="span4">
-                <h2>{{gettext('SiWay bookmarklet')}}</h2>
-                <p>{{gettext('Add the bookmarklet to be able to add resources from the web to SiWay')}}</p>
-                <p><a href="{{ url_for('bookmarklet.index') }}">{{gettext('SiWay bookmarklet')}}</a></p>
-            </div>
-
-        </div>
-	    
     </div>
 {% endblock %}

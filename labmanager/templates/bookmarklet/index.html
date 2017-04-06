@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SiWay Smart Gateway</title>
+    <title>Go-Lab Smart Gateway</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" CONTENT="noindex, nofollow">
@@ -33,7 +33,7 @@
                 <div style="width: 100%">
             
                     <div class="col-sm-6">
-                        <p>{{ gettext("Install the bookmarklet so as to add Open Educational Resources to SiWay.") }}</p>
+                        <p>{{ gettext("Install the bookmarklet so as to add Open Educational Resources to Go-Lab.") }}</p>
                         {% if browser == 'msie' %}
                         <p>{{ gettext("Drag the link on the right to the Favorites panel.") }}</p>
                         {% elif browser == 'firefox' %}
@@ -44,7 +44,7 @@
                     </div>
 
                     <div class="col-sm-4">
-                        <a id="bookmarklet" href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add to SiWay</a>
+                        <a id="bookmarklet" href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add to Go-Lab</a>
                         <div class="alert alert-warning" id="onbuttonclick" style="display: none; margin-top: 20px">
                             <p>{{ gettext("Install the bookmarklet as in the video below. Use the button in your web browser, not this one.") }}</p>
                         </div>
