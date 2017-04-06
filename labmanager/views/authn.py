@@ -8,15 +8,24 @@
 
 from time import time
 from hashlib import new as new_hash
-from flask import render_template, request, flash, redirect, url_for, session
+from flask import render_template, request, flash, redirect, url_for, session, make_response, current_app
 from flask.ext.login import LoginManager, login_user, logout_user, login_required
 from labmanager.babel import gettext
 from ..application import app
-from ..models import LabManagerUser, LtUser, LearningTool
+from labmanager.db import db_session
+from ..models import LabManagerUser, LtUser, LearningTool, SiWaySAMLUser
+
+from urlparse import urlparse
+from onelogin.saml2.auth import OneLogin_Saml2_Auth
+from functools import wraps
 
 login_manager = LoginManager()
 login_manager.setup_app(app)
 login_manager.session_protection = "strong"
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect('/login/lms?next=' + request.path)
 
 @login_manager.user_loader
 def load_user(userid):
@@ -64,11 +73,12 @@ def login_admin():
     return gettext("Error in create_session")
 
 @app.route('/login/lms/', methods=['GET', 'POST'])
+@app.route('/login/lms', methods=['GET', 'POST'])
 def login_lms():
     """Login screen for application"""
     DEFAULT_NEXT = url_for('lms_admin.index')
     next = request.args.get('next', DEFAULT_NEXT)
-
+    print next
     lmss = [ lt for lt in LearningTool.all() if len(lt.shindig_credentials) == 0 ]
 
     if request.method == 'GET':
@@ -124,6 +134,173 @@ def login_ple():
             flash(gettext(u'Invalid username.'))
             return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     return gettext(u"Error in create_session")
+
+def init_saml_auth(req):
+    auth = OneLogin_Saml2_Auth(req, custom_base_path=app.config['SAML_PATH'])
+    return auth
+
+
+def prepare_flask_request(request):
+    # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
+    url_data = urlparse(request.url)
+    return {
+        'https': 'on' if request.scheme == 'https' else 'off',
+        'http_host': request.host,
+        'server_port': url_data.port,
+        'script_name': request.path,
+        'get_data': request.args.copy(),
+        'post_data': request.form.copy(),
+        # Uncomment if using ADFS as IdP, https://github.com/onelogin/python-saml/pull/144
+        # 'lowercase_urlencoding': True,
+        'query_string': request.query_string
+    }
+
+@app.route('/saml/error')
+def saml_error():
+    error_message = session.pop('saml_error', None)
+    return render_template("saml/error.html", error_message=error_message, next=session.pop('next', None))
+
+@app.route('/saml/', methods=['GET', 'POST'])
+@app.route('/saml', methods=['GET', 'POST'])
+def login_saml():
+
+    if current_app.config.get('DEBUG'):
+        if request.args.get('fake', '').lower() == 'true':
+            email='tina.teacher@siway-demo.eu'
+            user = db_session.query(SiWaySAMLUser).filter_by(email=email).first()
+            if user is None:
+                user = SiWaySAMLUser(employee_type='teacher', uid=int(110051), school_name='4', short_name='Teacher', email=email, group='0', full_name='Tina Teacher')
+                db_session.add(user)
+                db_session.commit()
+            session['samlEmail'] = email
+            return redirect(request.args.get('next') or url_for('embed.index'))
+
+
+    req = prepare_flask_request(request)
+    auth = init_saml_auth(req)
+    user = None
+
+    if 'sso' in request.args:
+        kwargs = {}
+        if 'next' in request.args:
+            kwargs['return_to'] = request.args.get('next')
+            session['next'] = request.args.get('next')
+        return redirect(auth.login(**kwargs))
+
+    elif 'slo' in request.args:
+        name_id = None
+        session_index = None
+        if 'samlNameId' in session:
+            name_id = session['samlNameId']
+        if 'samlSessionIndex' in session:
+            session_index = session['samlSessionIndex']
+        return redirect(auth.logout(name_id=name_id, session_index=session_index))
+
+    elif 'acs' in request.args:
+        auth.process_response()
+        errors = auth.get_errors()
+        if len(errors) == 0:
+            session['samlUserdata'] = auth.get_attributes()
+            session['samlNameId'] = auth.get_nameid()
+            session['samlSessionIndex'] = auth.get_session_index()
+
+            if len(session['samlUserdata']) > 0:
+                attributes = session['samlUserdata'].items()
+                new_user = False
+                for attr in attributes:
+                    if attr[0] == 'mail':
+                        email = attr[1][0]
+                        session['samlEmail'] = email
+                        user = SiWaySAMLUser.query.filter_by(email=email).first()
+                        if user is None:
+                            new_user = True
+                        break
+
+                if new_user:
+                    employee_type = uid = school_name = short_name = email = group = full_name = None
+                    for attr in attributes:
+                        if attr[0] in ('employeeType', 'employeetype'):
+                            employee_type = attr[1][0]
+                        elif attr[0] == 'uid':
+                            uid = attr[1][0]
+                        elif attr[0] == 'o':
+                            school_name = attr[1][0]
+                        elif attr[0] == 'sn':
+                            short_name = attr[1][0]
+                        elif attr[0] == 'mail':
+                            email = attr[1][0]
+                        elif attr[0] == 'ou':
+                            group = attr[1][0]
+                        elif attr[0] == 'cn':
+                            full_name = attr[1][0]
+                    if employee_type is None or uid is None or school_name is None or short_name is None or email is None or group is None or full_name is None:
+                        raise Exception("Missing some field: %r" % attributes)
+                    if employee_type not in ('teacher', 'admin', 'administrator', 'instructor'):
+                        session['saml_error'] = gettext("Invalid employee type. This functionality is only allowed for teachers")
+                        return redirect(url_for('.saml_error'))
+                    user = SiWaySAMLUser(employee_type=employee_type,
+                                         uid=int(uid),
+                                         school_name=school_name,
+                                         short_name=short_name,
+                                         email=email,
+                                         group=group,
+                                         full_name=full_name)
+                    db_session.add(user)
+                    db_session.commit()
+                
+                if 'next' in session:
+                    return redirect(session.pop('next'))
+
+                return render_template('saml/index.html',user=user)
+
+    elif 'sls' in request.args:
+        #TODO:User logout here
+        dscb = lambda: session.clear()
+        url = auth.process_slo(delete_session_cb=dscb)
+        print url
+        errors = auth.get_errors()
+        if len(errors) == 0:
+            if url is not None:
+                print 'Redirecting to session delete url (sls)'
+                return redirect(url)
+
+    return redirect(url_for('index'))
+
+
+
+@app.route('/saml/metadata/')
+def metadata():
+    req = prepare_flask_request(request)
+    auth = init_saml_auth(req)
+    settings = auth.get_settings()
+    metadata = settings.get_sp_metadata()
+    errors = settings.validate_metadata(metadata)
+
+    if len(errors) == 0:
+        resp = make_response(metadata, 200)
+        resp.headers['Content-Type'] = 'text/xml'
+    else:
+        resp = make_response(', '.join(errors), 500)
+    return resp
+
+def current_siway_user():
+    if 'samlEmail' not in session:
+        return None
+    return db_session.query(SiWaySAMLUser).filter_by(email = session['samlEmail']).first()
+
+def requires_siway_login(f):
+    """
+    Require that a particular flask URL requires login. It will require the user to be logged,
+    and if he's not logged he will be redirected there afterwards.
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if current_siway_user() is None:
+            return redirect(url_for('login_saml',sso='', next=request.url))
+        return f(*args, **kwargs)
+
+    return wrapper
 
 @app.route("/logout", methods=['GET'])
 @login_required

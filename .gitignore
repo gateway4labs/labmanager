@@ -60,3 +60,6 @@ nosetests.xml
 #Mr Developer
 .mr.developer.cfg
 
+
+# IDE folders to ignore
+.idea

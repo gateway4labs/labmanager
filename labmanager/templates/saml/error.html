@@ -1,0 +1,12 @@
+{% extends "saml/base.html" %}
+{% block body %}
+    <div class="alert alert-danger">
+        <h1>{{ gettext("Error registering user") }}</h1>
+        {% if error_message %}
+        <p>{{ error_message }}</p>
+        {% endif %}
+        {% if next %}
+            <a href="btn btn-default">Go back</a>
+        {% endif %}
+    </div>
+{% endblock %}

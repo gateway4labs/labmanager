@@ -1,12 +1,15 @@
 # -*-*- encoding: utf-8 -*-*-
 
+import json
 import hashlib
-
-from sqlalchemy import sql
+import datetime
+import uuid
+from sqlalchemy import sql, ForeignKey
 from sqlalchemy.orm import relation, backref, relationship
 from flask.ext.login import UserMixin
 from labmanager.db import db
 from labmanager.babel import gettext
+
 
 TABLE_KWARGS = {
     'mysql_engine' : 'InnoDB',
@@ -87,6 +90,37 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     def exists(self, login, word):
         return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
+class SiWaySAMLUser(db.Model):
+    __tablename__ = 'siway_user'
+
+    # Here the fields that we retrieve at SiWay
+    id = db.Column(db.Integer, primary_key = True)
+    email = db.Column(db.Unicode(255), index = True, nullable = False, unique = True)
+    uid = db.Column(db.Integer,nullable=False)
+    employee_type = db.Column(db.Unicode(255),nullable=False)
+    full_name = db.Column(db.Unicode(255), nullable = False)
+    short_name = db.Column(db.Unicode(255),nullable=False)
+    school_name = db.Column(db.Unicode(255), nullable=False)
+    group = db.Column(db.Unicode(255), nullable=False)
+
+    def __init__(self, email, uid, employee_type, full_name, short_name, school_name, group):
+        self.email = email
+        self.uid = uid
+        self.employee_type = employee_type
+        self.full_name = full_name
+        self.short_name = short_name
+        self.school_name = school_name
+        self.group = group
+
+    def __repr__(self):
+        return "SiWaySAMLUsers(%r, %r)" % (self.email, self.short_name)
+
+    def __unicode__(self):
+        return u"%s <%s>" % (self.short_name, self.email)
+
+
+
+
 #########################################################
 # 
 #     RLMS: Remote Laboratory Management System   
@@ -122,6 +156,10 @@ class RLMS(db.Model, SBBase):
         self.publicly_available = publicly_available
         self.public_identifier = public_identifier
         self.default_autoload = default_autoload
+
+    def get_rlms(self):
+        rlms_class = get_manager_class(self.kind, self.version, self.id)
+        return rlms_class(self.configuration)
 
     def __repr__(self):
         return "RLMS(kind = %(rlmskind)r, url=%(rlmsurl)r, location=%(rlmslocation)r, version=%(rlmsversion)r, configuration=%(rlmsconfiguration)r, publicly_available=%(publicly_available)r, public_identifier = %(public_identifier)r, default_autoload = %(default_autoload)r)" % dict(rlmskind=self.kind, rlmsurl=self.url, rlmslocation=self.location, rlmsversion=self.version, rlmsconfiguration=self.configuration, publicly_available = self.publicly_available, public_identifier = self.public_identifier, default_autoload = self.default_autoload)
@@ -504,3 +542,166 @@ class RequestPermissionLT(db.Model, SBBase):
         return gettext(u"'%(localidentifier)s': lab %(labname)s to %(ltname)s", localidentifier=self.local_identifier, 
                                                                                                                             labname = self.laboratory.name, 
                                                                                                                             ltname = self.lt.name)
+
+class EmbedApplication(db.Model):
+    __tablename__ = 'EmbedApplications'
+
+    id = db.Column(db.Integer, primary_key = True)
+    url = db.Column(db.Unicode(255), index = True, nullable = False)
+    name = db.Column(db.Unicode(100), index = True, nullable = False)
+    owner_id = db.Column(db.Integer, ForeignKey('siway_user.id'))
+    height = db.Column(db.Integer)
+    scale = db.Column(db.Integer) # value multiplied by 100; 9850 represents 98.5
+    identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
+    creation = db.Column(db.DateTime, index = True, nullable = False)
+    last_update = db.Column(db.DateTime, index = True, nullable = False)
+    description = db.Column(db.UnicodeText, nullable = True)
+    age_ranges_commas = db.Column(db.Unicode(100), nullable = True) # golab format, comma separated
+    domains_json = db.Column(db.Unicode(255), nullable = True) # JSON-encoded domains in a list
+
+    owner = relation('SiWaySAMLUser',backref="embed_applications")
+
+    def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None, description = None, age_ranges_range=None, domains=None):
+        if creation is None:
+            creation = datetime.datetime.utcnow()
+        if last_update is None:
+            last_update = datetime.datetime.utcnow()
+        if identifier is None:
+            identifier = unicode(uuid.uuid4())
+            while EmbedApplication.query.filter_by(identifier=identifier).first() is not None:
+                identifier = unicode(uuid.uuid4())
+        self.url = url
+        self.name = name
+        self.owner = owner
+        self.identifier = identifier
+        self.creation = creation
+        self.last_update = last_update
+        self.height = height
+        self.scale = scale
+        self.description = description
+        self.age_ranges_range = age_ranges_range
+        self.domains = domains
+
+    @property
+    def domains(self):
+        if not self.domains_json:
+            return []
+        return json.loads(self.domains_json) or []
+
+    @domains.setter
+    def domains(self, domains):
+        self.domains_json = json.dumps(domains or [])
+
+    @property
+    def domains_text(self):
+        return ', '.join(self.domains)
+
+    @domains_text.setter
+    def domains_text(self, domains):
+        self.domains = [ domain.strip() for domain in domains.split(',') if domain.strip() ]
+
+    @property
+    def age_ranges(self):
+        if not self.age_ranges_commas:
+            return []
+        return self.age_ranges_commas.split(',')
+
+    @age_ranges.setter
+    def age_ranges(self, age_ranges):
+        self.age_ranges_commas = ','.join(age_ranges or [])
+
+    @property
+    def age_ranges_range(self):
+        return EmbedApplication.age_ranges2text(self.age_ranges)
+    
+    @staticmethod
+    def age_ranges2text(age_ranges):
+        minimum = 20
+        maximum = 4
+        for age_range in age_ranges:
+            if age_range == '<6':
+                minimum = 4
+            elif age_range == '>18':
+                maximum = 20
+            else:
+                number_low = int(age_range.split('-')[0])
+                number_high = int(age_range.split('-')[1])
+                if number_low < minimum:
+                    minimum = number_low
+                if number_high > maximum:
+                    maximum = number_high
+
+        if maximum == 20 and minimum == 20:
+            minimum = 18
+        if minimum == 4 and maximum == 4:
+            maximum = 6
+
+        return "[%s, %s]" % (minimum, maximum)
+
+    @staticmethod
+    def text2age_ranges(age_ranges_range):
+        # [4, 12] => ['<6', '6-8', '8-10', '10-12']
+        age_ranges_splitted = age_ranges_range[1:-1].split(',')
+        min_age = int(age_ranges_splitted[0].strip())
+        max_age = int(age_ranges_splitted[1].strip())
+        
+        new_age_ranges = []
+        for x in xrange(min_age, max_age + 2, 2):
+            if x in (4, 6) and '<6' not in new_age_ranges:
+                new_age_ranges.append('<6')
+            elif x == 8:
+                new_age_ranges.append('6-8')
+            elif x == 10:
+                new_age_ranges.append('8-10')
+            elif x == 12:
+                new_age_ranges.append('10-12')
+            elif x == 14:
+                new_age_ranges.append('12-14')
+            elif x == 16:
+                new_age_ranges.append('14-16')
+            elif x == 18:
+                new_age_ranges.append('16-18')
+            elif x == 20:
+                new_age_ranges.append('>18')
+
+        return new_age_ranges
+
+    @age_ranges_range.setter
+    def age_ranges_range(self, age_ranges_range):
+        self.age_ranges = EmbedApplication.text2age_ranges(age_ranges_range)
+
+    def update(self, url = None, name = None, height = None, scale = None, description = None, domains = None, age_ranges_range = None, domains_text=None):
+        if url is not None:
+            self.url = url
+        if name is not None:
+            self.name = name
+        if height is not None:
+            self.height = height
+        if scale is not None:
+            self.scale = scale
+        if description is not None:
+            self.description = description
+        if domains is not None:
+            self.domains = domains
+        if age_ranges_range is not None:
+            self.age_ranges_range = age_ranges_range
+        if self.domains_text is not None:
+            self.domains_text = domains_text
+        self.last_update = datetime.datetime.utcnow()
+
+class EmbedApplicationTranslation(db.Model):
+    __tablename__ = 'EmbedApplicationTranslation'
+
+    id = db.Column(db.Integer, primary_key = True)
+    embed_application_id = db.Column(db.Integer, ForeignKey('EmbedApplications.id'))
+    url = db.Column(db.Unicode(255), index = True, nullable = False)
+    language = db.Column(db.Unicode(10), index = True, nullable = False)
+
+    embed_application = relation("EmbedApplication", backref="translations")
+
+    def __init__(self, embed_application, url, language):
+        self.embed_application = embed_application
+        self.url = url
+        self.language = language
+
+from labmanager.rlms import get_manager_class

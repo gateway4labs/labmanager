@@ -14,11 +14,12 @@
 
 import os
 
-from labmanager.utils import FullyQuotedUrlConverter
+from labmanager.utils import FullyQuotedUrlConverter, EverythingConverter
 from flask import Flask, render_template, redirect, url_for
 
 app = Flask(__name__)
 app.url_map.converters['quoted_url'] = FullyQuotedUrlConverter
+app.url_map.converters['everything'] = EverythingConverter
 app.config.from_object('config')
 
 # Try to support SQLALCHEMY_ENGINE_STR
@@ -41,8 +42,8 @@ else:
     app.secret_key = os.urandom(32)
 app.config['SESSION_COOKIE_NAME'] = 'g4lsession'
 
-
-
+from .embed import embed_blueprint
+app.register_blueprint(embed_blueprint, url_prefix='/embed')
 
 # Initialize the logging mechanism to send error 500 mails to the administrators
 if not app.debug and app.config.get("ADMINS") is not None and app.config.get("SMTP_SERVER") is not None:

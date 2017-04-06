@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SiWay Smart Gateway</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" CONTENT="noindex, nofollow">
+    <link href="{{ url_for('static', filename='bs3/css/bootstrap.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bs3/css/bootstrap-theme.min.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="row text-center">
+            <div class="jumbotron" style="padding-bottom: 300px">
+                <h1>{{ gettext("Install the bookmarklet") }}</h1>
+
+                {% if browser == 'edge' %}
+                    <div class="alert alert-warning">
+                        <h2>Browser not supported</h2>
+
+                        <p>{{ gettext("Unfortunately, Microsoft Edge does not properly support bookmarklets. If you have other web browser installed, please use it.") }}</p>
+                        <p>{{ gettext("If you want to try to use Edge, the easiest way is to open this same page in Microsoft Internet Explorer, and then in Edge click on 'Import your favorites'.") }}</p>
+                        <br>
+                    </div>
+
+                    {# <div class="hidden" id="edgeinstructions">
+                        <a href="http://www.howtogeek.com/231775/how-to-install-and-use-bookmarklets-in-microsoft-edge/">To be done...</a>
+                    </div> #}
+                {% else %}
+                <br>
+                <br>
+                <br>
+                <div style="width: 100%">
+            
+                    <div class="col-sm-6">
+                        <p>{{ gettext("Install the bookmarklet so as to add Open Educational Resources to SiWay.") }}</p>
+                        {% if browser == 'msie' %}
+                        <p>{{ gettext("Drag the link on the right to the Favorites panel.") }}</p>
+                        {% elif browser == 'firefox' %}
+                        <p>{{ gettext("Right click the link and click on 'Bookmark this link'. If you don't see the bookmar panel, click on View, Toolbars and then on 'Bookmarks toolbar'") }}</p>
+                        {% else %}
+                        <p>{{ gettext("Drag the link on the right to the bookmark panel. If you don't see the bookmark panel, click on View and then on 'Show bookmarks bar'.") }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-sm-4">
+                        <a id="bookmarklet" href="javascript:(function f(){ location.href='{{ url_for('.create', _external=True) }}?url='+escape(location.href);})()" class="btn btn-lg btn-primary">Add to SiWay</a>
+                        <div class="alert alert-warning" id="onbuttonclick" style="display: none; margin-top: 20px">
+                            <p>{{ gettext("Install the bookmarklet as in the video below. Use the button in your web browser, not this one.") }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+            <div class="row">
+                <div class="well text-center">
+                    {% if browser == 'edge' %}
+                    <h3>{{ gettext("Step 1: Install the bookmarklet in Internet Explorer") }}</h3>
+                    <h3>{{ gettext("Step 2: Click on the three lines to go to Favorites") }}</h3>
+                    <img style="width: 50%" src="{{ url_for('static', filename='bookmarklet/instructions/edge1.png') }}"><br>
+                    <h3>{{ gettext("Step 3: Go to Favorites Settings, and activate the Favorites bar and click on 'Import'") }}</h3>
+                    <img style="width: 50%" src="{{ url_for('static', filename='bookmarklet/instructions/edge2.png') }}"><br>
+                    <h3>{{ gettext("Step 4: You can use the bookmarklet in any website") }}</h3>
+                    <img style="width: 50%" src="{{ url_for('static', filename='bookmarklet/instructions/edge3.png') }}"><br>
+                    {% elif browser == 'msie' %}
+                    <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/msie.gif') }}">
+                    {% elif browser == 'firefox' %}
+                    <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/firefox.gif') }}">
+                    {% else %}
+                    <img style="width: 100%" src="{{ url_for('static', filename='bookmarklet/instructions/chrome.gif') }}">
+                    {% endif %}
+                </div>
+            </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='jquery-1.9.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='bs3/js/bootstrap.min.js') }}" type="text/javascript"></script>
+    <script>
+        $("body").ready(function() {
+            $("#bookmarklet").click(function (event) {
+                $("#onbuttonclick").show();
+                event.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html {{ html_header }}>
+<head>
+    <title>SiWay Smart Gateway embedder - {{ title }}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" CONTENT="noindex, nofollow">
+    <link href="{{ url_for('static', filename='bs3/css/bootstrap.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bs3/css/bootstrap-theme.min.css') }}">
+    <link href="{{ url_for('static', filename='css/appcomposer.css') }}" rel="stylesheet">
+    <style>
+        /* 
+          Allow angular.js to be loaded in body, hiding cloaked elements until 
+          templates compile.  The !important is important given that there may be 
+          other selectors that are more specific or come later and might alter display.  
+         */
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+          display: none !important;
+        }
+    </style>
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+    <div class="container">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, m in messages %}
+                {% if category == 'error' %}
+                <div class="alert alert-error">
+                {% elif category == 'success' %}
+                <div class="alert alert-success">
+                {% elif category == 'info' %}
+                <div class="alert alert-info">
+                {% elif category == 'warning' %}
+                <div class="alert alert-warning">
+                {% elif category == 'danger' %}
+                <div class="alert alert-danger">
+                {% else %}
+                <div class="alert alert-info">
+                {% endif %}
+                  <a href="javascript:void(0)" class="close" data-dismiss="alert">x</a>
+                  {{ m }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+
+        {% block body %}{% endblock %}
+    </div>
+
+    <div class="container">
+        <hr>
+        <footer>
+            <p style="text-align: center; font-style: italic; font-size: 10px">
+                AppComposer, {{ gettext('the SiWay application creator for teachers'|safe) }}.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='jquery-1.9.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='bs3/js/bootstrap.min.js') }}" type="text/javascript"></script>
+    {% block tail %}
+    {% endblock %}
+</body>
+</html>

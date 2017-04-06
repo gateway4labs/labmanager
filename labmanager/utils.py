@@ -28,3 +28,7 @@ class FullyQuotedUrlConverter(PathConverter):
 
     def to_url(self, value):
         return url_quote(url_quote(url_quote(value, self.map.charset, safe=''), self.map.charset, safe=''), self.map.charset, safe='')
+
+class EverythingConverter(PathConverter):
+    regex = '.*?'
+

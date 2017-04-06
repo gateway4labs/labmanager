@@ -27,6 +27,8 @@ from .views import load as load_views
 from .views.ims_lti import lti_blueprint
 from .views.basic_http import basic_http_blueprint
 from .views.opensocial import opensocial_blueprint
+from .views.repository import repository_blueprint
+from .views.bookmarklet import bookmarklet_blueprint
 
 def load_rlms_modules():
     """
@@ -59,6 +61,9 @@ def register_blueprints():
     app.register_blueprint(lti_blueprint, url_prefix='/lti')
     app.register_blueprint(opensocial_blueprint, url_prefix='/os')
     app.register_blueprint(opensocial_blueprint, url_prefix='/opensocial')
+    app.register_blueprint(repository_blueprint, url_prefix='/repo')
+    app.register_blueprint(repository_blueprint, url_prefix='/repository')
+    app.register_blueprint(bookmarklet_blueprint, url_prefix='/bookmarklet')
 
     from labmanager.rlms.base import _BLUEPRINTS
     for url, blueprint in _BLUEPRINTS.items():
@@ -104,7 +109,7 @@ def run():
     if app.config['DEBUG']:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-        app.config['DEBUG_TB_PROFILER_ENABLED'] = False
+        app.config['DEBUG_TB_PROFILER_ENABLED'] = os.environ.get('DEBUG_TB_PROFILER_ENABLED', 'false').lower() == 'true'
         toolbar = DebugToolbarExtension(app)
 
     port = int(os.environ.get('PORT', args.port))
