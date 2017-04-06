@@ -40,8 +40,9 @@ class MethodsLogin(BaseTestLogin):
         self.assertNotIn("loggeduser", session)
 
     def test_logout_fails(self):
-        rv = self.logout()
-        self.assert_401(rv)
+        rv = self.logout(redirect=False)
+        self.assertNotIn("loggeduser", session)
+        self.assertEqual(rv.status_code, 302)
 
     def test_login_work_redirect_work(self):
         rv = self.login(username=self.username,

@@ -41,8 +41,8 @@ class BaseTestLogin(object):
         return self.client.post(self.login_path, data=kwargs,
                                 follow_redirects=redirect)
 
-    def logout(self):
-        return self.client.get(self.logout_path, follow_redirects=True)
+    def logout(self, redirect=True):
+        return self.client.get(self.logout_path, follow_redirects=redirect)
 
 
 class BaseTestLogged(BaseTestLogin):
