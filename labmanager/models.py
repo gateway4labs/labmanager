@@ -536,7 +536,7 @@ class EmbedApplication(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     url = db.Column(db.Unicode(255), index = True, nullable = False)
     name = db.Column(db.Unicode(100), index = True, nullable = False)
-#    owner_id = db.Column(db.Integer, ForeignKey('siway_user.id'))
+    owner_id = db.Column(db.Integer, ForeignKey('GoLabOAuthUsers.id'))
     height = db.Column(db.Integer)
     scale = db.Column(db.Integer) # value multiplied by 100; 9850 represents 98.5
     identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
@@ -545,6 +545,8 @@ class EmbedApplication(db.Model):
     description = db.Column(db.UnicodeText, nullable = True)
     age_ranges_commas = db.Column(db.Unicode(100), nullable = True) # golab format, comma separated
     domains_json = db.Column(db.Unicode(255), nullable = True) # JSON-encoded domains in a list
+
+    owner = relation("GoLabOAuthUser", backref="embed_apps")
 
     def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None, description = None, age_ranges_range=None, domains=None):
         if creation is None:
