@@ -2,7 +2,7 @@ import traceback
 import requests
 from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify
-from labmanager.views.authn import requires_siway_login, current_siway_user
+from labmanager.views.authn import requires_golab_login, current_golab_user
 
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
@@ -20,7 +20,7 @@ embed_blueprint = Blueprint('embed', __name__)
 
 @embed_blueprint.context_processor
 def inject_variables():
-    return dict(current_siway_user=current_siway_user())
+    return dict(current_golab_user=current_golab_user())
 
 class AngularJSInput(object):
     def __init__(self, **kwargs):
@@ -74,21 +74,21 @@ class MultiCheckboxField(SelectMultipleField):
 @embed_blueprint.route('/apps/')
 def apps():
     applications = db.session.query(EmbedApplication).order_by(EmbedApplication.last_update).all()
-    return render_template("embed/apps.html", user = current_siway_user(), applications = applications, title = gettext("List of applications"))
+    return render_template("embed/apps.html", user = current_golab_user(), applications = applications, title = gettext("List of applications"))
 
 @embed_blueprint.route('/apps/<identifier>/')
 def app(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
     if application is None:
-        return render_template("embed/error.html", message = gettext("Application '{identifier}' not found").format(identifier=identifier), user = current_siway_user()), 404
+        return render_template("embed/error.html", message = gettext("Application '{identifier}' not found").format(identifier=identifier), user = current_golab_user()), 404
 
-    return render_template("embed/app.html", user = current_siway_user(), app = application, title = gettext("Application {name}").format(name=application.name))
+    return render_template("embed/app.html", user = current_golab_user(), app = application, title = gettext("Application {name}").format(name=application.name))
 
 @embed_blueprint.route('/apps/<identifier>/app.xml')
 def app_xml(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
     if application is None:
-        return render_template("embed/error.xml", user = current_siway_user(), message = gettext("Application '{identifier}' not found").format(identifier=identifier)), 404
+        return render_template("embed/error.xml", user = current_golab_user(), message = gettext("Application '{identifier}' not found").format(identifier=identifier)), 404
 
     apps_per_language = {}
     languages = ['en']
@@ -98,7 +98,7 @@ def app_xml(identifier):
 
     author = application.owner.full_name
 
-    response = make_response(render_template("embed/app.xml", author = author, user = current_siway_user(), identifier=identifier, app = application, languages=languages, apps_per_language = apps_per_language, title = gettext("Application {name}").format(name=application.name)))
+    response = make_response(render_template("embed/app.xml", author = author, user = current_golab_user(), identifier=identifier, app = application, languages=languages, apps_per_language = apps_per_language, title = gettext("Application {name}").format(name=application.name)))
     response.content_type = 'application/xml'
     return response
 
@@ -107,10 +107,10 @@ def app_xml(identifier):
 # 
 
 @embed_blueprint.route('/')
-@requires_siway_login
+@requires_golab_login
 def index():
-    applications = db.session.query(EmbedApplication).filter_by(owner = current_siway_user()).order_by(EmbedApplication.last_update).all()
-    return render_template("embed/index.html", applications = applications, user = current_siway_user())
+    applications = db.session.query(EmbedApplication).filter_by(owner = current_golab_user()).order_by(EmbedApplication.last_update).all()
+    return render_template("embed/index.html", applications = applications, user = current_golab_user())
 
 class SimplifiedApplicationForm(Form):
     name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
@@ -149,7 +149,7 @@ def _get_scale_value(form):
     return None
 
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
-@requires_siway_login
+@requires_golab_login
 def create():
     original_url = request.args.get('url')
     if original_url:
@@ -199,21 +199,21 @@ def create():
 
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
-        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_siway_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges_range = form.age_ranges_range.data)
+        application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_golab_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges_range = form.age_ranges_range.data)
         application.domains_text = form.domains_text.data
         db.session.add(application)
         try:
             db.session.commit()
         except Exception as e:
             traceback.print_exc()
-            return render_template("embed/error.html", message = gettext("There was an error creating an application"), user = current_siway_user()), 500
+            return render_template("embed/error.html", message = gettext("There was an error creating an application"), user = current_golab_user()), 500
         else:
             kwargs = {}
             if bookmarklet_from:
                 kwargs['url'] = bookmarklet_from
             return redirect(url_for('.edit', identifier=application.identifier, **kwargs))
             
-    return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_siway_user(), bookmarklet_from=bookmarklet_from)
+    return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_golab_user(), bookmarklet_from=bookmarklet_from)
 
 @embed_blueprint.route('/check.json')
 def check_json():
@@ -245,7 +245,7 @@ def check_json():
     return jsonify(error=False, url=url)
 
 @embed_blueprint.route('/edit/<identifier>/', methods = ['GET', 'POST'])
-@requires_siway_login
+@requires_golab_login
 def edit(identifier):
     existing_languages = {
         # lang: {
@@ -306,9 +306,10 @@ def edit(identifier):
         form_scale = _get_scale_value(form)
         application.update(url=form.url.data, name=form.name.data, height=form.height.data, scale=form_scale, age_ranges_range=form.age_ranges_range.data, description=form.description.data, domains_text=form.domains_text.data)
         db.session.commit()
-
-        if request.form.get('action') == 'publish':
-            return _post_contents(app_to_json(application), application.url)
+    
+        # TODO: does this still make sense?
+        # if request.form.get('action') == 'publish':
+        #     return _post_contents(app_to_json(application), application.url)
 
     # Add the posted languages to the existing ones
     for lang_code, url in posted_languages.items():
@@ -321,8 +322,6 @@ def edit(identifier):
     # Obtain the languages formatted as required but excluding those already added
     languages = obtain_formatted_languages(existing_languages)
     bookmarklet_from = request.args.get('url')
-    return render_template("embed/create.html", user = current_siway_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from)
+    return render_template("embed/create.html", user = current_golab_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from)
 
 from labmanager.views.repository import app_to_json
-from labmanager.views.bookmarklet import _post_contents
-

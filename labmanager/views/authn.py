@@ -134,13 +134,13 @@ def login_ple():
             return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     return gettext(u"Error in create_session")
 
-def current_siway_user():
+def current_golab_user():
     # TODO
     if 'samlEmail' not in session:
         return None
     return db_session.query(GoLabOAuthUser).filter_by(email = session['samlEmail']).first()
 
-def requires_siway_login(f):
+def requires_golab_login(f):
     """
     Require that a particular flask URL requires login. It will require the user to be logged,
     and if he's not logged he will be redirected there afterwards.
@@ -148,7 +148,7 @@ def requires_siway_login(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if current_siway_user() is None:
+        if current_golab_user() is None:
             return redirect(url_for('login_saml',sso='', next=request.url))
         return f(*args, **kwargs)
 
