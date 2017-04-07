@@ -90,7 +90,7 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     def exists(self, login, word):
         return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
-class GoLabOAuthUser(db.Model):
+class GoLabOAuthUser(db.Model, UserMixin):
     __tablename__ = 'GoLabOAuthUsers'
 
     id = db.Column(db.Integer, primary_key = True)
@@ -100,6 +100,9 @@ class GoLabOAuthUser(db.Model):
     def __init__(self, email, display_name):
         self.email = email
         self.display_name = display_name
+
+    def get_id(self):
+        return u"golab::%s" % self.email
 
     def __repr__(self):
         return "GoLabOAuthUsers(%r, %r)" % (self.email, self.display_name)

@@ -9,12 +9,13 @@
 from time import time
 from hashlib import new as new_hash
 from flask import render_template, request, flash, redirect, url_for, session, make_response, current_app
-from flask.ext.login import LoginManager, login_user, logout_user, login_required
+from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 from labmanager.babel import gettext
 from ..application import app
 from labmanager.db import db_session
 from ..models import LabManagerUser, LtUser, LearningTool, GoLabOAuthUser
 
+import requests
 from urlparse import urlparse
 from functools import wraps
 
@@ -42,6 +43,9 @@ def load_user(userid):
             return None
         else:
             return potential_users[0]
+    if userid.startswith(u'golab::'):
+        email = userid.split('::', 1)[1]
+        return db_session.query(GoLabOAuthUser).filter_by(email = email).first()
     return None
 
 @app.route('/login/admin/', methods=['GET', 'POST'])
@@ -135,10 +139,11 @@ def login_ple():
     return gettext(u"Error in create_session")
 
 def current_golab_user():
-    # TODO
-    if 'samlEmail' not in session:
-        return None
-    return db_session.query(GoLabOAuthUser).filter_by(email = session['samlEmail']).first()
+    user_id = current_user.get_id()
+    if user_id and user_id.startswith('golab::'):
+        return current_user
+
+    return None
 
 def requires_golab_login(f):
     """
@@ -149,10 +154,58 @@ def requires_golab_login(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if current_golab_user() is None:
-            return redirect(url_for('login_saml',sso='', next=request.url))
+            return redirect(url_for('login_golab_oauth',sso='', next=request.url))
         return f(*args, **kwargs)
 
     return wrapper
+
+
+PUBLIC_SMARTGATEWAY_ID = 'WfTlrXTbu4AeGexikhau5HDXkpGE8RYh'
+
+@app.route('/graasp/oauth/')
+def login_golab_oauth():
+    next_url = request.args.get('next')
+    if next_url is None:
+        return "No next= provided"
+    session['oauth_next'] = next_url
+    redirect_back_url = url_for('golab_oauth_login_redirect', _external = True)
+    return redirect('http://graasp.eu/authorize?client_id=%s&redirect_uri=%s' % (PUBLIC_SMARTGATEWAY_ID, requests.utils.quote(redirect_back_url, '')))
+
+@app.route('/graasp/oauth/redirect/')
+def golab_oauth_login_redirect():
+    access_token = request.args.get('access_token')
+    refresh_token = request.args.get('refresh_token')
+    timeout = request.args.get('expires_in')
+    next_url = session.get('oauth_next')
+
+    headers = {
+        'Authorization': 'Bearer {}'.format(access_token),
+    }
+
+    requests_session = requests.Session()
+    response = requests_session.get('http://graasp.eu/users/me', headers = headers)
+    if response.status_code == 500:
+        error_msg = "There has been an error trying to log in with access token: %s and refresh_token %s; attempting to go to %s. Response: %s" % (access_token, refresh_token, next_url, response.text)
+        current_app.logger.error(error_msg)
+        # TODO
+        # sendmail("Error logging in", error_msg)
+        return render_template("error_login.html")
+
+    try:
+        user_data = response.json()
+    except ValueError:
+        logging.error("Error logging in user with data: %r" % response.text, exc_info = True)
+        raise ValueError("Error logging in user with data: %r" % response.text)
+
+    user = db_session.query(GoLabOAuthUser).filter_by(email = user_data['email']).first()
+    if user is None:
+        user = GoLabOAuthUser(email = user_data['email'], display_name = user_data['username'])
+        db_session.add(user)
+        db_session.commit()
+
+    login_user(user)
+    return redirect(requests.utils.unquote(next_url or ''))
+
 
 @app.route("/logout", methods=['GET'])
 @login_required
