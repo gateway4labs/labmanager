@@ -18,7 +18,7 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LabManagerUser, LtUser
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
-from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials, EmbedApplication, EmbedApplicationTranslation, SiWaySAMLUser
+from labmanager.models import BasicHttpCredentials, LearningTool, Course, PermissionToLtUser, ShindigCredentials, EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser
 from labmanager.rlms import get_form_class, get_supported_types, get_supported_versions, get_manager_class, Capabilities
 from labmanager.views import RedirectView
 from labmanager.scorm import get_scorm_object, get_authentication_scorm
@@ -87,12 +87,11 @@ class EmbedApplicationsPanel(L4lModelView):
     def __init__(self, session, **kwargs):
         super(EmbedApplicationsPanel, self).__init__(EmbedApplication, session, **kwargs)
 
-class SiWayUsersPanel(L4lModelView):
-    column_list = ('full_name', 'short_name', 'email', 'employee_type', 'school_name', 'group')
-    column_searchable_list = ('full_name', 'short_name', 'email', 'employee_type', 'school_name', 'group')
+class GoLabUsersPanel(L4lModelView):
+    column_searchable_list = ('email', 'display_name')
 
     def __init__(self, session, **kwargs):
-        super(SiWayUsersPanel, self).__init__(SiWaySAMLUser, session, **kwargs)
+        super(GoLabUsersPanel, self).__init__(GoLabOAuthUser, session, **kwargs)
 
 class UsersPanel(L4lModelView):
     column_list = ['login', 'name']
@@ -840,7 +839,8 @@ def init_admin(app):
     admin.add_view(RLMSPanel(db.session,       category = i18n_ReLMSmngmt, name = lazy_gettext(u"RLMS"),            endpoint = 'rlms/rlms'))
     admin.add_view(LaboratoryPanel(db.session, category = i18n_ReLMSmngmt, name = lazy_gettext(u"Registered labs"), endpoint = 'rlms/labs'))
     admin.add_view(UsersPanel(db.session,      category = lazy_gettext(u'Users'), name = lazy_gettext(u"Labmanager Users"), endpoint = 'users/labmanager'))
-    admin.add_view(EmbedApplicationsPanel(db.session, category="SiWay", name="Embed Apps", endpoint='siway/embed'))
-    admin.add_view(SiWayUsersPanel(db.session, category="SiWay", name="SiWay users", endpoint='siway/users'))
+    if app.config.get('GOLAB'):
+        admin.add_view(EmbedApplicationsPanel(db.session, category="Go-Lab", name="Embed Apps", endpoint='golab/embed'))
+        admin.add_view(GoLabUsersPanel(db.session, category="Go-Lab", name="Go-Lab users", endpoint='golab/users'))
     admin.add_view(RedirectView('logout',      name = lazy_gettext(u"Log out"), endpoint = 'admin/logout'))
     admin.init_app(app)

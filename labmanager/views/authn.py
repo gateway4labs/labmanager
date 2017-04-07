@@ -13,7 +13,7 @@ from flask.ext.login import LoginManager, login_user, logout_user, login_require
 from labmanager.babel import gettext
 from ..application import app
 from labmanager.db import db_session
-from ..models import LabManagerUser, LtUser, LearningTool, SiWaySAMLUser
+from ..models import LabManagerUser, LtUser, LearningTool, GoLabOAuthUser
 
 from urlparse import urlparse
 from functools import wraps
@@ -135,9 +135,10 @@ def login_ple():
     return gettext(u"Error in create_session")
 
 def current_siway_user():
+    # TODO
     if 'samlEmail' not in session:
         return None
-    return db_session.query(SiWaySAMLUser).filter_by(email = session['samlEmail']).first()
+    return db_session.query(GoLabOAuthUser).filter_by(email = session['samlEmail']).first()
 
 def requires_siway_login(f):
     """

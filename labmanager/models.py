@@ -90,35 +90,22 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
     def exists(self, login, word):
         return db.session.query(self).filter(sql.and_(self.login == login, self.password == word)).first()
 
-class SiWaySAMLUser(db.Model):
-    __tablename__ = 'siway_user'
+class GoLabOAuthUser(db.Model):
+    __tablename__ = 'GoLabOAuthUsers'
 
-    # Here the fields that we retrieve at SiWay
     id = db.Column(db.Integer, primary_key = True)
+    display_name = db.Column(db.Unicode(255), index = True, nullable = False)
     email = db.Column(db.Unicode(255), index = True, nullable = False, unique = True)
-    uid = db.Column(db.Integer,nullable=False)
-    employee_type = db.Column(db.Unicode(255),nullable=False)
-    full_name = db.Column(db.Unicode(255), nullable = False)
-    short_name = db.Column(db.Unicode(255),nullable=False)
-    school_name = db.Column(db.Unicode(255), nullable=False)
-    group = db.Column(db.Unicode(255), nullable=False)
 
-    def __init__(self, email, uid, employee_type, full_name, short_name, school_name, group):
+    def __init__(self, email, display_name):
         self.email = email
-        self.uid = uid
-        self.employee_type = employee_type
-        self.full_name = full_name
-        self.short_name = short_name
-        self.school_name = school_name
-        self.group = group
+        self.display_name = display_name
 
     def __repr__(self):
-        return "SiWaySAMLUsers(%r, %r)" % (self.email, self.short_name)
+        return "GoLabOAuthUsers(%r, %r)" % (self.email, self.display_name)
 
     def __unicode__(self):
-        return u"%s <%s>" % (self.short_name, self.email)
-
-
+        return u"%s <%s>" % (self.display_name, self.email)
 
 
 #########################################################
@@ -549,7 +536,7 @@ class EmbedApplication(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     url = db.Column(db.Unicode(255), index = True, nullable = False)
     name = db.Column(db.Unicode(100), index = True, nullable = False)
-    owner_id = db.Column(db.Integer, ForeignKey('siway_user.id'))
+#    owner_id = db.Column(db.Integer, ForeignKey('siway_user.id'))
     height = db.Column(db.Integer)
     scale = db.Column(db.Integer) # value multiplied by 100; 9850 represents 98.5
     identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
@@ -558,8 +545,6 @@ class EmbedApplication(db.Model):
     description = db.Column(db.UnicodeText, nullable = True)
     age_ranges_commas = db.Column(db.Unicode(100), nullable = True) # golab format, comma separated
     domains_json = db.Column(db.Unicode(255), nullable = True) # JSON-encoded domains in a list
-
-    owner = relation('SiWaySAMLUser',backref="embed_applications")
 
     def __init__(self, url, name, owner, height = None, identifier = None, creation = None, last_update = None, scale = None, description = None, age_ranges_range=None, domains=None):
         if creation is None:
