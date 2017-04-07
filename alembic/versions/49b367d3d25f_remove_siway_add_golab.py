@@ -24,9 +24,9 @@ def upgrade():
     )
     op.create_index(u'ix_GoLabOAuthUsers_display_name', 'GoLabOAuthUsers', ['display_name'], unique=False)
     op.create_index(u'ix_GoLabOAuthUsers_email', 'GoLabOAuthUsers', ['email'], unique=True)
-    op.drop_table(u'siway_user')
     op.drop_constraint(u'EmbedApplications_ibfk_1', 'EmbedApplications', type_='foreignkey')
     op.drop_column('EmbedApplications', u'owner_id')
+    op.drop_table(u'siway_user')
     ### end Alembic commands ###
 
 
