@@ -338,7 +338,19 @@
             }
 
             $scope.canAddLanguage = function () {
-                return $scope.embed.editing.language_code && $scope.embed.editing.url;
+                var editingLang = $scope.embed.editing.language_code;
+                if (!editingLang) 
+                    return false;
+
+                var found = false;
+                $.each($scope.embed.languages, function(pos, value) {
+                    if (value['code'] == editingLang)
+                        found = true;
+                });
+                if (found)
+                    return false;
+
+                return $scope.embed.editing.url;
             }
 
             $scope.isLanguageBeingAdded = function () {
