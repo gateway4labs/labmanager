@@ -13,6 +13,7 @@ import datetime
 import traceback
 import requests
 
+from flask import url_for
 
 from labmanager.db import db
 from labmanager.models import RLMS as dbRLMS
@@ -320,4 +321,31 @@ def get_manager_class(rlms_type, rlms_version, current_rlms_id = None):
     if current_rlms_id:
         record.per_thread.current_rlms_id = current_rlms_id
     return module.RLMS
+
+def find_smartgateway_link(url, return_url):
+    rlms_by_id = {}
+    for db_rlms in db.session.query(dbRLMS).filter_by(publicly_available=True).all():
+        rlms = db_rlms.get_rlms()
+        rlms_by_id[db_rlms.id] = rlms
+        if Capabilities.URL_FINDER in rlms.get_capabilities():
+            base_urls = rlms.get_base_urls() or []
+            for base_url in base_urls:
+                if url.startswith(base_url):
+                    lab = rlms.get_lab_by_url(url)
+                    if lab is not None:
+                        return url_for('bookmarklet.public_rlms', rlms_id=db_rlms.public_identifier, lab_name=lab.laboratory_id, url=return_url)
+
+    for db_rlms in db.session.query(dbRLMS).filter_by(publicly_available=False).all():
+        rlms = db_rlms.get_rlms()
+        rlms_by_id[db_rlms.id] = rlms
+        if Capabilities.URL_FINDER in rlms.get_capabilities():
+            base_urls = rlms.get_base_urls() or []
+            for base_url in base_urls:
+                if url.startswith(base_url):
+                    lab = rlms.get_lab_by_url(url)
+                    db_lab = db.session.query(Laboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
+                    if db_lab is not None:
+                        return url_for('bookmarklet.public_lab', public_identifier=db_lab.public_identifier, url=return_url)
+    return None
+
 

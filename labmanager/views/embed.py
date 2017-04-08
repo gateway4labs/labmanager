@@ -7,6 +7,7 @@ from labmanager.views.authn import requires_golab_login, current_golab_user
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import EmbedApplication, EmbedApplicationTranslation
+from labmanager.rlms import find_smartgateway_link
 from labmanager.translator.languages import obtain_languages
 
 from flask.ext.wtf import Form
@@ -128,11 +129,11 @@ def index():
     return render_template("embed/index.html", applications = applications, user = current_golab_user())
 
 class SimplifiedApplicationForm(Form):
-    name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
+    name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_model='embed.name', ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
     age_ranges_range = HiddenField(lazy_gettext("Age ranges:"), validators=[required()], description=lazy_gettext("Select the age ranges this tool is useful for"))
 
     # The following are NOT REQUIRED
-    description = TextField(lazy_gettext("Description:"), validators=[], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
+    description = TextField(lazy_gettext("Description:"), validators=[], widget = AngularJSTextInput(ng_model='embed.description', ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
     domains_text = TextField(lazy_gettext("Domains:"), validators=[], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Say in which domains apply to the resource (separated by commas): e.g., physics, electronics..."))
 
     url = URLField(lazy_gettext("Web:"), widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"), description=lazy_gettext("Web address of the resource"))
@@ -163,6 +164,40 @@ def _get_scale_value(form):
             form.scale.data = unicode(scale)
             return scale
     return None
+
+def get_url_metadata(url, timeout = 3):
+    name = ''
+    description = ''
+    code = None
+    x_frame_options = ''
+    error_retrieving = False
+    content_type = ''
+    try:
+        req = requests.get(url, timeout=(timeout, timeout), stream=True)
+    except:
+        traceback.print_exc()
+        error_retrieving = True
+    else:
+        try:
+            code = req.status_code
+            x_frame_options = req.headers.get('X-Frame-Options', '').lower()
+            content_type = req.headers.get('content-type', '').lower()
+            if req.status_code == 200 and 'html' in req.headers.get('content-type', '').lower():
+                # First megabyte maximum
+                content = req.iter_content(1024 * 1024).next()
+                soup = BeautifulSoup(content, 'lxml')
+                name = (soup.find("title").text or '').strip()
+                meta_description = soup.find("meta", attrs={'name': 'description'})
+                if meta_description is not None:
+                    meta_description_text = meta_description.attrs.get('content')
+                    if meta_description_text:
+                        description = (meta_description_text or '').strip()
+            req.close()
+        except:
+            traceback.print_exc()
+
+    return { 'name' : name, 'description': description, 'code': code, 'x_frame_options' : x_frame_options, 'error_retrieving' : error_retrieving, 'content_type' : content_type }
+
 
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_golab_login
@@ -196,22 +231,11 @@ def create():
     if not form.url.data and original_url:
         form.url.data = original_url
         if not form.name.data:
-            try:
-                req = requests.get(original_url, timeout=(3,3), stream=True)
-                if req.status_code == 200 and 'html' in req.headers.get('content-type', '').lower():
-                    # First megabyte maximum
-                    content = req.iter_content(1024 * 1024).next()
-                    soup = BeautifulSoup(content, 'lxml')
-                    form.name.data = (soup.find("title").text or '').strip()
-                    meta_description = soup.find("meta", attrs={'name': 'description'})
-                    if meta_description is not None:
-                        meta_description_text = meta_description.attrs.get('content')
-                        if meta_description_text and not form.description.data:
-                            form.description.data = (meta_description_text or '').strip()
-                req.close()
-            except:
-                traceback.print_exc()
-                pass
+            result = get_url_metadata(original_url, timeout = 5)
+            if result['name']:
+                form.name.data = result['name']
+            if result['description'] and not form.description.data:
+                form.description.data = result['description']
 
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
@@ -237,28 +261,32 @@ def check_json():
     if not url:
         return jsonify(error=True, message=gettext("No URL provided"), url=url)
     if not url.startswith(('http://', 'https://')):
-        return jsonify(error=True, message=gettext("URL doesn't have a valid protocol"), url=url)
+        return jsonify(error=True, message=gettext("URL doesn't start by http:// or https://"), url=url)
     
-    try:
-        req = requests.get(url, timeout=(5,5), stream=True)
-    except:
+    if url == 'http://':
+        return jsonify(error=False, url=url)
+
+    sg_link = find_smartgateway_link(url, request.referrer)
+    if sg_link:
+        return jsonify(error=False, sg_link=sg_link, url=url)
+    
+    metadata = get_url_metadata(url, timeout = 5)
+    if metadata['error_retrieving']:
         return jsonify(error=True, message=gettext("Error retrieving URL"), url=url)
 
-    if req.status_code != 200:
+    if metadata['code'] != 200:
         return jsonify(error=True, message=gettext("Error accessing to the URL"), url=url)
 
-    x_frame_options = req.headers.get('X-Frame-Options', '').lower()
-    if x_frame_options in ('deny', 'sameorigin') or x_frame_options.startswith('allow'):
-        return jsonify(error=True, message=gettext("This website does not support being loaded from a different site, so it is unavailable for SiWay"), url=url)
+    if metadata['x_frame_options'] in ('deny', 'sameorigin') or metadata['x_frame_options'].startswith('allow'):
+        return jsonify(error=True, message=gettext("This website does not support being loaded from a different site, so it is unavailable for Go-Lab"), url=url)
     
-    content_type = req.headers.get('content-type', '').lower()
-    if 'html' not in content_type:
-        if 'shockwave' in content_type or 'flash' in content_type:
+    if 'html' not in metadata['content_type']:
+        if 'shockwave' in metadata['content_type'] or 'flash' in metadata['content_type']:
             return jsonify(error=False, url=url)
 
         return jsonify(error=True, message=gettext("URL is not HTML"), url=url)
 
-    return jsonify(error=False, url=url)
+    return jsonify(error=False, url=url, name = metadata['name'], description = metadata['description'])
 
 @embed_blueprint.route('/edit/<identifier>/', methods = ['GET', 'POST'])
 @requires_golab_login

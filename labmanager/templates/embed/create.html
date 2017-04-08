@@ -51,140 +51,151 @@
             {% endif %}
 
             <h1>{{ header_message }}</h1>
+            <br><br>
 
             <form method="POST" name="embed_form" ng-submit="submitForm()" action="{{ request.url }}"
                   class="form-horizontal" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
 
                 <fieldset>
-                    {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Name")) }}
-                    {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Description")) }}
-                    {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided, placeholder="Physics, Electronics") }}
-					<div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
-						{{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
-						<div class="col-sm-7">
-							<input id="age_ranges_range_slider" type="text" value="" 
-								style="width: 400px"
-								data-slider-ticks="[4, 6, 8, 10, 12, 14, 16, 18, 20]" 
-								data-slider-ticks-labels='["<6", "6", "8", "10", "12", "14", "16", "18", ">18"]'
-								data-slider-step="2"
-								data-slider-value="{{ initial_age_ranges }}"/>
-                            {% if not disabled %}
-							<p class="help-block">{{ form.age_ranges_range.description }}</p>
-                            {% endif %}
-							{% for error in form.age_ranges_range.errors %}
-							<span class="help-block input-errors">{{ error }}</span>
-							{% endfor %}
-						</div>
-					</div>
-
-                    {% if disabled %}
-                        {% if langs %}
-                            <div class="form-group">
-                                <div class="control-label col-sm-3">
-                                    <label>{{ gettext("Languages") }}</label>
-                                </div>
-                                <div class="col-sm-7">
-                                    {% for lang in langs %}
-                                        {{ lang }}{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
-                        <div class="text-center" style="margin-top: 50px">
-                            <div class="form-actions">
-                                <button name="action" value="publish" type="submit" class="btn btn-success">{{ gettext("Publish in LMS") }}</button>
-                                {% if bookmarklet_from %}
-                                    <a href="{{ bookmarklet_from }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% else %}
+                    {% if not disabled %}
                     {{ render_field(form.url, ng_submit="submitForm()", placeholder="http://") }}
                     <div class="form-group">
                         <div class="col-sm-7 col-sm-offset-3">
                             <div class="alert alert-danger ng-cloak help-block" ng-if="embed.url_error">
                             {% raw %}<span>{{ embed.url_error }}</span>{% endraw %}
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="ng-cloak" ng-submit="addNewLanguage()"
-                         ng-show="{% if languages %}true{% else %}false{% endif %}">
-                        <h4>Languages</h4>
-
-                        <div class="alert alert-info col-lg-6 col-lg-offset-3">
-                            <p>{{ gettext("If the application is available in multiple languages, you may add the different URLs here") }}</p>
-                        </div>
-                        {% raw %}
-                        <table class="table table-hover table-border">
-                            <thead>
-                            <tr>
-                                <th style="width: 20px"></th>
-                                <th style="width: 150px">Language</th>
-                                <th>URL</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td></td>
-                                <td>English</td>
-                                <td>{{ embed.url }}</td>
-                            </tr>
-                            <tr ng-repeat="lang in embed.languages|orderBy:'name'">
-                                <td>
-                                    <button class="btn" ng-click="deleteLanguage($index)"><i
-                                            class="glyphicon glyphicon-remove-sign"></i></button>
-                                </td>
-                                <td>{{ lang.name }}</td>
-                                <td>{{ lang.url }}
-                                    <input type="hidden" name="language.{{ lang.code }}" value="{{ lang.url }}"></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td>
-                                    <select id="editing_language" ng-model="embed.editing.language_code"
-                                            style="width: 100%">
-                                        <option ng-repeat="lang in embed.available_languages|orderBy:'name'"
-                                                value="{{ lang.code }}">{{ lang.name }}
-                                        </option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input ng-enter="addNewLanguage()" style="width: 80%" type="url"
-                                           ng-model="embed.editing.url"></input>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        {% endraw %}
-                        <div class="text-center" style="width: 100%; margin-bottom: 10px">
-                            <button class="btn btn-default" ng-disabled="!canAddLanguage()" ng-click="addNewLanguage()">
-                                <i class="glyphicon glyphicon-plus-sign"></i> {{ gettext("Add language") }}</button>
-                        </div>
-
-                    </div>
-
-                    <div class="text-center">
-                        <div class="form-actions">
-                            <button name="action" value="save" type="submit" class="btn btn-primary" ng-disabled="isLanguageBeingAdded()">{{ gettext("Save") }}</button>
-                            {% if bookmarklet_from %}
-                            <a href="{{ bookmarklet_from }}" class="btn btn-danger" ng-disabled="isLanguageBeingAdded()">{{ gettext("Cancel") }}</a>
-                            {% else %}
-                            <a href="{{ url_for('.index') }}" class="btn btn-danger" ng-disabled="isLanguageBeingAdded()">{{ gettext("Cancel") }}</a>
-                            {% endif %}
-                            {% if identifier or identifier_links %}
-                            <button name="action" value="publish" type="submit" class="btn btn-success" ng-disabled="isLanguageBeingAdded()">{{ gettext("Publish in LMS") }}</button>
-                            {% endif %}
+                            <div class="alert alert-success ng-cloak help-block text-center" ng-if="embed.sg_link">
+                                <p>The link provided is natively supported by Go-Lab!</p><br>
+                                {% raw %}<a class="btn btn-success" href="{{ embed.sg_link }}">{% endraw %}{{ gettext("Continue") }}</a>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
+                    
+                    <div ng-if="!embed.sg_link">
+                        {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Name")) }}
+                        {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Description")) }}
+                        {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided, placeholder="Physics, Electronics") }}
+                        <div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
+                            {{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
+                            <div class="col-sm-7">
+                                <input id="age_ranges_range_slider" type="text" value="" 
+                                    style="width: 400px"
+                                    data-slider-ticks="[4, 6, 8, 10, 12, 14, 16, 18, 20]" 
+                                    data-slider-ticks-labels='["<6", "6", "8", "10", "12", "14", "16", "18", ">18"]'
+                                    data-slider-step="2"
+                                    data-slider-value="{{ initial_age_ranges }}"/>
+                                {% if not disabled %}
+                                <p class="help-block">{{ form.age_ranges_range.description }}</p>
+                                {% endif %}
+                                {% for error in form.age_ranges_range.errors %}
+                                <span class="help-block input-errors">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {% if disabled %}
+                            {% if langs %}
+                                <div class="form-group">
+                                    <div class="control-label col-sm-3">
+                                        <label>{{ gettext("Languages") }}</label>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        {% for lang in langs %}
+                                            {{ lang }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="text-center" style="margin-top: 50px">
+                                <div class="form-actions">
+                                    <button name="action" value="publish" type="submit" class="btn btn-success disabled">{{ gettext("Publish in Go-Lab") }}</button>
+                                    {% if bookmarklet_from %}
+                                        <a href="{{ bookmarklet_from }}" class="btn btn-danger">{{ gettext("Cancel") }}</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+
+                            <div class="ng-cloak" ng-submit="addNewLanguage()"
+                                 ng-show="{% if languages %}true{% else %}false{% endif %}">
+                                <h4>Languages</h4>
+
+                                <div class="alert alert-info col-lg-6 col-lg-offset-3">
+                                    <p>{{ gettext("If the application is available in multiple languages, you may add the different URLs here") }}</p>
+                                </div>
+                                {% raw %}
+                                <table class="table table-hover table-border">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 20px"></th>
+                                        <th style="width: 150px">Language</th>
+                                        <th>URL</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td>English</td>
+                                        <td>{{ embed.url }}</td>
+                                    </tr>
+                                    <tr ng-repeat="lang in embed.languages|orderBy:'name'">
+                                        <td>
+                                            <button class="btn" ng-click="deleteLanguage($index)"><i
+                                                    class="glyphicon glyphicon-remove-sign"></i></button>
+                                        </td>
+                                        <td>{{ lang.name }}</td>
+                                        <td>{{ lang.url }}
+                                            <input type="hidden" name="language.{{ lang.code }}" value="{{ lang.url }}"></input>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <select id="editing_language" ng-model="embed.editing.language_code"
+                                                    style="width: 100%">
+                                                <option ng-repeat="lang in embed.available_languages|orderBy:'name'"
+                                                        value="{{ lang.code }}">{{ lang.name }}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input ng-enter="addNewLanguage()" style="width: 80%" type="url"
+                                                   ng-model="embed.editing.url"></input>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                {% endraw %}
+                                <div class="text-center" style="width: 100%; margin-bottom: 10px">
+                                    <button class="btn btn-default" ng-disabled="!canAddLanguage()" ng-click="addNewLanguage()">
+                                        <i class="glyphicon glyphicon-plus-sign"></i> {{ gettext("Add language") }}</button>
+                                </div>
+
+                            </div>
+
+                            <div class="text-center">
+                                <div class="form-actions">
+                                    <button name="action" value="save" type="submit" class="btn btn-primary" ng-disabled="isLanguageBeingAdded()">{{ gettext("Save") }}</button>
+                                    {% if bookmarklet_from %}
+                                    <a href="{{ bookmarklet_from }}" class="btn btn-danger" ng-disabled="isLanguageBeingAdded()">{{ gettext("Cancel") }}</a>
+                                    {% else %}
+                                    <a href="{{ url_for('.index') }}" class="btn btn-danger" ng-disabled="isLanguageBeingAdded()">{{ gettext("Cancel") }}</a>
+                                    {% endif %}
+                                    {% if identifier or identifier_links %}
+                                    <button name="action" value="publish" type="submit" class="btn btn-success disabled" ng-disabled="isLanguageBeingAdded()">{{ gettext("Publish in Go-Lab") }}</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
                 </fieldset>
             </form>
 
-            <div ng-cloak ng-show="embed.url.length > 0 && !embed.url_error" id="slider_container" style="width: 100%">
+            <div ng-cloak ng-show="embed.url.length > 0 && embed.url != 'http://' && !embed.url_error && !embed.sg_link" id="slider_container" style="width: 100%">
                 <h2>{{ gettext("Preview") }}</h2>
 
                 <p ng-if="isSwf(embed.url)">{{ gettext("Adjust size") }}</p>
@@ -245,7 +256,12 @@
 
             $scope.embed = {
                 url: "",
+                name: {{ form.name.data|tojson }},
+                description: {{ form.description.data|tojson }},
+                name_from_url: "",
+                description_from_url: "",
                 url_error: "",
+                sg_link: "",
                 height: {{ initial_height }},
                 scale: {{ initial_scale }},
                 {% if languages %}
@@ -266,6 +282,22 @@
                             $scope.embed.url_error = response.data.message;
                         } else {
                             $scope.embed.url_error = "";
+                        }
+
+                        if (response.data.sg_link) {
+                            $scope.embed.sg_link = response.data.sg_link;
+                        } else {
+                            $scope.embed.sg_link = "";
+                        }
+
+                        if (response.data.name && ($scope.embed.name_from_url == $scope.embed.name || !$scope.embed.name)) {
+                            $scope.embed.name = response.data.name;
+                            $scope.embed.name_from_url = response.data.name;
+                        }
+
+                        if (response.data.description && ($scope.embed.description_from_url == $scope.embed.description || !$scope.embed.description)) {
+                            $scope.embed.description = response.data.description;
+                            $scope.embed.description_from_url = response.data.description;
                         }
                     }
                 }, function() {});
@@ -403,12 +435,6 @@
         $(":input.link_input").click(function () {
             this.select();
         });
-
-        {% if create %}
-		$("#url").click(function () {
-            this.select();
-        });
-        {% endif %}
 
         $(document).ready(function () {
             $("#editing_language").select2();

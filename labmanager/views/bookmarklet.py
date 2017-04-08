@@ -5,7 +5,7 @@ from flask import Blueprint, request, url_for, redirect, render_template, sessio
 from labmanager.db import db
 from labmanager.models import RLMS, Laboratory, EmbedApplication
 from labmanager.babel import gettext
-from labmanager.rlms import Capabilities
+from labmanager.rlms import find_smartgateway_link, Capabilities
 from labmanager.views.embed import ApplicationForm, SimplifiedApplicationForm, list_of_languages
 from labmanager.views.repository import extract_labs, create_lab_id
 from labmanager.views.authn import requires_golab_login, current_golab_user
@@ -25,29 +25,9 @@ def index():
 def create():
     url = request.args.get('url') or ''
     
-    rlms_by_id = {}
-    for db_rlms in db.session.query(RLMS).filter_by(publicly_available=True).all():
-        rlms = db_rlms.get_rlms()
-        rlms_by_id[db_rlms.id] = rlms
-        if Capabilities.URL_FINDER in rlms.get_capabilities():
-            base_urls = rlms.get_base_urls() or []
-            for base_url in base_urls:
-                if url.startswith(base_url):
-                    lab = rlms.get_lab_by_url(url)
-                    if lab is not None:
-                        return redirect(url_for('.public_rlms', rlms_id=db_rlms.public_identifier, lab_name=lab.laboratory_id, url=url))
-
-    for db_rlms in db.session.query(RLMS).filter_by(publicly_available=False).all():
-        rlms = db_rlms.get_rlms()
-        rlms_by_id[db_rlms.id] = rlms
-        if Capabilities.URL_FINDER in rlms.get_capabilities():
-            base_urls = rlms.get_base_urls() or []
-            for base_url in base_urls:
-                if url.startswith(base_url):
-                    lab = rlms.get_lab_by_url(url)
-                    db_lab = db.session.query(Laboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
-                    if db_lab is not None:
-                        return redirect(url_for('.public_lab', public_identifier=db_lab.public_identifier, url=url))
+    sg_link = find_smartgateway_link(url, url)
+    if sg_link:
+        return redirect(sg_link)
 
     existing_embed_app = db.session.query(EmbedApplication).filter_by(owner=current_golab_user(), url=url).first()
     if existing_embed_app is None:
