@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Module>
  <ModulePrefs title="{{ app.name }}" height="{{ app.height + 20 }}" author="{{ author }}">
     <Require feature="osapi" />
