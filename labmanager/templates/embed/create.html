@@ -74,7 +74,7 @@
                     </div>
                     {% endif %}
                     
-                    <div ng-if="!embed.sg_link">
+                    <div ng-show="!embed.sg_link">
                         {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Name")) }}
                         {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Description")) }}
                         {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided, placeholder="Physics, Electronics") }}
