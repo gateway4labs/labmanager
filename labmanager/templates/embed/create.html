@@ -53,9 +53,9 @@
                 {{ form.hidden_tag() }}
 
                 <fieldset>
-                    {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled) }}
-                    {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled) }}
-                    {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided) }}
+                    {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Name")) }}
+                    {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Description")) }}
+                    {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided, placeholder="Physics, Electronics") }}
 					<div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
 						{{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
 						<div class="col-sm-7">
@@ -96,7 +96,7 @@
                             </div>
                         </div>
                     {% else %}
-                    {{ render_field(form.url, ng_submit="submitForm()") }}
+                    {{ render_field(form.url, ng_submit="submitForm()", placeholder="http://") }}
                     <div class="form-group">
                         <div class="col-sm-7 col-sm-offset-3">
                             <div class="alert alert-danger ng-cloak help-block" ng-if="embed.url_error">
@@ -254,7 +254,7 @@
                 }
             };
 
-            $scope.embed.url = "";
+            $scope.embed.url = "http://";
             $scope.$watch('embed.url', function (newValue, oldValue) {
                 $http.get("{{ url_for('embed.check_json') }}?url=" + newValue).then(function(response) {
                     if (response.data.url == $scope.embed.url) {
