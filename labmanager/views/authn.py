@@ -160,8 +160,8 @@ def requires_golab_login(f):
     return wrapper
 
 
-PUBLIC_SMARTGATEWAY_ID = 'WfTlrXTbu4AeGexikhau5HDXkpGE8RYh' # AppComposer one; while EPFL supports the other
-# PUBLIC_SMARTGATEWAY_ID = 'DkX625VO9zbSpqzyLjX8Bo2RZTIn1GY0'
+# PUBLIC_SMARTGATEWAY_ID = 'WfTlrXTbu4AeGexikhau5HDXkpGE8RYh' # AppComposer one; while EPFL supports the other
+PUBLIC_SMARTGATEWAY_ID = 'DkX625VO9zbSpqzyLjX8Bo2RZTIn1GY0'
 
 @app.route('/graasp/oauth/')
 def login_golab_oauth():
