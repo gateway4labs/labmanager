@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
+ {% set IS_FLASH = app.url.endswith('.swf') %} 
  <ModulePrefs title="{{ app.name }}" height="{{ app.height + 20 }}" author="{{ author }}">
     <Require feature="osapi" />
+    {% if IS_FLASH %}
+    <Require feature="flash" />
+    {% endif %}
     {% if languages|length > 1 %}
         <Locale messages="{{ url_for('static', filename="empty.xml", _external=True) }}"/>
         {% for language in languages %}
@@ -13,6 +17,7 @@
  <![CDATA[
     <head>
     <style>
+        {% if not IS_FLASH %}
         #app_url {
         {# 9890 = 98.9% #}
         {% set max_width = 9890 %}
@@ -33,11 +38,16 @@
             width: {{ max_width / 100 }}%;
         {% endif %}
         }
+        {% endif %}
     </style>
     </head>
 
     <div style="width: 100%; overflow: hidden">
-        <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
+         {% if IS_FLASH %}
+         <div id="app_url" style="text-align: center"></div>
+         {% else %}
+         <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
+         {% endif %}
     </div>
 
     {% if request.args.get('reporting') != 'false' %}
@@ -67,7 +77,15 @@
             var url = urls_per_language[prefs.getLang()];
             if (!url) 
                 url = default_url;
+
+            {% if IS_FLASH %}
+            gadgets.flash.embedFlash(url, "app_url", {
+                swf_version: 9,
+                height: "{{ app.height }}"
+            });
+            {% else %}
             document.getElementById("app_url").src = url;
+			{% endif %}
 
             {% if request.args.get('reporting') != 'false' %}
             var uniqueSession = generateUUID();
