@@ -40,13 +40,15 @@
         <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
     </div>
 
-
+    {% if request.args.get('reporting') != 'false' %}
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/main/ils_graaspeu.js"></script>
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/metadata/MetadataHandler.js"></script>
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/applog/ActionLogger.js"></script>
     <script src="{{ url_for('static', filename="storage.js", _external=True) }}"></script>
+    {% endif %}
 
     <script type="text/javascript">
+        {% if request.args.get('reporting') != 'false' %}
 		function generateUUID(){
 			var d = new Date().getTime();
 			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -56,6 +58,7 @@
 			});
 			return uuid;
 		}
+        {% endif %}
 
         function init() {
             var prefs = new gadgets.Prefs();
@@ -66,6 +69,7 @@
                 url = default_url;
             document.getElementById("app_url").src = url;
 
+            {% if request.args.get('reporting') != 'false' %}
             var uniqueSession = generateUUID();
             {% if request.args.get('debug') %}
             if (console && console.log) {
@@ -73,6 +77,7 @@
             }
             {% endif %}
             reportStarted({{ app.name|tojson }}, "{{ url_for('.app_xml', identifier=identifier, _external=True) }}", uniqueSession);
+            {% endif %}
         }
 
         gadgets.util.registerOnLoadHandler(init);
