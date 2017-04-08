@@ -84,6 +84,20 @@ def app(identifier):
 
     return render_template("embed/app.html", user = current_golab_user(), app = application, title = gettext("Application {name}").format(name=application.name))
 
+@embed_blueprint.route('/apps/<identifier>/app.html')
+def app_html(identifier):
+    application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
+    if application is None:
+        return jsonify(error=True, message="App not found")
+
+    apps_per_language = {
+        'en': application.url,
+    }
+    for translation in application.translations:
+        apps_per_language[translation.language] = translation.url
+
+    return render_template("embed/app-embedded.html", apps=apps_per_language)
+
 @embed_blueprint.route('/apps/<identifier>/app.xml')
 def app_xml(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
