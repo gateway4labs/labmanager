@@ -214,7 +214,7 @@ def create():
                 kwargs['url'] = bookmarklet_from
             return redirect(url_for('.edit', identifier=application.identifier, **kwargs))
             
-    return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_golab_user(), bookmarklet_from=bookmarklet_from)
+    return render_template("embed/create.html", form=form, header_message=gettext("Add a web"), user = current_golab_user(), bookmarklet_from=bookmarklet_from, create=True, edit=False)
 
 @embed_blueprint.route('/check.json')
 def check_json():
@@ -323,6 +323,6 @@ def edit(identifier):
     # Obtain the languages formatted as required but excluding those already added
     languages = obtain_formatted_languages(existing_languages)
     bookmarklet_from = request.args.get('url')
-    return render_template("embed/create.html", user = current_golab_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from)
+    return render_template("embed/create.html", user = current_golab_user(), form=form, identifier=identifier, header_message=gettext("Edit web"), languages=languages, existing_languages=list(existing_languages.values()), all_languages=all_languages, bookmarklet_from=bookmarklet_from, edit=True, create=False)
 
 from labmanager.views.repository import app_to_json

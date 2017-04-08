@@ -7,7 +7,11 @@
 {% endif %}
 
 {% if form.scale.data %}
+    {% if edit %}
     {% set initial_scale = ((form.scale.data or '10000')|int)/100 %}
+    {% else %}
+    {% set initial_scale = ((form.scale.data or '10000')|int) %}
+    {% endif %}
 {% else %}
     {% set initial_scale = 100 %}
 {% endif %}
