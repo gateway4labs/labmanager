@@ -29,6 +29,7 @@ from .views.basic_http import basic_http_blueprint
 from .views.opensocial import opensocial_blueprint
 from .views.repository import repository_blueprint
 from .views.bookmarklet import bookmarklet_blueprint
+from .views.embed import embed_blueprint
 
 def load_rlms_modules():
     """
@@ -64,6 +65,7 @@ def register_blueprints():
     app.register_blueprint(repository_blueprint, url_prefix='/repo')
     app.register_blueprint(repository_blueprint, url_prefix='/repository')
     app.register_blueprint(bookmarklet_blueprint, url_prefix='/bookmarklet')
+    app.register_blueprint(embed_blueprint, url_prefix='/embed')
 
     from labmanager.rlms.base import _BLUEPRINTS
     for url, blueprint in _BLUEPRINTS.items():

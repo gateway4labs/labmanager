@@ -6,7 +6,7 @@ from labmanager.db import db
 from labmanager.models import RLMS, Laboratory, EmbedApplication
 from labmanager.babel import gettext
 from labmanager.rlms import Capabilities
-from labmanager.embed import ApplicationForm, SimplifiedApplicationForm, list_of_languages
+from labmanager.views.embed import ApplicationForm, SimplifiedApplicationForm, list_of_languages
 from labmanager.views.repository import extract_labs, create_lab_id
 from labmanager.views.authn import requires_golab_login, current_golab_user
 
