@@ -276,14 +276,14 @@
 
             $scope.embed.url = "http://";
             $scope.$watch('embed.url', function (newValue, oldValue) {
-                $http.get("{{ url_for('embed.check_json') }}?url=" + newValue).then(function(response) {
+                $http.get("{{ url_for('embed.check_json') }}?url=" + encodeURIComponent(newValue)).then(function(response) {
                     if (response.data.url == $scope.embed.url) {
                         if (response.data.error) {
                             $scope.embed.url_error = response.data.message;
                         } else {
                             $scope.embed.url_error = "";
                         }
-
+                        
                         if (response.data.sg_link) {
                             $scope.embed.sg_link = response.data.sg_link;
                         } else {
