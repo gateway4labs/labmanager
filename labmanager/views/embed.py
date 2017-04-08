@@ -130,10 +130,11 @@ def index():
 class SimplifiedApplicationForm(Form):
     name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
     age_ranges_range = HiddenField(lazy_gettext("Age ranges:"), validators=[required()], description=lazy_gettext("Select the age ranges this tool is useful for"))
-    description = TextField(lazy_gettext("Description:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
-    domains_text = TextField(lazy_gettext("Domains:"), validators=[required()], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Say in which domains apply to the resource (separated by commas): e.g., physics, electronics..."))
 
     # The following are NOT REQUIRED
+    description = TextField(lazy_gettext("Description:"), validators=[], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
+    domains_text = TextField(lazy_gettext("Domains:"), validators=[], widget = AngularJSTextInput(ng_enter="submitForm()"), description=lazy_gettext("Say in which domains apply to the resource (separated by commas): e.g., physics, electronics..."))
+
     url = URLField(lazy_gettext("Web:"), widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"), description=lazy_gettext("Web address of the resource"))
     height = HiddenField(lazy_gettext("Height:"), widget = AngularJSHiddenInput(ng_model='embed.height'))
     scale = HiddenField(lazy_gettext("Scale:"), widget = AngularJSHiddenInput(ng_model='embed.scale'))

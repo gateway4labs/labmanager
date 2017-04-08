@@ -404,6 +404,12 @@
             this.select();
         });
 
+        {% if create %}
+		$("#url").click(function () {
+            this.select();
+        });
+        {% endif %}
+
         $(document).ready(function () {
             $("#editing_language").select2();
         });
