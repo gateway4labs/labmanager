@@ -3,6 +3,12 @@
 {% block body %}
     {{ super() }}
 
+    {% if current_user.is_admin %}
+        <div class="alert alert-success">
+            <p>Given that you're an admin, you can go to the <a href="{{ url_for('admin.index') }}">Admin panel</a></p>
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
             <h1>{{ gettext("Manage webs") }}</h1>

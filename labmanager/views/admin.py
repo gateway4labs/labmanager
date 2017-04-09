@@ -40,7 +40,7 @@ class L4lModelView(ModelView):
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
-        return session['usertype'] == 'labmanager'
+        return session['usertype'] == 'labmanager' or ( session['usertype'] == 'golab' and current_user.is_admin )
     
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
@@ -51,7 +51,7 @@ class L4lBaseView(BaseView):
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
-        return session['usertype'] == 'labmanager'
+        return session['usertype'] == 'labmanager' or ( session['usertype'] == 'golab' and current_user.is_admin )
     
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
@@ -62,7 +62,7 @@ class L4lAdminIndexView(AdminIndexView):
     def is_accessible(self):
         if not current_user.is_authenticated():
             return False
-        return session['usertype'] == 'labmanager'
+        return session['usertype'] == 'labmanager' or ( session['usertype'] == 'golab' and current_user.is_admin )
     
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():

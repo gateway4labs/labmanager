@@ -22,13 +22,19 @@
         </div>
         {% if golab %}
         <div class="row">
-            <div class="span6">
+            <div class="span4">
+                <h2>{{gettext('Go-Lab Resource Embedder')}}</h2>
+                <p>{{gettext('Embed Labs and Apps for Go-Lab')}}</p>
+                <p><a href="{{ url_for('embed.index') }}">{{gettext('Go-Lab Embedder')}}</a></p>
+            </div>
+
+            <div class="span4">
                 <h2>{{gettext('Go-Lab public labs')}}</h2>
                 <p>{{gettext('Here you can find the list of public labs available for Go-Lab without registration.')}}</p>
                 <p><a href="{{ url_for('public_admin.index') }}">{{gettext('See public labs')}}</a></p>
             </div>
 
-            <div class="span6">
+            <div class="span4">
                 <h2>{{gettext('Go-Lab bookmarklet')}}</h2>
                 <p>{{gettext('Add the bookmarklet to be able to add resources from the web to Go-Lab')}}</p>
                 <p><a href="{{ url_for('bookmarklet.index') }}">{{gettext('Go-Lab bookmarklet')}}</a></p>
