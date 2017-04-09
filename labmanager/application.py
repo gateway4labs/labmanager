@@ -13,6 +13,7 @@
 """
 
 import os
+from cgi import escape
 
 from labmanager.utils import FullyQuotedUrlConverter, EverythingConverter
 from flask import Flask, render_template, redirect, url_for
@@ -106,6 +107,17 @@ def precondition_failed(e):
 @app.route('/favicon.ico')
 def favicon():
     return redirect(url_for('static', filename='favicon.ico'))
+
+@app.route("/site-map")
+def site_map():
+    lines = []
+    for rule in app.url_map.iter_rules():
+        line = str(escape(repr(rule)))
+        lines.append(line)
+
+    ret = "<br>".join(lines)
+    return ret
+
 
 @app.route("/")
 def index():

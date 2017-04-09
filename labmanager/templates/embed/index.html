@@ -5,7 +5,7 @@
 
     {% if current_user.is_admin %}
         <div class="alert alert-success">
-            <p>Given that you're an admin, you can go to the <a href="{{ url_for('admin.index') }}">Admin panel</a></p>
+            <p>Given that you're an admin, you can go to the <a href="{{ url_for('golab/embed.index_view') }}">Admin panel</a></p>
         </div>
     {% endif %}
 
