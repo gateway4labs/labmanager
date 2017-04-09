@@ -96,10 +96,16 @@ class GoLabOAuthUser(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key = True)
     display_name = db.Column(db.Unicode(255), index = True, nullable = False)
     email = db.Column(db.Unicode(255), index = True, nullable = False, unique = True)
+    admin = db.Column(db.Boolean, index = True, nullable = True)
 
-    def __init__(self, email, display_name):
+    def __init__(self, email, display_name, admin = False):
         self.email = email
         self.display_name = display_name
+        self.admin = admin
+
+    @property
+    def is_admin(self):
+        return self.admin == True
 
     def get_id(self):
         return u"golab::%s" % self.email
@@ -569,8 +575,8 @@ class EmbedApplication(db.Model):
         self.height = height
         self.scale = scale
         self.description = description
-        self.age_ranges_range = age_ranges_range
-        self.domains = domains
+        self.age_ranges_range = age_ranges_range or "[4, 20]"
+        self.domains = domains or ''
 
     @property
     def domains(self):

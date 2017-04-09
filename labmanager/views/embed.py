@@ -1,4 +1,5 @@
 import traceback
+import datetime
 import requests
 from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify
@@ -6,7 +7,7 @@ from labmanager.views.authn import requires_golab_login, current_golab_user
 
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
-from labmanager.models import EmbedApplication, EmbedApplicationTranslation
+from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser
 from labmanager.rlms import find_smartgateway_link
 from labmanager.translator.languages import obtain_languages
 
@@ -198,6 +199,105 @@ def get_url_metadata(url, timeout = 3):
 
     return { 'name' : name, 'description': description, 'code': code, 'x_frame_options' : x_frame_options, 'error_retrieving' : error_retrieving, 'content_type' : content_type }
 
+@embed_blueprint.route('/sync', methods = ['GET'])
+def sync():
+    composer_contents = requests.get('http://composer.golabz.eu/export-embed.json').json()
+    current_users = { user.email: user for user in db.session.query(GoLabOAuthUser).all() }
+    users_modified = 0
+    users_added = 0
+    for user in composer_contents['users']:
+        if user['email'] in current_users:
+            if current_users[user['email']].display_name != user['display_name']:
+                current_users[user['email']].display_name = user['display_name']
+                users_modified += 1
+        else:
+            db.session.add(GoLabOAuthUser(email=user['email'], display_name=user['display_name']))
+            users_added += 1
+
+    db.session.commit()
+    # Users sync'ed
+
+    current_apps_by_public_id = { app.identifier: app for app in db.session.query(EmbedApplication).all() }
+    public_identifiers_by_db_id = { app.id : app.identifier for app in current_apps_by_public_id.values() }
+
+    current_translation_urls = {
+        # public_identifier: {
+        #     'es': obj
+        # }
+    }
+
+    for translation_db in db.session.query(EmbedApplicationTranslation).all():
+        public_identifier = public_identifiers_by_db_id[translation_db.embed_application_id]
+        if public_identifier not in current_translation_urls:
+            current_translation_urls[public_identifier] = {}
+
+        current_translation_urls[public_identifier][translation_db.language] = translation_db
+
+    current_users = { user.email: user for user in db.session.query(GoLabOAuthUser).all() }
+
+    # Now we have everything in memory. Let's process it
+    apps_added = 0
+    apps_modified = 0
+    FORMAT = '%Y-%m-%dT%H:%M:%S'
+    for app in composer_contents['apps']:
+        creation = datetime.datetime.strptime(app['creation'], FORMAT)
+        last_update = datetime.datetime.strptime(app['last_update'], FORMAT)
+        owner = current_users[app['owner_mail']]
+
+        if app['identifier'] in current_apps_by_public_id:
+            modified = False
+            current_app = current_apps_by_public_id[app['identifier']]
+
+            if current_app.url != app['url']:
+                modified = True
+                current_app.url = app['url']
+
+            if current_app.name != app['name']:
+                modified = True
+                current_app.name = app['name']
+
+            if current_app.height != app['height']:
+                modified = True
+                current_app.height = app['height']
+            
+            if current_app.scale != app['scale']:
+                modified = True
+                current_app.scale = app['scale']
+
+            if current_app.last_update != last_update:
+                modified = True
+                current_app.last_update = last_update
+
+            if current_app.creation != creation:
+                modified = True
+                current_app.creation = creation
+
+
+            current_translations = current_translation_urls.get(app['identifier'], {})
+            for translation in app['translations']:
+                if translation['language'] not in current_translations:
+                    new_translation = EmbedApplicationTranslation(embed_application = current_app, url = translation['url'], language = translation['language'])
+                    db.session.add(new_translation)
+                    modified = True
+                else:
+                    if current_translations[translation['language']].url != translation['url']:
+                        modified = True
+                        current_translations[translation['language']].url = translation['url']
+
+            if modified:
+                apps_modified += 1
+            
+        else:
+            new_app = EmbedApplication(url = app['url'], name = app['name'], owner = owner, height = app['height'], identifier = app['identifier'], creation = creation, last_update = last_update, scale = app['scale'])
+            db.session.add(new_app)
+            apps_added += 1
+            for translation in app['translations']:
+                new_translation = EmbedApplicationTranslation(embed_application = new_app, url = translation['url'], language = translation['language'])
+                db.session.add(new_translation)
+
+    db.session.commit()
+    
+    return "<html><body><p>Sync completed. Users modified: %s; Users added: %s; Apps modified: %s; Apps added: %s</p></body></html>" % (users_modified, users_added, apps_modified, apps_added)
 
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_golab_login
