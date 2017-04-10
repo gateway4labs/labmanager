@@ -56,6 +56,30 @@
                       <legend class="">{{gettext('LabManager Login')}}</legend>
                 </div>
 
+                {% if config.get('GOLAB') %}
+                    {% if request.args.get('next') %}
+                    {% set link = url_for('.login_golab_oauth', next=request.args.get('next')) %}
+                    {% else %}
+                    {% set link = url_for('.login_golab_oauth', next=url_for('admin.index')) %}
+                    {% endif %}
+                    <br><br>
+                    <div style="text-align: center">
+                    <a href="{{ link }}"><img src="{{ url_for('static', filename='golab.png') }}"></a>
+                    <br>
+                    <br>
+                    <br>
+                    <a href="{{ link }}" class="btn btn-success">Log in with Go-Lab/Graasp</a>
+                    <br>
+                    </div>
+
+                    <br><br>
+                    <hr>
+                    <br><br>
+                    <h3>Or if you have local credentials at the Smart Gateway:</h3>
+                    <br>
+                {% endif %}
+
+
                 <div class="control-group">        
                     <label class="control-label" for="username"> {{gettext('Username')}} </label>
                     <div class="controls">
@@ -85,6 +109,7 @@
                         <button type="submit" class="btn btn-success">{{gettext('Log in')}}</button>
                     </div>
                 </div>
+
                 <a href="{{ url_for('index') }}" class="btn">{{gettext('Back')}}</a>
           </form>
           </div>
