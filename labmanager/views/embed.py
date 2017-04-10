@@ -8,7 +8,7 @@ from labmanager.views.authn import requires_golab_login, current_golab_user
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser
-from labmanager.rlms import find_smartgateway_link
+from labmanager.rlms import find_smartgateway_link, find_smartgateway_opensocial_link
 from labmanager.translator.languages import obtain_languages
 
 from flask.ext.wtf import Form
@@ -298,15 +298,21 @@ def sync():
     
     return "<html><body><p>Sync completed. Users modified: %s; Users added: %s; Apps modified: %s; Apps added: %s</p></body></html>" % (users_modified, users_added, apps_modified, apps_added)
 
+def find_replacement(app):
+    sg_replacement = find_smartgateway_opensocial_link(app.url)
+    if sg_replacement:
+        return sg_replacement
+    return 'http://gateway.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+
 @embed_blueprint.route('/migrations/appcomp2gw/graasp.json', methods = ['GET'])
 def appcomp2gw_graasp_migration():
     replacements = {}
 
     for app in db.session.query(EmbedApplication).all():
-        # if ...
-        replacements['http://composer.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)] = 'http://gateway.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+        original_url = 'http://composer.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+        replacements[original_url] = find_replacement(app)
 
-    return jsonify(replacements=replacements)
+    return jsonify(replacements=replacements, total=len(replacements))
 
 @embed_blueprint.route('/migrations/appcomp2gw/golabz.json', methods = ['GET'])
 def appcomp2gw_golabz_migration():
@@ -326,10 +332,60 @@ def appcomp2gw_golabz_migration():
         original_url = 'http://composer.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
         
         if original_url in lab_urls:
-            # if ...
-            replacements[original_url] = 'http://gateway.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+            replacements[original_url] = find_replacement(app)
 
-    return jsonify(replacements=replacements)
+    return jsonify(replacements=replacements, total=len(replacements))
+
+def obtain_golabz_manual_data():
+    try:
+        labs = requests.get("http://www.golabz.eu/rest/labs/retrieve.json").json()
+    except:
+        return "Couldn't connect to golabz"
+
+    lab_urls = set()
+    labs_by_lab_url = {}
+    for lab in labs:
+        for lab_app in lab['lab_apps']:
+            lab_urls.add(lab_app['app_url'])
+            labs_by_lab_url[lab_app['app_url']] = lab
+
+    replacements = []
+
+    for app in db.session.query(EmbedApplication).all():
+        original_url = 'http://composer.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+        original2_url = 'http://gateway.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+        
+        if original_url in lab_urls or original2_url in lab_urls:
+            sg_replacement = find_smartgateway_opensocial_link(app.url)
+            if sg_replacement:
+                if original_url in lab_urls:
+                    current_url = original_url
+                else:
+                    current_url = original2_url
+
+                replacements.append({
+                    'old_url': current_url,
+                    'new_url': sg_replacement,
+                    'golabz_page': labs_by_lab_url[current_url]['lab_golabz_page'],
+                    'golabz_author': labs_by_lab_url[current_url]['author'],
+                    'title': labs_by_lab_url[current_url]['title'],
+                    'gateway_author_name': app.owner.display_name,
+                    'gateway_author_email': app.owner.email,
+                })
+    return replacements
+
+@embed_blueprint.route('/migrations/appcomp2gw/golabz-manual.json', methods = ['GET'])
+def appcomp2gw_golabz_manual_migration_json():
+    replacements = obtain_golabz_manual_data()
+    return jsonify(replacements=replacements, total=len(replacements))
+
+@embed_blueprint.route('/migrations/appcomp2gw/golabz-manual.html', methods = ['GET'])
+def appcomp2gw_golabz_manual_migration_html():
+    replacements = obtain_golabz_manual_data()
+    return render_template('embed/migration_appcomp2gw_golabz_manual.html', replacements=replacements)
+
+
+
 
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_golab_login

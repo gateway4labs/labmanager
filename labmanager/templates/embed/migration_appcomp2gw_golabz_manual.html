@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Go-Lab migration</title>
+
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+	<div class="container">
+	    <h1>golabz manual migration</h1>
+		<h2>Step 1: change the MySQL code</h2>
+		
+		<p>If the table where the lab_url are stored is called LabUrls and if the url field is called "url", run the following command:</p>
+		<pre>UPDATE LabUrls SET url = REPLACE(composer.golabz.eu, gateway.golabz.eu)</pre>
+
+		<h2>Step 2: change the following ({{ replacements|length}}) URLs</h2>
+		{% for replacement in replacements %}
+			<div class="row">
+                <div class="container">
+                    <h3>{{ loop.index }} of {{ replacements|length }}: {{ replacement['title'] }}</h3>
+                    <p>Go to <a href="{{ replacement['golabz_page'] }}">{{ replacement['title'] }}</a> and change:</p>
+                    <ul>
+                        <li>This: <a href="{{ replacement['old_url'] }}">{{ replacement['old_url'] }}</a></li>
+                        <li>By this: <a href="{{ replacement['new_url'] }}">{{ replacement['new_url'] }}</a></li>
+                    </ul>
+                    <p>This page was added to the App Composer by <a href="mailto:{{ replacement['gateway_author_email'] }}">{{ replacement['gateway_author_name'] }}</a> and to golabz by {{ replacement['golabz_author'] }}.</p>	
+                </div>
+			</div>
+		{% endfor %} 
+	</div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+</html>
+
