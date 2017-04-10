@@ -27,7 +27,7 @@
 		<h2>Step 1: change the MySQL code</h2>
 		
 		<p>If the table where the lab_url are stored is called LabUrls and if the url field is called "url", run the following command:</p>
-		<pre>UPDATE LabUrls SET url = REPLACE(composer.golabz.eu, gateway.golabz.eu)</pre>
+		<pre>UPDATE LabUrls SET url = REPLACE(url, "composer.golabz.eu", "gateway.golabz.eu")</pre>
 
 		<h2>Step 2: change the following ({{ replacements|length}}) URLs</h2>
 		{% for replacement in replacements %}
