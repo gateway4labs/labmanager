@@ -79,16 +79,31 @@ class AdminPanel(L4lAdminIndexView):
     def index(self):
         return self.render("labmanager_admin/index.html")
 
+MAX_URL_LENGTH = 50
+
 class EmbedApplicationsPanel(L4lModelView):
-    column_list = ('owner', 'name', 'identifier', 'url')
+    column_list = ('author', 'name', 'identifier', 'languages', 'url')
+    column_labels = { 'owner': 'Author', 'author': 'Author', 'owner.email': "Author's mail", 'owner.display_name': "Authors' name", 'identifier': "Link XML" }
     column_searchable_list = ('name', 'url')
+    column_formatters = dict(
+        author=lambda v, c, m, p: Markup(u"<a href='{}'>{}</a>".format(url_for('golab/users.index_view', flt1_4=m.owner.email), u'{} ({})'.format(m.owner.display_name, m.owner.email))),
+        languages=lambda v, c, m, p: u', '.join(['en'] + [t.language for t in m.translations]),
+        identifier=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(url_for('embed.app_xml', identifier=m.identifier), m.identifier)),
+        url=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(m.url, m.url[:MAX_URL_LENGTH] + ('' if len(m.url) < MAX_URL_LENGTH else '...'))),
+    )
+    column_filters = ('name', 'identifier', 'url', 'owner.display_name', 'owner.email')
     inline_models = [EmbedApplicationTranslation]
 
     def __init__(self, session, **kwargs):
         super(EmbedApplicationsPanel, self).__init__(EmbedApplication, session, **kwargs)
 
 class GoLabUsersPanel(L4lModelView):
+    column_list = ('display_name', 'email', 'admin', 'apps')
     column_searchable_list = ('email', 'display_name')
+    column_filters = ('display_name', 'email')
+    column_formatters = dict(
+        apps=lambda v, c, m, p: Markup(u'<a href="{}">{}</a>'.format(url_for('golab/embed.index_view', flt1_16=m.email), len(m.embed_apps))),
+    )
 
     def __init__(self, session, **kwargs):
         super(GoLabUsersPanel, self).__init__(GoLabOAuthUser, session, **kwargs)
