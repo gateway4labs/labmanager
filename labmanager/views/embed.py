@@ -113,7 +113,6 @@ def app_xml(identifier):
         languages.append(translation.language)
 
     author = application.owner.display_name
-    print author
 
     response = make_response(render_template("embed/app.xml", author = author, user = current_golab_user(), identifier=identifier, app = application, languages=languages, apps_per_language = apps_per_language, title = gettext("Application {name}").format(name=application.name)))
     response.content_type = 'application/xml'
