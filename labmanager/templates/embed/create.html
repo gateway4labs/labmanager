@@ -16,12 +16,6 @@
     {% set initial_scale = 100 %}
 {% endif %}
 
-{% if form.age_ranges_range.data %}
-    {% set initial_age_ranges = form.age_ranges_range.data %}
-{% else %}
-    {% set initial_age_ranges = "[4, 20]" %}
-{% endif %}
-
 {% block head %}
     {{ super() }}
     <link href="{{ url_for('static', filename='bootstrap-slider.min.css') }}" rel="stylesheet">
@@ -76,25 +70,6 @@
                     
                     <div ng-show="!embed.sg_link">
                         {{ render_field(form.name, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Name")) }}
-                        {{ render_field(form.description, ng_submit="submitForm()", disabled=disabled, placeholder=gettext("Description")) }}
-                        {{ render_field(form.domains_text, ng_submit="submitForm()", disabled=disabled and domains_provided, placeholder="Physics, Electronics") }}
-                        <div class="form-group {% if form.age_ranges_range.errors %}has-error{% endif %}">
-                            {{ form.age_ranges_range.label(form.age_ranges_range.label.text, class="control-label col-sm-3") }}
-                            <div class="col-sm-7">
-                                <input id="age_ranges_range_slider" type="text" value="" 
-                                    style="width: 400px"
-                                    data-slider-ticks="[4, 6, 8, 10, 12, 14, 16, 18, 20]" 
-                                    data-slider-ticks-labels='["<6", "6", "8", "10", "12", "14", "16", "18", ">18"]'
-                                    data-slider-step="2"
-                                    data-slider-value="{{ initial_age_ranges }}"/>
-                                {% if not disabled %}
-                                <p class="help-block">{{ form.age_ranges_range.description }}</p>
-                                {% endif %}
-                                {% for error in form.age_ranges_range.errors %}
-                                <span class="help-block input-errors">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
 
                         {% if disabled %}
                             {% if langs %}
@@ -257,9 +232,7 @@
             $scope.embed = {
                 url: "",
                 name: {{ form.name.data|tojson }},
-                description: {{ form.description.data|tojson }},
                 name_from_url: "",
-                description_from_url: "",
                 url_error: "",
                 sg_link: "",
                 height: {{ initial_height }},
@@ -293,11 +266,6 @@
                         if (response.data.name && ($scope.embed.name_from_url == $scope.embed.name || !$scope.embed.name)) {
                             $scope.embed.name = response.data.name;
                             $scope.embed.name_from_url = response.data.name;
-                        }
-
-                        if (response.data.description && ($scope.embed.description_from_url == $scope.embed.description || !$scope.embed.description)) {
-                            $scope.embed.description = response.data.description;
-                            $scope.embed.description_from_url = response.data.description;
                         }
                     }
                 }, function() {});
@@ -385,30 +353,6 @@
         $("input[name='scale']").val({{ initial_scale }});
         updateScale({{ initial_scale }});
 		
-        $("input[name='age_ranges_range']").val("{{ initial_age_ranges }}");
-		var age_slider = $("#age_ranges_range_slider").slider({
-            formatter: function (value) {
-                var minimum = value[0];
-                if (minimum == 4)
-                    minimum = "<6";
-                if (minimum == 20)
-                    minimum = ">18";
-                var maximum = value[1];
-                if (maximum == 4)
-                    maximum = "<6";
-                if (maximum == 20)
-                    maximum = ">18";
-                return "{{ gettext("Ages: ") }}" + minimum + " .. " + maximum;
-            }
-        }).on("slide", function (evt) {
-			var newValue = "[" + evt.value[0] + "," + evt.value[1] + "]";
-            $("input[name='age_ranges_range']").val(newValue);
-        });
-        {% if disabled and age_ranges_provided %}
-        age_slider.slider('disable');
-        {% endif %}
-
-
         $('#slider-scale').slider({
             formatter: function (value) {
                 return 'Current value: ' + value;

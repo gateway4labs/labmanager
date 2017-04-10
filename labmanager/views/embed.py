@@ -131,7 +131,7 @@ def index():
 
 class SimplifiedApplicationForm(Form):
     name = TextField(lazy_gettext("Name:"), validators=[required()], widget = AngularJSTextInput(ng_model='embed.name', ng_enter="submitForm()"), description=lazy_gettext("Name of the resource"))
-    age_ranges_range = HiddenField(lazy_gettext("Age ranges:"), validators=[required()], description=lazy_gettext("Select the age ranges this tool is useful for"))
+    age_ranges_range = HiddenField(lazy_gettext("Age ranges:"), validators=[], description=lazy_gettext("Select the age ranges this tool is useful for"))
 
     # The following are NOT REQUIRED
     description = TextField(lazy_gettext("Description:"), validators=[], widget = AngularJSTextInput(ng_model='embed.description', ng_enter="submitForm()"), description=lazy_gettext("Describe the resource in a few words"))
