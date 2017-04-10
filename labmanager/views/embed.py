@@ -298,6 +298,39 @@ def sync():
     
     return "<html><body><p>Sync completed. Users modified: %s; Users added: %s; Apps modified: %s; Apps added: %s</p></body></html>" % (users_modified, users_added, apps_modified, apps_added)
 
+@embed_blueprint.route('/migrations/appcomp2gw/graasp.json', methods = ['GET'])
+def appcomp2gw_graasp_migration():
+    replacements = {}
+
+    for app in db.session.query(EmbedApplication).all():
+        # if ...
+        replacements['http://composer.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)] = 'http://gateway.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+
+    return jsonify(replacements=replacements)
+
+@embed_blueprint.route('/migrations/appcomp2gw/golabz.json', methods = ['GET'])
+def appcomp2gw_golabz_migration():
+    try:
+        labs = requests.get("http://www.golabz.eu/rest/labs/retrieve.json").json()
+    except:
+        return "Couldn't connect to golabz"
+
+    lab_urls = set()
+    for lab in labs:
+        for lab_app in lab['lab_apps']:
+            lab_urls.add(lab_app['app_url'])
+
+    replacements = {}
+
+    for app in db.session.query(EmbedApplication).all():
+        original_url = 'http://composer.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+        
+        if original_url in lab_urls:
+            # if ...
+            replacements[original_url] = 'http://gateway.golabz.eu/embed/apps/{}/app.xml'.format(app.identifier)
+
+    return jsonify(replacements=replacements)
+
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_golab_login
 def create():
