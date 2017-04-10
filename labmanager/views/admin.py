@@ -7,7 +7,7 @@ import traceback
 
 from hashlib import new as new_hash
 from yaml import load as yload
-from wtforms.fields import PasswordField
+from wtforms.fields import PasswordField, TextField
 from flask import request, redirect, url_for, session, Markup, abort, Response, flash
 from flask.ext import wtf
 from flask.ext.wtf import Form
@@ -83,7 +83,7 @@ MAX_URL_LENGTH = 50
 
 class EmbedApplicationsPanel(L4lModelView):
     column_list = ('author', 'name', 'identifier', 'languages', 'url')
-    column_labels = { 'owner': 'Author', 'author': 'Author', 'owner.email': "Author's mail", 'owner.display_name': "Authors' name", 'identifier': "Link XML" }
+    column_labels = { 'owner': 'Author', 'author': 'Author', 'owner.email': "Author's mail", 'owner.display_name': "Authors' name", 'identifier': "Identifier" }
     column_searchable_list = ('name', 'url')
     column_formatters = dict(
         author=lambda v, c, m, p: Markup(u"<a href='{}'>{}</a>".format(url_for('golab/users.index_view', flt1_4=m.owner.email), u'{} ({})'.format(m.owner.display_name, m.owner.email))),
@@ -92,6 +92,20 @@ class EmbedApplicationsPanel(L4lModelView):
         url=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(m.url, m.url[:MAX_URL_LENGTH] + ('' if len(m.url) < MAX_URL_LENGTH else '...'))),
     )
     column_filters = ('name', 'identifier', 'url', 'owner.display_name', 'owner.email')
+    form_columns = ('owner', 'url', 'name', 'height', 'scale', 'identifier', 'creation', 'last_update', 'translations')
+    column_descriptions = dict(
+        scale="Multiplied by 100. So 7500 is 75%",
+        height="Height in pixels. 900 is 900 pixels",
+    )
+    form_widget_args = {
+        'identifier': dict(readonly=True),
+        'creation': dict(readonly=True),
+        'last_update': dict(readonly=True),
+    }
+    form_overrides = {
+        'last_update': TextField,
+        'creation': TextField,
+    }
     inline_models = [EmbedApplicationTranslation]
 
     def __init__(self, session, **kwargs):
