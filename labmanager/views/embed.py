@@ -425,6 +425,9 @@ def create():
             if result['description'] and not form.description.data:
                 form.description.data = result['description']
 
+    if form.url.data:
+        form.url.data = form.url.data.strip()
+
     if form.validate_on_submit():
         form_scale = _get_scale_value(form)
         application = EmbedApplication(url = form.url.data, name = form.name.data, owner = current_golab_user(), height=form.height.data, scale=form_scale, description=form.description.data, age_ranges_range = form.age_ranges_range.data)
