@@ -72,8 +72,11 @@
 
         function init() {
             var prefs = new gadgets.Prefs();
-            var urls_per_language = {{ apps_per_language|tojson }};
-            var default_url = {{ app.url|tojson }};
+            var urls_per_language = {};
+            {% for lang in apps_per_language %}
+            urls_per_language[{{ lang|tojson }}] = "{{ apps_per_language[lang] }}";
+            {% endfor %}
+            var default_url = "{{ app.url }}";
             var url = urls_per_language[prefs.getLang()];
             if (!url) 
                 url = default_url;
