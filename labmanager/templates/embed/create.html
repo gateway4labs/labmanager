@@ -271,7 +271,7 @@
                 }, function() {});
             });
             {% if form.url.data %}
-                $scope.embed.url = "{{ form.url.data }}";
+                $scope.embed.url = "{{ form.url.data|tojson }}";
             {% endif %}
 
 

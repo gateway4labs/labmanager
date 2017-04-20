@@ -6,9 +6,9 @@
         {% for app in applications %}
             <li><a href="{{ url_for('.app', identifier = app.identifier) }}">{{ app.name }}</a> (<a href="{{ url_for('.app_xml', identifier = app.identifier) }}">app xml</a>)- by {{ app.owner.display_name }} on {{ app.creation }} {% if app.creation != app.last_update %}(modified on {{ app.last_update }}){% endif %}
             <ul>
-                <li>Default - <a href="{{ app.url }}">{{ app.url }}</a></li>
+                <li>Default - <a href="{{ app.url|tojson }}">{{ app.url|tojson }}</a></li>
                 {% for translation in app.translations %}
-                <li>{{ translation.language }} - <a href="{{ translation.url }}">{{ translation.url }}</a></li>
+                <li>{{ translation.language }} - <a href="{{ translation.url|tojson }}">{{ translation.url|tojson }}</a></li>
                 {% endfor %}
             </ul>
             </li>

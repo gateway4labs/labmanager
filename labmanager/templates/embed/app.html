@@ -7,9 +7,9 @@
         <li>Created by {{ app.owner.full_name }}</li>
         <li>Original resources:
             <ul>
-                <li>Default - <a href="{{ app.url }}">{{ app.url }}</a></li>
+                <li>Default - <a href="{{ app.url|tojson }}">{{ app.url|tojson }}</a></li>
                 {% for translation in app.translations %}
-                <li>{{ translation.language }} - <a href="{{ translation.url }}">{{ translation.url }}</a></li>
+                <li>{{ translation.language }} - <a href="{{ translation.url|tojson }}">{{ translation.url|tojson }}</a></li>
                 {% endfor %}
             </ul>
         </li>
