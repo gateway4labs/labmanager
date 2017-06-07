@@ -120,6 +120,9 @@ class QueueTask(object):
         if self.stopping:
             return
 
+        self.task()
+
+    def task(self):
         rlms = self.RLMS_CLASS(self.RLMS_CONFIG)
         dbg(' - %s: %s lang: %s' % (threading.current_thread().name, self.laboratory_id, self.language))
         rlms.reserve(self.laboratory_id, self.USERNAME, 'foo', '', '', '', '', locale = self.language)

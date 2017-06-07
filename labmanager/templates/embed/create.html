@@ -173,8 +173,10 @@
             <div ng-cloak ng-show="embed.url.length > 0 && embed.url != 'http://' && !embed.url_error && !embed.sg_link" id="slider_container" style="width: 100%">
                 <h2>{{ gettext("Preview") }}</h2>
 
+                {% if not identifier_links %}
                 <p ng-if="isSwf(embed.url)">{{ gettext("Adjust size") }}</p>
                 <p ng-if="!isSwf(embed.url)">{{ gettext("Adjust height") }}</p>
+                
 
                 <input id="slider-height" style="width: 100%" data-slider-id='height_slider' type="text"
                        data-slider-min="0" data-slider-max="2000" data-slider-step="10"
@@ -186,6 +188,7 @@
                            data-slider-min="0" data-slider-max="100" data-slider-step="0.1"
                            data-slider-value="{{ initial_scale }}"/>
                 </div>
+                {% endif %}
                 <div id="iframe-container" style="width: 910px; overflow: hidden">
                     <iframe {% raw %}ng-src="{{embed.url|trustAsResourceUrl}}" {% endraw %} frameborder='no' id='iframe'
                             width='100%' height='{{ initial_height }}px'></iframe>
@@ -272,6 +275,11 @@
             });
             {% if form.url.data %}
                 $scope.embed.url = {{ form.url.data|tojson }};
+            {% endif %}
+            {% if identifier_links %}
+                {% for identifier_link in identifier_links %}
+                $scope.embed.url = "http://shindig2.epfl.ch/gadgets/ifr?url={{ identifier_link }}";
+                {% endfor %}
             {% endif %}
 
 
