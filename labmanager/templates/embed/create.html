@@ -173,7 +173,8 @@
             <div ng-cloak ng-show="embed.url.length > 0 && embed.url != 'http://' && !embed.url_error && !embed.sg_link" id="slider_container" style="width: 100%">
                 <h2>{{ gettext("Preview") }}</h2>
 
-                {% if not identifier_links %}
+                
+                <div style="width: 100%" ng-show="{% if identifier_links %}false{% else %}true{% endif %}">
                 <p ng-if="isSwf(embed.url)">{{ gettext("Adjust size") }}</p>
                 <p ng-if="!isSwf(embed.url)">{{ gettext("Adjust height") }}</p>
                 
@@ -188,7 +189,7 @@
                            data-slider-min="0" data-slider-max="100" data-slider-step="0.1"
                            data-slider-value="{{ initial_scale }}"/>
                 </div>
-                {% endif %}
+                </div>}
                 <div id="iframe-container" style="width: 910px; overflow: hidden">
                     <iframe {% raw %}ng-src="{{embed.url|trustAsResourceUrl}}" {% endraw %} frameborder='no' id='iframe'
                             width='100%' height='{{ initial_height }}px'></iframe>
