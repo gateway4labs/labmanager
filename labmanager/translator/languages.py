@@ -44,6 +44,7 @@ OTHER_LANGUAGES = [
     'id', # Indonesian
     'ja', # Japanese
     'my', # Burmese
+    'mk', # Macedonian
 ]
 
 ALL_LANGUAGES = OFFICIAL_EUROPEAN_UNION_LANGUAGES + SEMIOFFICIAL_EUROPEAN_UNION_LANGUAGES + OTHER_LANGUAGES
