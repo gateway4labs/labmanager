@@ -711,6 +711,8 @@ class UseLog(db.Model):
     year = db.Column(db.Integer, index=True, nullable=False) # 2017
     month = db.Column(db.Integer, index=True, nullable=False) # 1..12
 
+    local_timezone = db.Column(db.Integer, index=True, nullable=False)
+    local_datetime = db.Column(db.DateTime, index=True, nullable=False)
     local_date = db.Column(db.Date, index = True, nullable = False)
     local_day_of_week = db.Column(db.Integer, index=True, nullable=False)  # 0..6 (datetime.weekday())
     local_hour_of_day = db.Column(db.Integer, index=True, nullable=False) # 0..23
@@ -745,6 +747,8 @@ class UseLog(db.Model):
             timezone_minutes = 0
         if timezone_minutes > 840 or timezone_minutes < -840:
             timezone_minutes = 0
+
+        self.local_timezone = timezone_minutes
 
         local_dtime = dtime - datetime.timedelta(minutes=timezone_minutes)
         self.local_datetime = local_dtime
