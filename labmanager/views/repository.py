@@ -173,7 +173,7 @@ def _get_resources(fmt = 'json'):
         force_cache()
     public_laboratories = []
     for lab in db.session.query(Laboratory).filter_by(publicly_available = True):
-        for public_lab in extract_labs(rlms, lab.laboratory_id, fmt=fmt):
+        for public_lab in extract_labs(lab.rlms, lab.laboratory_id, fmt=fmt):
             public_laboratories.append(public_lab)
    
     for rlms in db.session.query(RLMS).filter_by(publicly_available = True):
