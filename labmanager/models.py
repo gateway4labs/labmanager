@@ -700,4 +700,57 @@ class EmbedApplicationTranslation(db.Model):
         self.url = url
         self.language = language
 
+class UseLog(db.Model):
+    __tablename__ = 'UseLogs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    datetime = db.Column(db.DateTime, index = True, nullable = False)
+    date = db.Column(db.Date, index = True, nullable = False)
+    day_of_week = db.Column(db.Integer, index=True, nullable=False)  # 0..6 (datetime.weekday())
+    hour_of_day = db.Column(db.Integer, index=True, nullable=False) # 0..23
+    year = db.Column(db.Integer, index=True, nullable=False) # 2017
+    month = db.Column(db.Integer, index=True, nullable=False) # 1..12
+
+    url = db.Column(db.Unicode(255), index = True)
+    ip_address = db.Column(db.Unicode(100), index = True)
+    web_browser = db.Column(db.Unicode(255), index = True)
+    city = db.Column(db.Unicode(255), index = True)
+    country = db.Column(db.Unicode(255), index = True)
+    hostname = db.Column(db.Unicode(255), index = True)
+    
+    def __init__(self, url, ip_address, web_browser, dtime = None):
+        if dtime is None:
+            dtime = datetime.datetime.utcnow()
+
+        self.datetime = dtime
+        self.date = dtime.date()
+        self.day_of_week = dtime.weekday()
+        self.hour_of_day = dtime.hour
+        self.year = dtime.year
+        self.month = dtime.month
+
+        self.url = url
+        self.ip_address = ip_address
+        self.web_browser = web_browser
+
+class LocationCache(db.Model):
+    __tablename__ = 'LocationCache'
+
+    id = db.Column(db.Integer, primary_key=True)
+    pack = db.Column(db.Unicode(255), index=True, nullable=False)
+    lookup_time = db.Column(db.DateTime, index=True, nullable=False)
+    hostname = db.Column(db.Unicode(255), index=True)
+    city = db.Column(db.Unicode(255), index=True)
+    country = db.Column(db.Unicode(255), index=True)
+    most_specific_subdivision = db.Column(db.Unicode(255), index=True)
+
+    def __init__(self, pack, lookup_time, hostname, city=None, country=None, most_specific_subdivision=None):
+        self.pack = pack
+        self.lookup_time = lookup_time
+        self.hostname = hostname
+        self.city = city
+        self.country = country
+        self.most_specific_subdivision = most_specific_subdivision
+
+
 from labmanager.rlms import get_manager_class
