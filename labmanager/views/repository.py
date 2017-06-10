@@ -143,7 +143,7 @@ def extract_labs(rlms, single_lab = None, fmt='json', age_ranges = None, domains
         if Capabilities.WIDGET in rlms_inst.get_capabilities():
             widgets = rlms_inst.list_widgets(lab.laboratory_id)
         else:
-            widgets = [ { 'name' : lab.name, 'description' : lab.description } ]
+            widgets = [ { 'name' : lab.name or 'default', 'description' : lab.description } ]
 
         lab_widgets = []
         for widget in widgets:
