@@ -56,7 +56,7 @@
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/metadata/MetadataHandler.js"></script>
     <script type="text/javascript" src="http://shindig2.epfl.ch/ils/applog/ActionLogger.js"></script>
     <script type="text/javascript">
-        var STATS_ADDRESS = "{{ url_for("embed.stats", _external=True) }}";
+        var STATS_ADDRESS = "{{ url_for("embed.stats", url=url_for('.app_xml', identifier=identifier, _external=True), _external=True) }}";
     </script>
     <script src="{{ url_for('static', filename="opensocial/storage.js", _external=True) }}"></script>
     {% endif %}

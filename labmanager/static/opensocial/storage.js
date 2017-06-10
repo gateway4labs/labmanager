@@ -55,6 +55,6 @@ function reportStarted(labName, labURL, labSessionId) {
         }
     });
 
-    $.post(STATS_ADDRESS + "?url=" + location.toString(), {});
+    $.post(STATS_ADDRESS, {});
 }
 
