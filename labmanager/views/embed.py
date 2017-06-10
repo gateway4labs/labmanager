@@ -203,6 +203,8 @@ def get_url_metadata(url, timeout = 3):
 def stats():
     url = request.args.get('url')
     ip_address = remote_addr()
+    print(request.user_agent.version)
+    print(request.user_agent)
     log = UseLog(url = url, ip_address = ip_address, web_browser = request.headers.get('User-Agent'), user_agent = request.user_agent)
     db.session.add(log)
     db.session.commit()
