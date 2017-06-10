@@ -54,4 +54,7 @@ function reportStarted(labName, labURL, labSessionId) {
             window.actionLogger.logApplicationStarted();
         }
     });
+
+    $.post(STATS_ADDRESS + "?url=" + location.toString(), {});
 }
+

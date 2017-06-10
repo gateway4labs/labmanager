@@ -7,9 +7,10 @@ from labmanager.views.authn import requires_golab_login, current_golab_user
 
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
-from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser
+from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser, UseLog
 from labmanager.rlms import find_smartgateway_link, find_smartgateway_opensocial_link
 from labmanager.translator.languages import obtain_languages
+from labmanager.utils import remote_addr
 
 from flask.ext.wtf import Form
 from wtforms import TextField, HiddenField, SelectMultipleField
@@ -198,8 +199,19 @@ def get_url_metadata(url, timeout = 3):
 
     return { 'name' : name, 'description': description, 'code': code, 'x_frame_options' : x_frame_options, 'error_retrieving' : error_retrieving, 'content_type' : content_type }
 
+@embed_blueprint.route('/stats', methods = ['POST'])
+def stats():
+    url = request.args.get('url')
+    ip_address = remote_addr()
+    log = UseLog(url = url, ip_address = ip_address, web_browser = request.headers.get('User-Agent'), user_agent = request.user_agent)
+    db.session.add(log)
+    db.session.commit()
+    return "This is only for local statistics. No personal information is stored."
+
+
 @embed_blueprint.route('/sync', methods = ['GET'])
 def sync():
+    return "Not used anymore"
     composer_contents = requests.get('http://composer.golabz.eu/export-embed.json').json()
     current_users = { user.email: user for user in db.session.query(GoLabOAuthUser).all() }
     users_modified = 0

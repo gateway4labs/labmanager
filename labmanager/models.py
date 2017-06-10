@@ -714,11 +714,15 @@ class UseLog(db.Model):
     url = db.Column(db.Unicode(255), index = True)
     ip_address = db.Column(db.Unicode(100), index = True)
     web_browser = db.Column(db.Unicode(255), index = True)
+    browser_platform = db.Column(db.Unicode(15), index=True)
+    browser_name = db.Column(db.Unicode(15), index=True)
+    browser_version = db.Column(db.Unicode(10), index=True)
+    browser_language = db.Column(db.Unicode(10), index=True)
     city = db.Column(db.Unicode(255), index = True)
     country = db.Column(db.Unicode(255), index = True)
     hostname = db.Column(db.Unicode(255), index = True)
     
-    def __init__(self, url, ip_address, web_browser, dtime = None):
+    def __init__(self, url, ip_address, web_browser, user_agent, dtime = None):
         if dtime is None:
             dtime = datetime.datetime.utcnow()
 
@@ -732,6 +736,11 @@ class UseLog(db.Model):
         self.url = url
         self.ip_address = ip_address
         self.web_browser = web_browser
+        if user_agent:
+            self.browser_platform = user_agent.platform
+            self.browser_name = user_agent.browser
+            self.browser_version = user_agent.version
+            self.browser_language = user_agent.language
 
 class LocationCache(db.Model):
     __tablename__ = 'LocationCache'

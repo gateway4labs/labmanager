@@ -110,6 +110,7 @@
             return '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
             {% endif %}
         }
+        var STATS_ADDRESS = "{{ url_for("embed.stats", _external=True) }}";
     </script>
     <script type="text/javascript" src="{{ url_for('static', filename='opensocial/smartgateway.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='opensocial/storage.js') }}"></script>
