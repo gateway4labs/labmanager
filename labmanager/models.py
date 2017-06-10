@@ -711,6 +711,12 @@ class UseLog(db.Model):
     year = db.Column(db.Integer, index=True, nullable=False) # 2017
     month = db.Column(db.Integer, index=True, nullable=False) # 1..12
 
+    local_date = db.Column(db.Date, index = True, nullable = False)
+    local_day_of_week = db.Column(db.Integer, index=True, nullable=False)  # 0..6 (datetime.weekday())
+    local_hour_of_day = db.Column(db.Integer, index=True, nullable=False) # 0..23
+    local_year = db.Column(db.Integer, index=True, nullable=False) # 2017
+    local_month = db.Column(db.Integer, index=True, nullable=False) # 1..12
+
     url = db.Column(db.Unicode(255), index = True)
     ip_address = db.Column(db.Unicode(100), index = True)
     web_browser = db.Column(db.Unicode(255), index = True)
@@ -722,7 +728,7 @@ class UseLog(db.Model):
     country = db.Column(db.Unicode(255), index = True)
     hostname = db.Column(db.Unicode(255), index = True)
     
-    def __init__(self, url, ip_address, web_browser, user_agent, dtime = None):
+    def __init__(self, url, ip_address, web_browser, user_agent, timezone_minutes, dtime = None):
         if dtime is None:
             dtime = datetime.datetime.utcnow()
 
@@ -732,6 +738,21 @@ class UseLog(db.Model):
         self.hour_of_day = dtime.hour
         self.year = dtime.year
         self.month = dtime.month
+
+        try:
+            timezone_minutes = int(timezone_minutes)
+        except:
+            timezone_minutes = 0
+        if timezone_minutes > 840 or timezone_minutes < -840:
+            timezone_minutes = 0
+
+        local_dtime = dtime - datetime.timedelta(minutes=timezone_minutes)
+        self.local_datetime = local_dtime
+        self.local_date = local_dtime.date()
+        self.local_day_of_week = local_dtime.weekday()
+        self.local_hour_of_day = local_dtime.hour
+        self.local_year = local_dtime.year
+        self.local_month = local_dtime.month
 
         self.url = url
         self.ip_address = ip_address

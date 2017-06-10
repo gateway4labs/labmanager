@@ -202,10 +202,9 @@ def get_url_metadata(url, timeout = 3):
 @embed_blueprint.route('/stats', methods = ['POST'])
 def stats():
     url = request.args.get('url')
+    timezone_minutes = request.args.get('timezone_minutes')
     ip_address = remote_addr()
-    print(request.user_agent.version)
-    print(request.user_agent)
-    log = UseLog(url = url, ip_address = ip_address, web_browser = request.headers.get('User-Agent'), user_agent = request.user_agent)
+    log = UseLog(url = url, ip_address = ip_address, web_browser = request.headers.get('User-Agent'), user_agent = request.user_agent, timezone_minutes=timezone_minutes)
     db.session.add(log)
     db.session.commit()
     return "This is only for local statistics. No personal information is stored."

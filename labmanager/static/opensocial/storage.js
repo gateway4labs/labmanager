@@ -55,6 +55,7 @@ function reportStarted(labName, labURL, labSessionId) {
         }
     });
 
-    $.post(STATS_ADDRESS, {});
+    var timezone_minutes = new Date().getTimezoneOffset();
+    $.post(STATS_ADDRESS + "&timezone_minutes=" + timezone_minutes, {});
 }
 
