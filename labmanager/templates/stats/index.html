@@ -1,0 +1,14 @@
+{% set title = "Stats" %}
+{% extends "embed/base.html" %}
+{% block body %}
+    <table class="table">
+        <tbody>
+            {% for count, day in by_day %}
+            <tr>
+                <td>{{ day.strftime("%d-%m-%Y") }}</td>
+                <td>{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

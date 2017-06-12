@@ -726,11 +726,15 @@ class UseLog(db.Model):
     browser_name = db.Column(db.Unicode(30), index=True)
     browser_version = db.Column(db.Unicode(30), index=True)
     browser_language = db.Column(db.Unicode(30), index=True)
+    first_language = db.Column(db.Unicode(10), index=True)
+    second_language = db.Column(db.Unicode(10), index=True)
+    third_language = db.Column(db.Unicode(10), index=True)
+    all_languages = db.Column(db.Unicode(40), index=True)
     city = db.Column(db.Unicode(255), index = True)
     country = db.Column(db.Unicode(255), index = True)
     hostname = db.Column(db.Unicode(255), index = True)
     
-    def __init__(self, url, ip_address, web_browser, user_agent, timezone_minutes, dtime = None):
+    def __init__(self, url, ip_address, web_browser, user_agent, timezone_minutes, lang_header, dtime = None):
         if dtime is None:
             dtime = datetime.datetime.utcnow()
 
@@ -759,6 +763,15 @@ class UseLog(db.Model):
         self.local_month = local_dtime.month
 
         self.url = url
+        self.all_languages = lang_header
+        if lang_header:
+            langs = [ lang.split(';')[0] for lang in lang_header.split(',') ]
+            if len(langs) >= 1:
+                self.first_language = langs[0]
+            if len(langs) >= 2:
+                self.first_language = langs[1]
+            if len(langs) >= 3:
+                self.first_language = langs[2]
         self.ip_address = ip_address
         self.web_browser = web_browser
         if user_agent:
