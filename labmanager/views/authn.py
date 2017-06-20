@@ -170,7 +170,7 @@ def login_golab_oauth():
         return "No next= provided"
     session['oauth_next'] = next_url
     redirect_back_url = url_for('golab_oauth_login_redirect', _external = True)
-    return redirect('http://graasp.eu/authorize?client_id=%s&redirect_uri=%s' % (PUBLIC_SMARTGATEWAY_ID, requests.utils.quote(redirect_back_url, '')))
+    return redirect('http://graasp.eu/authorize?client_id=%s&redirect_uri=%s&response_type=token' % (PUBLIC_SMARTGATEWAY_ID, requests.utils.quote(redirect_back_url, '')))
 
 @app.route('/graasp/oauth/redirect/')
 def golab_oauth_login_redirect():
