@@ -167,6 +167,10 @@ class RLMS(BaseRLMS):
             traceback.print_exc()
             raise
 
+        for lang, lang_data in translations_json['translations'].items():
+            for key, data_value in lang_data.items():
+                data_value.pop('namespace', None)
+
         HTTP_PLUGIN.rlms_cache[cache_key] = translations_json
         return translations_json
 
