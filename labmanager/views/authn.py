@@ -6,6 +6,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+import os
+import base64
 from time import time
 from hashlib import new as new_hash
 from flask import render_template, request, flash, redirect, url_for, session, make_response, current_app
@@ -163,6 +165,13 @@ def requires_golab_login(f):
 # PUBLIC_SMARTGATEWAY_ID = 'WfTlrXTbu4AeGexikhau5HDXkpGE8RYh' # AppComposer one; while EPFL supports the other
 PUBLIC_SMARTGATEWAY_ID = 'DkX625VO9zbSpqzyLjX8Bo2RZTIn1GY0'
 
+def token_urlsafe(nbytes=None):
+    """Taken from Python 2.6"""
+    DEFAULT_ENTROPY=16
+    tok = os.urandom(nbytes or DEFAULT_ENTROPY)
+    return base64.urlsafe_b64encode(tok).strip().replace('=', '').replace('-', '_')
+
+
 @app.route('/graasp/oauth/')
 def login_golab_oauth():
     next_url = request.args.get('next')
@@ -170,21 +179,33 @@ def login_golab_oauth():
         return "No next= provided"
     session['oauth_next'] = next_url
     redirect_back_url = url_for('golab_oauth_login_redirect', _external = True)
-    return redirect('http://graasp.eu/authorize?client_id=%s&redirect_uri=%s&response_type=token' % (PUBLIC_SMARTGATEWAY_ID, requests.utils.quote(redirect_back_url, '')))
+    state = token_urlsafe()
+    session['state'] = state
+    return redirect('http://graasp.eu/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&state={state}'.format(client_id=PUBLIC_SMARTGATEWAY_ID, redirect_uri=requests.utils.quote(redirect_back_url, ''), state=state))
 
 @app.route('/graasp/oauth/redirect/')
 def golab_oauth_login_redirect():
-    access_token = request.args.get('access_token')
-    refresh_token = request.args.get('refresh_token')
-    timeout = request.args.get('expires_in')
+    code = request.args.get('code')
+    state = request.args.get('state', 'not-found')
+    if state != session.get('state'):
+        return "Invalid 'state' data"
+
+    rsession = requests.Session()
+
+    request_data = dict(code=code, grant_type='authorization_code', client_id=PUBLIC_SMARTGATEWAY_ID, client_secret=current_app.config.get('SMARTGATEWAY_SECRET'))
+
+    r = rsession.post('http://graasp.eu/token', json=request_data)
+    result = r.json()
+
+    access_token = result.get('access_token')
+    refresh_token = result.get('refresh_token')
     next_url = session.get('oauth_next')
 
     headers = {
         'Authorization': 'Bearer {}'.format(access_token),
     }
 
-    requests_session = requests.Session()
-    response = requests_session.get('http://graasp.eu/users/me', headers = headers)
+    response = rsession.get('http://graasp.eu/users/me', headers = headers)
     if response.status_code == 500:
         error_msg = "There has been an error trying to log in with access token: %s and refresh_token %s; attempting to go to %s. Response: %s" % (access_token, refresh_token, next_url, response.text)
         current_app.logger.error(error_msg)
