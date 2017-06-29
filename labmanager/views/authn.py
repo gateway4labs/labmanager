@@ -194,7 +194,7 @@ def golab_oauth_login_redirect():
 
     request_data = dict(code=code, grant_type='authorization_code', client_id=PUBLIC_SMARTGATEWAY_ID, client_secret=current_app.config.get('SMARTGATEWAY_SECRET'))
 
-    r = rsession.post('https://graasp.eu/token', json=request_data)
+    r = rsession.post('http://graasp.eu/token', json=request_data)
     result = r.json()
 
     access_token = result.get('access_token')
