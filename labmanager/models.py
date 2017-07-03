@@ -763,15 +763,16 @@ class UseLog(db.Model):
         self.local_month = local_dtime.month
 
         self.url = url
-        self.all_languages = lang_header
         if lang_header:
+            self.all_languages = lang_header[:100]
+
             langs = [ lang.split(';')[0] for lang in lang_header.split(',') ]
             if len(langs) >= 1:
-                self.first_language = langs[0]
+                self.first_language = langs[0][:10]
             if len(langs) >= 2:
-                self.first_language = langs[1]
+                self.second_language = langs[1][:10]
             if len(langs) >= 3:
-                self.first_language = langs[2]
+                self.third_language = langs[2][:10]
         self.ip_address = ip_address
         self.web_browser = web_browser
         if user_agent:
