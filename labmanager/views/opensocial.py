@@ -302,9 +302,9 @@ def _rlms_to_translations(rlms_db, laboratory_id, language):
         translations['translations'] = {}
 
     for lang in DEFAULT_TRANSLATIONS:
-        if lang not in translations['translations']:
-            translations['translations'][lang] = {}
-        translations['translations'][lang].update(DEFAULT_TRANSLATIONS[lang])
+        # don't add empty translations
+        if lang in translations['translations']:
+            translations['translations'][lang].update(DEFAULT_TRANSLATIONS[lang])
     
     translations_xml = _translations_to_xml(translations, language)
     return Response(translations_xml, mimetype='application/xml')
