@@ -763,6 +763,8 @@ class UseLog(db.Model):
         self.local_month = local_dtime.month
 
         self.url = url
+        if self.url:
+            self.url = self.url[:255]
         if lang_header:
             self.all_languages = lang_header[:100]
 
