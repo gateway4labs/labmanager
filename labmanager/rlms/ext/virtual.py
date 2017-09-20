@@ -95,7 +95,7 @@ class RLMS(BaseRLMS):
             'url' : self.web
         }
 
-    def get_check_urls(self):
+    def get_check_urls(self, laboratory_id):
         return [ self.web ]
 
     def get_translations(self, laboratory_id, **kwargs):

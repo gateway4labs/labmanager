@@ -125,7 +125,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         translation_list = []
 
     if Capabilities.CHECK_URLS in capabilities:
-        check_urls = rlms.get_check_urls()
+        check_urls = rlms.get_check_urls(laboratory_identifier)
     else:
         check_urls = []
 

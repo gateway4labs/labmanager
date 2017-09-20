@@ -147,8 +147,8 @@ class Capabilities(object):
     CHECK_URLS = 'check_urls'
     """
     Providing this capability reports that the RLMS plug-in supports
-    a method called 'get_check_urls()' which returns a list of URLs that
-    the app composer should check. For example, a remote laboratory might
+    a method called 'get_check_urls(laboratory_id)' which returns a list of URLs 
+    that the app composer should check. For example, a remote laboratory might
     provide URLs to webcams.
     """
 
@@ -325,7 +325,7 @@ class BaseRLMS(object):
         """
         return {}
 
-    def get_check_urls(self):
+    def get_check_urls(self, laboratory_id):
         """
         If implemented, provide a set of URLs that the appcomposer will check if:
 
