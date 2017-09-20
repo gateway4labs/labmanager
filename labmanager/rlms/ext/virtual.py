@@ -71,7 +71,7 @@ class RLMS(BaseRLMS):
         return Versions.VERSION_1
 
     def get_capabilities(self): 
-        capabilities = [ Capabilities.WIDGET ] 
+        capabilities = [ Capabilities.WIDGET, Capabilities.CHECK_URLS ] 
         if self.translation_url:
             capabilities.append(Capabilities.TRANSLATIONS)
         return capabilities
@@ -94,6 +94,9 @@ class RLMS(BaseRLMS):
         return {
             'url' : self.web
         }
+
+    def get_check_urls(self):
+        return [ self.web ]
 
     def get_translations(self, laboratory_id, **kwargs):
         if not self.translation_url:

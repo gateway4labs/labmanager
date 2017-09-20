@@ -144,6 +144,14 @@ class Capabilities(object):
     method will only be called if 'get_base_urls()' is the base URL for the url.
     """
 
+    CHECK_URLS = 'check_urls'
+    """
+    Providing this capability reports that the RLMS plug-in supports
+    a method called 'get_check_urls()' which returns a list of URLs that
+    the app composer should check. For example, a remote laboratory might
+    provide URLs to webcams.
+    """
+
 
 class BaseRLMS(object):
     """
@@ -316,6 +324,18 @@ class BaseRLMS(object):
         the people listed in 'mails' about new translations.
         """
         return {}
+
+    def get_check_urls(self):
+        """
+        If implemented, provide a set of URLs that the appcomposer will check if:
+
+          a) They support SSL or not.
+          b) They are up or down and when
+
+        The AppComposer is not intended to give fine grained information (e.g., testing a laboratory to
+        see if everything really works), but a high level one is enough for certain circumstances.
+        """
+        return []
 
     def load_widget(self, reservation_id, widget_name):
         """

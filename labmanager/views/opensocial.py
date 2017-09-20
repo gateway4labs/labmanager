@@ -124,6 +124,11 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     else:
         translation_list = []
 
+    if Capabilities.CHECK_URLS in capabilities:
+        check_urls = rlms.get_check_urls()
+    else:
+        check_urls = []
+
     if autoload and len(translations['translations']) == 0:
         show_languages = False
     else:
@@ -141,6 +146,8 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
                 widget['translation_list'] = translation_list
                 widget['show_languages'] = show_languages
                 widget['show_empty_languages'] = show_empty_languages
+                if check_urls:
+                    widget['check_urls'] = check_urls
 
                 if height is not None:
                     widget['height'] = height
@@ -155,6 +162,8 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     base_data['translation_list'] = translation_list
     base_data['show_languages'] = show_languages
     base_data['show_empty_languages'] = show_empty_languages
+    if check_urls:
+        base_data['check_urls'] = check_urls
     return base_data
 
 def xml_error_management(func):

@@ -35,6 +35,9 @@
      <Require feature="osapi" />
      <Require feature="pubsub" />
      <Require feature="dynamic-height" />
+     {% for check_url in widget_config.get('check_urls', []) %}
+     <appcomposer check-url="{{ check_url }}"/>
+     {% endfor %}
  </ModulePrefs>
  <Content type="html" view="home,canvas">
  <![CDATA[

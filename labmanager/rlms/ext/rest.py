@@ -209,6 +209,9 @@ class RLMS(BaseRLMS):
             'url' : response['url']
         }
 
+    def get_check_urls(self):
+        return self._request('/check_urls')
+
     def list_widgets(self, laboratory_id, **kwargs):
         widgets_json = self._request('/widgets?laboratory_id=%s' % requests.utils.quote(laboratory_id))
         widgets = []

@@ -12,6 +12,10 @@
             <Locale lang="{{ language }}" messages="{{ url_for('static', filename="empty.xml", _external=True) }}"/>
         {% endfor %}
     {% endif %}
+    <appcomposer check-url="{{ app.url }}"/>
+    {% for app_url in apps_per_language.values() %}
+    <appcomposer check-url="{{ app_url }}"/>
+    {% endfor %}
  </ModulePrefs>
  <Content type="html" view="home,canvas">
  <![CDATA[
