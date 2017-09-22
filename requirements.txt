@@ -32,3 +32,5 @@ git+https://github.com/gateway4labs/rlms_vish.git
 git+https://github.com/gateway4labs/rlms_quvis.git
 git+https://github.com/gateway4labs/rlms_concord.git
 git+https://github.com/gateway4labs/rlms_maplesoft.git
+git+https://github.com/gateway4labs/rlms_vascak.git
+git+https://github.com/gateway4labs/rlms_amrita.git
