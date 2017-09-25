@@ -274,7 +274,8 @@ def _translations_to_xml(translations_response, language):
     if mails:
         xml_bundle.attrib['mails'] = ','.join(mails)
 
-    for key, pack in language.iteritems():
+    # Sorting is important for the App Composer
+    for key, pack in sorted(language.items(), lambda (k1, v1), (k2, v2): cmp(k1, k2)):
         if 'value' not in pack:
             continue
 
