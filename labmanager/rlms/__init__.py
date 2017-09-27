@@ -204,6 +204,7 @@ class TaskRunner(object):
                         traceback.print_exc()
                     finally:
                         cache_disabler.reenable()
+                    _debug(u"Finished")
 
                 self.latest_executions[task['id']] = now
 
@@ -227,6 +228,7 @@ class TaskRunner(object):
                                 traceback.print_exc()
                             finally:
                                 cache_disabler.reenable()
+                            _debug(u"Finished")
 
                 self.latest_executions[task['id']] = now
 
