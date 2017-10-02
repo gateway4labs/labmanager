@@ -14,21 +14,42 @@
     </table>
     {% set n = request.args.get('n', '10')|int %}
     <h3>Top {{ n }} apps per month:</h3>
+    {% for month_url_data in month_url_results %}
+    <h4>{{ month_url_data['year'] }} / {{ month_url_data['month'] }}: {{ month_url_data['count'] }}</h4>
     <table class="table">
-        <tbody>
-            {% for month_url_data in month_url_results %}
+        <thead>
             <tr>
-                <td>{{ month_url_data['year'] }} / {{ month_url_data['month'] }}</td>
-                <td>
-                    <ol>
-                        {% for url_data in month_url_data['urls'][:n] %}
-                            <li>{{ url_data['count'] }} - {{ url_data['url'] }}</li>
-                        {% endfor %}
-                    </ol>
-                </td>
+                <th>#</th>
+                <th>Count</th>
+                <th>Icon</th>
+                <th>Try it</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for url_data in month_url_data['urls'][:n] %}
+            {% set data = url_data['data'] %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ url_data['count'] }}</td>
+                <td>{% if data.get('lab_thumb') %}
+                    <img src="{{ data['lab_thumb'] }}" width="45">
+                {% endif %}</td>
+                <td><a href="http://shindig2.epfl.ch/gadgets/ifr?url={{ url_data['url'] }}">Try it</a></td>
+                <td>{% if data.get('title') %}
+                <a href="{{ data['lab_golabz_page'] }}">{{ data['title'] }}</a>
+                {% else %}
+                <a href="{{ url_data['url'] }}">
+                    {% if url_data['url']|length > 100 %}
+                        {{ url_data['url'][:100] }}...
+                    {% else %}
+                        {{ url_data['url'] }}
+                    {% endif %}</a>
+                {% endif %}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% endfor %}
 
 {% endblock %}

@@ -1,3 +1,4 @@
+import requests
 from flask import render_template, Blueprint, current_app, request
 
 from sqlalchemy import func
@@ -15,7 +16,7 @@ def check_auth():
 
     if key != current_app.config.get("EASYADMIN_KEY"):
         return "Invalid key"
-    return 
+    return
 
 @stats_blueprint.route("/")
 def simple():
@@ -24,6 +25,14 @@ def simple():
 
 @stats_blueprint.route("/monthly")
 def monthly():
+    lab_contents = requests.get('http://www.golabz.eu/rest/labs/retrieve.json').json()
+    lab_per_url = {
+        # url: lab_data
+    }
+    for lab in lab_contents:
+        for lab_app in lab['lab_apps']:
+            lab_per_url[lab_app['app_url']] = lab
+
     month_results = [
         # {
         #    'year': year,
@@ -31,13 +40,17 @@ def monthly():
         #    'count': count,
         # }
     ]
+    monthly_summary = {
+        # (year, month): count
+    }
     for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).group_by(UseLog.year, UseLog.month).all():
         month_results.append({
             'year': year,
             'month': month,
             'count': count
         })
-    month_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']))
+        monthly_summary[year, month] = count
+    month_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
 
     temporal_month_url = {
         # (year, month): [ { 'count': count, 'url': url ]
@@ -49,6 +62,7 @@ def monthly():
         temporal_month_url[year, month].append({
             'count': count,
             'url': url,
+            'data': lab_per_url.get(url, {})
         })
         temporal_month_url[year, month].sort(lambda x, y: cmp(x['count'], y['count']), reverse=True)
 
@@ -68,6 +82,7 @@ def monthly():
         month_url_results.append({
             'year': year,
             'month': month,
+            'count': monthly_summary[year, month],
             'urls': results,
         })
 
