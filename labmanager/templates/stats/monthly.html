@@ -1,0 +1,34 @@
+{% set title = "Stats - monthly" %}
+{% extends "embed/base.html" %}
+{% block body %}
+    <h3>Activity per month:</h3>
+    <table class="table">
+        <tbody>
+            {% for month_data in month_results %}
+            <tr>
+                <td>{{ month_data['year'] }} / {{ month_data['month'] }}</td>
+                <td>{{ month_data['count'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% set n = request.args.get('n', '10')|int %}
+    <h3>Top {{ n }} apps per month:</h3>
+    <table class="table">
+        <tbody>
+            {% for month_url_data in month_url_results %}
+            <tr>
+                <td>{{ month_url_data['year'] }} / {{ month_url_data['month'] }}</td>
+                <td>
+                    <ol>
+                        {% for url_data in month_url_data['urls'][:n] %}
+                            <li>{{ url_data['count'] }} - {{ url_data['url'] }}</li>
+                        {% endfor %}
+                    </ol>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
