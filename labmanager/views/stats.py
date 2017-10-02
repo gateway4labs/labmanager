@@ -86,7 +86,7 @@ def monthly():
             'urls': results,
         })
 
-    month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']))
+    month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
     return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results)
 
 
