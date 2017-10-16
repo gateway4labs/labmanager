@@ -25,6 +25,15 @@ def simple():
 
 @stats_blueprint.route("/monthly")
 def monthly():
+    try:
+        failure_data = requests.get("http://composer.golabz.eu/translator/stats/status.json").json()
+    except:
+        failure_data = {
+            'failing': [],
+            'flash': [],
+            'ssl': [],
+        }
+
     lab_contents = requests.get('http://www.golabz.eu/rest/labs/retrieve.json').json()
     lab_per_url = {
         # url: lab_data
@@ -87,6 +96,6 @@ def monthly():
         })
 
     month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
-    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results)
+    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data)
 
 
