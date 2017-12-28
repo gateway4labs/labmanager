@@ -777,6 +777,8 @@ class UseLog(db.Model):
                 self.third_language = langs[2][:10]
         self.ip_address = ip_address
         self.web_browser = web_browser
+        if self.web_browser:
+            self.web_browser = web_browser[:255]
         if user_agent:
             self.browser_platform = user_agent.platform
             self.browser_name = user_agent.browser
