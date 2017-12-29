@@ -8,6 +8,8 @@
 
 import os
 import base64
+import logging
+
 from time import time
 from hashlib import new as new_hash
 from flask import render_template, request, flash, redirect, url_for, session, make_response, current_app
