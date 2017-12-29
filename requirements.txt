@@ -34,3 +34,4 @@ git+https://github.com/gateway4labs/rlms_concord.git
 git+https://github.com/gateway4labs/rlms_maplesoft.git
 git+https://github.com/gateway4labs/rlms_vascak.git
 git+https://github.com/gateway4labs/rlms_amrita.git
+git+https://github.com/gateway4labs/rlms_virtualbiologylab.git
