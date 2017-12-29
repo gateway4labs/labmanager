@@ -163,15 +163,23 @@
             // 10 seconds
             setTimeout(adjustIframeHeight,10000);
 
-            iFrameResize({
-                log : false,
-                enablePublicMethods : true,
-                enableInPageLinks : true,
-                checkOrigin: false,
-                resizedCallback         : function(messageData){ // Callback fn when resize is received
-                    gadgets.window.adjustHeight();
-                }
-            }, "#final_widget_iframe");
+            var supportsResizer = true;
+            if (reservationId != null && reservationId != undefined) {
+                if (reservationId.indexOf("virtualbiologylab.org") >= 0)
+                    supportsResizer = false;
+            }
+
+            if (supportsResizer) {
+                iFrameResize({
+                    log : false,
+                    enablePublicMethods : true,
+                    enableInPageLinks : true,
+                    checkOrigin: false,
+                    resizedCallback         : function(messageData){ // Callback fn when resize is received
+                        gadgets.window.adjustHeight();
+                    }
+                }, "#final_widget_iframe");
+            }
 
             reportStarted({{ "{0} widget of {1}".format(widget_name,lab_name)|tojson|safe }}, LAB_ID, g4lSessionId);
         });
