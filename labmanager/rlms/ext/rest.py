@@ -165,7 +165,8 @@ class RLMS(BaseRLMS):
             translations_json = self._request('/translations?laboratory_id=%s' % requests.utils.quote(laboratory_id, ''))
         except:
             traceback.print_exc()
-            raise
+            # Dont store in cache if error
+            return {'translations': {}, 'mails':[]}
 
         for lang, lang_data in translations_json['translations'].items():
             for key, data_value in lang_data.items():
