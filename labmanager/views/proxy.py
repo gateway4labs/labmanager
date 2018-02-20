@@ -42,8 +42,10 @@ def inject_absolute_urls(output, url):
     base_url = extract_base_url(url)
     absolute_url = 'http://{}/'.format(urlparse.urlparse(url).netloc)
 
-    absolute_proxied_url = url_for('.proxy', url=absolute_url, _external=True)
-    relative_proxied_url = url_for('.proxy', url=base_url, _external=True)
+    scheme = 'https' if request.url.startswith('https://') else 'http://'
+
+    absolute_proxied_url = url_for('.proxy', url=absolute_url, _external=True, _scheme=scheme)
+    relative_proxied_url = url_for('.proxy', url=base_url, _external=True, _scheme=scheme)
 
     output = SRC_RELATIVE_REGEXP.sub(r"\1%s" % relative_proxied_url, output)
     output = SRC_ABSOLUTE_REGEXP.sub(r"\1%s" % absolute_proxied_url, output)
@@ -129,7 +131,8 @@ def proxy(url):
             header_value = req.headers[header]
             if header.lower() == 'location':
                 if header_value.startswith('/'):
-                    header_value = url_for('.proxy', url='http://{}'.format(parsed.netloc), _external=True) + header_value
+                    scheme = 'https' if request.url.startswith('https://') else 'http://'
+                    header_value = url_for('.proxy', url='http://{}'.format(parsed.netloc), _external=True, _scheme=scheme) + header_value
             response.headers[header] = header_value
     return response
 
