@@ -145,6 +145,7 @@ def allowed_hosts():
 
         # Valid app
         valid_hosts = data['hosts']
+        valid_hosts = [ valid_host for valid_host in valid_hosts if valid_host and 'localhost' not in valid_host and '127.0.' not in valid_host and '192.168' not in valid_host and '::1' not in valid_host ]
 
         processed_hosts = []
         for ah in db.session.query(AllowedHost).all():
