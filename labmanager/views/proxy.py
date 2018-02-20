@@ -39,7 +39,17 @@ SRC_ABSOLUTE_REGEXP = re.compile(r"""(<\s*(?!ng-[^<]*)[^<]*\s(src|href)\s*=\s*"?
 URL_ABSOLUTE_REGEXP = re.compile(r"""([: ]url\()/""")
 
 def inject_absolute_urls(output, url):
-    base_url = extract_base_url(url)
+    #
+    # e.g., /bar/foo.html contains
+    #       /bar/scripts/script.js which references to "image/foo.jpg'
+    #
+    # Then, we actually want /bar/image/foo.jpg and not /bar/scripts/image/foo.jpg
+    #
+    if url.endswith('.js') and request.referrer:
+        base_url = extract_base_url(request.referrer)
+    else:
+        base_url = extract_base_url(url)
+
     absolute_url = 'http://{}'.format(urlparse.urlparse(url).netloc)
 
     scheme = 'https' if current_app.config.get('PROXY_HTTPS') else 'http'
@@ -106,26 +116,29 @@ def proxy(url):
     if parsed.path == '':
         url = url + '/'
 
-    if parsed.netloc not in get_allowed_hosts():
-        return "URL domain not in the white list", abort(403)
+    allow_all = current_app.config.get('ALLOWED_HOSTS_ALL', False)
+    if not allow_all:
+        if parsed.netloc not in get_allowed_hosts():
+            return "URL domain not in the white list", abort(403)
 
     request_headers = {}
     for header in request.headers.keys():
         if header in WHITELIST_REQUEST_HEADERS:
             request_headers[header] = request.headers[header]
 
-    req = requests.get(url, stream = True, headers=request_headers)
+    query_url = url
+    query_args = urlparse.urlparse(request.url).query
+    if query_args:
+        query_url = query_url + '?' + query_args
 
+    req = requests.get(query_url, stream = True, headers=request_headers)
     content_type = req.headers.get('content-type')
     if content_type:
         kwargs = dict(content_type=content_type)
     else:
         kwargs = {}
+
     response = Response(stream_with_context(generate(req, url)), status=req.status_code, **kwargs)
-    # req = requests.get(url, stream = True)
-    # data = req.content
-    # print len(data)
-    # response = Response(data, content_type = req.headers['content-type'])
     for header in WHITELIST_RESPONSE_HEADERS:
         if header in req.headers.keys():
             header_value = req.headers[header]
@@ -134,6 +147,14 @@ def proxy(url):
                     scheme = 'https' if current_app.config.get('PROXY_HTTPS') else 'http'
                     header_value = url_for('.proxy', url='http://{}'.format(parsed.netloc), _external=True, _scheme=scheme) + header_value
             response.headers[header] = header_value
+
+    for cookie in iter(req.cookies):
+        kwargs = {}
+        path = url_for('.proxy', url='http://{}'.format(parsed.netloc)) + cookie.path
+        if cookie.expires:
+            kwargs['expires'] = cookie.expires
+        response.set_cookie(key=cookie.name, value=cookie.value, path=path, **kwargs)
+
     return response
 
 @proxy_blueprint.route('/allowed-hosts/', methods=['GET', 'POST'])
