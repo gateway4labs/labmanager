@@ -34,8 +34,8 @@ def make_url_absolute(relative_path, url):
         return relative_path
     return extract_base_url(url) + relative_path
 
-SRC_RELATIVE_REGEXP = re.compile(r"""(<\s*(?!ng-[^<]*)[^<]*\s(src|href)\s*=\s*"?'?)(?!http://|https://|//|/|#|"|"#|'|'#| i)""")
-SRC_ABSOLUTE_REGEXP = re.compile(r"""(<\s*(?!ng-[^<]*)[^<]*\s(src|href)\s*=\s*"?'?)(?!http://|https://|//|#|"|"#|'|'#| i)""")
+SRC_RELATIVE_REGEXP = re.compile(r"""(<\s*(?!ng-[^<>]*)[^<>]*\s(src|href)\s*=\s*"?'?)(?!http://|https://|//|/|#|"|"#|'|'#| i)""")
+SRC_ABSOLUTE_REGEXP = re.compile(r"""(<\s*(?!ng-[^<>]*)[^<>]*\s(src|href)\s*=\s*"?'?)(?!http://|https://|//|#|"|"#|'|'#| i)""")
 URL_ABSOLUTE_REGEXP = re.compile(r"""([: ]url\()/""")
 
 def inject_absolute_urls(output, url):
@@ -57,9 +57,13 @@ def inject_absolute_urls(output, url):
     absolute_proxied_url = url_for('.proxy', url=absolute_url, _external=True, _scheme=scheme)
     relative_proxied_url = url_for('.proxy', url=base_url, _external=True, _scheme=scheme)
 
-    output = SRC_RELATIVE_REGEXP.sub(r"\1%s" % relative_proxied_url, output)
-    output = SRC_ABSOLUTE_REGEXP.sub(r"\1%s" % absolute_proxied_url, output)
-    output = URL_ABSOLUTE_REGEXP.sub(r"\1%s/" % absolute_proxied_url, output)
+    output_lines = output.split('\n')
+    for line in output_lines:
+        line = SRC_RELATIVE_REGEXP.sub(r"\1%s" % relative_proxied_url, line)
+        line = SRC_ABSOLUTE_REGEXP.sub(r"\1%s" % absolute_proxied_url, line)
+        if '.css' in url:
+            line = URL_ABSOLUTE_REGEXP.sub(r"\1%s/" % absolute_proxied_url, line)
+    output = '\n'.join(output_lines)
     return output
 
 def replace_links(block, url):
