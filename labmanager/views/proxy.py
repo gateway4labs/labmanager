@@ -40,7 +40,7 @@ URL_ABSOLUTE_REGEXP = re.compile(r"""([: ]url\()/""")
 
 def inject_absolute_urls(output, url):
     base_url = extract_base_url(url)
-    absolute_url = 'http://{}/'.format(urlparse.urlparse(url).netloc)
+    absolute_url = 'http://{}'.format(urlparse.urlparse(url).netloc)
 
     scheme = 'https' if current_app.config.get('PROXY_HTTPS') else 'http'
 
@@ -49,7 +49,7 @@ def inject_absolute_urls(output, url):
 
     output = SRC_RELATIVE_REGEXP.sub(r"\1%s" % relative_proxied_url, output)
     output = SRC_ABSOLUTE_REGEXP.sub(r"\1%s" % absolute_proxied_url, output)
-    output = URL_ABSOLUTE_REGEXP.sub(r"\1%s" % absolute_proxied_url, output)
+    output = URL_ABSOLUTE_REGEXP.sub(r"\1%s/" % absolute_proxied_url, output)
     return output
 
 def replace_links(block, url):
