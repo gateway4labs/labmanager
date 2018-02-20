@@ -700,6 +700,47 @@ class EmbedApplicationTranslation(db.Model):
         self.url = url
         self.language = language
 
+class ManualApplication(db.Model):
+    __tablename__ = 'ManualApplications'
+
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.Unicode(100), index = True, nullable = False)
+    owner_id = db.Column(db.Integer, ForeignKey('GoLabOAuthUsers.id'))
+    identifier = db.Column(db.Unicode(36), index = True, nullable = False, unique = True)
+    creation = db.Column(db.DateTime, index = True, nullable = False)
+    last_update = db.Column(db.DateTime, index = True, nullable = False)
+
+    owner = relation("GoLabOAuthUser", backref="manual_apps")
+
+    def __init__(self, name, owner, identifier):
+        if identifier is None:
+            identifier = unicode(uuid.uuid4())
+            while EmbedApplication.query.filter_by(identifier=identifier).first() is not None:
+                identifier = unicode(uuid.uuid4())
+
+        self.identifier = identifier
+        self.name = name
+        self.owner = owner
+        self.creation = datetime.datetime.utcnow()
+        self.last_update = datetime.datetime.utcnow()
+
+class AllowedHost(db.Model):
+    __tablename__ = 'AllowedHosts'
+
+    id = db.Column(db.Integer, primary_key = True)
+    url = db.Column(db.Unicode(100), index = True, nullable = False)
+    creation = db.Column(db.DateTime, index = True, nullable = False)
+    last_update = db.Column(db.DateTime, index = True, nullable = False)
+
+    def __init__(self, url):
+        self.url = url
+        self.creation = datetime.datetime.utcnow()
+        self.last_update = self.creation
+
+    def update(self):
+        self.last_update = datetime.datetime.utcnow()
+
+
 class UseLog(db.Model):
     __tablename__ = 'UseLogs'
 

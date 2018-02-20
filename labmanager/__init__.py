@@ -31,6 +31,7 @@ from .views.repository import repository_blueprint
 from .views.stats import stats_blueprint
 from .views.bookmarklet import bookmarklet_blueprint
 from .views.embed import embed_blueprint
+from .views.proxy import proxy_blueprint
 
 def load_rlms_modules():
     """
@@ -68,6 +69,7 @@ def register_blueprints():
     app.register_blueprint(repository_blueprint, url_prefix='/repository')
     app.register_blueprint(bookmarklet_blueprint, url_prefix='/bookmarklet')
     app.register_blueprint(embed_blueprint, url_prefix='/embed')
+    app.register_blueprint(proxy_blueprint, url_prefix='/proxy')
 
     from labmanager.rlms.base import _BLUEPRINTS
     for url, blueprint in _BLUEPRINTS.items():
