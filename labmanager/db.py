@@ -17,6 +17,7 @@ from sqlalchemy import create_engine, MetaData
 
 from flask.ext.sqlalchemy import SQLAlchemy
 
+from labmanager import ALGORITHM
 from labmanager.utils import data_filename
 from labmanager.application import app
 
@@ -67,7 +68,7 @@ def init_db(drop = False, silence = False):
     command.stamp(alembic_config, "head")
 
     with app.app_context():
-        password = unicode(hashlib.new('sha', 'password').hexdigest())
+        password = unicode(hashlib.new(ALGORITHM, 'password').hexdigest())
         admin_user = LabManagerUser(u'admin', u'Administrator', password)
 
         db.session.add(admin_user)

@@ -7,6 +7,8 @@ import uuid
 from sqlalchemy import sql, ForeignKey
 from sqlalchemy.orm import relation, backref, relationship
 from flask.ext.login import UserMixin
+
+from labmanager import ALGORITHM
 from labmanager.db import db
 from labmanager.babel import gettext
 
@@ -310,7 +312,7 @@ class BasicHttpCredentials(db.Model, SBBase):
 
     def update_password(self, old_password):
         if self.lt_password != old_password:
-            self.lt_password = hashlib.new('sha', self.lt_password.encode('utf8')).hexdigest()
+            self.lt_password = hashlib.new(ALGORITHM, self.lt_password.encode('utf8')).hexdigest()
 
 ##################################################
 # 

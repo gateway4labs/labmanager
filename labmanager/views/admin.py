@@ -15,6 +15,8 @@ from flask.ext.login import current_user
 from flask.ext.admin import Admin, BaseView, AdminIndexView, expose
 from flask.ext.admin.model import InlineFormAdmin
 from flask.ext.admin.contrib.sqlamodel import ModelView
+
+from labmanager import ALGORITHM
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LabManagerUser, LtUser
 from labmanager.models import PermissionToCourse, RLMS, Laboratory, PermissionToLt, RequestPermissionLT
@@ -137,13 +139,13 @@ class UsersPanel(L4lModelView):
         if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
             return False            
-        form.password.data = unicode(new_hash("sha", form.password.data.encode('utf8')).hexdigest())
+        form.password.data = unicode(new_hash(ALGORITHM, form.password.data.encode('utf8')).hexdigest())
         return super(UsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
         old_password = model.password
         if form.password.data != '':
-            form.password.data = unicode(new_hash("sha", form.password.data.encode('utf8')).hexdigest())
+            form.password.data = unicode(new_hash(ALGORITHM, form.password.data.encode('utf8')).hexdigest())
         return_value = super(UsersPanel, self).update_model(form, model)
         if form.password.data == '':
             model.password = old_password
@@ -168,13 +170,13 @@ class LtUsersPanel(L4lModelView):
         if form.password.data == '':
             form.password.errors.append(lazy_gettext("This field is required."))
             return False
-        form.password.data = unicode(new_hash("sha", form.password.data.encode('utf8')).hexdigest())
+        form.password.data = unicode(new_hash(ALGORITHM, form.password.data.encode('utf8')).hexdigest())
         return super(LtUsersPanel, self).create_model(form)
 
     def update_model(self, form, model):
         old_password = model.password
         if form.password.data != '':
-            form.password.data = unicode(new_hash("sha", form.password.data.encode('utf8')).hexdigest())
+            form.password.data = unicode(new_hash(ALGORITHM, form.password.data.encode('utf8')).hexdigest())
         return_value = super(LtUsersPanel, self).update_model(form, model)
         if form.password.data == '':
             model.password = old_password

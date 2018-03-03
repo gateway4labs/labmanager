@@ -15,6 +15,7 @@ from hashlib import new as new_hash
 from flask import render_template, request, flash, redirect, url_for, session, make_response, current_app
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 from labmanager.babel import gettext
+from labmanager import ALGORITHM
 from ..application import app
 from labmanager.db import db_session
 from ..models import LabManagerUser, LtUser, LearningTool, GoLabOAuthUser
@@ -62,7 +63,7 @@ def login_admin():
         return render_template('login_admin.html', next=next)
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
-        hashed = unicode(new_hash("sha", request.form['password'].encode('utf8')).hexdigest())
+        hashed = unicode(new_hash(ALGORITHM, request.form['password'].encode('utf8')).hexdigest())
         user = LabManagerUser.exists(username, hashed)
         if user is not None:
             if login_user(user):
@@ -92,7 +93,7 @@ def login_lms():
         return render_template('login_lms.html', next=next, lmss=lmss, action_url = url_for('login_lms'))
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
-        hashed = unicode(new_hash("sha", request.form['password'].encode('utf8')).hexdigest())
+        hashed = unicode(new_hash(ALGORITHM, request.form['password'].encode('utf8')).hexdigest())
         lms_id = request.form['lms']
         user = LtUser.exists(username, hashed, lms_id)
         if user is not None:
@@ -122,7 +123,7 @@ def login_ple():
         return render_template('login_ple.html', next=next, lmss=ples, action_url = url_for('login_ple'))
     if request.method == 'POST' and 'username' in request.form:
         username = request.form['username']
-        hashed = unicode(new_hash("sha", request.form['password'].encode('utf8')).hexdigest())
+        hashed = unicode(new_hash(ALGORITHM, request.form['password'].encode('utf8')).hexdigest())
         lms_id = request.form['lms']
         user = LtUser.exists(username, hashed, lms_id)
         if user is not None:

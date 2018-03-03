@@ -4,6 +4,7 @@ import traceback
 import hashlib
  
 from flask import Response, render_template, request, g, Blueprint
+from labmanager import ALGORITHM
 from labmanager.db import db
 from labmanager.models import BasicHttpCredentials
 from labmanager.models   import LearningTool, PermissionToLt
@@ -37,7 +38,7 @@ def requires_lms_auth():
         username = auth.username
         password = auth.password
     password = unicode(password)
-    hash_password = hashlib.new('sha', password.encode('utf8')).hexdigest()
+    hash_password = hashlib.new(ALGORITHM, password.encode('utf8')).hexdigest()
     # TODO: check if there could be a conflict between two LTs with same key??
     credential = db.session.query(BasicHttpCredentials).filter_by(lt_login = username, lt_password = hash_password).first()
     if credential is None:

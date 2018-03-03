@@ -18,6 +18,8 @@ from flask.ext import wtf
 from flask.ext.admin import Admin, AdminIndexView, BaseView, expose
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.login import current_user
+
+from labmanager import ALGORITHM
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import LtUser, Course, Laboratory, PermissionToLt, PermissionToCourse, RequestPermissionLT
 from labmanager.views import RedirectView
@@ -111,7 +113,7 @@ class PleUsersPanel(L4lPleModelView):
         # TODO: don't update password always 
         # Edit is false, so there is no possibility of changing data
         model.lt   = current_user.lt
-        model.password = unicode(hashlib.new('sha',model.password.encode('utf8')).hexdigest())
+        model.password = unicode(hashlib.new(ALGORITHM,model.password.encode('utf8')).hexdigest())
 
 def create_permission_to_lms_filter(session):
     def filter():

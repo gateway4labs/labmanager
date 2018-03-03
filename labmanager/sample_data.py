@@ -9,6 +9,7 @@
 import json
 import hashlib
 
+from labmanager import ALGORITHM
 from .db import db, init_db, app
 from .models import LtUser, PermissionToLt, Laboratory, PermissionToLtUser
 from .models import LearningTool, RLMS, PermissionToCourse, BasicHttpCredentials, ShindigCredentials, Course
@@ -88,7 +89,7 @@ def add_sample_users(silence = False):
                          url = u"http://alud2.deusto.es/")
         db.session.add(lt1)
 
-        password = unicode(hashlib.new(u'sha', u'password').hexdigest())
+        password = unicode(hashlib.new(ALGORITHM, u'password').hexdigest())
 
         lt_admin      = LtUser(login=u"admin", full_name=u"Administrator", lt = lt1, access_level = u'admin')
         lt_admin.password = password

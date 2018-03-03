@@ -10,6 +10,15 @@ import os
 import sys
 import optparse
 
+import hashlib
+
+try:
+    hashlib.new("sha", "hello")
+    ALGORITHM = "sha"
+except:
+    ALGORITHM = "sha1"
+
+
 import labmanager.utils as labmanager_utils
 assert labmanager_utils is not None # pyflakes warning
 
