@@ -837,6 +837,7 @@ class UseLog(db.Model):
 
 class LocationCache(db.Model):
     __tablename__ = 'LocationCache'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key=True)
     pack = db.Column(db.Unicode(255), index=True, nullable=False)
