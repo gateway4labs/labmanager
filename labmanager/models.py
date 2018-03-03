@@ -13,6 +13,7 @@ from labmanager.babel import gettext
 
 TABLE_KWARGS = {
     'mysql_engine' : 'InnoDB',
+    'mysql_row_format': "DYNAMIC",
     # Complete me
 }
 
@@ -92,6 +93,7 @@ class LabManagerUser(db.Model, SBBase, UserMixin):
 
 class GoLabOAuthUser(db.Model, UserMixin):
     __tablename__ = 'GoLabOAuthUsers'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
     display_name = db.Column(db.Unicode(255), index = True, nullable = False)
@@ -171,6 +173,7 @@ class RLMS(db.Model, SBBase):
 
 class RLMSTypeCache(db.Model):
     __tablename__ = 'rlmstype_cache'
+    __table_args__ = (TABLE_KWARGS)
     
     id = db.Column(db.Integer, primary_key = True)
 
@@ -187,6 +190,7 @@ class RLMSTypeCache(db.Model):
 
 class RLMSCache(db.Model):
     __tablename__ = 'rlms_caches'
+    __table_args__ = (TABLE_KWARGS)
     
     id = db.Column(db.Integer, primary_key = True)
 
@@ -541,6 +545,7 @@ class RequestPermissionLT(db.Model, SBBase):
 
 class EmbedApplication(db.Model):
     __tablename__ = 'EmbedApplications'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
     url = db.Column(db.Unicode(255), index = True, nullable = False)
@@ -687,6 +692,7 @@ class EmbedApplication(db.Model):
 
 class EmbedApplicationTranslation(db.Model):
     __tablename__ = 'EmbedApplicationTranslation'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
     embed_application_id = db.Column(db.Integer, ForeignKey('EmbedApplications.id'))
@@ -702,6 +708,7 @@ class EmbedApplicationTranslation(db.Model):
 
 class ManualApplication(db.Model):
     __tablename__ = 'ManualApplications'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.Unicode(100), index = True, nullable = False)
@@ -726,6 +733,7 @@ class ManualApplication(db.Model):
 
 class AllowedHost(db.Model):
     __tablename__ = 'AllowedHosts'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key = True)
     url = db.Column(db.Unicode(100), index = True, nullable = False)
@@ -743,6 +751,7 @@ class AllowedHost(db.Model):
 
 class UseLog(db.Model):
     __tablename__ = 'UseLogs'
+    __table_args__ = (TABLE_KWARGS)
 
     id = db.Column(db.Integer, primary_key=True)
     datetime = db.Column(db.DateTime, index = True, nullable = False)
