@@ -345,9 +345,10 @@ def find_smartgateway_link(url, return_url):
             for base_url in base_urls:
                 if url.startswith(base_url):
                     lab = rlms.get_lab_by_url(url)
-                    db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
-                    if db_lab is not None:
-                        return url_for('bookmarklet.public_lab', public_identifier=db_lab.public_identifier, url=return_url)
+                    if lab is not None:
+                        db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
+                        if db_lab is not None:
+                            return url_for('bookmarklet.public_lab', public_identifier=db_lab.public_identifier, url=return_url)
     return None
 
 def _get_widgets(rlms, laboratory_id):
@@ -380,11 +381,12 @@ def find_smartgateway_opensocial_link(url):
             for base_url in base_urls:
                 if url.startswith(base_url):
                     lab = rlms.get_lab_by_url(url)
-                    db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
-                    if db_lab is not None:
-                        for widget in _get_widgets(rlms, lab.laboratory_id):
-                            # First widget wins...
-                            return url_for('opensocial.public_widget_xml', lab_name=db_lab.public_identifier, widget_name=widget['name'], _external=True)
+                    if lab is not None:
+                        db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
+                        if db_lab is not None:
+                            for widget in _get_widgets(rlms, lab.laboratory_id):
+                                # First widget wins...
+                                return url_for('opensocial.public_widget_xml', lab_name=db_lab.public_identifier, widget_name=widget['name'], _external=True)
     return None
 
 
