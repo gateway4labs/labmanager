@@ -16,7 +16,7 @@ import requests
 from flask import url_for
 
 from labmanager.db import db
-from labmanager.models import RLMS as dbRLMS
+from labmanager.models import RLMS as dbRLMS, Laboratory as dbLaboratory
 from labmanager.application import app
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
 from .caches import GlobalCache, VersionCache, InstanceCache, EmptyCache, get_cached_session, CacheDisabler, clean_cache
@@ -345,7 +345,7 @@ def find_smartgateway_link(url, return_url):
             for base_url in base_urls:
                 if url.startswith(base_url):
                     lab = rlms.get_lab_by_url(url)
-                    db_lab = db.session.query(Laboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
+                    db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
                     if db_lab is not None:
                         return url_for('bookmarklet.public_lab', public_identifier=db_lab.public_identifier, url=return_url)
     return None
@@ -380,7 +380,7 @@ def find_smartgateway_opensocial_link(url):
             for base_url in base_urls:
                 if url.startswith(base_url):
                     lab = rlms.get_lab_by_url(url)
-                    db_lab = db.session.query(Laboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
+                    db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
                     if db_lab is not None:
                         for widget in _get_widgets(rlms, lab.laboratory_id):
                             # First widget wins...
