@@ -1,5 +1,6 @@
 import traceback
 import datetime
+import certifi
 import requests
 from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify
@@ -70,9 +71,36 @@ class MultiCheckboxField(SelectMultipleField):
     widget = DivWidget()
     option_widget = CheckboxInput()
 
+
+CERTIFICATES_CHECKED = False
+
+def check_certificates():
+    """Some comodo certificates are wrong."""
+    global CERTIFICATES_CHECKED
+    
+    if CERTIFICATES_CHECKED:
+        return
+
+    ca_file = certifi.where()
+    with open('utils/comodo_domain_server_ca.crt', 'rb') as infile:
+        comodo_ca = infile.read()
+
+    with open(ca_file, 'rb') as infile:
+        ca_file_contents = infile.read()
+
+    if comodo_ca not in ca_file_contents:
+        try:
+            requests.get("https://cosci.tw/run/", timeout=(10, 10)).close()
+        except:
+            with open(ca_file, 'ab') as outfile:
+                outfile.write(comodo_ca)
+
+    CERTIFICATES_CHECKED = True
+
+
 # 
 # Public URLs
-# 
+#
 
 @embed_blueprint.route('/apps/')
 def apps():
@@ -403,6 +431,8 @@ def appcomp2gw_golabz_manual_migration_html():
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_golab_login
 def create():
+    check_certificates()
+
     original_url = request.args.get('url')
     if original_url:
         bookmarklet_from = original_url
