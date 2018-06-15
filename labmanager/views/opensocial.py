@@ -229,7 +229,15 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
         contents = render_template('opensocial/widget-error.xml',message="RLMS %s not found or not public" % rlms_identifier)
         return Response(contents, mimetype="application/xml")
 
-    widget_config = _extract_widget_config(rlms, lab_name, widget_name, True)
+    try:
+        widget_config = _extract_widget_config(rlms, lab_name, widget_name, True)
+    except Exception as err:
+        traceback.print_exc()
+        if 'remlabnet.eu' in str(err):
+            return "Error: the widget is not available at this moment"
+        else:
+            raise
+
     if widget_config is None:
         return "Error: widget does not exist anymore" # TODO  
 
