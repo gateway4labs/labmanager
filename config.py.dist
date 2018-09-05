@@ -3,7 +3,7 @@ import os
 SAML_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), '/labmanager/saml_auth/saml')
 
 # Have you run... "pip install git+https://github.com/gateway4labs/rlms_weblabdeusto.git" first?
-RLMS = ['weblabdeusto','unr','ilabs','phet','vish','quvis','concord','maplesoft', 'virtualbiologylab', 'vascak']
+RLMS = ['weblabdeusto','unr','ilabs','phet','vish','quvis','concord','maplesoft', 'virtualbiologylab', 'vascak', 'chemcollective']
 
 
 # Where will the admin error notification mails come from.
