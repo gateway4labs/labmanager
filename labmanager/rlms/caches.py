@@ -5,6 +5,7 @@ import datetime
 import calendar
 import cPickle as pickle
 import threading
+import traceback
 
 from UserDict import DictMixin
 
@@ -113,7 +114,7 @@ def context_wrapper(func):
             running_inside_context = False
         else:
             running_inside_context = True
-        
+
         if running_inside_context:
             return func(*args, **kwargs)
         
@@ -240,8 +241,10 @@ class AbstractCache(object, DictMixin):
         try:
             db.session.commit()
         except IntegrityError:
+            traceback.print_exc()
             db.session.rollback()
         except:
+            traceback.print_exc()
             db.session.rollback()
             raise
         return value
@@ -302,3 +305,8 @@ class InstanceCache(AbstractCache):
 class EmptyCache(dict):
     def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
         return dict.get(self, key, default_value)
+
+    def __setitem__(self, key, *args, **kwargs):
+        print("Warning: using __setitem__ in empty cache with key {}".format(key))
+        traceback.print_stack()
+        return dict.__setitem__(self, key, *args, **kwargs)
