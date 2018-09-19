@@ -359,7 +359,7 @@ def is_supported(rlms_type, rlms_version):
     return rlms_version in versions
 
 def _get_module(rlms_type, rlms_version):
-    module_name, versions, _ = _RLMSs.get(rlms_type, (None, []))
+    module_name, versions, _ = _RLMSs.get(rlms_type, (None, [], None))
     if rlms_version in versions:
         if hasattr(sys.modules[module_name], 'get_module'):
             return sys.modules[module_name].get_module(rlms_version)
