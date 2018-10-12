@@ -110,6 +110,10 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         # if autoload is None:
         #     autoload = labs[0].autoload
         pass
+
+    default_height = rlms.get_default_height()
+    if default_height and not 'height' in base_data:
+        base_data['height'] = default_height
     
     if Capabilities.TRANSLATIONS in capabilities:
         translations = rlms.get_translations(laboratory_identifier)
