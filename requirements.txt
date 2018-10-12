@@ -36,3 +36,4 @@ git+https://github.com/gateway4labs/rlms_vascak.git
 git+https://github.com/gateway4labs/rlms_amrita.git
 git+https://github.com/gateway4labs/rlms_virtualbiologylab.git
 git+https://github.com/gateway4labs/rlms_chemcollective.git
+git+https://github.com/gateway4labs/rlms_thephysicsaviary.git
