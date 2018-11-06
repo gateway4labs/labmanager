@@ -6,8 +6,10 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+import os
 import sys
 import time
+import gzip
 import threading
 import datetime
 import traceback
@@ -16,7 +18,7 @@ import requests
 from flask import url_for
 
 from labmanager.db import db
-from labmanager.models import RLMS as dbRLMS, Laboratory as dbLaboratory
+from labmanager.models import RLMS as dbRLMS, Laboratory as dbLaboratory, UseLog
 from labmanager.application import app
 from .base import register_blueprint, BaseRLMS, BaseFormCreator, Capabilities, Versions
 from .caches import GlobalCache, VersionCache, InstanceCache, EmptyCache, get_cached_session, CacheDisabler, clean_cache
@@ -167,6 +169,67 @@ def _debug(msg):
     sys.stdout.flush()
     sys.stderr.flush()
 
+
+def fill_geoip():
+    try:
+        from geoip2.database import Reader as GeoIP2Reader
+    except ImportError:
+        pass
+    else:
+        COUNTRY_FILENAME = 'GeoLite2-Country.mmdb'
+        CITY_FILENAME = 'GeoLite2-City.mmdb'
+
+        for filename in [COUNTRY_FILENAME, CITY_FILENAME]:
+            if not os.path.exists(filename):
+                r = requests.get("http://geolite.maxmind.com/download/geoip/database/%s.gz" % filename)
+                open('%s.gz' % filename,'wb').write(r.content)
+                uncompressed = gzip.open('%s.gz' % filename).read()
+                open(filename, 'wb').write(uncompressed)
+
+        from labmanager import app
+
+
+        with app.app_context():
+            country_reader = GeoIP2Reader(COUNTRY_FILENAME)
+            city_reader = GeoIP2Reader(CITY_FILENAME)
+
+            countries = 0
+            errors = 0
+            cities = 0
+            print db.session.query(UseLog).filter(UseLog.country.is_(None)).count()
+            for log in db.session.query(UseLog).filter(UseLog.country == None).all():
+                ip_address = log.ip_address
+
+                try:
+                    country_results = country_reader.country(ip_address)
+                except:
+                    errors += 1
+                    continue
+
+                if country_results:
+                    if country_results.country and country_results.country.iso_code:
+                        log.country = country_results.country.iso_code
+                        countries += 1
+
+            db.session.commit()
+            db.session.remove()
+
+            for log in db.session.query(UseLog).filter(UseLog.city == None).all():
+                ip_address = log.ip_address
+                try: 
+                    city_results = city_reader.city(ip_address)
+                except:
+                    errors += 1
+                    continue
+
+                if city_results and city_results.city and city_results.city.name:
+                    log.city = city_results.city.name
+                    cities += 1
+            db.session.commit()
+
+            print "geoip run {} countries, {} cities, {} errors".format(countries, cities, errors)
+
+
 class TaskRunner(object):
     def __init__(self):
         # task_id : datetime.datetime
@@ -237,6 +300,9 @@ class TaskRunner(object):
         if before.hour == initial.hour and before.minute == initial.minute:
             clean_cache()
 
+        if before.minute == initial.minute:
+            fill_geoip()
+
         future = before + datetime.timedelta(minutes = 1)
         future = future.replace(second = 0, microsecond = 0)
         self._run_all()
@@ -293,7 +359,7 @@ def is_supported(rlms_type, rlms_version):
     return rlms_version in versions
 
 def _get_module(rlms_type, rlms_version):
-    module_name, versions, _ = _RLMSs.get(rlms_type, (None, []))
+    module_name, versions, _ = _RLMSs.get(rlms_type, (None, [], None))
     if rlms_version in versions:
         if hasattr(sys.modules[module_name], 'get_module'):
             return sys.modules[module_name].get_module(rlms_version)

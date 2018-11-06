@@ -5,6 +5,7 @@ import datetime
 import calendar
 import cPickle as pickle
 import threading
+import traceback
 
 from UserDict import DictMixin
 
@@ -113,7 +114,7 @@ def context_wrapper(func):
             running_inside_context = False
         else:
             running_inside_context = True
-        
+
         if running_inside_context:
             return func(*args, **kwargs)
         
@@ -185,7 +186,13 @@ class AbstractCache(object, DictMixin):
             headers = {}
 
         if headers.get('Cache-Control') == 'no-cache' or headers.get('Pragma') == 'no-cache':
-            if 'shindig' not in headers.get('User-Agent', '').lower() and not is_forcing_cache():
+            user_agent = headers.get('User-Agent', '') or ''
+            is_bad_user_agent = False
+            for bad_user_agent in ['shindig', 'bot']: # Add more
+                if bad_user_agent.lower() in user_agent.lower():
+                    is_bad_user_agent = True
+
+            if not is_bad_user_agent and not is_forcing_cache():
                 print("[%s]: Cache ignore request by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
                 sys.stdout.flush()
                 return default_value
@@ -240,8 +247,10 @@ class AbstractCache(object, DictMixin):
         try:
             db.session.commit()
         except IntegrityError:
+            traceback.print_exc()
             db.session.rollback()
         except:
+            traceback.print_exc()
             db.session.rollback()
             raise
         return value
@@ -302,3 +311,8 @@ class InstanceCache(AbstractCache):
 class EmptyCache(dict):
     def get(self, key, default_value = None, min_time = datetime.timedelta(hours=1)):
         return dict.get(self, key, default_value)
+
+    def __setitem__(self, key, *args, **kwargs):
+        print("Warning: using __setitem__ in empty cache with key {}".format(key))
+        traceback.print_stack()
+        return dict.__setitem__(self, key, *args, **kwargs)
