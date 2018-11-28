@@ -144,6 +144,10 @@ def yearly():
         if (year, 12) not in temporal_month_url:
             temporal_month_url[year, 12] = []
 
+        lab_data = lab_per_url.get(url, {})
+        if request.args.get('https') in ['1', 'true'] and lab_data.get('lab_golabz_page') not in failure_data['ssl']:
+            continue
+
         temporal_month_url[year, 12].append({
             'count': count,
             'url': url,
