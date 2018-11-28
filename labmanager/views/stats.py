@@ -98,4 +98,79 @@ def monthly():
     month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
     return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data)
 
+@stats_blueprint.route("/yearly")
+def yearly():
+    try:
+        failure_data = requests.get("http://composer.golabz.eu/translator/stats/status.json").json()
+    except:
+        failure_data = {
+            'failing': [],
+            'flash': [],
+            'ssl': [],
+        }
+
+    lab_contents = requests.get('http://www.golabz.eu/rest/labs/retrieve.json').json()
+    lab_per_url = {
+        # url: lab_data
+    }
+    for lab in lab_contents:
+        for lab_app in lab['lab_apps']:
+            lab_per_url[lab_app['app_url']] = lab
+
+    month_results = [
+        # {
+        #    'year': year,
+        #    'month': month,
+        #    'count': count,
+        # }
+    ]
+    monthly_summary = {
+        # (year, month): count
+    }
+    for count, year in db.session.query(func.count("id"), UseLog.year).group_by(UseLog.year).all():
+        month_results.append({
+            'year': year,
+            'month': 12,
+            'count': count
+        })
+        monthly_summary[year, month] = count
+    month_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
+
+    temporal_month_url = {
+        # (year, month): [ { 'count': count, 'url': url ]
+    }
+    for count, year, url in db.session.query(func.count("id"), UseLog.year, UseLog.url).group_by(UseLog.year, UseLog.url).all():
+        if (year, 12) not in temporal_month_url:
+            temporal_month_url[year, 12] = []
+
+        temporal_month_url[year, 12].append({
+            'count': count,
+            'url': url,
+            'data': lab_per_url.get(url, {})
+        })
+        temporal_month_url[year, 12].sort(lambda x, y: cmp(x['count'], y['count']), reverse=True)
+
+    month_url_results = [
+        # {
+        #    'year': year,
+        #    'month': 12,
+        #    'urls': [
+        #      { # sorted > to min
+        #        'count': count,
+        #        'url': url
+        #      }
+        #    ]
+        # }
+    ]
+    for (year, month), results in temporal_month_url.items():
+        month_url_results.append({
+            'year': year,
+            'month': month,
+            'count': monthly_summary[year, month],
+            'urls': results,
+        })
+
+    month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
+    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data)
+
 
