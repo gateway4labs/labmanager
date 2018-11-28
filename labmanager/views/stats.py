@@ -127,6 +127,7 @@ def yearly():
     monthly_summary = {
         # (year, month): count
     }
+    month = 12
     for count, year in db.session.query(func.count("id"), UseLog.year).group_by(UseLog.year).all():
         month_results.append({
             'year': year,
