@@ -96,7 +96,7 @@ def monthly():
         })
 
     month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
-    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data)
+    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data, monthly=True)
 
 @stats_blueprint.route("/yearly")
 def yearly():
@@ -172,6 +172,6 @@ def yearly():
         })
 
     month_url_results.sort(lambda x, y: cmp(x['year'], y['year']) or cmp(x['month'], y['month']), reverse=True)
-    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data)
+    return render_template("stats/monthly.html", month_results=month_results, month_url_results=month_url_results, failure_data=failure_data, monthly=False)
 
 
