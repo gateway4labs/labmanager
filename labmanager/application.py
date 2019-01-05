@@ -139,6 +139,10 @@ def about():
 def shutdown_session(exception = None):
     db.session.remove()
 
+@app.after_request
+def add_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 from labmanager.babel import Babel
 from flask import request
