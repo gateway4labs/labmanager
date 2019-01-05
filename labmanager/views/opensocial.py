@@ -118,7 +118,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
 
     default_scale = rlms.get_default_scale()
     if default_scale and not base_data.get('scale'):
-        base_data['scale'] = '{}'.format(default_scale)
+        base_data['scale'] = int(default_scale)
         scale = base_data['scale']
    
     if Capabilities.TRANSLATIONS in capabilities:
