@@ -176,6 +176,11 @@ class BaseRLMS(object):
             return self.DEFAULT_HEIGHT
         return None
 
+    def get_default_scale(self):
+        if hasattr(self, 'DEFAULT_SCALE'):
+            return self.DEFAULT_SCALE
+        return None
+
     @abstractmethod
     def get_capabilities():
         """get_capabilities() -> [ Capability1, Capability2 ]

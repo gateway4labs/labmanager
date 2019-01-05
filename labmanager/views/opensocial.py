@@ -115,7 +115,12 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
     if default_height and not base_data.get('height'):
         base_data['height'] = '{}px'.format(default_height)
         height = base_data['height']
-    
+
+    default_scale = rlms.get_default_scale()
+    if default_scale and not base_data.get('scale'):
+        base_data['scale'] = '{}'.format(default_scale)
+        scale = base_data['scale']
+   
     if Capabilities.TRANSLATIONS in capabilities:
         translations = rlms.get_translations(laboratory_identifier)
         if 'translations' not in translations:
