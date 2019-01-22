@@ -51,8 +51,8 @@ if not app.debug and app.config.get("ADMINS") is not None and app.config.get("SM
 
     class MailLoggingFilter(logging.Filter):
         def filter(self, record):
-            pass
             record.environ = pprint.pformat(request.environ)
+            record.headers = pprint.pformat(request.headers)
             return True
 
     app.logger.addFilter(MailLoggingFilter())
@@ -79,6 +79,10 @@ if not app.debug and app.config.get("ADMINS") is not None and app.config.get("SM
         Environment:
 
         %(environ)s
+
+        Headers:
+
+        %(headers)s
 
         Stack Trace:
         ''')
