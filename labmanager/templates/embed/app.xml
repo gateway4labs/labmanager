@@ -4,10 +4,10 @@
  {% if app.scale %}
     {% set real_height = (app.height * app.scale / 9890.0)|int %}
  {% else %}
-    {% set real_height = app.height %}
+    {% set real_height = app.height + 20 %}
  {% endif %}
 
- <ModulePrefs title="{{ app.name }}" height="{{ real_height + 20 }}" author="{{ author }}">
+ <ModulePrefs title="{{ app.name }}" height="{{ real_height }}" author="{{ author }}">
     <Require feature="osapi" />
     {% if IS_FLASH %}
     <Require feature="flash" />
