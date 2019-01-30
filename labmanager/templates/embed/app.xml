@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
  {% set IS_FLASH = app.url.endswith('.swf') %} 
- <ModulePrefs title="{{ app.name }}" height="{{ app.height + 20 }}" author="{{ author }}">
+ {% if app.scale %}
+    {% set real_height = (app.height * app.scale / 9890.0)|int %}
+ {% else %}
+    {% set real_height = app.height %}
+ {% endif %}
+
+ <ModulePrefs title="{{ app.name }}" height="{{ real_height + 20 }}" author="{{ author }}">
     <Require feature="osapi" />
     {% if IS_FLASH %}
     <Require feature="flash" />
@@ -46,7 +52,7 @@
     </style>
     </head>
 
-    <div style="width: 100%; overflow: hidden">
+    <div style="width: 100%; overflow: hidden {% if app.height and app.scale %}; height: {{ real_height }}px{% endif %}">
          {% if IS_FLASH %}
          <div id="app_url" style="text-align: center"></div>
          {% else %}
