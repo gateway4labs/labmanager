@@ -1,6 +1,8 @@
 <Module>
  <ModulePrefs title="Widget {{ widget_name }} of {{ lab_name }}">
+    {% set languages_displayed = [] %}
     {% if widget_config.get('show_languages', False) %}
+         {% set languages_displayed = widget_config['translations'].get('translations', {}).keys() %}
          {% if public_rlms %}
              <Locale messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
              <Locale lang="en" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
@@ -42,15 +44,22 @@
                 {% endif %}
              {% endfor %}
          {% endif %}
-    {% elif widget_config.get('show_empty_languages', False)  %}
+    {% endif %}
+
+    {% if widget_config.get('show_empty_languages', False)  %}
+        {% if 'en' not in languages_displayed and 'en_ALL' not in languages_displayed %}
         <Locale messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+        {% endif %}
+
         {% for lang in widget_config['translation_list'] %}
-            {% if '_' in lang %}
-                {% set country = lang.split('_')[1] %}
-            {% else %}
-                {% set country = "ALL" %}
+            {% if lang not in languages_displayed %}
+                {% if '_' in lang %}
+                    {% set country = lang.split('_')[1] %}
+                {% else %}
+                    {% set country = "ALL" %}
+                {% endif %}
+                <Locale lang="{{ lang.split('_')[0] }}" {% if country != 'ALL' %}country="{{ country }}"{% endif %}  messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
             {% endif %}
-            <Locale lang="{{ lang.split('_')[0] }}" {% if country != 'ALL' %}country="{{ country }}"{% endif %}  messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
         {% endfor %}
     {% endif %}
      <Require feature="osapi" />

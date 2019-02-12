@@ -131,8 +131,11 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         translations = {'translations' : {}, 'mails' : []}
 
     # Only if no translation is regularly provided and translation_list is supoprted
-    if len(translations['translations']) == 0 and Capabilities.TRANSLATION_LIST in capabilities:
+    if Capabilities.TRANSLATION_LIST in capabilities:
         translation_list = list((rlms.get_translation_list(laboratory_identifier) or {}).get('supported_languages', []))
+        for lang in translations['translations']:
+            if lang not in translation_list:
+                translation_list.append(lang)
     else:
         translation_list = []
 
@@ -145,7 +148,7 @@ def _extract_widget_config(rlms_db, laboratory_identifier, widget_name, lab_foun
         show_languages = False
     else:
         show_languages = True
-        
+
     show_empty_languages = len(translation_list) > 0
 
     if Capabilities.WIDGET in capabilities:
