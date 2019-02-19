@@ -20,7 +20,7 @@
     {% endif %}
     <appcomposer check-url="{{ app.url }}"/>
     {% for app_url in apps_per_language.values() %}
-    <appcomposer check-url="{{ app_url }}"/>
+    <appcomposer check-url="{{ app_url['url'] }}"/>
     {% endfor %}
  </ModulePrefs>
  <Content type="html" view="home,canvas">
@@ -88,9 +88,9 @@
             var prefs = new gadgets.Prefs();
             var urls_per_language = {};
             {% for lang in apps_per_language %}
-            urls_per_language[{{ lang|tojson }}] = {{ apps_per_language[lang]|tojson }};
+            urls_per_language[{{ lang|tojson }}] = {{ apps_per_language[lang]['full_url']|tojson }};
             {% endfor %}
-            var default_url = {{ app.url|tojson }};
+            var default_url = {{ app.full_url|tojson }};
             var url = null;
 
             if (prefs.getLang()) {

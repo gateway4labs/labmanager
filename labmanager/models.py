@@ -6,6 +6,7 @@ import datetime
 import uuid
 from sqlalchemy import sql, ForeignKey
 from sqlalchemy.orm import relation, backref, relationship
+from flask import url_for
 from flask.ext.login import UserMixin
 
 from labmanager import ALGORITHM
@@ -561,6 +562,7 @@ class EmbedApplication(db.Model):
     description = db.Column(db.UnicodeText, nullable = True)
     age_ranges_commas = db.Column(db.Unicode(100), nullable = True) # golab format, comma separated
     domains_json = db.Column(db.Unicode(255), nullable = True) # JSON-encoded domains in a list
+    uses_proxy = db.Column(db.Boolean, nullable=True) # If True, then it should use the https proxy
 
     owner = relation("GoLabOAuthUser", backref="embed_apps")
 
@@ -584,6 +586,14 @@ class EmbedApplication(db.Model):
         self.description = description
         self.age_ranges_range = age_ranges_range or "[4, 20]"
         self.domains = domains or ''
+
+    @property
+    def full_url(self):
+        """With proxy if needed"""
+        if self.uses_proxy:
+            return url_for('proxy.proxy', url=self.url, _external=True)
+
+        return self.url
 
     @property
     def domains(self):
@@ -707,6 +717,13 @@ class EmbedApplicationTranslation(db.Model):
         self.embed_application = embed_application
         self.url = url
         self.language = language
+
+    @property
+    def full_url(self):
+        if self.embed_application.uses_proxy:
+            return url_for('proxy.proxy', url=self.url, _external=True)
+
+        return self.url
 
 class ManualApplication(db.Model):
     __tablename__ = 'ManualApplications'

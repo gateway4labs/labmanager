@@ -122,10 +122,10 @@ def app_html(identifier):
         return jsonify(error=True, message="App not found")
 
     apps_per_language = {
-        'en': application.url,
+        'en': application.full_url,
     }
     for translation in application.translations:
-        apps_per_language[translation.language] = translation.url
+        apps_per_language[translation.language] = translation.full_url
 
     return render_template("embed/app-embedded.html", apps=apps_per_language)
 
@@ -138,7 +138,10 @@ def app_xml(identifier):
     apps_per_language = {}
     languages = ['en']
     for translation in application.translations:
-        apps_per_language[translation.language] = translation.url
+        apps_per_language[translation.language] = {
+            'url': translation.url,
+            'full_url': translation.full_url,
+        }
         languages.append(translation.language)
 
     author = application.owner.display_name

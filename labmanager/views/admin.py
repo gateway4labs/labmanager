@@ -94,7 +94,7 @@ class EmbedApplicationsPanel(L4lModelView):
         url=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(m.url, m.url[:MAX_URL_LENGTH] + ('' if len(m.url) < MAX_URL_LENGTH else '...'))),
     )
     column_filters = ('name', 'identifier', 'url', 'owner.display_name', 'owner.email')
-    form_columns = ('owner', 'url', 'name', 'height', 'scale', 'identifier', 'creation', 'last_update', 'translations')
+    form_columns = ('owner', 'url', 'name', 'height', 'scale', 'uses_proxy', 'identifier', 'creation', 'last_update', 'translations')
     column_descriptions = dict(
         scale="Multiplied by 100. So 7500 is 75%",
         height="Height in pixels. 900 is 900 pixels",
