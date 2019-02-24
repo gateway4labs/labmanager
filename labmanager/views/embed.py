@@ -9,6 +9,7 @@ from labmanager.views.authn import requires_golab_login, current_golab_user
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser, UseLog
+from labmanager.models import HttpsUnsupportedUrl
 from labmanager.rlms import find_smartgateway_link, find_smartgateway_opensocial_link
 from labmanager.translator.languages import obtain_languages
 from labmanager.utils import remote_addr
@@ -96,6 +97,39 @@ def check_certificates():
                 outfile.write(comodo_ca)
 
     CERTIFICATES_CHECKED = True
+
+#
+# App Composer checker
+#
+@embed_blueprint.route('/https-limitations/', methods=['GET', 'POST'])
+def allowed_hosts():
+    if request.method == 'POST':
+        data = request.get_json(force=True, silent=True)
+        if request.headers.get('gw4labs-auth') != current_app.config.get('ALLOWED_HOSTS_CREDENTIAL', object()):
+            return "Invalid gw4labs-auth credentials", 403
+
+        # Unsupported https URLs
+        unsupported_urls = data['hosts']
+
+        processed_hosts = []
+        for huu in db.session.query(HttpsUnsupportedUrl).all():
+            if huu.url in processed_hosts:
+                hul.update()
+            else:
+                db.session.delete(huu)
+            processed_hosts.append(huu.url)
+
+        for missing_host in set(unsupported_urls).difference(set(processed_hosts)):
+            huu = HttpsUnsupportedUrl(missing_host)
+            db.session.add(huu)
+        db.session.commit()
+
+    all_hosts = [ {
+        'url': huu.url,
+        'when': huu.last_update.strftime("%Y-%m-%d %H:%M:%S")
+    } for huu in db.session.query(HttpsUnsupportedUrl).all() ]
+    return jsonify(hosts=all_hosts)
+
 
 
 # 

@@ -767,6 +767,23 @@ class AllowedHost(db.Model):
     def update(self):
         self.last_update = datetime.datetime.utcnow()
 
+class HttpsUnsupportedUrl(db.Model):
+    __tablename__ = 'HttpsUnsupportedUrls'
+    __table_args__ = (TABLE_KWARGS)
+
+    id = db.Column(db.Integer, primary_key = True)
+    url = db.Column(db.Unicode(100), index = True, nullable = False)
+    creation = db.Column(db.DateTime, index = True, nullable = False)
+    last_update = db.Column(db.DateTime, index = True, nullable = False)
+
+    def __init__(self, url):
+        self.url = url
+        self.creation = datetime.datetime.utcnow()
+        self.last_update = self.creation
+
+    def update(self):
+        self.last_update = datetime.datetime.utcnow()
+
 
 class UseLog(db.Model):
     __tablename__ = 'UseLogs'
