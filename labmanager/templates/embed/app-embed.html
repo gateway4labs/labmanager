@@ -1,0 +1,112 @@
+<html>
+{# TODO: flash #}
+{% set IS_FLASH = app.url.endswith('.swf') %} 
+{% if app.scale %}
+   {% set real_height = (app.height * app.scale / 9890.0)|int %}
+{% else %}
+   {% set real_height = app.height + 20 %}
+{% endif %}
+<head>
+    <meta name="check-url" value="{{ app.url }}"/>
+    {% for app_url in apps_per_language.values() %}
+    <meta name="check-url" value="{{ app_url['url'] }}"/>
+    {% endfor %}
+    <meta name="uses-proxy" value="{% if app.uses_proxy %}true{% else %}false{% endif %}">
+
+    {% if languages|length > 1 %}
+        <meta name="translations" messages="{{ url_for('static', filename="empty.xml", _external=True) }}"/>
+        {% for language in languages %}
+        <meta name="translations" lang="{{ language }}" messages="{{ url_for('static', filename="empty.xml", _external=True) }}"/>
+        {% endfor %}
+    {% endif %}
+
+    <style>
+        {% if not IS_FLASH %}
+        #app_url {
+        {# 9890 = 98.9% #}
+        {% set max_width = 9890 %}
+        {% if app.scale %}
+            {% set new_scale = "scale(%s)" % (app.scale/max_width) %}
+            -webkit-transform-origin: top left;
+            -moz-transform-origin: top left;
+            -ms-transform-origin: top left;
+            -o-transform-origin: top left;
+            transform-origin: top left;
+            width: {{ max_width/(app.scale/100) }}%;
+            -webkit-transform: {{ new_scale }};
+            -moz-transform: {{ new_scale }};
+            -ms-transform: {{ new_scale }};
+            -o-transform: {{ new_scale }};
+            transform: {{ new_scale }};
+        {% else %}
+            width: {{ max_width / 100 }}%;
+        {% endif %}
+        }
+        {% endif %}
+    </style>
+</head>
+<body>
+    <div style="width: 100%; overflow: hidden {% if app.height and app.scale %}; height: {{ real_height }}px{% endif %}">
+         {% if IS_FLASH %}
+         <div id="app_url" style="text-align: center"></div>
+         {% else %}
+         <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
+         {% endif %}
+    </div>
+
+    <script>
+		function getParameterByName(name) {
+			var url = window.location.hash;
+			name = name.replace(/[\[\]]/g, '\\$&');
+			var regex = new RegExp('' + name + '(=([^&#]*)|&|#|$)'),
+				results = regex.exec(url);
+
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, ' '));
+		}
+
+        var urls_per_language = {};
+        {% for lang in apps_per_language %}
+        urls_per_language[{{ lang|tojson }}] = {{ apps_per_language[lang]['full_url']|tojson }};
+        {% endfor %}
+        var default_url = {{ app.full_url|tojson }};
+        var url = null;
+
+        var language = "";
+        var country = "";
+        var target = "";
+        var resourceId = "";
+
+        if (window.location.hash) {
+            language = getParameterByName("language") || "";
+            country = getParameterByName("country") || "";
+            resourceId = getParameterByName("resourceId") || "";
+            target = getParameterByName("target") || "";
+        }
+
+        if (language) {
+            if (country)
+                url = urls_per_language[language + "_" + country];
+            if (!url)
+                url = urls_per_language[language + "_ALL"];
+            if (!url)
+                url = urls_per_language[language];
+        }
+
+        if (!url) 
+            url = default_url;
+
+        document.getElementById("app_url").src = url;
+
+        if (resourceId) {
+            window.postMessage(JSON.stringify({ 
+                'event': 'resize',
+                'resourceId': resourceId,
+                'height': '{{ real_height }}px'
+            }), '*');
+            // }), {{ url_for('index', _external=True)|tojson }});
+        }
+    </script>
+</body>
+</html>

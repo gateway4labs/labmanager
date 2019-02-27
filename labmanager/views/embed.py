@@ -149,8 +149,8 @@ def app(identifier):
 
     return render_template("embed/app.html", user = current_golab_user(), app = application, title = gettext("Application {name}").format(name=application.name))
 
-@embed_blueprint.route('/apps/<identifier>/app.html')
-def app_html(identifier):
+@embed_blueprint.route('/apps/<identifier>/app-legacy.html')
+def app_legacy_html(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
     if application is None:
         return jsonify(error=True, message="App not found")
@@ -162,6 +162,25 @@ def app_html(identifier):
         apps_per_language[translation.language] = translation.full_url
 
     return render_template("embed/app-embedded.html", apps=apps_per_language)
+
+@embed_blueprint.route('/apps/<identifier>/app.html')
+def app_html(identifier):
+    application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
+    if application is None:
+        return render_template("embed/error.xml", user = current_golab_user(), message = gettext("Application '{identifier}' not found").format(identifier=identifier)), 404
+
+    apps_per_language = {}
+    languages = ['en']
+    for translation in application.translations:
+        apps_per_language[translation.language] = {
+            'url': translation.url,
+            'full_url': translation.full_url,
+        }
+        languages.append(translation.language)
+
+    author = application.owner.display_name
+
+    return render_template("embed/app-embed.html", author = author, user = current_golab_user(), identifier=identifier, app = application, languages=languages, apps_per_language = apps_per_language, title = gettext("Application {name}").format(name=application.name))
 
 @embed_blueprint.route('/apps/<identifier>/app.xml')
 def app_xml(identifier):
