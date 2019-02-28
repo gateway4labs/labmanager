@@ -99,13 +99,14 @@
 
         document.getElementById("app_url").src = url;
 
-        if (resourceId) {
-            window.postMessage(JSON.stringify({ 
+        if (target && resourceId) {
+            var message = JSON.stringify({ 
                 'event': 'resize',
                 'resourceId': resourceId,
                 'height': '{{ real_height }}px'
-            }), '*');
-            // }), {{ url_for('index', _external=True)|tojson }});
+            });
+            parent.postMessage(message, target);
+            console.log("Requesting to resize: ", message, " on ", target);
         }
     </script>
 </body>
