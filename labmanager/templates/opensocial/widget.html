@@ -1,317 +1,293 @@
 <html>
 <head>
- <title="Widget {{ widget_name }} of {{ lab_name }}">
-    {% set languages_displayed = [] %}
-    {% if widget_config.get('show_languages', False) %}
-         {% set languages_displayed = widget_config['translations'].get('translations', {}).keys() %}
-         {% if public_rlms %}
-             <meta name="translations" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
-             {% for lang in widget_config['translations'].get('translations', {}) %}
-                {% if lang != "en" and lang != "en_ALL" %}
-                    {% if '_' in lang %}
-                        {% set country = lang.split('_')[1] %}
-                    {% else %}
-                        {% set country = "ALL" %}
+    <title="Widget {{ widget_name }} of {{ lab_name }}">
+        {% set languages_displayed = [] %}
+        {% if widget_config.get('show_languages', False) %}
+             {% set languages_displayed = widget_config['translations'].get('translations', {}).keys() %}
+             {% if public_rlms %}
+                 <meta name="translations" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
+                 {% for lang in widget_config['translations'].get('translations', {}) %}
+                    {% if lang != "en" and lang != "en_ALL" %}
+                        {% if '_' in lang %}
+                            {% set country = lang.split('_')[1] %}
+                        {% else %}
+                            {% set country = "ALL" %}
+                        {% endif %}
+                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang=lang, _external = True) }}"/>
                     {% endif %}
-                    <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang=lang, _external = True) }}"/>
-                {% endif %}
-             {% endfor %}
-         {% elif public_lab %}
-             <meta name="translations" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
-             {% for lang in widget_config['translations'].get('translations', {}) %}
-                {% if lang != "en" and lang != "en_ALL" %}
-                    {% if '_' in lang %}
-                        {% set country = lang.split('_')[1] %}
-                    {% else %}
-                        {% set country = "ALL" %}
+                 {% endfor %}
+             {% elif public_lab %}
+                 <meta name="translations" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
+                 {% for lang in widget_config['translations'].get('translations', {}) %}
+                    {% if lang != "en" and lang != "en_ALL" %}
+                        {% if '_' in lang %}
+                            {% set country = lang.split('_')[1] %}
+                        {% else %}
+                            {% set country = "ALL" %}
+                        {% endif %}
+                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = lang) }}"/>
                     {% endif %}
-                    <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = lang) }}"/>
-                {% endif %}
-             {% endfor %}
-         {% else %}
-             <meta name="translations" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
-             {% for lang in widget_config['translations'].get('translations', {}) %}
-                {% if lang != "en" and lang != "en_ALL" %}
-                    {% if '_' in lang %}
-                        {% set country = lang.split('_')[1] %}
-                    {% else %}
-                        {% set country = "ALL" %}
-                    {% endif %}
-                    <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = lang) }}"/>
+                 {% endfor %}
+             {% else %}
+                 <meta name="translations" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
+                 {% for lang in widget_config['translations'].get('translations', {}) %}
+                    {% if lang != "en" and lang != "en_ALL" %}
+                        {% if '_' in lang %}
+                            {% set country = lang.split('_')[1] %}
+                        {% else %}
+                            {% set country = "ALL" %}
+                        {% endif %}
+                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = lang) }}"/>
 
-                {% endif %}
-             {% endfor %}
-         {% endif %}
-    {% endif %}
-
-    {% if widget_config.get('show_empty_languages', False)  %}
-        {% if 'en' not in languages_displayed and 'en_ALL' not in languages_displayed %}
-        <meta name="translations" messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+                    {% endif %}
+                 {% endfor %}
+             {% endif %}
         {% endif %}
 
-        {% for lang in widget_config['translation_list'] %}
-            {% if lang not in languages_displayed %}
-                {% if '_' in lang %}
-                    {% set country = lang.split('_')[1] %}
+        {% if widget_config.get('show_empty_languages', False)  %}
+            {% if 'en' not in languages_displayed and 'en_ALL' not in languages_displayed %}
+            <meta name="translations" messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+            {% endif %}
+
+            {% for lang in widget_config['translation_list'] %}
+                {% if lang not in languages_displayed %}
+                    {% if '_' in lang %}
+                        {% set country = lang.split('_')[1] %}
+                    {% else %}
+                        {% set country = "ALL" %}
+                    {% endif %}
+                    <meta name="translations" lang="{{ lang.split('_')[0] }}" {% if country != 'ALL' %}country="{{ country }}"{% endif %}  messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+         {% for check_url in widget_config.get('check_urls', []) %}
+         <meta name="check-url" value="{{ check_url }}"/>
+         {% endfor %}
+
+        <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
+        <style>
+            #final_widget_iframe {
+            {# 9890 = 98.9% #}
+            {% set max_width = 9890 %}
+            {% if widget_config.get('scale') %}
+                {% set scale = widget_config['scale'] %}
+                {% set new_scale = "scale(%s)" % (scale/max_width) %}
+                -webkit-transform-origin: top left;
+                -moz-transform-origin: top left;
+                -ms-transform-origin: top left;
+                -o-transform-origin: top left;
+                transform-origin: top left;
+                width: {{ max_width/(scale/100) }}%;
+                -webkit-transform: {{ new_scale }};
+                -moz-transform: {{ new_scale }};
+                -ms-transform: {{ new_scale }};
+                -o-transform: {{ new_scale }};
+                transform: {{ new_scale }};
+            {% else %}
+                width: {{ max_width / 100 }}%;
+            {% endif %}
+            }
+        </style>
+
+        <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
+
+        <script type="text/javascript">
+            // The LAB_ID identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
+            var CURRENT_HOST_HTTP = 'http://{{ request.host }}';
+            var CURRENT_HOST_HTTPS = 'https://{{ request.host }}';
+            var LAB_ID = '{{ request.url.split('?')[0] }}';
+            var AUTOLOAD = {{ autoload|tojson }};
+            {% if public_rlms %}
+            var BOOKING_URL = null;
+            {% elif public_lab %}
+            var BOOKING_URL = '{{ url_for(".check_public_laboratory_booking", lab_name = lab_name, _external = True) }}';
+            {% else %}
+            var BOOKING_URL = '{{ url_for(".check_laboratory_booking", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
+            {% endif %}
+            {% if go_lab_booking %}
+            var GOLAB_BOOKING = true;
+            {% else %}
+            var GOLAB_BOOKING = false;
+            {% endif %}
+
+            function getReservationUrl(localeString) {
+                var token = "null";
+                // Laboratory config provided in the request
+                {% if request.args.get('lab_config') %}
+                var lab_config = "&lab_config={{ request.args.get('lab_config') }}";
                 {% else %}
-                    {% set country = "ALL" %}
+                var lab_config = "";
                 {% endif %}
-                <meta name="translations" lang="{{ lang.split('_')[0] }}" {% if country != 'ALL' %}country="{{ country }}"{% endif %}  messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-     {% for check_url in widget_config.get('check_urls', []) %}
-     <meta name="check-url" value="{{ check_url }}"/>
-     {% endfor %}
 
-    <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
-    <style>
-        #final_widget_iframe {
-        {# 9890 = 98.9% #}
-        {% set max_width = 9890 %}
-        {% if widget_config.get('scale') %}
-            {% set scale = widget_config['scale'] %}
-            {% set new_scale = "scale(%s)" % (scale/max_width) %}
-            -webkit-transform-origin: top left;
-            -moz-transform-origin: top left;
-            -ms-transform-origin: top left;
-            -o-transform-origin: top left;
-            transform-origin: top left;
-            width: {{ max_width/(scale/100) }}%;
-            -webkit-transform: {{ new_scale }};
-            -moz-transform: {{ new_scale }};
-            -ms-transform: {{ new_scale }};
-            -o-transform: {{ new_scale }};
-            transform: {{ new_scale }};
-        {% else %}
-            width: {{ max_width / 100 }}%;
-        {% endif %}
+                var ils_config = "";
+                if (ils_student_url || ils_teacher_url)
+                    ils_config = "&ils_student_url=" + ils_student_url + "&ils_teacher_url=" + ils_teacher_url;
+
+                {% if public_rlms %}
+                return '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
+                {% elif public_lab %}
+                return '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
+                {% else %}
+                return '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
+                {% endif %}
+            }
+            var STATS_ADDRESS = "{{ url_for("embed.stats", url=request.url, _external=True) }}";
+        </script>
+        <script type="text/javascript" src="{{ url_for('static', filename='opensocial/smartgateway-simple.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='opensocial/storage-simple.js') }}"></script>
+
+
+    <script type="text/javaScript">
+        function getParameterByName(name) {
+            var url = window.location.hash;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
-    </style>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.8.3.min.js', _external = True) }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='underscore-1.8.3.min.js', _external = True) }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='iframeResizer.min.js', _external = True) }}"></script>
-    <script type="text/javascript" src="http://shindig2.epfl.ch/ils/main/ils_graaspeu.js"></script>
-    <script type="text/javascript" src="http://shindig2.epfl.ch/ils/metadata/MetadataHandler.js"></script>
-    <script type="text/javascript" src="http://shindig2.epfl.ch/ils/applog/ActionLogger.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='opensocial/openapp/openapp.js', _external = True) }}"></script>
+        var ils_student_url = "";
+        var ils_teacher_url = "";
 
-    <script type="text/javascript">
-        // The LAB_ID identifies the current labmanager and laboratory. It must also include the institution since the url_for function would not work otherwise.
-        var CURRENT_HOST_HTTP = 'http://{{ request.host }}';
-        var CURRENT_HOST_HTTPS = 'https://{{ request.host }}';
-        var LAB_ID = '{{ request.url.split('?')[0] }}';
-        var AUTOLOAD = {{ autoload|tojson }};
-        {% if public_rlms %}
-        var BOOKING_URL = null;
-        {% elif public_lab %}
-        var BOOKING_URL = '{{ url_for(".check_public_laboratory_booking", lab_name = lab_name, _external = True) }}';
-        {% else %}
-        var BOOKING_URL = '{{ url_for(".check_laboratory_booking", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
-        {% endif %}
-        {% if go_lab_booking %}
-        var GOLAB_BOOKING = true;
-        {% else %}
-        var GOLAB_BOOKING = false;
-        {% endif %}
+        var sg;
 
-        function getReservationUrl(token, localeString) {
-            // Laboratory config provided in the request
-            {% if request.args.get('lab_config') %}
-            var lab_config = "&lab_config={{ request.args.get('lab_config') }}";
-            {% else %}
-            var lab_config = "";
-            {% endif %}
+        function adjustIframeHeight() {
+            var target = "";
+            var resourceId = "";
 
-            var ils_config = "";
-            if (ils_student_url || ils_teacher_url)
-                ils_config = "&ils_student_url=" + ils_student_url + "&ils_teacher_url=" + ils_teacher_url;
-
-            {% if public_rlms %}
-            return '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
-            {% elif public_lab %}
-            return '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
-            {% else %}
-            return '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
-            {% endif %}
-        }
-        var STATS_ADDRESS = "{{ url_for("embed.stats", url=request.url, _external=True) }}";
-    </script>
-    <script type="text/javascript" src="{{ url_for('static', filename='opensocial/smartgateway.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='opensocial/storage.js') }}"></script>
-
-
-<script type="text/javaScript">
-
-    var ils_student_url = "";
-    var ils_teacher_url = "";
-
-    var sg;
-
-    function adjustIframeHeight() {
-        gadgets.window.adjustHeight();
-    }
-
-    function init() {
-        $("#legend").text("{% if not autoload %}__MSG_g4l_laboratory_key__{% endif %}".replace("{0}", "{{ lab_name }}"));
-
-        // Create SmartGateway
-        trace("Initializing SmartGateway...");
-        sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
-        trace("SmartGateway initialized.");
-        // Register a callback: whenever a widget has a reservationId, this method is called 
-        sg.registerOnLoad( function(reservationId, g4lSessionId) {
-            {% if public_rlms %}
-            var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
-            {% elif public_lab %}
-            var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
-            {% else %}
-            var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
-            {% endif %}
-
-            $("#container").html("");
-            // Now show it
-            var contents = $("<div style='width: 100%; overflow: hidden'><iframe frameborder='no' id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}600px{% endif %}' scrolling='no'></div>");
-            trace("I'm going to set as innerHTML: ");
-            trace(contents);
-            $("#container").append(contents); 
-            gadgets.window.adjustHeight();
-
-            // We set three timeouts to make sure the apps are loaded to do proper resizing
-            // if it take long time, it will be resized when mouse is moved above the app
-            // setTimeout(adjustIframeHeight,1000);
-            // 3 seconds
-            setTimeout(adjustIframeHeight,3000);
-            // 10 seconds
-            setTimeout(adjustIframeHeight,10000);
-
-            var supportsResizer = true;
-            if (reservationId != null && reservationId != undefined) {
-                if (reservationId.indexOf("virtualbiologylab.org") >= 0)
-                    supportsResizer = false;
+            if (window.location.hash) {
+                resourceId = getParameterByName("resourceId") || "";
+                target = getParameterByName("target") || "";
             }
 
-            if (supportsResizer) {
-                iFrameResize({
-                    log : false,
-                    enablePublicMethods : true,
-                    enableInPageLinks : true,
-                    checkOrigin: false,
-                    resizedCallback         : function(messageData){ // Callback fn when resize is received
-                        gadgets.window.adjustHeight();
-                    }
-                }, "#final_widget_iframe");
+            if (target && resourceId) {
+                var height = $("body").prop("scrollHeight")
+                var message = JSON.stringify({ 
+                    'event': 'resize',
+                    'resourceId': resourceId,
+                    'height': '' + height + 'px'
+                });
+                parent.postMessage(message, target);
+                console.log("Requesting to resize: ", message, " on ", target);
             }
-
-            reportStarted({{ "{0} widget of {1}".format(widget_name,lab_name)|tojson|safe }}, LAB_ID, g4lSessionId);
-        });
-        trace("Callback registered.");
-
-        function showError(errorMessage) {
-            $("#reserve_button_area").hide();
-            $("#error_area").show();
-            $("#error_message").html(errorMessage);
         }
 
-        function zfill(n) {
-            if (n < 10) 
-                return "0" + n;
-            return n;
-        }
+        function init() {
+            $("#legend").text("{% if not autoload %}__MSG_g4l_laboratory_key__{% endif %}".replace("{0}", "{{ lab_name }}"));
 
+            // Create SmartGateway
+            trace("Initializing SmartGateway...");
+            sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
+            trace("SmartGateway initialized.");
+            // Register a callback: whenever a widget has a reservationId, this method is called 
+            sg.registerOnLoad( function(reservationId, g4lSessionId) {
+                {% if public_rlms %}
+                var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
+                {% elif public_lab %}
+                var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
+                {% else %}
+                var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
+                {% endif %}
 
-        gadgets.window.adjustHeight();
-        if (GOLAB_BOOKING) {
-            $("#reserve_button_area").hide();
-            $("#waiting_area").show();
-            ils.getIls(function (ils, phase) {
-                if (!ils.error) {
-                    ils_teacher_url = ils.profileUrl;
-                    ils_student_url = "http://graasp.eu/ils/" + ils.metadata.ilsRef + "/";
+                $("#container").html("");
+                // Now show it
+                var contents = $("<div style='width: 100%; overflow: hidden'><iframe frameborder='no' id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}600px{% endif %}' scrolling='no'></div>");
+                trace("I'm going to set as innerHTML: ");
+                trace(contents);
+                $("#container").append(contents); 
+                adjustIframeHeight();
+
+                // We set three timeouts to make sure the apps are loaded to do proper resizing
+                // if it take long time, it will be resized when mouse is moved above the app
+                // setTimeout(adjustIframeHeight,1000);
+                // 3 seconds
+                setTimeout(adjustIframeHeight,3000);
+                // 10 seconds
+                setTimeout(adjustIframeHeight,10000);
+
+                var supportsResizer = true;
+                if (reservationId != null && reservationId != undefined) {
+                    if (reservationId.indexOf("virtualbiologylab.org") >= 0)
+                        supportsResizer = false;
                 }
 
-                gadgets.window.adjustHeight();
-                $.get(BOOKING_URL + "?ils_student_url=" + ils_student_url + "&ils_teacher_url=" + ils_teacher_url)
-                    .done(function (data) {
-                        $("#waiting_area").hide();
-
-                        if (data.booked) {
-                            // The user is an invalid user. Show the problem.
-                            var d = new Date(data.next_session);
-                            var new_session = d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds());
-                            showError("There is an existing session running. The next session is on: " + new_session);
-                        } else {
-                            if (AUTOLOAD) {
-                                sg.startReservation();
-                            } else {
-                                $("#reserve_button_area").show();
-                            }
+                if (supportsResizer) {
+                    iFrameResize({
+                        log : false,
+                        enablePublicMethods : true,
+                        enableInPageLinks : true,
+                        checkOrigin: false,
+                        resizedCallback         : function(messageData){ // Callback fn when resize is received
+                            adjustIframeHeight();
                         }
-                        gadgets.window.adjustHeight();
-                    })
-                    .fail(function (error) {
-                        $("#waiting_area").hide();
-                        showError("There was an error checking the booking slots!");
-                        trace(error);
-                        gadgets.window.adjustHeight();
-                    });
-            }); 
-        } else {
+                    }, "#final_widget_iframe");
+                }
+
+                reportStarted({{ "{0} widget of {1}".format(widget_name,lab_name)|tojson|safe }}, LAB_ID, g4lSessionId);
+            });
+            trace("Callback registered.");
+
+            function showError(errorMessage) {
+                $("#reserve_button_area").hide();
+                $("#error_area").show();
+                $("#error_message").html(errorMessage);
+            }
+
+            adjustIframeHeight();
             if (AUTOLOAD) 
                 sg.startReservation();
         }
-    }
 
-    trace("Registering...");
-    gadgets.util.registerOnLoadHandler(init);
-    trace("Registered.");
-</script>
+        $(document).ready(init);
+    </script>
 
  </head>
  <body>
 
-<div id="buttondiv" style="display: none">
-    <div class="span8 offset1" style="border-radius: 25px; border: 2px solid #bbb; padding: 20px;">
-        <div>
-            <legend id="legend" class=""></legend>
-        </div>
-        {% if not autoload %}
-        <table class="table table-striped table-bordered">
-            <tbody>
-                <tr>
-                    <td>__MSG_g4l_system__</td>
-                    <td><a target=_blank href="{{ rlms.url }}">{{ rlms.get_name() }}</a> </td>
-                </tr>
+    <div id="buttondiv" style="display: none">
+        <div class="span8 offset1" style="border-radius: 25px; border: 2px solid #bbb; padding: 20px;">
+            <div>
+                <legend id="legend" class=""></legend>
+            </div>
+            {% if not autoload %}
+            <table class="table table-striped table-bordered">
+                <tbody>
+                    <tr>
+                        <td>__MSG_g4l_system__</td>
+                        <td><a target=_blank href="{{ rlms.url }}">{{ rlms.get_name() }}</a> </td>
+                    </tr>
 
-                <tr>
-                    <td>__MSG_g4l_location__</td>
-                    <td>{{ rlms.location }}</td>
-                </tr>
-            </tbody>
-        </table>
-        {% endif %}
-        <div id="reserve_button_area" style="width: 100%; text-align: center">
-            <button id='reserve_button' class='btn btn-primary'>{% if not autoload %}__MSG_g4l_access_the_lab__{% endif %}</button>
-            <br><br>
-        </div>
-        <div id="error_area" style="display: none" class="alert alert-error">
-            <p id="error_message"></p>
-            <br><br>
-        </div>
-        <div id="waiting_area" style="display: none" class="alert alert-info">
-            <p>Checking booking sessions...</p>
-            <br><br>
-        </div>
-        <hr>
+                    <tr>
+                        <td>__MSG_g4l_location__</td>
+                        <td>{{ rlms.location }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+            <div id="reserve_button_area" style="width: 100%; text-align: center">
+                <button id='reserve_button' class='btn btn-primary'>{% if not autoload %}__MSG_g4l_access_the_lab__{% endif %}</button>
+                <br><br>
+            </div>
+            <div id="error_area" style="display: none" class="alert alert-error">
+                <p id="error_message"></p>
+                <br><br>
+            </div>
+            <div id="waiting_area" style="display: none" class="alert alert-info">
+                <p>Checking booking sessions...</p>
+                <br><br>
+            </div>
+            <hr>
 
-        <div style="width: 100%; text-align: center">
-            <a href="http://www.go-lab-project.eu/" target="_blank"><img height="120" src="{{ url_for('static', filename='golab.png') }}" alt="Go-Lab logo" /></a>
-            <h5>Smart Gateway</h5>
+            <div style="width: 100%; text-align: center">
+                <a href="http://www.go-lab-project.eu/" target="_blank"><img height="120" src="{{ url_for('static', filename='golab.png') }}" alt="Go-Lab logo" /></a>
+                <h5>Smart Gateway</h5>
+            </div>
         </div>
     </div>
-</div>
-<div id="container" style="text-align: center">Loading...</div>
- ]]>
-</Content>
-</Module>
+    <div id="container" style="text-align: center">Loading...</div>
+</body>
+</html>
