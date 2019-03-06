@@ -606,6 +606,170 @@ def _reserve_impl(lab_name, public_rlms = False, public_lab = False, institution
 
         return render_template("opensocial/confirmed.html", reservation_id = quoted_reservation_id, g4l_session_id = g4l_session_id, shindig_url = SHINDIG.url)
 
+@opensocial_blueprint.route("/reservations/new/<institution_id>/<lab_name>.json", methods=['GET', 'POST'])
+def reserve_json(institution_id, lab_name):
+    gadget_url_base = url_for('.widget_xml', institution_name = institution_id, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    return _reserve_json(lab_name, institution_id = institution_id, gadget_url_base = gadget_url_base)
+
+@opensocial_blueprint.route("/public/reservations/new/<lab_name>.json", methods=['GET', 'POST'])
+def public_reserve_json(lab_name):
+    gadget_url_base = url_for('.public_widget_xml', lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    return _reserve_json(lab_name, public_lab = True, gadget_url_base = gadget_url_base)
+
+@opensocial_blueprint.route("/public/reservations/new/<rlms_identifier>/<quoted_url:lab_name>.json", methods=['GET', 'POST'])
+def public_rlms_reserve_json(rlms_identifier, lab_name):
+    gadget_url_base = url_for('.public_rlms_widget_xml', rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = INVALID_WIDGET_NAME, _external = True).rsplit(INVALID_WIDGET_NAME, 1)[0]
+    return _reserve_json(lab_name, public_rlms = True, rlms_identifier = rlms_identifier, gadget_url_base = None)
+
+def _reserve_json(lab_name, public_rlms = False, public_lab = False, institution_id = None, rlms_identifier = None, gadget_url_base = None):
+    # TODO XXX SECURITY BUG: THIS METHOD DOES NOT USE THE BOOKING THING
+    st = request.args.get('st') or ''
+    SHINDIG.url = 'http://shindig2.epfl.ch'
+
+    if public_rlms:
+        db_rlms = db.session.query(RLMS).filter_by(publicly_available = True, public_identifier = rlms_identifier).first()
+        if db_rlms is None:
+            return jsonify(success=False, message = gettext("That lab does not exist or it is not publicly available."))
+        lab_identifier = lab_name
+
+        ple_configuration = '{}'
+        institution_name  = 'public-labs' # TODO: make sure that this name is unique
+        courses_configurations = []
+        booking_required = False
+    else:
+        if public_lab:
+            db_laboratory = db.session.query(Laboratory).filter_by(publicly_available = True, public_identifier = lab_name).first()
+            if db_laboratory is None:
+                return jsonify(success=False, message = gettext("That lab does not exist or it is not publicly available."))
+            
+            ple_configuration = '{}'
+            institution_name  = 'public-labs' # TODO: make sure that this name is unique
+            courses_configurations = []
+        else:
+            institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
+            if institution is None or len(institution.shindig_credentials) < 1:
+                return jsonify(success=False, message = gettext("This is not a valid PLE. Make sure that the institution id is fine and that there are Shindig Credentials configured"))
+
+            SHINDIG.url = institution.shindig_credentials[0].shindig_url
+
+            # Obtain current application data (especially, on which space is the user running it)
+            current_app_str  = urllib2.urlopen(url_shindig('/rest/apps/@self?st=%s' % st)).read()
+            current_app_data = json.loads(current_app_str)
+            space_id = current_app_data['entry'].get('parentId') or 'null parent'
+            parent_type = current_app_data['entry'].get('parentType')
+            if parent_type != '@space':
+                return jsonify(success=False, message=gettext("Invalid parent: it should be a space, and it is a %(parenttype)s", parenttype=parent_type))
+            # Obtain the list of parent spaces of that space
+            spaces = [space_id]
+            get_parent_spaces(space_id, spaces)
+            # Now, check permissions:
+            # First, check if the lab is public (e.g. the lab can be accessed by anyone)
+            # Second, check accesibility permissions (e.g. the lab is accessible for everyone from that institution without specifying any Graasp space). 
+            # After that, in the case that there are not accesibility permissions, check for that institution if there is a permission identified by that lab_name, and check which courses (spaces in OpenSocial) have that permission.
+            public_lab_db = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+            courses_configurations = []
+            if public_lab_db is None:
+                # No public access is granted for the lab, check accesibility permissions
+                accessible_permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name, accessible = True).first()
+                if accessible_permission is None:
+                    permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+                    if permission is None:
+                        return jsonify(success=False, message=gettext("Your PLE is valid, but don't have permissions for the requested laboratory."))
+                    for course_permission in permission.course_permissions:
+                        if course_permission.course.context_id in spaces:
+                            # Let the server choose among the best possible configuration
+                            courses_configurations.append(course_permission.configuration)
+                    if len(courses_configurations) == 0:
+                        return jsonify(success=False, message = gettext("Your PLE is valid and your lab too, but you're not in one of the spaces that have permissions (you are in %(space)r)", space=spaces))
+                else:
+                    # There is a accesibility permission for that lab and institution
+                    permission = accessible_permission
+
+                ple_configuration = permission.configuration
+                db_laboratory     = permission.laboratory
+                institution_name  = institution.name
+            else: 
+                # There is a public permission for the lab
+                ple_configuration = []
+                db_laboratory     = public_lab_db
+                institution_name  = institution.name
+
+        lab_identifier = db_laboratory.laboratory_id
+        db_rlms = db_laboratory.rlms
+
+    # Obtain user data
+    if st == 'null' and (public_lab or public_rlms):
+        user_id = 'no-id'
+    else:
+        try:
+            current_user_str  = urllib2.urlopen(url_shindig("/rest/people/@me/@self?st=%s" % st)).read()
+            current_user_data = json.loads(current_user_str)
+        except:
+            traceback.print_exc()
+            if public_lab or public_rlms:
+                user_id = 'no-id'
+            else:
+                return jsonify(success=False, message=gettext("Could not connect to %(urlshindig)s.", urlshindig=url_shindig("/rest/people/@me/@self?st=%s" % st)))
+        else:
+            # name    = current_user_data['entry'].get('displayName') or 'anonymous'
+            user_id = current_user_data['entry'].get('id') or 'no-id'
+
+    rlms_version      = db_rlms.version
+    rlms_kind         = db_rlms.kind
+    user_agent = unicode(request.user_agent)
+    origin_ip  = remote_addr()
+    referer    = request.referrer
+    # Load the plug-in for the current RLMS, and instanciate it
+    ManagerClass = get_manager_class(rlms_kind, rlms_version, db_rlms.id)
+    remote_laboratory = ManagerClass(db_rlms.configuration)
+
+    kwargs = {}
+
+    locale = request.args.get('locale') or None
+    if locale:
+        kwargs['locale'] = locale
+
+    lab_config = request.args.get('lab_config')
+    try:
+        lab_config = urllib.unquote(lab_config)
+        json.loads(lab_config) # Verify that it's a valid JSON
+    except:
+        lab_config = '{}'
+    if lab_config:
+        request_payload = { 'initial' : lab_config }
+    else:
+        request_payload = {}
+
+    try:
+        response = remote_laboratory.reserve(laboratory_id                = lab_identifier,
+                                                username                  = user_id,
+                                                institution               = institution_name,
+                                                general_configuration_str = ple_configuration,
+                                                particular_configurations = courses_configurations,
+                                                request_payload           = request_payload,
+                                                user_properties           = {
+                                                    'user_agent' : user_agent,
+                                                    'from_ip'    : origin_ip,
+                                                    'referer'    : referer
+                                                },
+                                                back = url_for('.reload', _external = True),
+                                                **kwargs)
+    except Exception as e:
+        app.logger.error("Error processing request: %s" % e, exc_info = True)
+        traceback.print_exc()
+        # Don't translate, just in case there are issues with the problem itself
+        return jsonify(success=False, message = "There was an error performing the reservation to the final laboratory.")
+
+    if Capabilities.WIDGET in remote_laboratory.get_capabilities():
+        reservation_id = response['reservation_id']
+    else:
+        reservation_id = response['load_url']
+
+    quoted_reservation_id = urllib2.quote(reservation_id, '')
+    g4l_session_id = "{0}-{1}-{2}".format(quoted_reservation_id, time.time(), str(random.randint(0, 9999)).zfill(4))
+
+    return jsonify(success=True, reservation_id=quoted_reservation_id, g4l_session_id=g4l_session_id, shindig_url=SHINDIG.url)
+
 def extract_ils_id(url):
     if url is None:
         return None

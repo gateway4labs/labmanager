@@ -98,18 +98,7 @@
             var CURRENT_HOST_HTTPS = 'https://{{ request.host }}';
             var LAB_ID = '{{ request.url.split('?')[0] }}';
             var AUTOLOAD = {{ autoload|tojson }};
-            {% if public_rlms %}
-            var BOOKING_URL = null;
-            {% elif public_lab %}
-            var BOOKING_URL = '{{ url_for(".check_public_laboratory_booking", lab_name = lab_name, _external = True) }}';
-            {% else %}
-            var BOOKING_URL = '{{ url_for(".check_laboratory_booking", institution_id = institution_id, lab_name = lab_name, _external = True) }}';
-            {% endif %}
-            {% if go_lab_booking %}
-            var GOLAB_BOOKING = true;
-            {% else %}
             var GOLAB_BOOKING = false;
-            {% endif %}
 
             function getReservationUrl(localeString) {
                 var token = "null";
@@ -125,11 +114,11 @@
                     ils_config = "&ils_student_url=" + ils_student_url + "&ils_teacher_url=" + ils_teacher_url;
 
                 {% if public_rlms %}
-                return '{{ url_for(".public_rlms_reserve", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
+                return '{{ url_for(".public_rlms_reserve_json", rlms_identifier = rlms_identifier, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + '&locale=' + localeString;
                 {% elif public_lab %}
-                return '{{ url_for(".public_reserve", lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
+                return '{{ url_for(".public_reserve_json", lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + '&locale=' + localeString;
                 {% else %}
-                return '{{ url_for(".reserve", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + localeString;
+                return '{{ url_for(".reserve_json", institution_id = institution_id, lab_name = lab_name, _external = True) }}?st=' + token + ils_config + lab_config + '&locale=' + localeString;
                 {% endif %}
             }
             var STATS_ADDRESS = "{{ url_for("embed.stats", url=request.url, _external=True) }}";
@@ -180,24 +169,24 @@
             $("#legend").text("{% if not autoload %}__MSG_g4l_laboratory_key__{% endif %}".replace("{0}", "{{ lab_name }}"));
 
             // Create SmartGateway
-            trace("Initializing SmartGateway...");
+            console.log("Initializing SmartGateway...");
             sg = new SmartGateway($('#container'), $('#buttondiv'), $('#reserve_button'));
-            trace("SmartGateway initialized.");
+            console.log("SmartGateway initialized.");
             // Register a callback: whenever a widget has a reservationId, this method is called 
             sg.registerOnLoad( function(reservationId, g4lSessionId) {
                 {% if public_rlms %}
-                var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
+                var url = '{{ url_for(".open_public_rlms_widget", rlms_identifier = rlms_identifier, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + '&locale=' + sg.localeString;
                 {% elif public_lab %}
-                var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
+                var url = '{{ url_for(".open_public_widget", lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + '&locale=' + sg.localeString;
                 {% else %}
-                var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + sg.localeString;
+                var url = '{{ url_for(".open_widget", institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, _external = True) }}?reservation_id=' + reservationId + '&locale=' + sg.localeString;
                 {% endif %}
 
                 $("#container").html("");
                 // Now show it
                 var contents = $("<div style='width: 100%; overflow: hidden'><iframe frameborder='no' id='final_widget_iframe' src='" + url + "' height='{% if 'height' in widget_config %}{{ widget_config['height'] }}{% else %}600px{% endif %}' scrolling='no'></div>");
-                trace("I'm going to set as innerHTML: ");
-                trace(contents);
+                console.log("I'm going to set as innerHTML: ");
+                console.log(contents);
                 $("#container").append(contents); 
                 adjustIframeHeight();
 
@@ -229,7 +218,7 @@
 
                 reportStarted({{ "{0} widget of {1}".format(widget_name,lab_name)|tojson|safe }}, LAB_ID, g4lSessionId);
             });
-            trace("Callback registered.");
+            console.log("Callback registered.");
 
             function showError(errorMessage) {
                 $("#reserve_button_area").hide();

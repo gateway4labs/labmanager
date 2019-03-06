@@ -1,9 +1,3 @@
-function trace(msg) {
-    if (console && console.log) 
-        console.log(msg);
-}
-
-
 // TODO: FALTA TODO EL TEMA DE QUE CUANDO SE ENVIA ALGO DESDE ABAJO LLEGUE AQUI. BASICAMENTE LO QUE HACEMOS ES ESO, EN LUGAR DE UNA QUERY, CARGAMOS UN API QUE HACE LA MAGIA
 
 function getLanguage() {
@@ -70,11 +64,20 @@ function SmartGateway(container, button_div, reserve_button) {
         if ($('#reserve-button').attr('disabled') != 'disabled') {
             var url = getReservationUrl(this.localeString);
 
-            trace("Loading... " + url);
-
-            // and perform the reservation itself
+            console.log("Loading2... " + url);
+            $.post(url).done(function (data) {
+                if (data.success) {
+                    me._loadCallback(data.reservation_id, data.g4l_session_id);
+                } else {
+                    // ERROR TODO
+                }
+            }).fail(function (data) {
+                // ERROR TODO
+            });
+            
+            console.log('HIDING');
+            console.log(me._button_div)
             me._button_div.hide();
-            me._container.html("<iframe src='" + url + "' width='100%' onload='adjustIframeHeight();'></iframe>");
         }
     }
 
