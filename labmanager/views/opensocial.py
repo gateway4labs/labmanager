@@ -218,6 +218,28 @@ def widget_xml(institution_id, lab_name, widget_name):
     contents = render_template('/opensocial/widget.xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = public_lab.rlms, go_lab_booking = laboratory.go_lab_reservation)
     return Response(contents, mimetype="application/xml")
 
+@opensocial_blueprint.route("/widgets/<institution_id>/<lab_name>/widget_<widget_name>.html")
+@opensocial_blueprint.route("/w/<institution_id>/<lab_name>/w_<widget_name>.html")
+def widget_html(institution_id, lab_name, widget_name):
+    public_lab = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    laboratory = public_lab
+    if public_lab:
+        widget_config = _extract_widget_config(public_lab.rlms, public_lab.laboratory_id, widget_name, True) 
+    else:
+        widget_config = {} # Default value
+        institution = db.session.query(LearningTool).filter_by(name = institution_id).first()
+        if institution:
+            permission = db.session.query(PermissionToLt).filter_by(lt = institution, local_identifier = lab_name).first()
+            if permission:
+                widget_config = _extract_widget_config(permission.laboratory.rlms, permission.laboratory.laboratory_id, widget_name, False)
+                laboratory = permission.laboratory 
+
+    if widget_config is None:
+        return "Error: widget does not exist anymore" # TODO
+    if not laboratory:
+        return render_template('opensocial/widget-error.html',message="Lab %s not found or not public" % lab_name)
+    return render_template('/opensocial/widget.html', institution_id = institution_id, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = public_lab.rlms, go_lab_booking = laboratory.go_lab_reservation)
+
 @opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.xml",methods=[ 'GET'])
 @opensocial_blueprint.route("/pub/<lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
 @xml_error_management
@@ -233,6 +255,17 @@ def public_widget_xml(lab_name, widget_name):
     contents = render_template('/opensocial/widget.xml', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = laboratory.rlms, go_lab_booking = laboratory.go_lab_reservation)
     return Response(contents, mimetype="application/xml")
 
+@opensocial_blueprint.route("/public/widgets/<lab_name>/widget_<widget_name>.html",methods=[ 'GET'])
+@opensocial_blueprint.route("/pub/<lab_name>/w_<widget_name>.html",methods=[ 'GET'])
+def public_widget_html(lab_name, widget_name):
+    laboratory = db.session.query(Laboratory).filter_by(public_identifier = lab_name, publicly_available = True).first()
+    if not laboratory:
+        return render_template('opensocial/widget-error.html',message="Lab %s not found or not public" % lab_name)
+    widget_config = _extract_widget_config(laboratory.rlms, laboratory.laboratory_id, widget_name, True)     
+    if widget_config is None:
+        return "Error: widget does not exist anymore" # TODO  
+
+    return render_template('/opensocial/widget.html', public_lab = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = laboratory.rlms, go_lab_booking = laboratory.go_lab_reservation)
 
 @opensocial_blueprint.route("/pub/<rlms_identifier>/<quoted_url:lab_name>/w_<widget_name>.xml",methods=[ 'GET'])
 @xml_error_management
@@ -258,6 +291,28 @@ def public_rlms_widget_xml(rlms_identifier, lab_name, widget_name):
     print widget_config
     contents = render_template('/opensocial/widget.xml', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = rlms, go_lab_booking = False, go_lab_booking_url = "")
     return Response(contents, mimetype="application/xml")
+
+@opensocial_blueprint.route("/pub/<rlms_identifier>/<quoted_url:lab_name>/w_<widget_name>.html",methods=[ 'GET'])
+def public_rlms_widget_html(rlms_identifier, lab_name, widget_name):
+    rlms = db.session.query(RLMS).filter_by(public_identifier = rlms_identifier, publicly_available = True).first()
+    if not rlms:
+        return render_template('opensocial/widget-error.html',message="RLMS %s not found or not public" % rlms_identifier)
+
+    try:
+        widget_config = _extract_widget_config(rlms, lab_name, widget_name, True)
+    except Exception as err:
+        traceback.print_exc()
+        if 'remlabnet.eu' in str(err):
+            return "Error: the widget is not available at this moment"
+        else:
+            raise
+
+    if widget_config is None:
+        return "Error: widget does not exist anymore" # TODO  
+
+#   XXX We do not support booking on the public labs yet
+    return render_template('/opensocial/widget.html', rlms_identifier = rlms_identifier, public_rlms = True, lab_name = lab_name, widget_name = widget_name, widget_config = widget_config, autoload = widget_config['autoload'], rlms = rlms, go_lab_booking = False, go_lab_booking_url = "")
+
 
 def booking_system(laboratory):
     if laboratory.go_lab_reservation:

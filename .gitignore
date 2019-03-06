@@ -1,3 +1,9 @@
+*.sql
+*.bz2
+*.tgz
+*.tar.gz
+*.zip
+
 GeoLite2-City.mmdb
 GeoLite2-City.mmdb.gz
 GeoLite2-Country.mmdb

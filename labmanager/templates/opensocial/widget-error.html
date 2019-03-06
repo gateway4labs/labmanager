@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>Widget {{ widget_name }} of {{ lab_name }}</title>
+        <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet"></link>
+    </head>
+    <body>
+        <div class="container">
+            <div class="">
+                <div>
+                    <legend class="">{{gettext('Error while processing the request')}}</legend>
+                </div>
+    
+                <div class="alert alert-error">
+                    {{ message }}
+                </div>
+    
+            </div>
+        </div>
+    </body>
+</html>
