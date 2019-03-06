@@ -5,7 +5,7 @@
         {% if widget_config.get('show_languages', False) %}
              {% set languages_displayed = widget_config['translations'].get('translations', {}).keys() %}
              {% if public_rlms %}
-                 <meta name="translations" messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
+                 <meta name="translations" value="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang='en', _external = True) }}"/>
                  {% for lang in widget_config['translations'].get('translations', {}) %}
                     {% if lang != "en" and lang != "en_ALL" %}
                         {% if '_' in lang %}
@@ -13,11 +13,11 @@
                         {% else %}
                             {% set country = "ALL" %}
                         {% endif %}
-                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang=lang, _external = True) }}"/>
+                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} value="{{ url_for('.public_rlms_translations', rlms_identifier = rlms_identifier, lab_name = lab_name, lang=lang, _external = True) }}"/>
                     {% endif %}
                  {% endfor %}
              {% elif public_lab %}
-                 <meta name="translations" messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
+                 <meta name="translations" value="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = 'en') }}"/>
                  {% for lang in widget_config['translations'].get('translations', {}) %}
                     {% if lang != "en" and lang != "en_ALL" %}
                         {% if '_' in lang %}
@@ -25,11 +25,11 @@
                         {% else %}
                             {% set country = "ALL" %}
                         {% endif %}
-                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = lang) }}"/>
+                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} value="{{ url_for('.public_translations', lab_name = lab_name, _external = True, lang = lang) }}"/>
                     {% endif %}
                  {% endfor %}
              {% else %}
-                 <meta name="translations" messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
+                 <meta name="translations" value="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = 'en') }}"/>
                  {% for lang in widget_config['translations'].get('translations', {}) %}
                     {% if lang != "en" and lang != "en_ALL" %}
                         {% if '_' in lang %}
@@ -37,7 +37,7 @@
                         {% else %}
                             {% set country = "ALL" %}
                         {% endif %}
-                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} messages="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = lang) }}"/>
+                        <meta name="translations" lang="{{ lang }}" {% if country != "ALL" %}country="{{ country }}"{% endif %} value="{{ url_for('.translations', institution_id = institution_id, lab_name = lab_name, _external = True, lang = lang) }}"/>
 
                     {% endif %}
                  {% endfor %}
@@ -46,7 +46,7 @@
 
         {% if widget_config.get('show_empty_languages', False)  %}
             {% if 'en' not in languages_displayed and 'en_ALL' not in languages_displayed %}
-            <meta name="translations" messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+            <meta name="translations" value="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
             {% endif %}
 
             {% for lang in widget_config['translation_list'] %}
@@ -56,7 +56,7 @@
                     {% else %}
                         {% set country = "ALL" %}
                     {% endif %}
-                    <meta name="translations" lang="{{ lang.split('_')[0] }}" {% if country != 'ALL' %}country="{{ country }}"{% endif %}  messages="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
+                    <meta name="translations" lang="{{ lang.split('_')[0] }}" {% if country != 'ALL' %}country="{{ country }}"{% endif %}  value="{{ url_for('static', filename='opensocial/empty.xml', _external = True) }}"/>
                 {% endif %}
             {% endfor %}
         {% endif %}
@@ -248,19 +248,19 @@
             <table class="table table-striped table-bordered">
                 <tbody>
                     <tr>
-                        <td translate='g4l_system'></td>
+                        <td golab-lang='g4l_system'></td>
                         <td><a target=_blank href="{{ rlms.url }}">{{ rlms.get_name() }}</a> </td>
                     </tr>
 
                     <tr>
-                        <td>__MSG_g4l_location__</td>
+                        <td golab-lang='g4l_location'></td>
                         <td>{{ rlms.location }}</td>
                     </tr>
                 </tbody>
             </table>
             {% endif %}
             <div id="reserve_button_area" style="width: 100%; text-align: center">
-                <button id='reserve_button' class='btn btn-primary'>{% if not autoload %}__MSG_g4l_access_the_lab__{% endif %}</button>
+                <button id='reserve_button' class='btn btn-primary'>{% if not autoload %}<span golab-lang='g4l_access_the_lab'></span>{% endif %}</button>
                 <br><br>
             </div>
             <div id="error_area" style="display: none" class="alert alert-error">
