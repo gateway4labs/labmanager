@@ -3,7 +3,7 @@ import datetime
 import certifi
 import requests
 from bs4 import BeautifulSoup
-from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify
+from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify, current_app
 from labmanager.views.authn import requires_golab_login, current_golab_user
 
 from labmanager.db import db
