@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify, current_app
 from labmanager.views.authn import requires_golab_login, current_golab_user
 
+from labmanager.application import SSL_DOMAIN_WHITELIST
 from labmanager.db import db
 from labmanager.babel import gettext, lazy_gettext
 from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoLabOAuthUser, UseLog
@@ -257,8 +258,14 @@ def get_url_metadata(url, timeout = 3):
     x_frame_options = ''
     error_retrieving = False
     content_type = ''
+    request_kwargs = {}
+    if url.startswith('https://'):
+        netloc = urlparse.urlparse(url).netloc
+        if netloc in SSL_DOMAIN_WHITELIST:
+            request_kwargs['verify'] = False
+
     try:
-        req = requests.get(url, timeout=(timeout, timeout), stream=True)
+        req = requests.get(url, timeout=(timeout, timeout), stream=True, **request_kwargs)
     except:
         traceback.print_exc()
         error_retrieving = True

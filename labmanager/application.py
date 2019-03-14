@@ -23,6 +23,15 @@ app.url_map.converters['quoted_url'] = FullyQuotedUrlConverter
 app.url_map.converters['everything'] = EverythingConverter
 app.config.from_object('config')
 
+# Also in the appcomposer!
+SSL_DOMAIN_WHITELIST = app.config.get('SSL_DOMAIN_WHITELIST') or []
+# domains that for some reason python requests fail to understand (chain error)
+SSL_DOMAIN_WHITELIST.append('amrita.olabs.edu.in')
+SSL_DOMAIN_WHITELIST.append('amrita.olabs.co.in')
+SSL_DOMAIN_WHITELIST.append('cdac.olabs.edu.in')
+SSL_DOMAIN_WHITELIST.append('cosci.tw')
+
+
 # Try to support SQLALCHEMY_ENGINE_STR
 if 'SQLALCHEMY_DATABASE_URI' not in app.config and 'SQLALCHEMY_ENGINE_STR' in app.config:
     print "WARNING: SQLALCHEMY_ENGINE_STR is deprecated. Change it for SQLALCHEMY_DATABASE_URI"
