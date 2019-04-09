@@ -164,6 +164,11 @@ def app_legacy_html(identifier):
 
     return render_template("embed/app-embedded.html", apps=apps_per_language)
 
+@embed_blueprint.route('/apps/<identifier>/params.txt')
+def params_txt():
+    # This is only for https://create.nyu.edu/dream/apps/mmSimDiffusion/params.txt
+    return 'pressuregauge=1&useIcons=1&runMode=0&saveActions=1&paramLoaded=1'
+
 @embed_blueprint.route('/apps/<identifier>/app.html')
 def app_html(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
