@@ -48,7 +48,21 @@
 <body>
     <div style="width: 100%; overflow: hidden {% if app.height and app.scale %}; height: {{ real_height }}px{% endif %}">
          {% if IS_FLASH %}
-         <div id="app_url" style="text-align: center"></div>
+		<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="100%" height="{{ app.height }}">
+
+			<param name="movie" value={{ app.full_url|tojson }} />
+			<param name="quality" value="high" />
+			<param name="allowScriptAccess" value="always" />
+			<param name="wmode" value="transparent">
+			<embed src={{ app.full_url|tojson }}
+				quality="high"
+				type="application/x-shockwave-flash"
+				WMODE="transparent"
+				width="100%"
+				height="{{ app.height }}"
+				pluginspage="http://www.macromedia.com/go/getflashplayer"
+				allowScriptAccess="always" />
+		</object>
          {% else %}
          <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
          {% endif %}
