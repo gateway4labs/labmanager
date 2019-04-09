@@ -1,5 +1,4 @@
 <html>
-{# TODO: flash #}
 {% set IS_FLASH = app.url.endswith('.swf') %} 
 {% if app.scale %}
    {% set real_height = (app.height * app.scale / 9890.0)|int %}
@@ -110,8 +109,10 @@
 
         if (!url) 
             url = default_url;
-
+        
+        {% if not IS_FLASH %}
         document.getElementById("app_url").src = url;
+        {% endif %}
 
         if (target && resourceId) {
             var message = JSON.stringify({ 
