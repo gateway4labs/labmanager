@@ -16,7 +16,7 @@ import os
 from cgi import escape
 
 from labmanager.utils import FullyQuotedUrlConverter, EverythingConverter
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, Response
 
 app = Flask(__name__)
 app.url_map.converters['quoted_url'] = FullyQuotedUrlConverter
@@ -147,6 +147,13 @@ def developers():
 def about():
     """Global information about gateway4labs."""
     return render_template("about.html")
+
+@app.route("/crossdomain.xml")
+def crossdomain_xml():
+    return Response("""<?xml version="1.0" ?>
+<cross-domain-policy>
+<allow-access-from domain="*" />
+</cross-domain-policy>""", mimetype='text/xml')
 
 @app.teardown_request
 def shutdown_session(exception = None):
