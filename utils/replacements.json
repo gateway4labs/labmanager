@@ -1,0 +1,137 @@
+[
+    {
+        "id": "99",
+        "add": [
+            {
+                "app_url": "http://gateway.golabz.eu/embed/apps/30959bf6-cbc2-4bf5-b0eb-ff297b957ac2/app.html",
+                "app_title": "meteosat app",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/meteosat/meteosat.xml"
+            }
+        ]
+    },
+    {
+        "id": "106",
+        "add": [
+            {
+                "app_url": "https://gateway.golabz.eu/embed/apps/c4a643b6-fbf8-433b-b474-b56ded515b30/app.html",
+                "app_title": "Difussion",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/dreamLabs/diffusion.xml"
+            }
+        ]
+    },
+    {
+        "id": "107",
+        "add": [
+            {
+                "app_url": "https://gateway.golabz.eu/embed/apps/7b84ea0e-1b12-48fc-9add-8c9e7c0d698a/app.html",
+                "app_title": "Kinetic 1",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/dreamLabs/kinetic1.xml"
+            }
+        ]
+    },
+    {
+        "id": "109",
+        "add": [
+            {
+                "app_url": "https://gateway.golabz.eu/embed/apps/766bf412-c3f2-4205-9afa-4f0127a4b01b/app.html",
+                "app_title": "Kinetic 2",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/dreamLabs/kinetic2.xml"
+            }
+        ]
+    },
+    {
+        "id": "110",
+        "add": [
+            {
+                "app_url": "https://gateway.golabz.eu/embed/apps/ce1a6648-9c82-4afd-8555-e3a997fa9ca1/app.html",
+                "app_title": "Phase Change 1",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/dreamLabs/phaseChange1.xml"
+            }
+        ]
+    },
+    {
+        "id": "111",
+        "add": [
+            {
+                "app_url": "https://gateway.golabz.eu/embed/apps/df411c59-9ec4-44c5-86eb-afa570717e46/app.html",
+                "app_title": "Phase Change 2",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/dreamLabs/phasechange2.xml"
+            }
+        ]
+    },
+    {
+       "id": "53",
+       "add": [
+            {
+                "app_url": "http://gateway.golabz.eu/embed/apps/048eeb35-2228-4ec3-881b-3a7642a22548/app.html",
+                "app_title": "CERNland app",
+                "app_format": "html"
+            }
+       ],
+       "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/cernland/cernland.xml"
+            }
+       ]
+    },
+    {
+        "id": "56",
+        "add": [
+            {
+                "app_url": "http://gateway.golabz.eu/embed/apps/f49f8d14-0722-4c2d-b372-2bfdf030975e/app.html",
+                "app_title": "Galaxy crash",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/galaxycrash/galaxycrash.xml"
+            }
+        ]
+    },
+    {
+        "id": "54",
+        "add": [
+            {
+                "app_url": "http://gateway.golabz.eu/embed/apps/827991b1-1fbf-4e8c-8a94-d5e60836ebf4/app.html",
+                "app_title": "LHC Game",
+                "app_format": "html"
+            }
+        ],
+        "delete": [
+            {
+                "app_url": "http://shindig2.epfl.ch/gadget/go-lab/lab/lhcgame/lhcgame.xml"
+            }
+        ]
+    }
+]
