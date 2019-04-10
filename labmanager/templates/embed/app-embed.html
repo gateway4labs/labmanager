@@ -5,6 +5,7 @@
 {% else %}
    {% set real_height = app.height + 20 %}
 {% endif %}
+{% set POPUP_REQUIRED = requires_https and not supports_https %}
 <head>
     <meta name="check-url" value="{{ app.url }}"/>
     {% for app_url in apps_per_language.values() %}
@@ -45,84 +46,90 @@
     </style>
 </head>
 <body>
-    <div style="width: 100%; overflow: hidden {% if app.height and app.scale %}; height: {{ real_height }}px{% endif %}">
-         {% if IS_FLASH %}
-		<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="100%" height="{{ app.height }}">
+    {% if POPUP_REQUIRED %}
+        <div class="">
+            .. {# TODO #}
+        </div>  
+    {% else %}
+        <div style="width: 100%; overflow: hidden {% if app.height and app.scale %}; height: {{ real_height }}px{% endif %}">
+            {% if IS_FLASH %}
+            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="100%" height="{{ app.height }}">
 
-			<param name="movie" value={{ app.full_url|tojson }} />
-			<param name="quality" value="high" />
-			<param name="allowScriptAccess" value="always" />
-			<param name="wmode" value="transparent">
-			<embed src={{ app.full_url|tojson }}
-				quality="high"
-				type="application/x-shockwave-flash"
-				WMODE="transparent"
-				width="100%"
-				height="{{ app.height }}"
-				pluginspage="http://www.macromedia.com/go/getflashplayer"
-				allowScriptAccess="always" />
-		</object>
-         {% else %}
-         <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
-         {% endif %}
-    </div>
+                <param name="movie" value={{ app.full_url|tojson }} />
+                <param name="quality" value="high" />
+                <param name="allowScriptAccess" value="always" />
+                <param name="wmode" value="transparent">
+                <embed src={{ app.full_url|tojson }}
+                    quality="high"
+                    type="application/x-shockwave-flash"
+                    WMODE="transparent"
+                    width="100%"
+                    height="{{ app.height }}"
+                    pluginspage="http://www.macromedia.com/go/getflashplayer"
+                    allowScriptAccess="always" />
+            </object>
+            {% else %}
+            <iframe id="app_url" {% if app.scale != 10000 %}scrolling="no"{% endif %} frameborder="0" {% if app.height %}height="{{ app.height }}px"{% else %}height="800px" {% endif %}></iframe>
+            {% endif %}
+        </div>
 
-    <script>
-		function getParameterByName(name) {
-			var url = window.location.hash;
-			name = name.replace(/[\[\]]/g, '\\$&');
-			var regex = new RegExp('' + name + '(=([^&#]*)|&|#|$)'),
-				results = regex.exec(url);
+        <script>
+            function getParameterByName(name) {
+                var url = window.location.hash;
+                name = name.replace(/[\[\]]/g, '\\$&');
+                var regex = new RegExp('' + name + '(=([^&#]*)|&|#|$)'),
+                    results = regex.exec(url);
 
-			if (!results) return null;
-			if (!results[2]) return '';
-			return decodeURIComponent(results[2].replace(/\+/g, ' '));
-		}
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, ' '));
+            }
 
-        var urls_per_language = {};
-        {% for lang in apps_per_language %}
-        urls_per_language[{{ lang|tojson }}] = {{ apps_per_language[lang]['full_url']|tojson }};
-        {% endfor %}
-        var default_url = {{ app.full_url|tojson }};
-        var url = null;
+            var urls_per_language = {};
+            {% for lang in apps_per_language %}
+            urls_per_language[{{ lang|tojson }}] = {{ apps_per_language[lang]['full_url']|tojson }};
+            {% endfor %}
+            var default_url = {{ app.full_url|tojson }};
+            var url = null;
 
-        var language = "";
-        var country = "";
-        var target = "";
-        var resourceId = "";
+            var language = "";
+            var country = "";
+            var target = "";
+            var resourceId = "";
 
-        if (window.location.hash) {
-            language = getParameterByName("lang") || "";
-            country = getParameterByName("country") || "";
-            resourceId = getParameterByName("resourceId") || "";
-            target = getParameterByName("target") || "";
-        }
+            if (window.location.hash) {
+                language = getParameterByName("lang") || "";
+                country = getParameterByName("country") || "";
+                resourceId = getParameterByName("resourceId") || "";
+                target = getParameterByName("target") || "";
+            }
 
-        if (language) {
-            if (country)
-                url = urls_per_language[language + "_" + country];
-            if (!url)
-                url = urls_per_language[language + "_ALL"];
-            if (!url)
-                url = urls_per_language[language];
-        }
+            if (language) {
+                if (country)
+                    url = urls_per_language[language + "_" + country];
+                if (!url)
+                    url = urls_per_language[language + "_ALL"];
+                if (!url)
+                    url = urls_per_language[language];
+            }
 
-        if (!url) 
-            url = default_url;
-        
-        {% if not IS_FLASH %}
-        document.getElementById("app_url").src = url;
-        {% endif %}
+            if (!url) 
+                url = default_url;
+            
+            {% if not IS_FLASH %}
+            document.getElementById("app_url").src = url;
+            {% endif %}
 
-        if (target && resourceId) {
-            var message = JSON.stringify({ 
-                'event': 'resize',
-                'resourceId': resourceId,
-                'height': '{{ real_height }}px'
-            });
-            parent.postMessage(message, target);
-            console.log("Requesting to resize: ", message, " on ", target);
-        }
-    </script>
+            if (target && resourceId) {
+                var message = JSON.stringify({ 
+                    'event': 'resize',
+                    'resourceId': resourceId,
+                    'height': '{{ real_height }}px'
+                });
+                parent.postMessage(message, target);
+                console.log("Requesting to resize: ", message, " on ", target);
+            }
+        </script>
+    {% endif %}
 </body>
 </html>

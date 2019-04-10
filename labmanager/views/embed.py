@@ -1,3 +1,4 @@
+import urlparse
 import traceback
 import datetime
 import certifi
@@ -186,7 +187,17 @@ def app_html(identifier):
 
     author = application.owner.display_name
 
-    return render_template("embed/app-embed.html", author = author, user = current_golab_user(), identifier=identifier, app = application, languages=languages, apps_per_language = apps_per_language, title = gettext("Application {name}").format(name=application.name))
+    domain = urlparse.urlparse(application.url).netloc
+
+    unsupported_url = db.session.query(HttpsUnsupportedUrl).filter_by(url=domain).first()
+    supports_https = unsupported_url is None
+    requires_https = (request.args.get('requires_https') or '').lower() in ['true', '1']
+
+    return render_template("embed/app-embed.html", author = author, user = current_golab_user(), 
+                                                   identifier=identifier, app = application, languages=languages, 
+                                                   apps_per_language = apps_per_language, supports_https=supports_https, 
+                                                   requires_https = requires_https,
+                                                   title = gettext("Application {name}").format(name=application.name))
 
 @embed_blueprint.route('/apps/<identifier>/app.xml')
 def app_xml(identifier):
