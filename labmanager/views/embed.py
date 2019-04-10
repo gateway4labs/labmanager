@@ -174,7 +174,7 @@ def params_txt(identifier):
 def app_html(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()
     if application is None:
-        return render_template("embed/error.xml", user = current_golab_user(), message = gettext("Application '{identifier}' not found").format(identifier=identifier)), 404
+        return render_template("embed/error.html", user = current_golab_user(), message = gettext("Application '{identifier}' not found").format(identifier=identifier)), 404
 
     apps_per_language = {}
     languages = ['en']
@@ -192,6 +192,10 @@ def app_html(identifier):
     unsupported_url = db.session.query(HttpsUnsupportedUrl).filter_by(url=domain).first()
     supports_https = unsupported_url is None
     requires_https = (request.args.get('requires_https') or '').lower() in ['true', '1']
+    # TODO: check something else
+
+    if requires_https and not supports_https:
+        return render_template("embed/popup.html", identifier=identifier, name=application.name, title=application.name)
 
     return render_template("embed/app-embed.html", author = author, user = current_golab_user(), 
                                                    identifier=identifier, app = application, languages=languages, 

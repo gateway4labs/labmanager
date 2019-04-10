@@ -5,7 +5,6 @@
 {% else %}
    {% set real_height = app.height + 20 %}
 {% endif %}
-{% set POPUP_REQUIRED = requires_https and not supports_https %}
 <head>
     <meta name="check-url" value="{{ app.url }}"/>
     {% for app_url in apps_per_language.values() %}
@@ -46,11 +45,6 @@
     </style>
 </head>
 <body>
-    {% if POPUP_REQUIRED %}
-        <div class="">
-            .. {# TODO #}
-        </div>  
-    {% else %}
         <div style="width: 100%; overflow: hidden {% if app.height and app.scale %}; height: {{ real_height }}px{% endif %}">
             {% if IS_FLASH %}
             <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="100%" height="{{ app.height }}">
@@ -130,6 +124,5 @@
                 console.log("Requesting to resize: ", message, " on ", target);
             }
         </script>
-    {% endif %}
 </body>
 </html>

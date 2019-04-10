@@ -1,0 +1,41 @@
+{% extends "embed/base.html" %}
+  
+{% block body %}
+    {{ super() }}
+
+    <center>
+        <h3>Load in other window</h3>
+        <br>
+        <img src="{{ url_for('static', filename='security.png') }}" style="width: 50%; max-width: 100px">
+        <br>
+        <br>
+    </center>
+
+    <p style="font-size: 150%">We in Go-Lab care about your privacy and the security of your data. For this reason, all the Go-Lab ecosystem uses a security layer called https. Unfortunately, this laboratory does not support https yet, and therefore cannot be loaded in this ILS directly. However, you can click in the button below and open it in a new window.</p>
+
+    <center>
+        <button id="button" class="btn btn-lg btn-primary">Open in a new window</button>
+    </center>
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+            $("#button").click(function () {
+                var url = location.toString();
+                if (url.startsWith("https://")) {
+                    url = url.replace("https://", "http://");
+                }
+                if (url.indexOf("requires_https=true") >= 0) {
+                    url = url.replace("requires_https=true", "requires_https=false");
+                }
+                if (url.indexOf("requires_https=1") >= 0) {
+                    url = url.replace("requires_https=1", "requires_https=false");
+                }
+
+                window.open(url);
+            });
+        });
+    </script>
+{% endblock %}
