@@ -514,6 +514,8 @@ def appcomp2gw_golabz_manual_migration_html():
 @embed_blueprint.route('/create', methods = ['GET', 'POST'])
 @requires_golab_login
 def create():
+    return 'Adding new labs is temporarily disabled (as of 12 of April) for maintenance. Contact pablo.orduna@deusto.es for further information'
+
     check_certificates()
 
     original_url = request.args.get('url')
