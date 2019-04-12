@@ -192,7 +192,7 @@ def app_html(identifier):
     unsupported_url = db.session.query(HttpsUnsupportedUrl).filter_by(url=domain).first()
     # TODO: is this really useful? (unsupported_url)
 
-    supports_https = application.url.startswith('https://') or application.proxy
+    supports_https = application.url.startswith('https://') or application.uses_proxy
 
     requires_https = False
     if (request.args.get('requires_https') or '').lower() in ['true', '1']:
