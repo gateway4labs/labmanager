@@ -38,6 +38,36 @@
 
                 window.open(url);
             });
+
+            function getParameterByName(name) {
+                var url = window.location.hash;
+                name = name.replace(/[\[\]]/g, '\\$&');
+                var regex = new RegExp('' + name + '(=([^&#]*)|&|#|$)'),
+                    results = regex.exec(url);
+
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, ' '));
+            }
+
+            var target = "";
+            var resourceId = "";
+
+            if (window.location.hash) {
+                resourceId = getParameterByName("resourceId") || "";
+                target = getParameterByName("target") || "";
+            }
+
+            if (target && resourceId) {
+                var height = document.getElementsByTagName('body')[0].offsetHeight;
+                var message = JSON.stringify({ 
+                    'event': 'resize',
+                    'resourceId': resourceId,
+                    'height': '' + height + 'px'
+                });
+                parent.postMessage(message, target);
+                console.log("Requesting to resize: ", message, " on ", target);
+            }
         });
     </script>
 {% endblock %}
