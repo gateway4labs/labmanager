@@ -4,7 +4,7 @@ import datetime
 import certifi
 import requests
 from bs4 import BeautifulSoup
-from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify, current_app
+from flask import Blueprint, render_template, make_response, redirect, url_for, request, session, jsonify, current_app, Response
 from labmanager.views.authn import requires_golab_login, current_golab_user
 
 from labmanager.application import SSL_DOMAIN_WHITELIST
@@ -173,6 +173,14 @@ def params_txt(identifier):
 @embed_blueprint.route('/popup.html')
 def popup():
     return render_template("embed/popup.html", identifier='', name='N/A', title='N/A')
+
+@embed_blueprint.route('/popup/messages.xml')
+def popup_translations():
+    return Response("""<?xml version='1.0' encoding='UTF-8'?><messagebundle>
+    <msg name="embed.title">Load in another page</msg>
+    <msg name="embed.body">For security reasons this online lab cannot be opened in this page directly. Click on the button below to open the lab in a separate page.</msg>
+    <msg name="embed.link">Open in a new page</msg>
+</messagebundle>""", mimetype='application/xml')
 
 @embed_blueprint.route('/apps/<identifier>/app.html')
 def app_html(identifier):

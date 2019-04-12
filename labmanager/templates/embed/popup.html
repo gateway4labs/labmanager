@@ -18,42 +18,29 @@
 {% block body %}
     {{ super() }}
 
-    <center>
-        <h3 golab-lang='embed.title'></h3>
-        <br>
-        <img src="{{ url_for('static', filename='security.png') }}" style="width: 50%; max-width: 100px">
-        <br>
-        <br>
-    </center>
+    <div id="embed-container" style='display: none'>
+        <center>
+            <h3 golab-lang='embed.title'></h3>
+            <br>
+            <img src="{{ url_for('static', filename='security.png') }}" style="width: 50%; max-width: 100px">
+            <br>
+            <br>
+        </center>
 
-    <center>
-        <p style="font-size: 150%; width: 70%" golab-lang='embed.body'></p>
-    </center>
+        <center>
+            <p style="font-size: 150%; width: 70%" golab-lang='embed.body'></p>
+        </center>
 
-    <center>
-        <button id="button" class="btn btn-lg btn-primary" golab-lang='embed.link'></button>
-    </center>
+        <center>
+            <button id="button" class="btn btn-lg btn-primary" golab-lang='embed.link'></button>
+        </center>
+    </div>
 {% endblock %}
 
 {% block tail %}
     {{ super() }}
     <script>
-        $(document).ready(function () {
-            $("#button").click(function () {
-                var url = location.toString();
-                if (url.startsWith("https://")) {
-                    url = url.replace("https://", "http://");
-                }
-                if (url.indexOf("requires_https=true") >= 0) {
-                    url = url.replace("requires_https=true", "requires_https=false");
-                }
-                if (url.indexOf("requires_https=1") >= 0) {
-                    url = url.replace("requires_https=1", "requires_https=false");
-                }
-
-                window.open(url);
-            });
-
+        function sendHeight() {
             function getParameterByName(name) {
                 var url = window.location.hash;
                 name = name.replace(/[\[\]]/g, '\\$&');
@@ -83,7 +70,35 @@
                 parent.postMessage(message, target);
                 console.log("Requesting to resize: ", message, " on ", target);
             }
+        }
+
+        $(document).ready(function () {
+            $("#button").click(function () {
+                var url = location.toString();
+                if (url.startsWith("https://")) {
+                    url = url.replace("https://", "http://");
+                }
+                if (url.indexOf("requires_https=true") >= 0) {
+                    url = url.replace("requires_https=true", "requires_https=false");
+                }
+                if (url.indexOf("requires_https=1") >= 0) {
+                    url = url.replace("requires_https=1", "requires_https=false");
+                }
+
+                window.open(url);
+            });
+            
+            sendHeight();
         });
     </script>
+
     <script src="https://composer.golabz.eu/static/js/translations-jquery-1.0.js"></script>
+
+    <script>
+        var prefs = new golab.i18n();
+        prefs.ready(function() {
+            $('#embed-container').show();
+            sendHeight();
+        });
+    </script>
 {% endblock %}
