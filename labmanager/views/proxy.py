@@ -107,6 +107,8 @@ def get_allowed_hosts():
     # Check list of allowed hosts
     allowed_hosts = [ ah.url for ah in db.session.query(AllowedHost).all() ]
     allowed_hosts = [ allowed_host for allowed_host in allowed_hosts if 'localhost' not in allowed_host and '127.0.' not in allowed_host and '192.168' not in allowed_host and '::1' not in allowed_host ]
+    # Whitelist:
+    allowed_hosts.append('www.neuroproductions.be')
     ALLOWED_HOSTS = allowed_hosts
     return ALLOWED_HOSTS
 

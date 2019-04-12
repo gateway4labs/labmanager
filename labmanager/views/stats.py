@@ -26,7 +26,7 @@ def simple():
 @stats_blueprint.route("/monthly")
 def monthly():
     try:
-        failure_data = requests.get("http://composer.golabz.eu/translator/stats/status.json").json()
+        failure_data = requests.get("https://composer.golabz.eu/translator/stats/status.json").json()
     except:
         failure_data = {
             'failing': [],
@@ -34,7 +34,7 @@ def monthly():
             'ssl': [],
         }
 
-    lab_contents = requests.get('http://www.golabz.eu/rest/labs/retrieve.json').json()
+    lab_contents = requests.get('https://www.golabz.eu/rest/labs/retrieve.json').json()
     lab_per_url = {
         # url: lab_data
     }
