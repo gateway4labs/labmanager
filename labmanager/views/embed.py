@@ -170,6 +170,10 @@ def params_txt(identifier):
     # This is only for https://create.nyu.edu/dream/apps/mmSimDiffusion/params.txt
     return 'pressuregauge=1&useIcons=1&runMode=0&saveActions=1&paramLoaded=1'
 
+@embed_blueprint.route('/popup.html')
+def popup():
+    return render_template("embed/popup.html", identifier='', name='N/A', title='N/A')
+
 @embed_blueprint.route('/apps/<identifier>/app.html')
 def app_html(identifier):
     application = db.session.query(EmbedApplication).filter_by(identifier = identifier).first()

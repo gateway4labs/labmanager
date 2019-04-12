@@ -1,0 +1,19 @@
+{
+    "@metadata": {
+        "automatic": true
+    },
+    "messages": [
+        {
+            "key": "embed.title",
+            "value": "Load in another page"
+        },
+        {
+            "key": "embed.body",
+            "value": "For security reasons this online lab cannot be opened in this page directly. Click on the button below to open the lab in a separate page."
+        },
+        {
+            "key": "embed.link",
+            "value": "Open in a new page"
+        }
+    ]
+}

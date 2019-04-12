@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<messagebundle>
+    <msg name="embed.title">Load in another page</msg>
+    <msg name="embed.body">For security reasons this online lab cannot be opened in this page directly. Click on the button below to open the lab in a separate page.</msg>
+    <msg name="embed.link">Open in a new page</msg>
+</messagebundle>

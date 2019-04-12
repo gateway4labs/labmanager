@@ -1,10 +1,17 @@
 {% extends "embed/base.html" %}
+
+{% block head %}
+    {{ super() }}
+    <meta name="translations" lang="en" value="{{ url_for('static', filename='embed-messages.xml', _external=True) }}">
+
+    <meta name='golab-i18n-autoload' value='true'>
+{% endblock %}
   
 {% block body %}
     {{ super() }}
 
     <center>
-        <h3>Load in another page</h3>
+        <h3 golab-lang='embed.title'></h3>
         <br>
         <img src="{{ url_for('static', filename='security.png') }}" style="width: 50%; max-width: 100px">
         <br>
@@ -12,11 +19,11 @@
     </center>
 
     <center>
-        <p style="font-size: 150%; width: 70%">For security reasons this online lab cannot be opened in this page directly. Click on the button below to open the lab in a separate page.</p>
+        <p style="font-size: 150%; width: 70%" golab-lang='embed.body'></p>
     </center>
 
     <center>
-        <button id="button" class="btn btn-lg btn-primary">Open in a new page</button>
+        <button id="button" class="btn btn-lg btn-primary" golab-lang='embed.link'></button>
     </center>
 {% endblock %}
 
@@ -70,4 +77,5 @@
             }
         });
     </script>
+    <script src="https://composer.golabz.eu/static/js/translations-jquery-1.0.js"></script>
 {% endblock %}
