@@ -2,6 +2,14 @@
 
 {% block head %}
     {{ super() }}
+    {% if app %}
+    <meta name="check-url" value="{{ app.url }}"/>
+    {% for app_url in apps_per_language.values() %}
+    <meta name="check-url" value="{{ app_url['url'] }}"/>
+    {% endfor %}
+    <meta name="uses-proxy" value="{% if app.uses_proxy %}true{% else %}false{% endif %}">
+    {% endif %}
+
     <meta name="translations" lang="en" value="{{ url_for('static', filename='embed-messages.xml', _external=True) }}">
 
     <meta name='golab-i18n-autoload' value='true'>

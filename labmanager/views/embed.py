@@ -208,7 +208,7 @@ def app_html(identifier):
     print(requires_https, supports_https)
 
     if requires_https and not supports_https:
-        return render_template("embed/popup.html", identifier=identifier, name=application.name, title=application.name)
+        return render_template("embed/popup.html", identifier=identifier, app=application, apps_per_language=apps_per_language, name=application.name, title=application.name)
 
     return render_template("embed/app-embed.html", author = author, user = current_golab_user(), 
                                                    identifier=identifier, app = application, languages=languages, 
