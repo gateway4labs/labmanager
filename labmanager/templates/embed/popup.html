@@ -96,9 +96,16 @@
 
     <script>
         var prefs = new golab.i18n();
-        prefs.ready(function() {
+        function onLoaded() {
             $('#embed-container').show();
             sendHeight();
-        });
+        }
+        prefs.ready(onLoaded);
+
+        setTimeout(onLoaded, 2000);
+        setTimeout(onLoaded, 5000);
+        setTimeout(onLoaded, 10000);
+        setTimeout(onLoaded, 15000);
+        setTimeout(onLoaded, 20000);
     </script>
 {% endblock %}
