@@ -20,10 +20,10 @@ app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 
 with app.app_context():
-    if True:
 #    if os.path.exists('golabz.json'):
 #        golabz_labs = json.load(open('golabz.json'))
 #    else:
+    if True:
         golabz_labs = requests.get("https://www.golabz.eu/rest/labs/retrieve.json").json()
         open('golabz.json', 'w').write(json.dumps(golabz_labs, indent=4))
 
@@ -49,8 +49,11 @@ with app.app_context():
         for golab_lab_app in golab_lab['lab_apps']:
             golabz_url = golab_lab_app['app_url']
 
-            if golabz_url.startswith('http://gateway.golabz.eu/embed/apps/'):
-                embed_identifier = golabz_url.split('/embed/apps/')[1].split('/app')[0]
+            url_parsed = urlparse.urlparse(golabz_url)
+            if url_parsed.netloc != 'gateway.golabz.eu':
+                continue
+
+            if url_parsed.path.endswith('.xml'):
 
                 # If it is in Graasp, replace it
                 golab_lab_id = golab_lab['id']
@@ -70,7 +73,11 @@ with app.app_context():
                     golabz_changes.append(existing_record)
 
                 replaced_url = golabz_url
-                new_url = golabz_url.replace('http://', 'https://').replace('.xml', '.html')
+                new_url = golabz_url
+                if new_url.startswith('http://'):
+                    new_url = new_url.replace('http://', 'https://', 1)
+
+                new_url = new_url[::-1].replace('.xml'[::-1], '.html'[::-1], 1)[::-1]
 
                 existing_record['add'].append({
                     'app_url': new_url,
@@ -81,4 +88,4 @@ with app.app_context():
                     'app_url': replaced_url,
                 })
 
-    open('migration_apr_2019/golabz_replacements_2nd.json', 'w').write(json.dumps(golabz_changes, indent=4))
+    open('migration_apr_2019/golabz_replacements_3rd.json', 'w').write(json.dumps(golabz_changes, indent=4))
