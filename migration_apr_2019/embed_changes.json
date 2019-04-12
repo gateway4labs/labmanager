@@ -450,15 +450,45 @@
         "proxy": false
     }, 
     {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=ORG&exp=Different_technique_of_separation&tempId=olab_ot&linktoken=620589fb8255e9e68ae4692eaccb994d&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=ORG&exp=Different_technique_of_separation&tempId=olab_ot&linktoken=620589fb8255e9e68ae4692eaccb994d&elink_lan=en-IN", 
+        "id": 230, 
+        "proxy": false
+    }, 
+    {
         "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=ORG&exp=Reactivity_of_Metals&tempId=olab_ot&linktoken=29fdd55ff09ec51e369e8e18ac116930&elink_lan=en-IN", 
         "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=ORG&exp=Reactivity_of_Metals&tempId=olab_ot&linktoken=29fdd55ff09ec51e369e8e18ac116930&elink_lan=en-IN", 
         "id": 231, 
         "proxy": false
     }, 
     {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=PHC&exp=ToStudyThePropertiesOfAcidsNBases&tempId=olab_ot&linktoken=2362cf8f9c08f5ac6665782c3ae96c4c&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=PHC&exp=ToStudyThePropertiesOfAcidsNBases&tempId=olab_ot&linktoken=2362cf8f9c08f5ac6665782c3ae96c4c&elink_lan=en-IN", 
+        "id": 232, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=PHC&exp=pH-Determination&tempId=olab_ot&linktoken=5fe286732488f3f528f80cbad08d937f&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=PHC&exp=pH-Determination&tempId=olab_ot&linktoken=5fe286732488f3f528f80cbad08d937f&elink_lan=en-IN", 
+        "id": 233, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=INC&exp=Quantitative_Estimation&tempId=olab_ot&linktoken=b42320b2162aef7e242cd55f04275fc5&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=INC&exp=Quantitative_Estimation&tempId=olab_ot&linktoken=b42320b2162aef7e242cd55f04275fc5&elink_lan=en-IN", 
+        "id": 234, 
+        "proxy": false
+    }, 
+    {
         "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=INC&exp=Chemical_Equillibrium&tempId=olab_ot&linktoken=2f0fc0f2656cc9b0f4ac9ee586e42e5a&elink_lan=en-IN", 
         "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=INC&exp=Chemical_Equillibrium&tempId=olab_ot&linktoken=2f0fc0f2656cc9b0f4ac9ee586e42e5a&elink_lan=en-IN", 
         "id": 237, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=BIO&cat=PHL&exp=Osmosis_in_potato&tempId=olab_ot&linktoken=54bc74c5726894d29164680c2def702a&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=BIO&cat=PHL&exp=Osmosis_in_potato&tempId=olab_ot&linktoken=54bc74c5726894d29164680c2def702a&elink_lan=en-IN", 
+        "id": 238, 
         "proxy": false
     }, 
     {
