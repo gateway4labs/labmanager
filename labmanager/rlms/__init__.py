@@ -455,4 +455,35 @@ def find_smartgateway_opensocial_link(url):
                                 return url_for('opensocial.public_widget_xml', lab_name=db_lab.public_identifier, widget_name=widget['name'], _external=True)
     return None
 
+def find_smartgateway_html_link(url):
+    rlms_by_id = {}
+    for db_rlms in db.session.query(dbRLMS).filter_by(publicly_available=True).all():
+        rlms = db_rlms.get_rlms()
+        rlms_by_id[db_rlms.id] = rlms
+        if Capabilities.URL_FINDER in rlms.get_capabilities():
+            base_urls = rlms.get_base_urls() or []
+            for base_url in base_urls:
+                if url.startswith(base_url):
+                    lab = rlms.get_lab_by_url(url)
+                    if lab is not None:
+                        for widget in _get_widgets(rlms, lab.laboratory_id):
+                            # First widget wins...
+                            return url_for('opensocial.public_rlms_widget_html', rlms_identifier=db_rlms.public_identifier, lab_name=lab.laboratory_id, widget_name=widget['name'], _external=True)
+
+    for db_rlms in db.session.query(dbRLMS).filter_by(publicly_available=False).all():
+        rlms = db_rlms.get_rlms()
+        rlms_by_id[db_rlms.id] = rlms
+        if Capabilities.URL_FINDER in rlms.get_capabilities():
+            base_urls = rlms.get_base_urls() or []
+            for base_url in base_urls:
+                if url.startswith(base_url):
+                    lab = rlms.get_lab_by_url(url)
+                    if lab is not None:
+                        db_lab = db.session.query(dbLaboratory).filter_by(rlms=db_rlms, laboratory_id=lab.laboratory_id, publicly_available=True).first()
+                        if db_lab is not None:
+                            for widget in _get_widgets(rlms, lab.laboratory_id):
+                                # First widget wins...
+                                return url_for('opensocial.public_widget_html', lab_name=db_lab.public_identifier, widget_name=widget['name'], _external=True)
+    return None
+
 

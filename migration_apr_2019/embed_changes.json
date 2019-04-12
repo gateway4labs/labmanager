@@ -1,0 +1,956 @@
+[
+    {
+        "old_url": "http://www.seismoi.gr/", 
+        "new_url": "https://www.seismoi.gr/", 
+        "id": 5, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://atomicorbitals.ea.gr/", 
+        "new_url": "https://atomicorbitals.ea.gr/", 
+        "id": 7, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://inorganicmolecules.ea.gr/", 
+        "new_url": "https://inorganicmolecules.ea.gr/", 
+        "id": 8, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://evilfer.github.io/planets/#!/", 
+        "new_url": "https://evilfer.github.io/planets/#!/", 
+        "id": 13, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/CFC/CFC.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/CFC/CFC.html", 
+        "id": 31, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Structure_of_the_atmosphere/atmosphere.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Structure_of_the_atmosphere/atmosphere.html", 
+        "id": 32, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/PH_Calc/pHCalculator.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/PH_Calc/pHCalculator.html", 
+        "id": 34, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/HistoricClimateChange/history.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/HistoricClimateChange/history.html", 
+        "id": 35, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Collisional_Heating/CollisionalHeating.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Collisional_Heating/CollisionalHeating.html", 
+        "id": 37, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://kcvs.ca/site/projects/JS_files/Stabilization_Wedges/stabilizationWedges.html", 
+        "new_url": "https://kcvs.ca/site/projects/JS_files/Stabilization_Wedges/stabilizationWedges.html", 
+        "id": 38, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Planetary_Climates/planet.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Planetary_Climates/planet.html", 
+        "id": 39, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Mass_Spec/massSpec.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Mass_Spec/massSpec.html", 
+        "id": 41, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Atomic_Weight_Calc/atomicWeight.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Atomic_Weight_Calc/atomicWeight.html", 
+        "id": 43, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Spectrum/photonEMWapplet3.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Spectrum/photonEMWapplet3.html", 
+        "id": 49, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/IR_Suite/IRSuite.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/IR_Suite/IRSuite.html", 
+        "id": 50, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://kcvs.ca/site/projects/JS_files/13CNMR/index.html", 
+        "new_url": "https://kcvs.ca/site/projects/JS_files/13CNMR/index.html", 
+        "id": 51, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Stereo_Chem/StereoChem.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Stereo_Chem/StereoChem.html", 
+        "id": 52, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/physics_files/cloudChamber3/cloudchamber.swf", 
+        "new_url": "https://www.kcvs.ca/site/projects/physics_files/cloudChamber3/cloudchamber.swf", 
+        "id": 54, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.compadre.org/osp/EJSS/3640/16.htm", 
+        "new_url": "https://www.compadre.org/osp/EJSS/3640/16.htm", 
+        "id": 57, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://lcogt.net/observations/", 
+        "new_url": "https://lcogt.net/observations/", 
+        "id": 59, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://sci-archive.lcogt.net/cgi-bin/ft_search", 
+        "new_url": "https://sci-archive.lcogt.net/cgi-bin/ft_search", 
+        "id": 60, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/ssm/animations/ptolemaic.swf", 
+        "new_url": "https://astro.unl.edu/naap/ssm/animations/ptolemaic.swf", 
+        "id": 65, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/motion1/animations/seasons_ecliptic.swf", 
+        "new_url": "https://astro.unl.edu/naap/motion1/animations/seasons_ecliptic.swf", 
+        "id": 67, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.centrometeoitaliano.it/archivio-storico-terremoti-ufficiale-dati-ingv/", 
+        "new_url": "https://www.centrometeoitaliano.it/archivio-storico-terremoti-ufficiale-dati-ingv/", 
+        "id": 68, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/motion2/animations/ce_hc.swf", 
+        "new_url": "https://astro.unl.edu/naap/motion2/animations/ce_hc.swf", 
+        "id": 69, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/motion3/animations/sunmotions.swf", 
+        "new_url": "https://astro.unl.edu/naap/motion3/animations/sunmotions.swf", 
+        "id": 70, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/pos/animations/kepler.swf", 
+        "new_url": "https://astro.unl.edu/naap/pos/animations/kepler.swf", 
+        "id": 72, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/lps/animations/lps.swf", 
+        "new_url": "https://astro.unl.edu/naap/lps/animations/lps.swf", 
+        "id": 74, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/blackbody/animations/blackbody.swf", 
+        "new_url": "https://astro.unl.edu/naap/blackbody/animations/blackbody.swf", 
+        "id": 75, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/blackbody/animations/filters.swf", 
+        "new_url": "https://astro.unl.edu/naap/blackbody/animations/filters.swf", 
+        "id": 77, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/hydrogen/animations/hydrogen_atom.swf", 
+        "new_url": "https://astro.unl.edu/naap/hydrogen/animations/hydrogen_atom.swf", 
+        "id": 88, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/hr/animations/hrExplorer.swf", 
+        "new_url": "https://astro.unl.edu/naap/hr/animations/hrExplorer.swf", 
+        "id": 89, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/ebs/animations/ebs.swf", 
+        "new_url": "https://astro.unl.edu/naap/ebs/animations/ebs.swf", 
+        "id": 90, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/atmosphere/animations/gasRetentionSimulator.swf", 
+        "new_url": "https://astro.unl.edu/naap/atmosphere/animations/gasRetentionSimulator.swf", 
+        "id": 91, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/esp/animations/transitSimulator.swf", 
+        "new_url": "https://astro.unl.edu/naap/esp/animations/transitSimulator.swf", 
+        "id": 96, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/esp/animations/radialVelocitySimulator.swf", 
+        "new_url": "https://astro.unl.edu/naap/esp/animations/radialVelocitySimulator.swf", 
+        "id": 97, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/vsp/animations/variableStarPhotometryAnalyzer.swf", 
+        "new_url": "https://astro.unl.edu/naap/vsp/animations/variableStarPhotometryAnalyzer.swf", 
+        "id": 98, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/habitablezones/animations/stellarHabitableZone.swf", 
+        "new_url": "https://astro.unl.edu/naap/habitablezones/animations/stellarHabitableZone.swf", 
+        "id": 99, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/mobile/HRdiagram/HRdiagramStable.html", 
+        "new_url": "https://astro.unl.edu/mobile/HRdiagram/HRdiagramStable.html", 
+        "id": 100, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/mobile/Galaxies/GalaxiesStable.html", 
+        "new_url": "https://astro.unl.edu/mobile/Galaxies/GalaxiesStable.html", 
+        "id": 101, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/mobile/Spin/SpinSim.html", 
+        "new_url": "https://astro.unl.edu/mobile/Spin/SpinSim.html", 
+        "id": 102, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/mobile/Luminosity/LuminosityStable.html", 
+        "new_url": "https://astro.unl.edu/mobile/Luminosity/LuminosityStable.html", 
+        "id": 103, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://astro.unl.edu/naap/scaleheight/sim1/sim1.html", 
+        "new_url": "https://astro.unl.edu/naap/scaleheight/sim1/sim1.html", 
+        "id": 104, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.findmyshadow.com/", 
+        "new_url": "https://www.findmyshadow.com/", 
+        "id": 106, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://interactive.quantumnano.at/files/flash/stable/bin-release/Main.swf#Kvibration", 
+        "new_url": "https://interactive.quantumnano.at/files/flash/stable/bin-release/Main.swf#Kvibration", 
+        "id": 119, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD01/GAME/english/preloader.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD01/GAME/english/preloader.swf", 
+        "id": 128, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD02/GAME1/spacekillers_EN.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD02/GAME1/spacekillers_EN.swf", 
+        "id": 129, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD03/GAME1/en/preloader.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD03/GAME1/en/preloader.swf", 
+        "id": 130, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD04/GAME1/stopmalariamain_EN.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD04/GAME1/stopmalariamain_EN.swf", 
+        "id": 131, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD05/GAME1/en/preloader.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD05/GAME1/en/preloader.swf", 
+        "id": 132, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD06/GAME1/StopVIH_EN.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD06/GAME1/StopVIH_EN.swf", 
+        "id": 133, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD07/GAME1/en/preloader.swf", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD07/GAME1/en/preloader.swf", 
+        "id": 134, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD08/VE01/html5/en/index.html", 
+        "new_url": "https://www.xplorehealth.eu/sites/all/themes/xplore/files/interactius/MOD08/VE01/html5/en/index.html", 
+        "id": 135, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www-tc.pbs.org/wgbh/buildingbig/lab/swf/forces.swf", 
+        "new_url": "https://www-tc.pbs.org/wgbh/buildingbig/lab/swf/forces.swf", 
+        "id": 164, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/acceleration_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/acceleration_en.htm", 
+        "id": 178, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/equilibriumforces_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/equilibriumforces_en.htm", 
+        "id": 179, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/resultant_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/resultant_en.htm", 
+        "id": 180, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/forceresolution_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/forceresolution_en.htm", 
+        "id": 181, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/pulleysystem_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/pulleysystem_en.htm", 
+        "id": 182, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/inclinedplane_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/inclinedplane_en.htm", 
+        "id": 183, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/projectile_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/projectile_en.htm", 
+        "id": 188, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/collision_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/collision_en.htm", 
+        "id": 190, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/newtoncradle_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/newtoncradle_en.htm", 
+        "id": 192, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/circularmotion_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/circularmotion_en.htm", 
+        "id": 194, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/keplerlaw1_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/keplerlaw1_en.htm", 
+        "id": 196, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/keplerlaw2_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/keplerlaw2_en.htm", 
+        "id": 198, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/buoyantforce_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/buoyantforce_en.htm", 
+        "id": 204, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/pendulum_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/pendulum_en.htm", 
+        "id": 206, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/springpendulum_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/springpendulum_en.htm", 
+        "id": 208, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/coupledpendula_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/coupledpendula_en.htm", 
+        "id": 211, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/resonance_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/resonance_en.htm", 
+        "id": 213, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/standinglongitudinalwaves_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/standinglongitudinalwaves_en.htm", 
+        "id": 215, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/interference_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/interference_en.htm", 
+        "id": 217, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/magneticfieldbar_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/magneticfieldbar_en.htm", 
+        "id": 219, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/magneticfieldwire_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/magneticfieldwire_en.htm", 
+        "id": 221, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=ORG&exp=Reactivity_of_Metals&tempId=olab_ot&linktoken=29fdd55ff09ec51e369e8e18ac116930&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=ORG&exp=Reactivity_of_Metals&tempId=olab_ot&linktoken=29fdd55ff09ec51e369e8e18ac116930&elink_lan=en-IN", 
+        "id": 231, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=INC&exp=Chemical_Equillibrium&tempId=olab_ot&linktoken=2f0fc0f2656cc9b0f4ac9ee586e42e5a&elink_lan=en-IN", 
+        "new_url": "https://amrita.olabs.edu.in/olab/html5/?sub=CHE&cat=INC&exp=Chemical_Equillibrium&tempId=olab_ot&linktoken=2f0fc0f2656cc9b0f4ac9ee586e42e5a&elink_lan=en-IN", 
+        "id": 237, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/lorentzforce_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/lorentzforce_en.htm", 
+        "id": 243, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/electricmotor_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/electricmotor_en.htm", 
+        "id": 245, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/generator_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/generator_en.htm", 
+        "id": 247, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://windenergy.ea.gr/", 
+        "new_url": "https://windenergy.ea.gr/", 
+        "id": 252, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/accircuits_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/accircuits_en.htm", 
+        "id": 253, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/oscillatingcircuit_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/oscillatingcircuit_en.htm", 
+        "id": 255, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/refraction_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/refraction_en.htm", 
+        "id": 257, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/refractor_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/refractor_en.htm", 
+        "id": 259, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.walter-fendt.de/html5/phen/timedilation_en.htm", 
+        "new_url": "https://www.walter-fendt.de/html5/phen/timedilation_en.htm", 
+        "id": 261, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://namingmolecules.ea.gr/", 
+        "new_url": "https://namingmolecules.ea.gr/", 
+        "id": 385, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://simulator.down2earth.eu/planet.html?lang=en-US", 
+        "new_url": "https://simulator.down2earth.eu/planet.html?lang=en-US", 
+        "id": 386, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://create.nyu.edu/dream/apps/mmSimGasLaws/gaslaws.141001.swf", 
+        "new_url": "https://create.nyu.edu/dream/apps/mmSimGasLaws/gaslaws.141001.swf", 
+        "id": 387, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://organicmolecules.ea.gr/", 
+        "new_url": "https://organicmolecules.ea.gr/", 
+        "id": 405, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/Photoelectric_Effect/PhotoElectric.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/Photoelectric_Effect/PhotoElectric.html", 
+        "id": 422, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.seilias.gr/go-lab/blackBodyRadiation.html", 
+        "new_url": "https://www.seilias.gr/go-lab/blackBodyRadiation.html", 
+        "id": 434, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.seilias.gr/go-lab/emf.html", 
+        "new_url": "https://www.seilias.gr/go-lab/emf.html", 
+        "id": 435, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.seilias.gr/go-lab/oscillation.html", 
+        "new_url": "https://www.seilias.gr/go-lab/oscillation.html", 
+        "id": 436, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.seilias.gr/go-lab/accelerationGraphs.html", 
+        "new_url": "https://www.seilias.gr/go-lab/accelerationGraphs.html", 
+        "id": 437, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/pendulum/DoublePendulumApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/pendulum/DoublePendulumApp-en.html", 
+        "id": 438, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/build/sims/pendulum/PendulumApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/build/sims/pendulum/PendulumApp-en.html", 
+        "id": 439, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/Molecule1App-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/Molecule1App-en.html", 
+        "id": 441, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/SingleSpringApp-en.html?SHOW_ENERGY=true;", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/SingleSpringApp-en.html?SHOW_ENERGY=true;", 
+        "id": 443, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/DoubleSpringApp-en.html?SHOW_ENERGY=true;SIM_CANVAS.BACKGROUND=;", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/DoubleSpringApp-en.html?SHOW_ENERGY=true;SIM_CANVAS.BACKGROUND=;", 
+        "id": 444, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/NewtonsCradleApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/NewtonsCradleApp-en.html", 
+        "id": 450, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/BilliardsApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/BilliardsApp-en.html", 
+        "id": 453, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/CarSuspensionApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/CarSuspensionApp-en.html", 
+        "id": 454, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/CartPendulum2App-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/CartPendulum2App-en.html", 
+        "id": 455, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/ChainApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/ChainApp-en.html", 
+        "id": 456, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/ContactApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/ContactApp-en.html", 
+        "id": 457, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com//engine2D/curved-objects/curved-objects-en.html", 
+        "new_url": "https://www.myphysicslab.com//engine2D/curved-objects/curved-objects-en.html", 
+        "id": 458, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/DoublePendulum2App-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/DoublePendulum2App-en.html", 
+        "id": 460, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/DoNothingApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/DoNothingApp-en.html", 
+        "id": 461, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/ImpulseApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/ImpulseApp-en.html", 
+        "id": 462, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/MarsMoonApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/MarsMoonApp-en.html", 
+        "id": 463, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/MutualAttractApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/MutualAttractApp-en.html", 
+        "id": 464, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/PendulumClockApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/PendulumClockApp-en.html", 
+        "id": 465, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/PileApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/PileApp-en.html", 
+        "id": 466, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/PileAttractApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/PileAttractApp-en.html", 
+        "id": 467, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/PolygonTestApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/PolygonTestApp-en.html", 
+        "id": 468, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/engine2D/RigidBodyApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/engine2D/RigidBodyApp-en.html", 
+        "id": 469, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/pde/StringApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/pde/StringApp-en.html", 
+        "id": 470, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/pendulum/CompareDoublePendulumApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/pendulum/CompareDoublePendulumApp-en.html", 
+        "id": 471, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://seilias.gr/go-lab/basketBall.html", 
+        "new_url": "https://seilias.gr/go-lab/basketBall.html", 
+        "id": 472, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/pendulum/MoveableDoublePendulumApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/pendulum/MoveableDoublePendulumApp-en.html", 
+        "id": 473, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/roller/RigidBodyRollerApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/roller/RigidBodyRollerApp-en.html", 
+        "id": 475, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/roller/RollerDoubleApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/roller/RollerDoubleApp-en.html", 
+        "id": 476, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/roller/RollerSingleApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/roller/RollerSingleApp-en.html", 
+        "id": 477, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/ChainOfSpringsApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/ChainOfSpringsApp-en.html", 
+        "id": 478, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/CollideBlocksApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/CollideBlocksApp-en.html", 
+        "id": 479, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/CollideSpringApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/CollideSpringApp-en.html", 
+        "id": 480, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/Double2DSpringApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/Double2DSpringApp-en.html", 
+        "id": 481, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/DoubleSpringApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/DoubleSpringApp-en.html", 
+        "id": 482, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/pendulum/MoveablePendulumApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/pendulum/MoveablePendulumApp-en.html", 
+        "id": 483, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/Molecule3App-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/Molecule3App-en.html", 
+        "id": 484, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/SingleSpring2App-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/SingleSpring2App-en.html", 
+        "id": 485, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.myphysicslab.com/develop/adv-build/sims/springs/Spring2DApp-en.html", 
+        "new_url": "https://www.myphysicslab.com/develop/adv-build/sims/springs/Spring2DApp-en.html", 
+        "id": 486, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.didaktik.physik.uni-muenchen.de/elektronenbahnen/en/b-feld/standalone/kathodenstrahlroehre.php", 
+        "new_url": "https://www.didaktik.physik.uni-muenchen.de/elektronenbahnen/en/b-feld/standalone/kathodenstrahlroehre.php", 
+        "id": 489, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.didaktik.physik.uni-muenchen.de/elektronenbahnen/en/e-feld/standalone/elektronenablenkroehre.php", 
+        "new_url": "https://www.didaktik.physik.uni-muenchen.de/elektronenbahnen/en/e-feld/standalone/elektronenablenkroehre.php", 
+        "id": 491, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://did.physik.lmu.de/qr/rcl/rcl01/index.php?lang=en&setup=myrcl", 
+        "new_url": "https://did.physik.lmu.de/qr/rcl/rcl01/index.php?lang=en&setup=myrcl", 
+        "id": 502, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=2WUKEr1483339623458", 
+        "new_url": "https://cosci.tw/run/?name=2WUKEr1483339623458", 
+        "id": 560, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=nkmEBy1506645045034&lang=en", 
+        "new_url": "https://cosci.tw/run/?name=nkmEBy1506645045034&lang=en", 
+        "id": 561, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=estOr31522118371975&lang=en", 
+        "new_url": "https://cosci.tw/run/?name=estOr31522118371975&lang=en", 
+        "id": 563, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=KAusTg1465025225265&lang=en", 
+        "new_url": "https://cosci.tw/run/?name=KAusTg1465025225265&lang=en", 
+        "id": 564, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=tvN7iL1511917540560&lang=en", 
+        "new_url": "https://cosci.tw/run/?name=tvN7iL1511917540560&lang=en", 
+        "id": 565, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=ynGIbT1461565101396&lang=en", 
+        "new_url": "https://cosci.tw/run/?name=ynGIbT1461565101396&lang=en", 
+        "id": 566, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://cosci.tw/run/?name=Fv0yrk1462772445401&lang=en", 
+        "new_url": "https://cosci.tw/run/?name=Fv0yrk1462772445401&lang=en", 
+        "id": 567, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://htmlstack.com/triangle/", 
+        "new_url": "https://htmlstack.com/triangle/", 
+        "id": 581, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.limejs.com/static/zlizer/index.html", 
+        "new_url": "https://www.limejs.com/static/zlizer/index.html", 
+        "id": 584, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://kcvs.ca/site/projects/JS_files/IR%20Window/IRWindows.html", 
+        "new_url": "https://kcvs.ca/site/projects/JS_files/IR%20Window/IRWindows.html", 
+        "id": 611, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.kcvs.ca/site/projects/JS_files/OceanAcidification/oceanAcid.html", 
+        "new_url": "https://www.kcvs.ca/site/projects/JS_files/OceanAcidification/oceanAcid.html", 
+        "id": 612, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.thephysicsaviary.com/Physics/Programs/Games/RulerUse/index.html", 
+        "new_url": "https://www.thephysicsaviary.com/Physics/Programs/Games/RulerUse/index.html", 
+        "id": 613, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/", 
+        "id": 616, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98246", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98246", 
+        "id": 620, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98248", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98248", 
+        "id": 621, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/index.php?id=95335", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/index.php?id=95335", 
+        "id": 622, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98173", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98173", 
+        "id": 623, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98154", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98154", 
+        "id": 624, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98246", 
+        "new_url": "http://www.neuroproductions.be/logic-lab/index.php?id=98246", 
+        "id": 626, 
+        "proxy": true
+    }, 
+    {
+        "old_url": "http://www.didaktikonline.physik.uni-muenchen.de/programme/dipolstr/DipoleRadiation.html#", 
+        "new_url": "https://www.didaktikonline.physik.uni-muenchen.de/programme/dipolstr/DipoleRadiation.html#", 
+        "id": 647, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.didaktikonline.physik.uni-muenchen.de/programme/e_feld/E_Feld_min_en.html", 
+        "new_url": "https://www.didaktikonline.physik.uni-muenchen.de/programme/e_feld/E_Feld_min_en.html", 
+        "id": 652, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.didaktikonline.physik.uni-muenchen.de/programme/wellen_1d_en/index_e.html", 
+        "new_url": "https://www.didaktikonline.physik.uni-muenchen.de/programme/wellen_1d_en/index_e.html", 
+        "id": 654, 
+        "proxy": false
+    }, 
+    {
+        "old_url": "http://www.ign.es/web/resources/sismologia/tmundiales/lejanos_pg.html", 
+        "new_url": "https://www.ign.es/web/resources/sismologia/tmundiales/lejanos_pg.html", 
+        "id": 661, 
+        "proxy": false
+    }
+]
