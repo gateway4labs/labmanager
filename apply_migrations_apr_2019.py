@@ -23,7 +23,7 @@ embed_changes = json.load(open('migration_apr_2019/embed_changes.json'))
 with app.app_context():
     for embed_change in embed_changes:
         embed_app = db.session.query(EmbedApplication).filter_by(id=embed_change['id']).one()
-        if embed_app.url != embed_change['old_url']:
+        if embed_app.url != embed_change['old_url'] and embed_app.url != embed_change['old_url'].replace('http://', 'https://'):
             print("WARNING: id {}; expected {} but found {}. Skipping".format(embed_change['id'], embed_change['old_url'], embed_app.url))
             continue
 
@@ -33,4 +33,10 @@ with app.app_context():
         
         embed_app.uses_proxy = proxy
         embed_app.url = new_url
+
+        if new_url.startswith('https://'):
+            for translation in embed_app.translations:
+                if translation.url.startswith('http://'):
+                    translation.url = translation.url.replace('http://', 'https://', 1)
+
     db.session.commit()
