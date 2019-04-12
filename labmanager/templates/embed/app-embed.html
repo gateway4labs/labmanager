@@ -123,6 +123,10 @@
                 parent.postMessage(message, target);
                 console.log("Requesting to resize: ", message, " on ", target);
             }
+
+            var STATS_ADDRESS = "{{ url_for("embed.stats", url=url_for('.app_html', identifier=identifier, _external=True), _external=True) }}";
+            var timezone_minutes = new Date().getTimezoneOffset();
+            $.post(STATS_ADDRESS + "&timezone_minutes=" + timezone_minutes, {});
         </script>
 </body>
 </html>
