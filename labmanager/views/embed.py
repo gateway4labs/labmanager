@@ -190,13 +190,17 @@ def app_html(identifier):
     domain = urlparse.urlparse(application.url).netloc
 
     unsupported_url = db.session.query(HttpsUnsupportedUrl).filter_by(url=domain).first()
-    supports_https = unsupported_url is None
+    # TODO: is this really useful? (unsupported_url)
+
+    supports_https = application.url.startswith('https://')
     requires_https = False
     if (request.args.get('requires_https') or '').lower() in ['true', '1']:
         requires_https = True
 
     if request.environ.get('old_wsgi.url_scheme') == 'https':
         requires_https = True
+
+    print(requires_https, supports_https)
 
     if requires_https and not supports_https:
         return render_template("embed/popup.html", identifier=identifier, name=application.name, title=application.name)
