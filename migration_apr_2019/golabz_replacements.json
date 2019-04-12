@@ -2650,7 +2650,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GraphingOfMotionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GraphingOfMotionLab%25252Findex.html/w_default.html?scale=9190&height=700", 
                 "app_format": "html", 
                 "app_title": "Graphing of Motion Lab"
             }
@@ -2665,7 +2665,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GraphingBoatMotionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GraphingBoatMotionLab%25252Findex.html/w_default.html?scale=9040&height=700", 
                 "app_format": "html", 
                 "app_title": "Graphing Motion"
             }
@@ -2680,7 +2680,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GraphingDragRacerMotionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GraphingDragRacerMotionLab%25252Findex.html/w_default.html?scale=9250&height=710", 
                 "app_format": "html", 
                 "app_title": "Graphing Motion Lab 2"
             }
@@ -2695,7 +2695,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PVCFreefallLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PVCFreefallLab%25252Findex.html/w_default.html?scale=9860&height=1000", 
                 "app_format": "html", 
                 "app_title": "PVC Freefall Lab"
             }
@@ -2710,7 +2710,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceGravityBucketLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceGravityBucketLab%25252Findex.html/w_default.html?scale=9230&height=700", 
                 "app_format": "html", 
                 "app_title": "Force Gravity on Bucket Lab"
             }
@@ -2725,7 +2725,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/AccelerationOnPlanetLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/AccelerationOnPlanetLab%25252Findex.html/w_default.html?scale=9020&height=720", 
                 "app_format": "html", 
                 "app_title": "Acceleration on a Planet Lab"
             }
@@ -2740,7 +2740,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/UniversalGravityLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/UniversalGravityLab%25252Findex.html/w_default.html?scale=8660&height=740", 
                 "app_format": "html", 
                 "app_title": "Universal Gravity Lab"
             }
@@ -2755,7 +2755,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceGravityOnPlanetMiniLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceGravityOnPlanetMiniLab%25252Findex.html/w_default.html?scale=8680&height=860", 
                 "app_format": "html", 
                 "app_title": "Force Gravity From a Planet Lab"
             }
@@ -2770,7 +2770,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/NewtonsLawwithGraphsLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/NewtonsLawwithGraphsLab%25252Findex.html/w_default.html?scale=8780&height=700", 
                 "app_format": "html", 
                 "app_title": "Newton's 2nd Law"
             }
@@ -2785,7 +2785,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/NewtonsLawPhotogateLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/NewtonsLawPhotogateLab%25252Findex.html/w_default.html?scale=8810&height=700", 
                 "app_format": "html", 
                 "app_title": "Newton's Law Lab with Photogates"
             }
@@ -2800,7 +2800,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/NewtonsLawLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/NewtonsLawLab%25252Findex.html/w_default.html?scale=8760&height=700", 
                 "app_format": "html", 
                 "app_title": "Newton's Law Lab"
             }
@@ -2815,7 +2815,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceElastic%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceElastic%25252Findex.html/w_default.html?scale=8720&height=1350", 
                 "app_format": "html", 
                 "app_title": "Elastic Lab"
             }
@@ -2830,7 +2830,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceBuoyancy%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceBuoyancy%25252Findex.html/w_default.html?scale=8680&height=1340", 
                 "app_format": "html", 
                 "app_title": "Force Buoyancy"
             }
@@ -2845,7 +2845,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/InclinedPlaneLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/InclinedPlaneLab%25252Findex.html/w_default.html?scale=8660&height=1340", 
                 "app_format": "html", 
                 "app_title": "Inclined Plane Lab"
             }
@@ -2860,7 +2860,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForcesOnInclineLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForcesOnInclineLab%25252Findex.html/w_default.html?scale=8740&height=690", 
                 "app_format": "html", 
                 "app_title": "Forces on an Incline Lab"
             }
@@ -2875,7 +2875,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DORG%252526exp%25253DDifferent_technique_of_separation%252526tempId%25253Dolab_ot/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DORG%252526exp%25253DDifferent_technique_of_separation%252526tempId%25253Dolab_ot/w_default.html?height=490", 
                 "app_format": "html", 
                 "app_title": "Separation of Mixtures Using Different Techniques"
             }
@@ -2890,7 +2890,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DPHC%252526exp%25253DToStudyThePropertiesOfAcidsNBases%252526tempId%25253Dolab_ot/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DPHC%252526exp%25253DToStudyThePropertiesOfAcidsNBases%252526tempId%25253Dolab_ot/w_default.html?height=480", 
                 "app_format": "html", 
                 "app_title": "Properties of Acids and Bases"
             }
@@ -2905,7 +2905,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DPHC%252526exp%25253DpH-Determination%252526tempId%25253Dolab_ot/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DPHC%252526exp%25253DpH-Determination%252526tempId%25253Dolab_ot/w_default.html?height=480", 
                 "app_format": "html", 
                 "app_title": "Determination of pH"
             }
@@ -2920,7 +2920,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DINC%252526exp%25253DQuantitative_Estimation%252526tempId%25253Dolab_ot/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DCHE%252526cat%25253DINC%252526exp%25253DQuantitative_Estimation%252526tempId%25253Dolab_ot/w_default.html?height=490", 
                 "app_format": "html", 
                 "app_title": "Quantitative Estimation"
             }
@@ -2935,7 +2935,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DBIO%252526cat%25253DPHL%252526exp%25253DOsmosis_in_potato%252526tempId%25253Dolab_ot/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/amrita/http%25253A%25252F%25252Famrita.olabs.edu.in%25252Folab%25252Fhtml5%25252F%25253Fsub%25253DBIO%252526cat%25253DPHL%252526exp%25253DOsmosis_in_potato%252526tempId%25253Dolab_ot/w_default.html?height=480", 
                 "app_format": "html", 
                 "app_title": "Osmosis"
             }
@@ -2950,7 +2950,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/AtwoodLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/AtwoodLab%25252Findex.html/w_default.html?scale=8740&height=2000", 
                 "app_format": "html", 
                 "app_title": "Atwood Machine"
             }
@@ -2965,7 +2965,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/StoppingDistanceLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/StoppingDistanceLab%25252Findex.html/w_default.html?scale=8740&height=910", 
                 "app_format": "html", 
                 "app_title": "Stopping Distance Test Track"
             }
@@ -2980,7 +2980,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DeepSeaDiverLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DeepSeaDiverLab%25252Findex.html/w_default.html?scale=8870&height=690", 
                 "app_format": "html", 
                 "app_title": "Deep Sea Diver"
             }
@@ -2995,7 +2995,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceDirectionRelativeToMotionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceDirectionRelativeToMotionLab%25252Findex.html/w_default.html?scale=8780&height=690", 
                 "app_format": "html", 
                 "app_title": "Force Direction Relative to Motion"
             }
@@ -3010,7 +3010,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CircularForceLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CircularForceLab%25252Findex.html/w_default.html?scale=8710&height=690", 
                 "app_format": "html", 
                 "app_title": "Classic Circular Force Lab"
             }
@@ -3025,7 +3025,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CircularFrictionTestTrack%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CircularFrictionTestTrack%25252Findex.html/w_default.html?scale=8840&height=910", 
                 "app_format": "html", 
                 "app_title": "Circular Friction Test Track"
             }
@@ -3040,7 +3040,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RiverCrossingLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RiverCrossingLab%25252Findex.html/w_default.html?scale=8790&height=690", 
                 "app_format": "html", 
                 "app_title": "River Crossing Lab"
             }
@@ -3055,7 +3055,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ProjectileLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ProjectileLab%25252Findex.html/w_default.html?scale=8790&height=960", 
                 "app_format": "html", 
                 "app_title": "Projectile"
             }
@@ -3070,7 +3070,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CircularForceLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CircularForceLab%25252Findex.html/w_default.html?scale=8880&height=910", 
                 "app_format": "html", 
                 "app_title": "Circular Force"
             }
@@ -3085,7 +3085,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SatelliteLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SatelliteLab%25252Findex.html/w_default.html?scale=8880&height=690", 
                 "app_format": "html", 
                 "app_title": "Satellite"
             }
@@ -3100,7 +3100,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ImpulseLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ImpulseLab%25252Findex.html/w_default.html?scale=8900&height=700", 
                 "app_format": "html", 
                 "app_title": "Impulse"
             }
@@ -3115,7 +3115,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PulleyLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PulleyLab%25252Findex.html/w_default.html?scale=9960&height=990", 
                 "app_format": "html", 
                 "app_title": "Pulleys"
             }
@@ -3130,7 +3130,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CurlingStoneMomentumLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CurlingStoneMomentumLab%25252Findex.html/w_default.html?scale=8920&height=690", 
                 "app_format": "html", 
                 "app_title": "Curling Stone Momentum"
             }
@@ -3145,7 +3145,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/EnergyLossLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/EnergyLossLab%25252Findex.html/w_default.html?scale=9890&height=990", 
                 "app_format": "html", 
                 "app_title": "Energy Loss"
             }
@@ -3160,7 +3160,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WorkToPEgLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WorkToPEgLab%25252Findex.html/w_default.html?scale=8820&height=690", 
                 "app_format": "html", 
                 "app_title": "Work To PEg"
             }
@@ -3175,7 +3175,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WorkToPEeLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WorkToPEeLab%25252Findex.html/w_default.html?scale=8840&height=1340", 
                 "app_format": "html", 
                 "app_title": "Work to PEe"
             }
@@ -3190,7 +3190,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/EnergyTransformationLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/EnergyTransformationLab%25252Findex.html/w_default.html?scale=8920", 
                 "app_format": "html", 
                 "app_title": "Energy Transformation Lab"
             }
@@ -3205,7 +3205,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GravitationalPELab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GravitationalPELab%25252Findex.html/w_default.html?scale=8900&height=700", 
                 "app_format": "html", 
                 "app_title": "Universal Gravitation Potential Energy Lab"
             }
@@ -3220,7 +3220,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SuspensionBridge%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SuspensionBridge%25252Findex.html/w_default.html?scale=8710&height=690", 
                 "app_format": "html", 
                 "app_title": "Suspension Bridge"
             }
@@ -3235,7 +3235,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/UnwindingCableLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/UnwindingCableLab%25252Findex.html/w_default.html?scale=8730&height=2000", 
                 "app_format": "html", 
                 "app_title": "Moment Of Inertia of Pulley"
             }
@@ -3250,7 +3250,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/YouTubeLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/YouTubeLab%25252Findex.html/w_default.html?scale=9070&height=690", 
                 "app_format": "html", 
                 "app_title": "Fluids in U-Tube Lab"
             }
@@ -3265,7 +3265,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PascalsPrincipleLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PascalsPrincipleLab%25252Findex.html/w_default.html?scale=8820&height=690", 
                 "app_format": "html", 
                 "app_title": "Pascal's Principle"
             }
@@ -3280,7 +3280,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SiphonLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SiphonLab%25252Findex.html/w_default.html?scale=9050&height=690", 
                 "app_format": "html", 
                 "app_title": "Siphon Lab"
             }
@@ -3295,7 +3295,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/BernoulliLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/BernoulliLab%25252Findex.html/w_default.html?scale=8990&height=710", 
                 "app_format": "html", 
                 "app_title": "Fluid Dynamics Lab"
             }
@@ -3310,7 +3310,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/MechanicalEquivalentOfHeatLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/MechanicalEquivalentOfHeatLab%25252Findex.html/w_default.html?scale=9070&height=690", 
                 "app_format": "html", 
                 "app_title": "Mechanical Equivalent of Heat"
             }
@@ -3325,7 +3325,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/MaxwellDistribution%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/MaxwellDistribution%25252Findex.html/w_default.html?scale=8900&height=690", 
                 "app_format": "html", 
                 "app_title": "Maxwell Distribution Lab"
             }
@@ -3340,7 +3340,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GasInBox%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/GasInBox%25252Findex.html/w_default.html?scale=8880&height=690", 
                 "app_format": "html", 
                 "app_title": "Gas Lab"
             }
@@ -3355,7 +3355,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CoulombsLawLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CoulombsLawLab%25252Findex.html/w_default.html?scale=8880&height=690", 
                 "app_format": "html", 
                 "app_title": "Coulomb's Law"
             }
@@ -3370,7 +3370,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceElectricMiniLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceElectricMiniLab%25252Findex.html/w_default.html?scale=8650&height=770", 
                 "app_format": "html", 
                 "app_title": "Electrostatic Force Mini Lab"
             }
@@ -3385,7 +3385,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SpaceAroundChargeLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SpaceAroundChargeLab%25252Findex.html/w_default.html?scale=8770&height=690", 
                 "app_format": "html", 
                 "app_title": "Space Around Charge"
             }
@@ -3400,7 +3400,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ClosestApproachLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ClosestApproachLab%25252Findex.html/w_default.html?scale=8770&height=690", 
                 "app_format": "html", 
                 "app_title": "Closest Approach"
             }
@@ -3415,7 +3415,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/VelocityFromRepulsionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/VelocityFromRepulsionLab%25252Findex.html/w_default.html?scale=8860&height=690", 
                 "app_format": "html", 
                 "app_title": "Velocity from Repulsion"
             }
@@ -3430,7 +3430,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CapacitorPropertiesLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/CapacitorPropertiesLab%25252Findex.html/w_default.html?scale=8630&height=700", 
                 "app_format": "html", 
                 "app_title": "Capacitor Properties"
             }
@@ -3445,7 +3445,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/AcceleratingChargesWithCapacitor%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/AcceleratingChargesWithCapacitor%25252Findex.html/w_default.html?scale=8900&height=690", 
                 "app_format": "html", 
                 "app_title": "Accelerating Electrons"
             }
@@ -3460,7 +3460,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SimpleCircuitLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SimpleCircuitLab%25252Findex.html/w_default.html?scale=8710&height=890", 
                 "app_format": "html", 
                 "app_title": "Simple Circuit"
             }
@@ -3475,7 +3475,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SeriesCircuitLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SeriesCircuitLab%25252Findex.html/w_default.html?scale=8840", 
                 "app_format": "html", 
                 "app_title": "Series Circuit"
             }
@@ -3490,7 +3490,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ParallelCircuitLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ParallelCircuitLab%25252Findex.html/w_default.html?scale=8710&height=890", 
                 "app_format": "html", 
                 "app_title": "Parallel Circuit"
             }
@@ -3505,7 +3505,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PowerOfLight%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PowerOfLight%25252Findex.html/w_default.html?scale=8860&height=690", 
                 "app_format": "html", 
                 "app_title": "Power of a Light Bulb"
             }
@@ -3520,7 +3520,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ElectricalEquivalentOfHeatLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ElectricalEquivalentOfHeatLab%25252Findex.html/w_default.html?scale=8750&height=690", 
                 "app_format": "html", 
                 "app_title": "Electrical Equivalent of Heat"
             }
@@ -3535,7 +3535,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RCCircuitLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RCCircuitLab%25252Findex.html/w_default.html?scale=8840&height=890", 
                 "app_format": "html", 
                 "app_title": "RC Circuit"
             }
@@ -3550,7 +3550,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/FieldFromWire%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/FieldFromWire%25252Findex.html/w_default.html?scale=8840&height=690", 
                 "app_format": "html", 
                 "app_title": "Magnetic Field from a Wire"
             }
@@ -3565,7 +3565,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ChargeinMagFieldLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ChargeinMagFieldLab%25252Findex.html/w_default.html?scale=8880&height=910", 
                 "app_format": "html", 
                 "app_title": "Charge in Magnetic Field"
             }
@@ -3580,7 +3580,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RailGunLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RailGunLab%25252Findex.html/w_default.html?scale=9050&height=710", 
                 "app_format": "html", 
                 "app_title": "Rail Gun"
             }
@@ -3595,7 +3595,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/InducedCurrentLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/InducedCurrentLab%25252Findex.html/w_default.html?scale=8820&height=690", 
                 "app_format": "html", 
                 "app_title": "Induced Current"
             }
@@ -3610,7 +3610,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PendulumLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/PendulumLab%25252Findex.html/w_default.html?scale=9010&height=710", 
                 "app_format": "html", 
                 "app_title": "Pendulum Lab"
             }
@@ -3625,7 +3625,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/HorizontalOscillationsLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/HorizontalOscillationsLab%25252Findex.html/w_default.html?scale=8750&height=1360", 
                 "app_format": "html", 
                 "app_title": "Horizontal Oscillation"
             }
@@ -3640,7 +3640,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/OscillationLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/OscillationLab%25252Findex.html/w_default.html?scale=8900&height=1340", 
                 "app_format": "html", 
                 "app_title": "Oscillation"
             }
@@ -3655,7 +3655,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ReflectingWaves%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ReflectingWaves%25252Findex.html/w_default.html?scale=8860&height=690", 
                 "app_format": "html", 
                 "app_title": "Reflecting Waves"
             }
@@ -3670,7 +3670,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/InterferingWaves%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/InterferingWaves%25252Findex.html/w_default.html?scale=8880&height=690", 
                 "app_format": "html", 
                 "app_title": "Interfering Waves"
             }
@@ -3685,7 +3685,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/StandingWaves%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/StandingWaves%25252Findex.html/w_default.html?scale=8710&height=690", 
                 "app_format": "html", 
                 "app_title": "Standing Waves"
             }
@@ -3700,7 +3700,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ResonanceTubeLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ResonanceTubeLab%25252Findex.html/w_default.html?scale=8640&height=690", 
                 "app_format": "html", 
                 "app_title": "Resonance Tube"
             }
@@ -3715,7 +3715,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DistanceToDestruction%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DistanceToDestruction%25252Findex.html/w_default.html?scale=8770&height=690", 
                 "app_format": "html", 
                 "app_title": "Distance to Destruction"
             }
@@ -3730,7 +3730,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WaveOnStringLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WaveOnStringLab%25252Findex.html/w_default.html?scale=8680&height=690", 
                 "app_format": "html", 
                 "app_title": "Guitar String Wave"
             }
@@ -3745,7 +3745,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WavelengthLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WavelengthLab%25252Findex.html/w_default.html?scale=9090&height=700", 
                 "app_format": "html", 
                 "app_title": "Wavelength"
             }
@@ -3760,7 +3760,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SolarFluxLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/SolarFluxLab%25252Findex.html/w_default.html?scale=8900&height=690", 
                 "app_format": "html", 
                 "app_title": "Solar Flux"
             }
@@ -3775,7 +3775,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/Beats%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/Beats%25252Findex.html/w_default.html?scale=8790&height=690", 
                 "app_format": "html", 
                 "app_title": "Beats "
             }
@@ -3790,7 +3790,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DopplerLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DopplerLab%25252Findex.html/w_default.html?scale=8820&height=690", 
                 "app_format": "html", 
                 "app_title": "Doppler "
             }
@@ -3805,7 +3805,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DiffractionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/DiffractionLab%25252Findex.html/w_default.html?scale=8730&height=690", 
                 "app_format": "html", 
                 "app_title": "Diffraction "
             }
@@ -3820,7 +3820,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WayMirrorLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WayMirrorLab%25252Findex.html/w_default.html?scale=8880&height=690", 
                 "app_format": "html", 
                 "app_title": "The Way a Concave Mirror Works"
             }
@@ -3835,7 +3835,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WayMirror2Lab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/WayMirror2Lab%25252Findex.html/w_default.html?scale=8750&height=700", 
                 "app_format": "html", 
                 "app_title": "The Way a Convex Mirror Works"
             }
@@ -3850,7 +3850,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RefractionLab%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/RefractionLab%25252Findex.html/w_default.html?scale=8900&height=690", 
                 "app_format": "html", 
                 "app_title": "Refraction "
             }
@@ -3865,7 +3865,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_IslandBiogeographyModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_IslandBiogeographyModel/w_default.html?scale=9290", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3880,7 +3880,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_PopGenFishbowlModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_PopGenFishbowlModel/w_default.html?scale=8750&height=920", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3895,7 +3895,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_EndlersGuppiesModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_EndlersGuppiesModel/w_default.html?scale=8500&height=980", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3910,7 +3910,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_PopulationEstimationModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_PopulationEstimationModel/w_default.html?scale=9720&height=810", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3925,7 +3925,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_BiomagnificationModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_BiomagnificationModel/w_default.html?scale=7430&height=970", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3940,7 +3940,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_MicrocosmModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_MicrocosmModel/w_default.html?scale=8830&height=880", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3955,7 +3955,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_IndustrialMelanismModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_IndustrialMelanismModel/w_default.html?scale=9420&height=860", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -3970,7 +3970,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_RandomEffectsModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_RandomEffectsModel/w_default.html?height=780", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4008,7 +4008,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_TragedyModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_TragedyModel/w_default.html?scale=8930&height=790", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4023,7 +4023,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_GeneticDriftModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_GeneticDriftModel/w_default.html?scale=9680&height=790", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4038,7 +4038,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_StreamDiversityModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_StreamDiversityModel/w_default.html?scale=9620&height=840", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4068,7 +4068,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_PlantDiversityModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_PlantDiversityModel/w_default.html?scale=9740&height=950", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4083,7 +4083,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_BarnacleCompetitionModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_BarnacleCompetitionModel/w_default.html?scale=9600&height=930", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4098,7 +4098,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_MarkRecaptureModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_MarkRecaptureModel/w_default.html?scale=8070&height=830", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4113,7 +4113,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_LogisticGrowthModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_LogisticGrowthModel/w_default.html?height=860", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4128,7 +4128,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_SearchingBehaviorModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/NetWebHTML_FilesJan2016_SearchingBehaviorModel/w_default.html?scale=7109&height=850", 
                 "app_format": "html", 
                 "app_title": "lab widget"
             }
@@ -4143,7 +4143,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceFriction%25252Findex.html/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/physicsaviary/ForceFriction%25252Findex.html/w_default.html?scale=8960&height=700", 
                 "app_format": "html", 
                 "app_title": "Friction Lab"
             }
@@ -4173,7 +4173,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/ModelsHTML5_BarnacleCompetition_BarnacleCompetitionModel/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/ModelsHTML5_BarnacleCompetition_BarnacleCompetitionModel/w_default.html?height=490", 
                 "app_format": "html", 
                 "app_title": "Barnacle competition"
             }
@@ -4188,7 +4188,7 @@
     {
         "add": [
             {
-                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/ModelsHTML5_PopGenFishbowl_PopGenFishbowl/w_default.html", 
+                "app_url": "https://gateway.golabz.eu/os/pub/virtualbiologylab/ModelsHTML5_PopGenFishbowl_PopGenFishbowl/w_default.html?height=490", 
                 "app_format": "html", 
                 "app_title": "PopGen Fishbowl"
             }

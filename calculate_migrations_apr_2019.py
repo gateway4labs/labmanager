@@ -122,8 +122,18 @@ with app.app_context():
         smart_gateway_html_link = find_smartgateway_html_link(url)
         if smart_gateway_html_link is not None:
             if '/academo/' not in smart_gateway_html_link:
-                # TODO: it is an opensocial link. It should be
+                args = {}
+                if embed_app.scale and embed_app.scale != 10000: # default
+                    args['scale'] = embed_app.scale
+                if embed_app.height and embed_app.height != 900: # default
+                    args['height'] = embed_app.height
+
+                if args:
+                    args_str = '&'.join(['='.join([ key, str(value) ]) for key, value in args.items() ])
+                    smart_gateway_html_link = '{}?{}'.format(smart_gateway_html_link, args_str)
+
                 if embed_app.identifier in golabz_embedded_apps:
+                    # If it is in Graasp, replace it
                     golab_lab_id = golabz_embedded_apps[embed_app.identifier]['golabId']
 
                     existing_record = None
@@ -158,6 +168,13 @@ with app.app_context():
                     else:
                         graasp_changes[replaced_url] = smart_gateway_html_link
                         graasp_changes[replaced_url.replace('http://', 'https://', 1)] = smart_gateway_html_link
+                else:
+                    # If not in Graasp... still replace it at Graasp level
+                    replaced_url_http = url_for('embed.app_xml', identifier=embed_app.identifier, _external=True).replace('https://', 'http://', 1)
+                    replaced_url_https = url_for('embed.app_xml', identifier=embed_app.identifier, _external=True).replace('http://', 'https://', 1)
+                    graasp_changes[replaced_url_http] = smart_gateway_html_link
+                    graasp_changes[replaced_url_https] = smart_gateway_html_link
+
             continue
 
         # This link is not in the Smart Gateway
