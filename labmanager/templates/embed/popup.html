@@ -4,17 +4,17 @@
     {{ super() }}
 
     <center>
-        <h3>Load in other window</h3>
+        <h3>Load in another page</h3>
         <br>
         <img src="{{ url_for('static', filename='security.png') }}" style="width: 50%; max-width: 100px">
         <br>
         <br>
     </center>
 
-    <p style="font-size: 150%">We in Go-Lab care about your privacy and the security of your data. For this reason, all the Go-Lab ecosystem uses a security layer called https. Unfortunately, this laboratory does not support https yet, and therefore cannot be loaded in this ILS directly. However, you can click in the button below and open it in a new window.</p>
+    <p style="font-size: 150%">For security reasons this online lab cannot be opened in this page directly. Click on the button below to open the lab in a separate page.</p>
 
     <center>
-        <button id="button" class="btn btn-lg btn-primary">Open in a new window</button>
+        <button id="button" class="btn btn-lg btn-primary">Open in a new page</button>
     </center>
 {% endblock %}
 
