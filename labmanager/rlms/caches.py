@@ -153,7 +153,7 @@ def dont_force_cache():
     _FORCE_CACHE.force = False
 
 def is_forcing_cache():
-    nocache = request.args.get('nocache', '').lower()
+    nocache = request.args.get('force_cache', '').lower()
     if nocache in ('true', '1'):
         return False
     return getattr(_FORCE_CACHE, 'force', False)
@@ -185,17 +185,10 @@ class AbstractCache(object, DictMixin):
         except RuntimeError:
             headers = {}
 
-        if headers.get('Cache-Control') == 'no-cache' or headers.get('Pragma') == 'no-cache':
-            user_agent = headers.get('User-Agent', '') or ''
-            is_bad_user_agent = False
-            for bad_user_agent in ['shindig', 'bot']: # Add more
-                if bad_user_agent.lower() in user_agent.lower():
-                    is_bad_user_agent = True
-
-            if not is_bad_user_agent and not is_forcing_cache():
-                print("[%s]: Cache ignore request by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
-                sys.stdout.flush()
-                return default_value
+        if is_forcing_cache():
+            print("[%s]: Cache ignore request by User agent %s from %s. Key: %s; context_id: %s" % (time.asctime(), headers.get('User-Agent'), headers.get('X-Forwarded-For'), key, self.context_id))
+            sys.stdout.flush()
+            return default_value
 
         now = datetime.datetime.now()
         oldest = now - min_time
