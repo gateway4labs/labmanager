@@ -1,5 +1,5 @@
 import requests
-from flask import render_template, Blueprint, current_app, request
+from flask import render_template, Blueprint, current_app, request, jsonify
 
 from sqlalchemy import func
 
@@ -22,6 +22,16 @@ def check_auth():
 def simple():
     by_day = sorted(db.session.query(func.count("*"), UseLog.date).group_by(UseLog.date).all(), lambda x, y: cmp(x[1], y[1]))
     return render_template("stats/index.html", by_day = by_day)
+
+@stats_blueprint.route('/monthly-summary.json')
+def monthy_summary_json():
+    monthly_summary = {
+        # (year, month): count
+    }
+    for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).group_by(UseLog.year, UseLog.month).all():
+        monthly_summary[year, month] = count
+    return jsonify(monthly_summary=monthly_summary)
+
 
 @stats_blueprint.route("/monthly")
 def monthly():
