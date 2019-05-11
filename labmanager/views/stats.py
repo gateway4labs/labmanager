@@ -25,11 +25,14 @@ def simple():
 
 @stats_blueprint.route('/monthly-summary.json')
 def monthy_summary_json():
-    monthly_summary = {
-        # (year, month): count
-    }
+    monthly_summary = [
+    ]
     for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).group_by(UseLog.year, UseLog.month).all():
-        monthly_summary[year, month] = count
+        monthly_summary.append({
+            'year': year,
+            'month': month,
+            'count': count,
+        })
     return jsonify(monthly_summary=monthly_summary)
 
 
