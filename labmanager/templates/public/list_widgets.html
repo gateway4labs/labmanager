@@ -29,7 +29,7 @@
         <tr>
             <td rowspan="3">{{ widget['name'] }}</td>
             <td>{{ widget['description'] }}</td>
-            <td><a href="{{ links[widget['name']] }}">widget_{{ widget['name'] }}.xml</a></td>
+            <td><a href="{{ links[widget['name']] }}">widget_{{ widget['name'] }}.html</a></td>
         </tr>
         <tr>
             <td colspan="2"><input id="input_url_{{ loop.index0 }}" class="link_input" type="text" value="{{ links[widget['name']] }}" style="width: 95%"></td>
@@ -85,7 +85,7 @@
             {% if not autoload %} {# If autoload, only run this when clicking on the button #}
             $("#widget_{{ loop.index0 }}").click(function() {
             {% endif %}
-                $("#widget_container_{{ loop.index0 }}").html("<iframe frameborder='no' id='iframe_{{ loop.index0 }}' width='100%' height='600px' src='http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url={{ links[widget['name']] }}'></iframe>");
+                $("#widget_container_{{ loop.index0 }}").html("<iframe frameborder='no' id='iframe_{{ loop.index0 }}' width='100%' height='600px' src='{{ links[widget['name']] }}'></iframe>");
                 $('#slider_container_{{ loop.index0 }}').show();
                 // Height slider
                 $('#slider_{{ loop.index0 }}').slider({
@@ -100,7 +100,7 @@
 
                     $("#iframe_{{ loop.index0 }}")
                         .attr("height", (evt.value + 10) + "px")
-                        .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url=" + encodeURIComponent(newUrl));
+                        .attr("src", newUrl);
                     $("#input_url_{{ loop.index0 }}").attr("value", newUrl).css("background-color", "#ffffdd");
                 });
                 
@@ -117,7 +117,7 @@
                         newUrl = newUrl + "&height=" + heights["{{ loop.index0 }}"];
 
                     $("#iframe_{{ loop.index0 }}")
-                        .attr("src", "http://shindig2.epfl.ch/gadgets/ifr?nocache=0&url=" + encodeURIComponent(newUrl));
+                        .attr("src", newUrl);
                     $("#input_url_{{ loop.index0 }}").attr("value", newUrl).css("background-color", "#ffffdd");
                 });
 

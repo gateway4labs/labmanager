@@ -20,10 +20,10 @@
         <tr>
             <td rowspan="2">{{ widget['name'] }}</td>
             <td>{{ widget['description'] }}</td>
-            <td><a href="{{ url_for('opensocial.widget_xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget['name'], _external = True) }}">widget_{{ widget['name'] }}.xml</a></td>
+            <td><a href="{{ url_for('opensocial.widget_html', institution_id = institution_id, lab_name = lab_name, widget_name = widget['name'], _external = True) }}">widget_{{ widget['name'] }}.xml</a></td>
         </tr>
         <tr>
-            <td colspan="2"><input type="text" value="{{ url_for('opensocial.widget_xml', institution_id = institution_id, lab_name = lab_name, widget_name = widget['name'], _external = True) }}" style="width: 90%"></td>
+            <td colspan="2"><input type="text" value="{{ url_for('opensocial.widget_html', institution_id = institution_id, lab_name = lab_name, widget_name = widget['name'], _external = True) }}" style="width: 90%"></td>
         </tr>
 {% endfor %}
     </tbody>

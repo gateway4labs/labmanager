@@ -90,7 +90,7 @@ class EmbedApplicationsPanel(L4lModelView):
     column_formatters = dict(
         author=lambda v, c, m, p: Markup(u"<a href='{}'>{}</a>".format(url_for('golab/users.index_view', flt1_4=m.owner.email), u'{} ({})'.format(m.owner.display_name, m.owner.email))),
         languages=lambda v, c, m, p: u', '.join(['en'] + [t.language for t in m.translations]),
-        identifier=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(url_for('embed.app_xml', identifier=m.identifier), m.identifier)),
+        identifier=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(url_for('embed.app_html', identifier=m.identifier), m.identifier)),
         url=lambda v, c, m, p: Markup(u"<a href='{}' target='_blank'>{}</a>".format(m.url, m.url[:MAX_URL_LENGTH] + ('' if len(m.url) < MAX_URL_LENGTH else '...'))),
     )
     column_filters = ('name', 'identifier', 'url', 'owner.display_name', 'owner.email')

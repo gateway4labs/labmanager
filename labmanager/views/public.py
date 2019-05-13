@@ -123,9 +123,7 @@ class PublicLaboratoriesPanel(ModelView):
             # widget-name : link
         }
         for widget in widgets:
-            link = url_for('opensocial.public_widget_xml', lab_name = public_identifier, widget_name = widget['name'], _external = True)
-            if link.startswith('https://'):
-                link = link.replace('https://', 'http://', 1)
+            link = url_for('opensocial.public_widget_html', lab_name = public_identifier, widget_name = widget['name'], _external = True)
             links[widget['name']] = link
 
         list_widgets_kwargs = dict(public_identifier = public_identifier, _external = True)
@@ -224,9 +222,7 @@ class PublicSystemsPanel(ModelView):
             # widget-name : link
         }
         for widget in widgets:
-            link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier = rlms_identifier, lab_name = lab_identifier, widget_name = widget['name'], _external = True)
-            if link.startswith('https://'):
-                link = link.replace('https://', 'http://', 1)
+            link = url_for('opensocial.public_rlms_widget_html', rlms_identifier = rlms_identifier, lab_name = lab_identifier, widget_name = widget['name'], _external = True)
             links[widget['name']] = link
 
         list_widgets_kwargs = dict(rlms_identifier = rlms_identifier, lab_identifier = lab_identifier, _external = True)
