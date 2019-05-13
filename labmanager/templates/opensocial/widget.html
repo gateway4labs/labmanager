@@ -164,7 +164,7 @@
                 var message = JSON.stringify({ 
                     'event': 'resize',
                     'resourceId': resourceId,
-                    'height': '' + height + 'px'
+                    'height': '' + (height + 20) + 'px'
                 });
                 parent.postMessage(message, target);
                 console.log("Requesting to resize: ", message, " on ", target);
@@ -172,7 +172,7 @@
         }
 
         function init() {
-            $("#legend").text("{% if not autoload %}__MSG_g4l_laboratory_key__{% endif %}".replace("{0}", "{{ lab_name }}"));
+            $("#legend").text("{% if not autoload %}<span golab-lang='g4l_laboratory_key'></span>{% endif %}".replace("{0}", "{{ lab_name }}"));
 
             // Create SmartGateway
             console.log("Initializing SmartGateway...");
