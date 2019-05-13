@@ -95,10 +95,7 @@ def public_rlms(rlms_id, lab_name):
 
             links = [] 
             for widget in widgets:
-                link = url_for('opensocial.public_rlms_widget_xml', rlms_identifier = rlms_id, lab_name = lab_name, widget_name = widget['name'], _external = True)
-                if link.startswith('https://'):
-                    link = link.replace('https://', 'http://', 1)
-
+                link = url_for('opensocial.public_rlms_widget_html', rlms_identifier = rlms_id, lab_name = lab_name, widget_name = widget['name'], _external = True)
                 links.append(link)
 
             if Capabilities.TRANSLATION_LIST in rlms.get_capabilities():
@@ -122,9 +119,7 @@ def public_lab(public_identifier):
             widgets = _get_widgets(rlms, lab.laboratory_id)
             links = []
             for widget in widgets:
-                link = url_for('opensocial.public_widget_xml', lab_name = public_identifier, widget_name = widget['name'], _external = True)
-                if link.startswith('https://'):
-                    link = link.replace('https://', 'http://', 1)
+                link = url_for('opensocial.public_widget_html', lab_name = public_identifier, widget_name = widget['name'], _external = True)
                 links.append(link)
 
             if Capabilities.TRANSLATION_LIST in rlms.get_capabilities():

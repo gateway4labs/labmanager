@@ -33,9 +33,9 @@
 
             {% if identifier or identifier_links %}
                 <div class="alert alert-info" style="margin-top: 10px">
-                    <p>{{ gettext("The following link is an OpenSocial widget that embeds your app:") }}</p>
+                    <p>{{ gettext("The following link is an HTML widget that embeds your app:") }}</p>
                     {% if identifier %}
-                    <input class="link_input" type="text" value="{{ url_for('.app_xml', identifier=identifier, _external=True) }}" style="width: 95%">
+                    <input class="link_input" type="text" value="{{ url_for('.app_html', identifier=identifier, _external=True) }}" style="width: 95%">
                     {% elif identifier_links %}
                         {% for identifier_link in identifier_links %}
                             <input class="link_input" type="text" value="{{ identifier_link }}" style="width: 95%">
@@ -53,7 +53,7 @@
 
                 <fieldset>
                     {% if not disabled %}
-                    {{ render_field(form.url, ng_submit="submitForm()", placeholder="http://") }}
+                    {{ render_field(form.url, ng_submit="submitForm()", placeholder="https://") }}
                     <div class="form-group">
                         <div class="col-sm-7 col-sm-offset-3">
                             <div class="alert alert-danger ng-cloak help-block" ng-if="embed.url_error">
@@ -170,7 +170,7 @@
                 </fieldset>
             </form>
 
-            <div ng-cloak ng-show="embed.url.length > 0 && embed.url != 'http://' && !embed.url_error && !embed.sg_link" id="slider_container" style="width: 100%">
+            <div ng-cloak ng-show="embed.url.length > 0 && embed.url != 'https://' && !embed.url_error && !embed.sg_link" id="slider_container" style="width: 100%">
                 <h2>{{ gettext("Preview") }}</h2>
 
                 
@@ -251,7 +251,7 @@
                 }
             };
 
-            $scope.embed.url = "http://";
+            $scope.embed.url = "https://";
             $scope.$watch('embed.url', function (newValue, oldValue) {
                 $http.get("{{ url_for('embed.check_json') }}?url=" + encodeURIComponent(newValue)).then(function(response) {
                     if (response.data.url == $scope.embed.url) {
@@ -279,7 +279,7 @@
             {% endif %}
             {% if identifier_links %}
                 {% for identifier_link in identifier_links %}
-                $scope.embed.url = "http://shindig2.epfl.ch/gadgets/ifr?url={{ identifier_link }}";
+                $scope.embed.url = {{ identifier_link|tojson }};
                 {% endfor %}
             {% endif %}
 
