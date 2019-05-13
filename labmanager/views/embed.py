@@ -17,7 +17,7 @@ from labmanager.translator.languages import obtain_languages
 from labmanager.utils import remote_addr
 
 from flask.ext.wtf import Form
-from wtforms import TextField, HiddenField, SelectMultipleField
+from wtforms import TextField, BooleanField, HiddenField, SelectMultipleField
 from wtforms.validators import required
 from wtforms.fields.html5 import URLField
 from wtforms.widgets import HiddenInput, TextInput, CheckboxInput, html_params, HTMLString
@@ -54,6 +54,9 @@ class AngularJSURLInput(AngularJSInput, URLInput):
     pass
 
 class AngularJSHiddenInput(AngularJSInput, HiddenInput):
+    pass
+
+class AngularJSCheckboxInput(AngularJSInput, CheckboxInput):
     pass
 
 
@@ -272,6 +275,7 @@ class ApplicationForm(SimplifiedApplicationForm):
     url = URLField(lazy_gettext("Web:"), validators=[required()], widget = AngularJSURLInput(ng_model='embed.url', ng_enter="submitForm()"), description=lazy_gettext("Web address of the resource"))
     height = HiddenField(lazy_gettext("Height:"), validators=[required()], widget = AngularJSHiddenInput(ng_model='embed.height'))
     scale = HiddenField(lazy_gettext("Scale:"), validators=[required()], widget = AngularJSHiddenInput(ng_model='embed.scale'))
+    uses_proxy = BooleanField(lazy_gettext("Try https proxy?"))
 
 def obtain_formatted_languages(existing_language_codes):
     languages = [ (lang.split('_')[0], name) for lang, name in obtain_languages().items() if lang != 'en_ALL' and name != 'DEFAULT']

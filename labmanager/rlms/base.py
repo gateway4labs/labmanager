@@ -127,6 +127,11 @@ class Capabilities(object):
     side. If TRANSLATIONS is provided this method is not required.
     """
 
+    DOWNLOAD_LIST = 'download_list'
+    """
+    Provide a list of downloadable resources, when possible
+    """
+
 
     LOGGING_URL = 'logging_url'
     """
@@ -346,6 +351,11 @@ class BaseRLMS(object):
         see if everything really works), but a high level one is enough for certain circumstances.
         """
         return []
+
+    def get_downloads(self, laboratory_id):
+        """
+        """
+        return {}
 
     def load_widget(self, reservation_id, widget_name):
         """

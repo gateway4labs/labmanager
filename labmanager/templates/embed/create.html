@@ -66,6 +66,18 @@
                             </div>
                         </div>
                     </div>
+                    <div ng-show="embed.is_http" class="ng-cloak">
+
+                         <div class="col-sm-12">
+                            <div class="alert alert-warning ng-cloak help-block text-center">
+                                <p>All apps and labs should use https. Check if using https:// in the web address works.</p>
+                                <p>If it does not, go-Lab provides a "proxy", which makes http contents available under https, but only under certain circumstances. Check the tick below to try it.</p>
+                                <p>Otherwise, the lab will still work, but it will show a button telling the student to open the lab in a different page.</p>
+                            </div>
+                        </div>                       
+                        {{ render_field(form.uses_proxy) }}
+
+                    </div>
                     {% endif %}
                     
                     <div ng-show="!embed.sg_link">
@@ -235,6 +247,7 @@
 
             $scope.embed = {
                 url: "",
+                is_http: false,
                 name: {{ form.name.data|tojson }},
                 name_from_url: "",
                 url_error: "",
@@ -253,6 +266,11 @@
 
             $scope.embed.url = "https://";
             $scope.$watch('embed.url', function (newValue, oldValue) {
+                if (newValue.startsWith("http://")) {
+                    $scope.embed.is_http = true;
+                } else {
+                    $scope.embed.is_http = false;
+                }
                 $http.get("{{ url_for('embed.check_json') }}?url=" + encodeURIComponent(newValue)).then(function(response) {
                     if (response.data.url == $scope.embed.url) {
                         if (response.data.error) {

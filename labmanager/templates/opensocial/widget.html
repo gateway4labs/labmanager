@@ -63,6 +63,10 @@
          {% for check_url in widget_config.get('check_urls', []) %}
          <meta name="check-url" value="{{ check_url }}"/>
          {% endfor %}
+
+         {% for download_lang, download_link in in widget_config.get('downloads', {}).items() %}
+         <meta name="download" language="{{ download_lang }}" value="{{ download_link }}"/>
+         {% endfor %}
         <meta name='golab-i18n-autoload' value='true'>
 
         <link  href="{{ url_for('static', filename="bootstrap/css/bootstrap.css", _external = True) }}" rel="stylesheet">
