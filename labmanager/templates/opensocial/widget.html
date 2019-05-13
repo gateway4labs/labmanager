@@ -64,7 +64,7 @@
          <meta name="check-url" value="{{ check_url }}"/>
          {% endfor %}
 
-         {% for download_lang, download_link in in widget_config.get('downloads', {}).items() %}
+         {% for download_lang, download_link in widget_config.get('downloads', {}).items() %}
          <meta name="download" language="{{ download_lang }}" value="{{ download_link }}"/>
          {% endfor %}
         <meta name='golab-i18n-autoload' value='true'>
