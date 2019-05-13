@@ -119,7 +119,7 @@
                     var message = JSON.stringify({ 
                         'event': 'resize',
                         'resourceId': resourceId,
-                        'height': '{{ real_height }}px'
+                        'height': '{{ real_height + 20 }}px'
                     });
                     parent.postMessage(message, target);
                     console.log("Requesting to resize: ", message, " on ", target);
