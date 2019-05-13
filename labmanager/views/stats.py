@@ -27,7 +27,7 @@ def simple():
 def monthy_summary_json():
     monthly_summary = [
     ]
-    for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).group_by(UseLog.year, UseLog.month).all():
+    for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).filter(~UseLog.web_browser.like('%bot%')).group_by(UseLog.year, UseLog.month).all():
         monthly_summary.append({
             'year': year,
             'month': month,
@@ -65,7 +65,7 @@ def monthly():
     monthly_summary = {
         # (year, month): count
     }
-    for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).group_by(UseLog.year, UseLog.month).all():
+    for count, year, month in db.session.query(func.count("id"), UseLog.year, UseLog.month).filter(~UseLog.web_browser.like('%bot%')).group_by(UseLog.year, UseLog.month).all():
         month_results.append({
             'year': year,
             'month': month,
@@ -77,7 +77,7 @@ def monthly():
     temporal_month_url = {
         # (year, month): [ { 'count': count, 'url': url ]
     }
-    for count, year, month, url in db.session.query(func.count("id"), UseLog.year, UseLog.month, UseLog.url).group_by(UseLog.year, UseLog.month, UseLog.url).all():
+    for count, year, month, url in db.session.query(func.count("id"), UseLog.year, UseLog.month, UseLog.url).filter(~UseLog.web_browser.like('%bot%')).group_by(UseLog.year, UseLog.month, UseLog.url).all():
         if (year, month) not in temporal_month_url:
             temporal_month_url[year, month] = []
 
