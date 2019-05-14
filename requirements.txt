@@ -24,6 +24,10 @@ gunicorn
 beautifulsoup4==4.3.2
 dict2xml==1.3
 
+# Used in the thephysicsaviary
+termcolor==1.1.0
+webpage2html==0.3.6
+
 git+https://github.com/gateway4labs/rlms_unr.git
 git+https://github.com/gateway4labs/rlms_weblabdeusto.git
 git+https://github.com/gateway4labs/rlms_ilabs.git
