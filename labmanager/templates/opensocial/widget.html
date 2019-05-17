@@ -65,7 +65,10 @@
          {% endfor %}
 
          {% for download_lang, download_link in widget_config.get('downloads', {}).items() %}
-         <meta name="download" language="{{ download_lang }}" value="{{ download_link }}"/>
+            {% if download_lang.endswith('_ALL') %}
+                {% set download_lang = download_lang.split('_')[0] %}
+            {% endif %}
+            <meta name="download" language="{{ download_lang }}" value="{{ download_link }}"/>
          {% endfor %}
         <meta name='golab-i18n-autoload' value='true'>
 
