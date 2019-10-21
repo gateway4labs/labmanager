@@ -119,7 +119,7 @@ def allowed_hosts():
         processed_hosts = []
         for huu in db.session.query(HttpsUnsupportedUrl).all():
             if huu.url in processed_hosts:
-                hul.update()
+                huu.update()
             else:
                 db.session.delete(huu)
             processed_hosts.append(huu.url)
