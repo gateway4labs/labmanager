@@ -23,6 +23,7 @@ lxml==3.4.4
 gunicorn
 beautifulsoup4==4.3.2
 dict2xml==1.3
+ipaddress==1.0.23
 
 # Used in the thephysicsaviary
 termcolor==1.1.0

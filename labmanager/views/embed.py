@@ -14,7 +14,7 @@ from labmanager.models import EmbedApplication, EmbedApplicationTranslation, GoL
 from labmanager.models import HttpsUnsupportedUrl
 from labmanager.rlms import find_smartgateway_link, find_smartgateway_opensocial_link
 from labmanager.translator.languages import obtain_languages
-from labmanager.utils import remote_addr
+from labmanager.utils import remote_addr, anonymize_ip_address
 
 from flask.ext.wtf import Form
 from wtforms import TextField, BooleanField, HiddenField, SelectMultipleField
@@ -339,7 +339,7 @@ def get_url_metadata(url, timeout = 3):
 def stats():
     url = request.args.get('url')
     timezone_minutes = request.args.get('timezone_minutes')
-    ip_address = remote_addr()
+    ip_address = anonymize_ip_address(remote_addr())
     log = UseLog(url = url, ip_address = ip_address, web_browser = request.headers.get('User-Agent'), user_agent = request.user_agent, lang_header=request.headers.get('Accept-Language'), timezone_minutes=timezone_minutes)
     db.session.add(log)
     db.session.commit()

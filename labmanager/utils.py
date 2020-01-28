@@ -1,5 +1,7 @@
 import os
 import sys
+import ipaddress
+
 from flask import request
 from werkzeug.urls import url_quote, url_unquote
 from werkzeug.routing import PathConverter
@@ -21,6 +23,38 @@ def remote_addr():
         return request.remote_addr
 
     return request.headers.getlist("X-Forwarded-For")[0]
+
+def anonymize_ip_address(ip_address):
+    if not ip_address:
+        return ip_address
+
+    potential_ip_addresses = []
+
+    for potential_ip_address in ip_address.split(','):
+        potential_ip_address = potential_ip_address.strip()
+        if not isinstance(potential_ip_address, unicode):
+            potential_ip_address = potential_ip_address.decode()
+
+        try:
+            complete_ip_address = ipaddress.ip_address(potential_ip_address)
+        except:
+            # Error parsing potential_origin
+            continue
+
+        # Remove 80 bits or 8 bits, depending on the version
+        if complete_ip_address.version == 6:
+            bytes_removed = 10
+        elif complete_ip_address.version == 4:
+            bytes_removed = 1
+        else:
+            raise Exception("IP version {} not supported: {}".format(complete_ip_address.version, potential_ip_address))
+
+        anonymized_packed = complete_ip_address.packed[:-bytes_removed] + (b'\x00' * bytes_removed)
+        anonymized_ip_address = ipaddress.ip_address(anonymized_packed)
+        potential_ip_addresses.append(anonymized_ip_address.compressed)
+
+    return ', '.join(potential_ip_addresses)
+        
 
 class FullyQuotedUrlConverter(PathConverter):
     def to_python(self, value):
