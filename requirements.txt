@@ -19,7 +19,7 @@ lockfile==0.10.2
 Flask-Testing==0.4.1
 Flask-DebugToolbar==0.10.0
 WTForms==1.0.5
-lxml==3.4.4
+lxml==4.6.2
 gunicorn
 beautifulsoup4==4.3.2
 dict2xml==1.3
